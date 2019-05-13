@@ -1,14 +1,22 @@
 # Data Problems Emulator
+[![Build Status](https://travis-ci.com/ohtu-projekti-dataproblemsemulator/dataproblemsemulator.svg?branch=master)](https://travis-ci.com/ohtu-projekti-dataproblemsemulator/dataproblemsemulator)
 
 Description here
 
 ### Table of Contents <a name="table of contents"/>
+
 [Table of Contents](#table of contents)
+
 [Installation](#installation)
+
 [Usage](#usage)
+
 [Contributing](#contributing)
+
 [Credits](#credits)
+
 [License](#license)
+
 [Links](#links)
 
 ### Installation <a name="installation"/>
@@ -34,4 +42,3 @@ TODO
 
 ### Links <a name="links"/>
 * [Product backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)
-[![Build Status](https://travis-ci.com/ohtu-projekti-dataproblemsemulator/dataproblemsemulator.svg?branch=master)](https://travis-ci.com/ohtu-projekti-dataproblemsemulator/dataproblemsemulator)

@@ -24,12 +24,12 @@ N/A
 
 ### Credits <a name="credits"/>
 OHTU-project group members:
-* NAME
-* NAME
-* NAME
-* NAME
-* NAME
-* NAME
+* [Antti Röyskö](https://github.com/anroysko)
+* [Juuso Silvennoinen](https://github.com/Jsos17)
+* [Juha Mylläri](https://github.com/juhamyllari)
+* [Juha Harviainen](https://github.com/Kalakuh)
+* [Elizabeth Berg](https://github.com/reykjaviks)
+* [thalvari](https://github.com/thalvari)
 
 ### License <a name="license"/>
 TODO

@@ -3,7 +3,7 @@
 
 Description here
 
-### Table of Contents <a name="table-of-contents"/>
+## Table of Contents <a name="table-of-contents"/>
 
 * [Table of Contents](#table-of-contents)
 * [Installation](#installation)
@@ -13,16 +13,30 @@ Description here
 * [License](#license)
 * [Links](#links)
 
-### Installation <a name="installation"/>
-* [Installation](/docs/installation.md)
+## Installation <a name="installation"/>
+### Linux
+* ```git clone git@github.com:ohtu-projekti-dataproblemsemulator/dataproblemsemulator.git```
+* ```cd dataproblemsemulator```
+* ```python3 -m venv venv```
+* ```source venv/bin/activate```
+* ```pip install -U pip setuptools```
+* ```pip install -r requirements.txt```
 
-### Usage <a name="usage"/>
+### Windows
+* ```git clone git@github.com:ohtu-projekti-dataproblemsemulator/dataproblemsemulator.git```
+* ```cd dataproblemsemulator```
+* ```python -m venv venv```
+* ```source venv/Scripts/activate```
+* ```pip install -U pip setuptools```
+* ```pip install -r requirements.txt```
+
+## Usage <a name="usage"/>
 TODO
 
-### Contributing <a name="contributing"/>
+## Contributing <a name="contributing"/>
 N/A
 
-### Credits <a name="credits"/>
+## Credits <a name="credits"/>
 OHTU-project group members:
 * [Antti Röyskö](https://github.com/anroysko)
 * [Juuso Silvennoinen](https://github.com/Jsos17)
@@ -31,8 +45,8 @@ OHTU-project group members:
 * [Elizabeth Berg](https://github.com/reykjaviks)
 * [thalvari](https://github.com/thalvari)
 
-### License <a name="license"/>
+## License <a name="license"/>
 TODO
 
-### Links <a name="links"/>
+## Links <a name="links"/>
 * [Product backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)

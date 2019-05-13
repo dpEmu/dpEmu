@@ -2,8 +2,7 @@
 
 Description here
 
-<a name="table of contents"/>
-### Table of Contents
+### Table of Contents <a name="table of contents"/>
 [Table of Contents](#table of contents)
 [Installation](#installation)
 [Usage](#usage)
@@ -12,20 +11,16 @@ Description here
 [License](#license)
 [Links](#links)
 
-<a name="installation"/>
-### Installation
+### Installation <a name="installation"/>
 * [Installation](/docs/installation.md)
 
-<a name="usage"/>
-### Usage
+### Usage <a name="usage"/>
 TODO
 
-<a name="contributing"/>
-### Contributing
+### Contributing <a name="contributing"/>
 N/A
 
-<a name="credits"/>
-### Credits
+### Credits <a name="credits"/>
 OHTU-project group members:
 - NAME
 - NAME
@@ -34,11 +29,9 @@ OHTU-project group members:
 - NAME
 - NAME
 
-<a name="license"/>
-### License
+### License <a name="license"/>
 TODO
 
-<a name="links"/>
-### Links
+### Links <a name="links"/>
 * [Product backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)
 [![Build Status](https://travis-ci.com/ohtu-projekti-dataproblemsemulator/dataproblemsemulator.svg?branch=master)](https://travis-ci.com/ohtu-projekti-dataproblemsemulator/dataproblemsemulator)

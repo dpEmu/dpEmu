@@ -4,9 +4,11 @@ python:
   - "3.5-dev"  # 3.5 development branch
   - "3.6"
   - "3.6-dev"  # 3.6 development branch
-# command to install dependencies
 install:
   - pip install -r requirements.txt
-# command to run tests
 script:
-  - pytest
+  - py.test --cov-report term --cov=tests/
+env:
+  - CODECOV_TOKEN=8e7c0c93-cbf6-413e-834e-afa28e1fd186
+after_success:
+  - codecov

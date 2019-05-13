@@ -26,5 +26,7 @@
 
 * Koodauskäytännöt
 
-* Walking skeleton 
+* Walking skeleton
+
+* Projektin aiheen ja Pythonin itseopiskelu
 

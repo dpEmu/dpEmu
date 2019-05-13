@@ -3,9 +3,9 @@
 
 Description here
 
-### Table of Contents <a name="table of contents"/>
+### Table of Contents <a name="table-of-contents"/>
 
-[Table of Contents](#table of contents)
+[Table of Contents](#table-of-contents)
 
 [Installation](#installation)
 

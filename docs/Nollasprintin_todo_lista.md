@@ -1,28 +1,28 @@
 # Nollasprintin TODO-lista
 
 * Slack
-- tehty
+  - tehty
 
 * Product backlog
-- tehty
+  - tehty
 
 * Sprint backlog (sähköinen)
-- tehty
+  - tehty
 
 * Tuntikirjanpito
- - tehty
+  - tehty
 
 * GitHub-organisaatio ja repositorio
-- tehty
+  - tehty
 
 * Käytettävät teknologiat
- - Python
- - muu tarkentuu
+  - Python
+  - muu tarkentuu
 
 * CI- ja staging ympäristö
 
 * Branching käytännöt
- - Aluksi trunk-based, projektin edetessä kokeillaan mahdollisesti useampia brancheja
+  - Aluksi trunk-based, projektin edetessä kokeillaan mahdollisesti useampia brancheja
 
 * Koodauskäytännöt
 

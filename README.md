@@ -51,3 +51,4 @@ TODO
 
 ## Links <a name="links"/>
 * [Product backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)
+* [Definition of Done](docs/definition_of_done.md)

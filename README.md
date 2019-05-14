@@ -1,6 +1,6 @@
 # Data Problems Emulator
-[![Build Status](https://travis-ci.com/ohtu-projekti-dataproblemsemulator/dataproblemsemulator.svg?branch=master)](https://travis-ci.com/ohtu-projekti-dataproblemsemulator/dataproblemsemulator)
-[![codecov](https://codecov.io/gh/ohtu-projekti-dataproblemsemulator/dataproblemsemulator/branch/master/graph/badge.svg)](https://codecov.io/gh/ohtu-projekti-dataproblemsemulator/dataproblemsemulator)
+[![Build Status](https://travis-ci.com/ohtu-projekti/data-problems-emulator.svg?branch=master)](https://travis-ci.com/ohtu-projekti/data-problems-emulator)
+[![codecov](https://codecov.io/gh/ohtu-projekti/data-problems-emulator/branch/master/graph/badge.svg)](https://codecov.io/gh/ohtu-projekti/data-problems-emulator)
 
 Description here
 

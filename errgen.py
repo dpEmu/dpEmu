@@ -34,6 +34,6 @@ out = s.process(data)
 print("input data has shape", data.shape)
 print("output data has shape", out.shape)
 
-# The relative frequency on NaNs should be close to probability
+# The relative frequency on NaNs should be close to the probability
 # given as a parameter to the Missing filter
 print("relative frequency of NaNs:", np.isnan(out).sum() / out.size)

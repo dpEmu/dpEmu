@@ -8,6 +8,7 @@ install:
 
 script:
   - pytest --cov=. --cov-config=.coveragerc tests
+  - flake8
 
 after_success:
   - codecov

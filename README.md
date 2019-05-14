@@ -15,19 +15,19 @@ Description here
 
 ## Installation <a name="installation"/>
 ### Linux
-* ```git clone git@github.com:ohtu-projekti-dataproblemsemulator/dataproblemsemulator.git```
-* ```cd dataproblemsemulator```
+* ```git clone git@github.com:ohtu-projekti/data-problems-emulator.git```
+* ```cd data-problems-emulator```
 * ```python3 -m venv venv```
 * ```source venv/bin/activate```
 * ```pip install -U pip setuptools```
 * ```pip install -r requirements.txt```
 
 ### Windows
-* ```git clone git@github.com:ohtu-projekti-dataproblemsemulator/dataproblemsemulator.git```
-* ```cd dataproblemsemulator```
+* ```git clone git@github.com:ohtu-projekti/data-problems-emulator.git```
+* ```cd data-problems-emulator```
 * ```python -m venv venv```
 * ```source venv/Scripts/activate```
-* ```pip install -U pip setuptools```
+* ```python -m pip install -U pip setuptools```
 * ```pip install -r requirements.txt```
 
 ## Usage <a name="usage"/>

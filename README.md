@@ -1,6 +1,7 @@
 # Data Problems Emulator
 [![Build Status](https://travis-ci.com/ohtu-projekti/data-problems-emulator.svg?branch=master)](https://travis-ci.com/ohtu-projekti/data-problems-emulator)
 [![codecov](https://codecov.io/gh/ohtu-projekti/data-problems-emulator/branch/master/graph/badge.svg)](https://codecov.io/gh/ohtu-projekti/data-problems-emulator)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4763ce11c31044169ec802641c02c21b)](https://www.codacy.com/app/Kalakuh/data-problems-emulator?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ohtu-projekti/data-problems-emulator&amp;utm_campaign=Badge_Grade)
 
 Description here
 

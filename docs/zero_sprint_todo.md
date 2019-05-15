@@ -12,12 +12,15 @@
 
 - [x] Select technologies to use
 	- Python
-- [x] CI- and staging environments
+- [x] CI environment
 
 - [x] Agree on branching policy
-	- Initially trunk-based, later on we'll try multiple branches
-- [ ] Code standards
+	- Trunk-based
+	
+- [x] Code standards
+
+- [x] Definition of Done
 
 - [ ] Walking skeleton
 
-- [ ] Studying python and the topic of the project
+- [x] Studying python and the topic of the project

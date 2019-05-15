@@ -1,9 +1,9 @@
-# Data Problems Emulator
+# dpEmu
 [![Build Status](https://travis-ci.com/dpEmu/dpEmu.svg?branch=master)](https://travis-ci.com/dpEmu/dpEmu)
 [![codecov](https://codecov.io/gh/dpEmu/dpEmu/branch/master/graph/badge.svg)](https://codecov.io/gh/dpEmu/dpEmu)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/4763ce11c31044169ec802641c02c21b)](https://www.codacy.com/app/Kalakuh/dpEmu?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dpEmu/dpEmu&amp;utm_campaign=Badge_Grade)
 
-Description here
+<!-- TODO: Write description -->
 
 ## Table of Contents <a name="table-of-contents"/>
 
@@ -12,7 +12,7 @@ Description here
 * [Contributing](#contributing)
 * [Credits](#credits)
 * [License](#license)
-* [Links](#links)
+* [Documentation](#documentation)
 
 ## Installation <a name="installation"/>
 ### Linux
@@ -32,23 +32,22 @@ Description here
 * ```pip install -r requirements.txt```
 
 ## Usage <a name="usage"/>
-TODO
+<!-- TODO: Write usage instructions -->
 
 ## Contributing <a name="contributing"/>
-N/A
+<!-- TODO: Supply guidelines --->
 
 ## Credits <a name="credits"/>
-OHTU-project group members:
 * [Antti Röyskö](https://github.com/anroysko)
 * [Juuso Silvennoinen](https://github.com/Jsos17)
 * [Juha Mylläri](https://github.com/juhamyllari)
 * [Juha Harviainen](https://github.com/Kalakuh)
 * [Elizabeth Berg](https://github.com/reykjaviks)
-* [thalvari](https://github.com/thalvari)
+* [Tuomas Halvari](https://github.com/thalvari)
 
 ## License <a name="license"/>
-TODO
+<!-- Find out which licence customer needs -->
 
-## Links <a name="links"/>
-* [Product backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)
+## Documentation <a name="documentation"/>
+* [Product Backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)
 * [Definition of Done](docs/definition_of_done.md)

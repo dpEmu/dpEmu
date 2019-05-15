@@ -7,7 +7,6 @@ class TextProblemsEmulator:
     def __init__(self):
         self.folder = os.path.dirname(os.path.realpath(__file__))
         self.text = None
-        self.result = None
 
     @staticmethod
     def __replace_char(c, replacements):
@@ -19,7 +18,7 @@ class TextProblemsEmulator:
         return random.choices(chars, probs)[0]
 
     def replace_chars_given_probs(self, replacements):
-        self.result = "".join([self.__replace_char(c, replacements) for c in self.text])
+        self.text = "".join([self.__replace_char(c, replacements) for c in self.text])
 
     def read_text(self, filename):
         text_path = os.path.join(self.folder, "data/" + filename)
@@ -28,7 +27,7 @@ class TextProblemsEmulator:
     def write_text(self, filename):
         result_path = os.path.join(self.folder, "out/" + filename)
         result_file = open(result_path, "w+")
-        result_file.write(self.result)
+        result_file.write(self.text)
         result_file.close()
 
 

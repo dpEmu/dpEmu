@@ -54,4 +54,4 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 ## Documentation <a name="documentation"/>
 * [Product Backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)
 * [Definition of Done](docs/definition_of_done.md)
-* [Sprint 0 task log](projects/1)
+* [Sprint 0 task log](https://github.com/dpEmu/dpEmu/projects/1)

@@ -3,7 +3,9 @@
 [![codecov](https://codecov.io/gh/dpEmu/dpEmu/branch/master/graph/badge.svg)](https://codecov.io/gh/dpEmu/dpEmu)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/4763ce11c31044169ec802641c02c21b)](https://www.codacy.com/app/Kalakuh/dpEmu?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dpEmu/dpEmu&amp;utm_campaign=Badge_Grade)
 
-<!-- TODO: Write description -->
+dpEmu is being built on the specifications and requirements provided by Professors Jukka Nurminen and Tommi Mikkonen for the course Software Engineering Lab at the University of Helsinki, department of Computer Science.
+
+The aim of the project is to build a Python library and an UNIX tool for emulating data problems in use, and training of machine learning systems.
 
 ## Table of Contents <a name="table-of-contents"/>
 

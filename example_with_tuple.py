@@ -3,8 +3,11 @@ import problemgenerator.array as array
 import problemgenerator.filter as filter
 import problemgenerator.series as series
 
-# Assume our data is a tuple of the form (x, y) where
-# x has shape (100, 10) and y has shape (100,).
+# Assume our data is a tuple of the form (x, y) where x has
+# shape (100, 10) and y has shape (100,). We can think of each
+# row i as a data point where x_i represents the values of the
+# explanatory variables and y_i represents the corresponding
+# value of the response variable.
 x = np.random.rand(100, 10)
 y = np.random.rand(100,)
 data = (x, y)

@@ -9,7 +9,6 @@ class Series:
     data_length = data.shape[0]
     return np.array([self.child.process(data[i,...]) for i in range(data_length)])
 
-
 class TupleSeries:
 
   def __init__(self, children):

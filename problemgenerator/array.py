@@ -1,4 +1,4 @@
-class Tensor:
+class Array:
 
   def __init__(self, shape):
     self.shape = shape

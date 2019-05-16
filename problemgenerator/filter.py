@@ -3,7 +3,7 @@ import numpy as np
 class Filter:
   
   def __init__(self):
-    self.shape = ()
+    pass
 
 class Missing(Filter):
 
@@ -13,7 +13,7 @@ class Missing(Filter):
 
   def apply(self, data):
     mask = np.random.choice([True, False],
-      size=self.shape,
+      size=data.shape,
       p=[self.probability, 1. - self.probability])
     copy = data.copy()
     copy[mask] = np.nan

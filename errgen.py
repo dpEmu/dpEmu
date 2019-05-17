@@ -1,4 +1,3 @@
-import sys
 import numpy as np
 import problemgenerator.array as array
 import problemgenerator.filter as filter

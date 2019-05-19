@@ -20,3 +20,14 @@ class Missing(Filter):
         copy = data.copy()
         copy[mask] = np.nan
         return copy
+
+
+class GaussianNoise(Filter):
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
+        super().__init__()
+
+    def apply(self, data):
+        noise = np.random.normal(loc=self.mean, scale=self.std, size=data.shape)
+        return data + noise

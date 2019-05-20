@@ -1,8 +1,11 @@
+import sys
 import numpy as np
 import problemgenerator.array as array
 import problemgenerator.filter as filter
 import problemgenerator.series as series
 import matplotlib.pyplot as plt
+
+std = float(sys.argv[1])
 
 x_file, y_file = "example_data/mnist_subset/x.npy", "example_data/mnist_subset/y.npy"
 x = np.load(x_file)
@@ -10,7 +13,7 @@ y = np.load(y_file)
 data = (x, y)
 
 x_node = array.Array(x[0].shape)
-x_node.addfilter(filter.GaussianNoise(0, .1))
+x_node.addfilter(filter.GaussianNoise(0, std))
 y_node = array.Array(y[0].shape)
 root_node = series.TupleSeries([x_node, y_node])
 

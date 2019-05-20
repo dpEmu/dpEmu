@@ -6,6 +6,7 @@ import problemgenerator.series as series
 import matplotlib.pyplot as plt
 
 std = float(sys.argv[1])
+prob_missing = float(sys.argv[2])
 
 x_file, y_file = "example_data/mnist_subset/x.npy", "example_data/mnist_subset/y.npy"
 x = np.load(x_file)
@@ -14,6 +15,7 @@ data = (x, y)
 
 x_node = array.Array(x[0].shape)
 x_node.addfilter(filter.GaussianNoise(0, std))
+x_node.addfilter(filter.Missing(prob_missing))
 y_node = array.Array(y[0].shape)
 root_node = series.TupleSeries([x_node, y_node])
 

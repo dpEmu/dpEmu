@@ -3,7 +3,7 @@
 ### Sprint Start
 #### Backlog Grooming
 
-  Product owner and the team reviews items on the backlog to ensure correct items are prioritized.
+  Product owner and the team reviews items on the backlog to ensure tasks are prioritized.
 
 
     Held by the Scrum Master.
@@ -23,7 +23,7 @@
 
 #### Sprint Planning
 
-  Work is selected from the Product Backlog and pulled into the Sprint Backlog in correlation with the team's time and resources.
+  Work is selected from the Product Backlog and pulled into the Sprint Backlog in correlation with the team's resources.
 
 
     Held by the Scrum Master.
@@ -58,7 +58,7 @@
 
 #### Daily
 
-  In a round robin manner each developer answers the following questions:
+  Each developer answers the following questions:
   1. What have you done since the last daily?
   2. What are you planning to do before the next daily?
   3. Obstacles or distractions that prevent you from working?
@@ -94,7 +94,7 @@
 
 #### Sprint Retro
 
-  In a round robin manner each developer answers the following questions:
+  Each developer answers the following questions:
   1. What went well?
   2. What could have gone better?
   3. How to improve?

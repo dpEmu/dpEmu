@@ -1,4 +1,5 @@
 import io
+from time import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,6 +9,7 @@ from sklearn.datasets import fetch_mldata, load_digits
 from sklearn.decomposition import PCA
 from sklearn.metrics import v_measure_score, adjusted_rand_score, adjusted_mutual_info_score, silhouette_score
 from sklearn.model_selection import train_test_split
+from sklearn.random_projection import johnson_lindenstrauss_min_dim, SparseRandomProjection
 from umap import UMAP
 
 
@@ -20,11 +22,18 @@ class ClusteringAnalyzer:
     def analyze(self, data, labels):
         n_features = data.shape[1]
         n_classes = len(np.unique(labels))
-        if n_features > 100:
+        jl_limit = johnson_lindenstrauss_min_dim(n_samples=data.shape[0], eps=.3)
+
+        if n_features > jl_limit:
+            reduced_data = SparseRandomProjection(n_components=jl_limit, random_state=self.seed).fit_transform(data)
+            reduced_data = PCA(n_components=100, random_state=self.seed).fit_transform(reduced_data)
+            reduced_data = UMAP(random_state=self.seed).fit_transform(reduced_data)
+        elif n_features > 100:
             reduced_data = PCA(n_components=100, random_state=self.seed).fit_transform(data)
-            reduced_data = UMAP(n_components=2, random_state=self.seed).fit_transform(reduced_data)
+            reduced_data = UMAP(random_state=self.seed).fit_transform(reduced_data)
         else:
-            reduced_data = UMAP(n_components=2, random_state=self.seed).fit_transform(data)
+            reduced_data = UMAP(random_state=self.seed).fit_transform(data)
+
         estimator = KMeans(n_clusters=n_classes, random_state=self.seed).fit(reduced_data)
         return (
             self.__generate_classes_img(reduced_data, labels),
@@ -105,18 +114,21 @@ def mnist_example():
 
 
 def main():
-    data, labels = mnist_example()
+    data, labels = digits_example()
 
+    print("In:")
     print(data.shape, type(data))
     print(labels.shape, type(labels))
 
     clustering_analyzer = ClusteringAnalyzer()
+    t0 = time()
     classes_img, clusters_img, scores = clustering_analyzer.analyze(data, labels)
+    print("\nAnalysis took {:.3f}s\n".format(time() - t0))
 
+    print("Out:")
     print(type(classes_img))
     print(type(clusters_img))
     print(scores)
-
     classes_img.show()
     clusters_img.show()
 

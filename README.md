@@ -12,7 +12,6 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 
 
 ## Table of Contents <a name="table-of-contents"/>
-
 * [Installation](#installation)
 * [Usage](#usage)
 * [Contributing](#contributing)
@@ -40,6 +39,7 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 <!-- TODO: Write usage instructions -->
 
 ## Contributing <a name="contributing"/>
+See [wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing)
 <!-- TODO: Supply guidelines --->
 
 ## Credits <a name="credits"/>
@@ -53,4 +53,6 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 ## Documentation <a name="documentation"/>
 * [Product Backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)
 * [Definition of Done](docs/definition_of_done.md)
-* [Sprint 0 task log](https://github.com/dpEmu/dpEmu/projects/1)
+* [Meeting Etiquette](docs/meeting_etiquette.md)
+* [Team Practices](docs/team_practices.md)
+* [Sprint 0 Task Log](https://github.com/dpEmu/dpEmu/projects/1)

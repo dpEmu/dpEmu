@@ -21,6 +21,6 @@
 
 - [x] Definition of Done
 
-- [ ] Walking skeleton
+- [x] Walking skeleton
 
 - [x] Studying python and the topic of the project

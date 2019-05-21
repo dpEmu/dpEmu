@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from sklearn.cluster import KMeans
-from sklearn.datasets import load_digits
+from sklearn.datasets import fetch_mldata, load_digits
+from sklearn.decomposition import PCA
 from sklearn.metrics import v_measure_score, adjusted_rand_score, adjusted_mutual_info_score, silhouette_score
+from sklearn.model_selection import train_test_split
 from umap import UMAP
 
 
@@ -16,13 +18,18 @@ class ClusteringAnalyzer:
         np.random.seed(self.seed)
 
     def analyze(self, data, labels):
+        n_features = data.shape[1]
         n_classes = len(np.unique(labels))
-        reduced_data = UMAP(random_state=self.seed).fit_transform(data)
+        if n_features > 100:
+            reduced_data = PCA(n_components=100, random_state=self.seed).fit_transform(data)
+            reduced_data = UMAP(n_components=2, random_state=self.seed).fit_transform(reduced_data)
+        else:
+            reduced_data = UMAP(n_components=2, random_state=self.seed).fit_transform(data)
         estimator = KMeans(n_clusters=n_classes, random_state=self.seed).fit(reduced_data)
         return (
-            self.__get_scores(reduced_data, estimator, labels),
             self.__generate_classes_img(reduced_data, labels),
-            self.__generate_clusters_img(reduced_data, estimator)
+            self.__generate_clusters_img(reduced_data, estimator),
+            self.__get_scores(reduced_data, estimator, labels),
         )
 
     @staticmethod
@@ -67,7 +74,7 @@ class ClusteringAnalyzer:
         plt.imshow(z, interpolation="nearest", extent=(xx.min(), xx.max(), yy.min(), yy.max()), cmap="tab10",
                    aspect="auto", origin="lower")
         plt.scatter(*data.T, c="k", marker=".", s=20)
-        plt.scatter(*centroids.T, marker="X", s=300, linewidths=1, color="w", zorder=10)
+        plt.scatter(*centroids.T, marker="X", s=300, color="w", zorder=10)
         plt.xlim(x_min, x_max)
         plt.ylim(y_min, y_max)
         plt.xticks(())
@@ -88,20 +95,31 @@ class ClusteringAnalyzer:
 
 def digits_example():
     digits = load_digits()
-    data = digits.data
-    labels = digits.target
+    return digits.data, digits.target
+
+
+def mnist_example():
+    mnist = fetch_mldata("MNIST Original")
+    data, _, labels, _ = train_test_split(mnist.data, mnist.target, test_size=.7, random_state=42)
+    return data, labels
+
+
+def main():
+    data, labels = mnist_example()
 
     print(data.shape, type(data))
     print(labels.shape, type(labels))
 
-    cluster_analyzer = ClusteringAnalyzer()
-    scores, classes_img, clusters_img = cluster_analyzer.analyze(data, labels)
+    clustering_analyzer = ClusteringAnalyzer()
+    classes_img, clusters_img, scores = clustering_analyzer.analyze(data, labels)
 
     print(type(classes_img))
+    print(type(clusters_img))
     print(scores)
+
     classes_img.show()
     clusters_img.show()
 
 
 if __name__ == "__main__":
-    digits_example()
+    main()

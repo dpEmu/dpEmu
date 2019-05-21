@@ -1,14 +1,12 @@
 # Definition of Done
 
-  * Code has been reviewed and merged into master branch
-  
-  * Code is unit and integration tested where applicable
-  
-  * Unit tests and integration tests passed
-  
   * Project builds successfully
-  
-  * Functionality fulfills user story as specified in acceptance criteria
-  
-  * Code conforms to coding standards
+
+  * Code is readable and maintainable. This means writing sufficient tests and following coding standards.
+
+  * Changes have been reviewed by one or more team members
+
+  * Functionality fits the intended use and meets the user requirements
+
+  * Changes have been merged to the master branch
   

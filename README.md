@@ -39,8 +39,7 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 <!-- TODO: Write usage instructions -->
 
 ## Contributing <a name="contributing"/>
-See [wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing)
-<!-- TODO: Supply guidelines --->
+See [Wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing).
 
 ## Credits <a name="credits"/>
 * [Antti Röyskö](https://github.com/anroysko)

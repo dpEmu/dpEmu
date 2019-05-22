@@ -122,6 +122,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Latex temporary files
+.log
+.aux
+
 # Others
 .idea/
 .vscode

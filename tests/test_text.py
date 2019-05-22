@@ -1,3 +1,4 @@
+'''
 from mock import patch
 
 from text import TextProblemsEmulator
@@ -23,3 +24,4 @@ def test_replace_chars_given_probs_with_no_replacement(choices_mock):
     }
     text_problems_emulator.replace_chars_given_probs(replacements)
     assert text_problems_emulator.text == "ggqq99"
+'''

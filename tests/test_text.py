@@ -1,3 +1,7 @@
+import pytest
+
+def test_mytest():
+	assert true
 '''
 from mock import patch
 

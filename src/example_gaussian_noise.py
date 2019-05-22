@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 std = float(sys.argv[1])
 prob_missing = float(sys.argv[2])
 
-x_file, y_file = "example_data/mnist_subset/x.npy", "example_data/mnist_subset/y.npy"
+x_file, y_file = "data/mnist_subset/x.npy", "data/mnist_subset/y.npy"
 x = np.load(x_file)
 y = np.load(y_file)
 data = (x, y)

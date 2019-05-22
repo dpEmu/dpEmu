@@ -1,0 +1,40 @@
+\documentclass[tikz]{standalone}
+\usetikzlibrary{fit}
+\usetikzlibrary{arrows}
+
+\begin{document}
+\begin{tikzpicture}[state/.style={circle, draw, align=center, minimum size=1cm, text width=1.8cm},file/.style={rectangle, fill=gray, draw, align=center, minimum size=1cm, text width=1.8cm}]
+	% nodes
+	\node[file] (data) {Data};%
+
+	\node[state, right of=data, xshift=2cm] (error) {Error Generation};
+	\node[file, above of=error, yshift=2cm] (errdat) {Erroneus Data}; %
+	\node[state, above of=errdat, yshift=2cm] (model) {Model}; %
+	\node[file, right of=model, xshift=2cm] (anain) {Analyzer Input}; %
+	\node[state, right of=anain, xshift=2cm] (anlzr) {Analyzer}; %
+	\node[file, above of=data, yshift=8cm] (label) {Labels}; %
+	\node[file, below of=anlzr, yshift=-2cm] (anaout) {Analysis output}; %
+	\node[state, below of=anaout, yshift=-2cm] (combiner) {Combiner}; %
+	\node[file, right of=combiner, xshift=2cm] (res) {Combined Data}; %
+	\node[file, below of=anain, yshift=-8cm] (param) {Parameters}; %
+
+	% plate
+	\node[label=above:Data Problems Emulator, draw, inner sep=.5cm, rounded corners=.5cm, fit=(error)(combiner)] (dpemu) {}; %
+	\node[label=below:User Code, draw, inner sep=.5cm, rounded corners=.5cm, fit=(model)(anain)(anlzr)] (user) {}; %
+
+	% edges
+	\draw [->] (data) -- (error);
+	\draw [->] (error) -- (errdat);
+	\draw [->] (error) -- (combiner);
+	\draw [->] (errdat) -- (model);
+	\draw [->] (model) -- (anain);
+	\draw [->] (anain) -- (anlzr);
+	\draw [->] (anlzr) -- (anaout);
+	\draw [->] (anaout) -- (combiner);
+	\draw [->] (combiner) -- (res);
+	\draw [->] (label) -| (anlzr);
+	\draw [->] (label) |- (model);
+	\draw [->] (param) -| (error);
+	\draw [->] (param) -| (combiner);
+\end{tikzpicture}
+\end{document}

@@ -11,7 +11,8 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-data/*.json
+data/*.txt
+!data/word_sample_text.txt
 downloads/
 eggs/
 .eggs/

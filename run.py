@@ -6,7 +6,7 @@ import string
 import numpy as np
 import src.problemgenerator.series as series
 import src.problemgenerator.array as array
-import src.problemgenerator.filter as filter
+import src.problemgenerator.filters as filter
 
 # File format:
 #     run_model_command ...
@@ -64,21 +64,23 @@ def run_commands(run_model_command, run_analyze_command, in_file_names):
 
     return mid_file_names, out_file_names
 
-def save_errorified(std, prob):
-    print(std, prob)
-    x_node = array.Array(original_data[0][0].shape)
-    x_node.addfilter(filter.GaussianNoise(0, std))
-    x_node.addfilter(filter.Missing(prob))
-    y_node = array.Array(original_data[1][0].shape)
-    error_generator_root = series.TupleSeries([x_node, y_node])
-    x_out, y_out = error_generator_root.process(original_data)
-    x_name = unique_filename("tmp", "x", "npy")
-    y_name = unique_filename("tmp", "y", "npy")
-    np.save(x_name, x_out)
-    np.save(y_name, y_out)
-    return [x_name]
 
-main():
+def main():
+    
+    def save_errorified(std, prob):
+        print(std, prob)
+        x_node = array.Array(original_data[0][0].shape)
+        x_node.addfilter(filter.GaussianNoise(0, std))
+        x_node.addfilter(filter.Missing(prob))
+        y_node = array.Array(original_data[1][0].shape)
+        error_generator_root = series.TupleSeries([x_node, y_node])
+        x_out, y_out = error_generator_root.process(original_data)
+        x_name = unique_filename("tmp", "x", "npy")
+        y_name = unique_filename("tmp", "y", "npy")
+        np.save(x_name, x_out)
+        np.save(y_name, y_out)
+        return [x_name]
+
     # To be taken as arguments
     original_data_files = ["data/mnist_subset/x.npy", "data/mnist_subset/y.npy"]
     original_data = tuple([np.load(data_file) for data_file in original_data_files])
@@ -92,8 +94,8 @@ main():
 
     for std in std_vals:
         for prob in prob_missing_vals:
-        err_file_names = save_errorified(std, prob)
-        mid_file_names, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
+            err_file_names = save_errorified(std, prob)
+            mid_file_names, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
 
 if __name__ == '__main__':
     main()

@@ -1,6 +1,6 @@
 import numpy as np
 import problemgenerator.array as array
-import problemgenerator.filter as filter
+import problemgenerator.filters as filters
 import problemgenerator.series as series
 
 # Assume our data is a tuple of the form (x, y) where x has
@@ -20,7 +20,7 @@ root = series.TupleSeries([x_node, y_node])
 # Suppose we want to introduce NaN values (i.e. missing data)
 # to y only (thus keeping x intact).
 probability = .2
-y_node.addfilter(filter.Missing(probability=probability))
+y_node.addfilter(filters.Missing(probability=probability))
 
 # Feed the data to the root node.
 output = root.process(data)

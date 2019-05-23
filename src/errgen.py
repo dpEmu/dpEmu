@@ -1,6 +1,6 @@
 import numpy as np
 import problemgenerator.array as array
-import problemgenerator.filter as filter
+import problemgenerator.filters as filters
 import problemgenerator.series as series
 
 # To load data from a csv file, uncomment the rows below and
@@ -19,9 +19,9 @@ data = np.random.randn(observations, sensors)
 # Create an Array object to represent the battery of 10 sensors
 sensor_array = array.Array(sensors)
 
-# Add a Missing filter to randomly transform elements to Nan
+# Add a Missing filters to randomly transform elements to Nan
 # (NaN = "not a number", i.e. missing or invalid data)
-sensor_array.addfilter(filter.Missing(probability=.3))
+sensor_array.addfilter(filters.Missing(probability=.3))
 
 # Create a series to represent the 100 data points
 observation_series = series.Series(sensor_array)
@@ -35,5 +35,5 @@ print("input data has shape", data.shape)
 print("output data has shape", output.shape)
 
 # The relative frequency on NaNs should be close to the probability
-# given as a parameter to the Missing filter
+# given as a parameter to the Missing filters
 print("relative frequency of NaNs:", np.isnan(output).sum() / output.size)

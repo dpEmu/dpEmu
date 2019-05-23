@@ -132,7 +132,3 @@ dmypy.json
 data/*
 !data/word_sample_text.txt
 !data/mnist_subset/
-tmp/*
-!tmp/
-out/*
-!out/

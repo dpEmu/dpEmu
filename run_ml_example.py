@@ -19,7 +19,7 @@ def load_digits_to_npy():
 
 def load_mnist_to_npy():
     mnist = fetch_openml("mnist_784")
-    data, _, labels, _ = train_test_split(mnist["data"], mnist["target"].astype(int), train_size=.01, random_state=42)
+    data, _, labels, _ = train_test_split(mnist["data"], mnist["target"].astype(int), train_size=.3, random_state=42)
     path_to_data = generate_unique_path_prefix("data", "mnist_data") + ".npy"
     path_to_labels = generate_unique_path_prefix("data", "mnist_labels") + ".npy"
     save_dataset(path_to_data, path_to_labels, data, labels)

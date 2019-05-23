@@ -1,11 +1,6 @@
-import pytest
-
-def test_mytest():
-	assert True
-'''
 from mock import patch
 
-from text import TextProblemsEmulator
+from src.text import TextProblemsEmulator
 
 
 @patch("random.choices", return_value=["q"])
@@ -28,4 +23,3 @@ def test_replace_chars_given_probs_with_no_replacement(choices_mock):
     }
     text_problems_emulator.replace_chars_given_probs(replacements)
     assert text_problems_emulator.text == "ggqq99"
-'''

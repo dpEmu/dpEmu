@@ -1,9 +1,10 @@
 import os.path
+import numpy as np
 
 from sklearn.datasets import fetch_openml
 
-data_filename = "mnist_data.txt"
-label_filename = "mnist_label.txt"
+data_filename = "mnist_data.npy"
+label_filename = "mnist_label.npy"
 
 def fetch_mnist():
     print("Fetching MNIST data")
@@ -13,8 +14,8 @@ def fetch_mnist():
 
     print("Saving data to " + data_filename + " and " + label_filename)
 
-    data.tofile(data_filename)
-    target.tofile(label_filename)
+    np.save(data_filename, data)
+    np.save(label_filename, target)
 
 if __name__ == "__main__":
     if os.path.isfile(data_filename) and os.path.isfile(label_filename):

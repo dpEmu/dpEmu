@@ -1,9 +1,9 @@
 import sys
 import numpy as np
-import problemgenerator.array as array
-import problemgenerator.filter as filter
-import problemgenerator.series as series
 import matplotlib.pyplot as plt
+import problemgenerator.array as array
+import problemgenerator.filters as filters
+import problemgenerator.series as series
 
 std = float(sys.argv[1])
 prob_missing = float(sys.argv[2])
@@ -14,8 +14,8 @@ y = np.load(y_file)
 data = (x, y)
 
 x_node = array.Array(x[0].shape)
-x_node.addfilter(filter.GaussianNoise(0, std))
-x_node.addfilter(filter.Missing(prob_missing))
+x_node.addfilter(filters.GaussianNoise(0, std))
+x_node.addfilter(filters.Missing(prob_missing))
 y_node = array.Array(y[0].shape)
 root_node = series.TupleSeries([x_node, y_node])
 

@@ -18,7 +18,6 @@ class TupleSeries:
 
     def process(self, data):
         data_length = data[0].shape[0]
-        as_list = [np.array(
-            [child.process(data[index][j, ...]) for j in range(data_length)])
-            for (index, child) in enumerate(self.children)]
+        as_list = [np.array([child.process(data[index][j, ...]) for j in range(
+            data_length)]) for (index, child) in enumerate(self.children)]
         return tuple(as_list)

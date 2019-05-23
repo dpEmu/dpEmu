@@ -1,7 +1,7 @@
 import numpy as np
-import problemgenerator.array as array
-import problemgenerator.filters as filters
-import problemgenerator.series as series
+import src.problemgenerator.array as array
+import src.problemgenerator.filters as filters
+import src.problemgenerator.series as series
 
 # To load data from a csv file, uncomment the rows below and
 # give the data file name as the first command line argument.

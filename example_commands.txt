@@ -1,0 +1,2 @@
+cat [IN_1] > [MID_1]
+echo "lol" > [OUT_1]

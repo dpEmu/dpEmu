@@ -6,7 +6,7 @@ import string
 import numpy as np
 import src.problemgenerator.series as series
 import src.problemgenerator.array as array
-import src.problemgenerator.filters as filter
+import src.problemgenerator.filters as filters
 
 # File format:
 #     run_model_command ...
@@ -53,7 +53,7 @@ def run_commands(run_model_command, run_analyze_command, in_file_names):
     m = run_model_command.count("[OUT_") + run_analyze_command.count("[OUT_")
     mid_file_names = [unique_filename("tmp", "MID-" + str(i+1), "") for i in range(0, n)]
     out_file_names = [unique_filename("tmp", "OUT-" + str(i+1), "") for i in range(0, m)]
-    
+   
     command_1 = format_command(run_model_command, in_file_names, mid_file_names, out_file_names)
     command_2 = format_command(run_analyze_command, in_file_names, mid_file_names, out_file_names)
     print(command_1)
@@ -66,12 +66,12 @@ def run_commands(run_model_command, run_analyze_command, in_file_names):
 
 
 def main():
-    
+      
     def save_errorified(std, prob):
         print(std, prob)
         x_node = array.Array(original_data[0][0].shape)
-        x_node.addfilter(filter.GaussianNoise(0, std))
-        x_node.addfilter(filter.Missing(prob))
+        x_node.addfilter(filters.GaussianNoise(0, std))
+        x_node.addfilter(filters.Missing(prob))
         y_node = array.Array(original_data[1][0].shape)
         error_generator_root = series.TupleSeries([x_node, y_node])
         x_out, y_out = error_generator_root.process(original_data)

@@ -43,7 +43,7 @@ def get_root_folder():
     return os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
-def test_ml_modules():
+def test_kmeans_with_analysis():
     path_to_data, path_to_labels = load_digits_to_npy()
     path_to_reduced_data = generate_unique_path_prefix("tmp") + ".npy"
     path_to_fitted_model = generate_unique_path_prefix("tmp") + ".joblib"
@@ -93,5 +93,5 @@ def test_ml_modules():
     clusters_img = Image.open(path_to_clusters_img)
 
     assert scores == {"v-meas": "0.905", "ARI": "0.822", "AMI": "0.904", "silhouette": "0.792"}
-    # classes_img.show()
-    # clusters_img.show()
+    classes_img.verify()
+    clusters_img.verify()

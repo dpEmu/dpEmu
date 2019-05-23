@@ -31,8 +31,7 @@ class ReducedKMeans:
                 reduced_data)
 
         if n_features > 100:
-            reduced_data = PCA(
-                n_components=100, random_state=self.seed).fit_transform(reduced_data)
+            reduced_data = PCA(n_components=100, random_state=self.seed).fit_transform(reduced_data)
 
         reduced_data = UMAP(random_state=self.seed).fit_transform(reduced_data)
 

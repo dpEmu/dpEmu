@@ -11,14 +11,13 @@ from sklearn.metrics import v_measure_score, adjusted_rand_score, adjusted_mutua
 
 class ClusteringAnalyzer:
 
-    def __init__(self, path_to_reduced_data, path_to_labels, path_to_fitted_model, path_to_classes_img,
-                 path_to_clusters_img, path_to_scores):
-        self.reduced_data = np.load(path_to_reduced_data)
-        self.labels = np.load(path_to_labels)
-        self.fitted_model = load(path_to_fitted_model)
-        self.path_to_classes_img = path_to_classes_img
-        self.path_to_clusters_img = path_to_clusters_img
-        self.path_to_scores = path_to_scores
+    def __init__(self, params):
+        self.reduced_data = np.load(params["path_to_reduced_data"])
+        self.labels = np.load(params["path_to_labels"])
+        self.fitted_model = load(params["path_to_fitted_model"])
+        self.path_to_classes_img = params["path_to_classes_img"]
+        self.path_to_clusters_img = params["path_to_clusters_img"]
+        self.path_to_scores = params["path_to_scores"]
         np.random.seed(42)
 
     def analyze(self, ):
@@ -99,14 +98,7 @@ class ClusteringAnalyzer:
 def main(argv):
     with open(argv[1], "r") as fp:
         params = json.load(fp)
-    clustering_analyzer = ClusteringAnalyzer(
-        params["path_to_reduced_data"],
-        params["path_to_labels"],
-        params["path_to_fitted_model"],
-        params["path_to_classes_img"],
-        params["path_to_clusters_img"],
-        params["path_to_scores"]
-    )
+    clustering_analyzer = ClusteringAnalyzer(params)
     clustering_analyzer.analyze()
 
 

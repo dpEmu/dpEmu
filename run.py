@@ -78,18 +78,22 @@ def save_errorified(std, prob):
     np.save(y_name, y_out)
     return [x_name]
 
-# To be taken as arguments
-original_data_files = ["data/mnist_subset/x.npy", "data/mnist_subset/y.npy"]
-original_data = tuple([np.load(data_file) for data_file in original_data_files])
-commands_file_name = sys.argv[1]
-run_model_command, run_analyze_command = read_commands_file(commands_file_name)
+main():
+    # To be taken as arguments
+    original_data_files = ["data/mnist_subset/x.npy", "data/mnist_subset/y.npy"]
+    original_data = tuple([np.load(data_file) for data_file in original_data_files])
+    commands_file_name = sys.argv[1]
+    run_model_command, run_analyze_command = read_commands_file(commands_file_name)
 
-# To be read from file (file name given as argument)!
-n_output_datasets = 11
-std_vals = np.linspace(0.0, 1.0, n_output_datasets)
-prob_missing_vals = np.zeros((1,))
+    # To be read from file (file name given as argument)!
+    n_output_datasets = 11
+    std_vals = np.linspace(0.0, 1.0, n_output_datasets)
+    prob_missing_vals = np.zeros((1,))
 
-for std in std_vals:
-    for prob in prob_missing_vals:
+    for std in std_vals:
+        for prob in prob_missing_vals:
         err_file_names = save_errorified(std, prob)
         mid_file_names, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
+
+if __name__ == '__main__':
+    main()

@@ -11,8 +11,6 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-data/*.txt
-!data/word_sample_text.txt
 downloads/
 eggs/
 .eggs/
@@ -131,3 +129,6 @@ dmypy.json
 # Others
 .idea/
 .vscode
+data/*
+!data/word_sample_text.txt
+!data/mnist_subset/

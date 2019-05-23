@@ -1,93 +1,87 @@
 import io
-from time import time
+import json
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
-from sklearn.cluster import KMeans
-from sklearn.datasets import fetch_mldata, load_digits
-from sklearn.decomposition import PCA
+from sklearn.externals.joblib import load
 from sklearn.metrics import v_measure_score, adjusted_rand_score, adjusted_mutual_info_score, silhouette_score
-from sklearn.model_selection import train_test_split
-from sklearn.random_projection import johnson_lindenstrauss_min_dim, SparseRandomProjection
-from umap import UMAP
 
 
 class ClusteringAnalyzer:
 
-    def __init__(self):
-        self.seed = 42
-        np.random.seed(self.seed)
+    def __init__(self, path_to_reduced_data, path_to_labels, path_to_fitted_model, path_to_classes_img,
+                 path_to_clusters_img, path_to_scores):
+        self.reduced_data = np.load(path_to_reduced_data)
+        self.labels = np.load(path_to_labels)
+        self.fitted_model = load(path_to_fitted_model)
+        self.path_to_classes_img = path_to_classes_img
+        self.path_to_clusters_img = path_to_clusters_img
+        self.path_to_scores = path_to_scores
+        np.random.seed(42)
 
-    def analyze(self, data, labels):
-        n_features = data.shape[1]
-        n_classes = len(np.unique(labels))
-        jl_limit = johnson_lindenstrauss_min_dim(n_samples=data.shape[0], eps=.3)
+    def analyze(self, ):
+        classes_img = self.__generate_classes_img()
+        clusters_img = self.__generate_clusters_img()
+        scores = self.__get_scores()
 
-        if n_features > jl_limit:
-            reduced_data = SparseRandomProjection(n_components=jl_limit, random_state=self.seed).fit_transform(data)
-            reduced_data = PCA(n_components=100, random_state=self.seed).fit_transform(reduced_data)
-            reduced_data = UMAP(random_state=self.seed).fit_transform(reduced_data)
-        elif n_features > 100:
-            reduced_data = PCA(n_components=100, random_state=self.seed).fit_transform(data)
-            reduced_data = UMAP(random_state=self.seed).fit_transform(reduced_data)
-        else:
-            reduced_data = UMAP(random_state=self.seed).fit_transform(data)
+        classes_img.save(self.path_to_classes_img)
+        clusters_img.save(self.path_to_clusters_img)
+        with open(self.path_to_scores, "w") as fp:
+            json.dump(scores, fp)
 
-        estimator = KMeans(n_clusters=n_classes, random_state=self.seed).fit(reduced_data)
+    def __get_scores(self):
+        sample_size = 300
+        scores = {
+            "v-meas": v_measure_score(self.labels, self.fitted_model.labels_),
+            "ARI": adjusted_rand_score(self.labels, self.fitted_model.labels_),
+            "AMI": adjusted_mutual_info_score(self.labels, self.fitted_model.labels_, average_method="arithmetic"),
+            "silhouette": silhouette_score(self.reduced_data, self.fitted_model.labels_, sample_size=sample_size),
+        }
+        return {k: str(round(v, 3)) for k, v in scores.items()}
+
+    def __get_lims(self):
         return (
-            self.__generate_classes_img(reduced_data, labels),
-            self.__generate_clusters_img(reduced_data, estimator),
-            self.__get_scores(reduced_data, estimator, labels),
+            self.reduced_data[:, 0].min() - 1,
+            self.reduced_data[:, 0].max() + 1,
+            self.reduced_data[:, 1].min() - 1,
+            self.reduced_data[:, 1].max() + 1
         )
 
-    @staticmethod
-    def __get_scores(data, estimator, labels):
-        sample_size = 300
-        return {
-            "v-meas": round(v_measure_score(labels, estimator.labels_), 3),
-            "ARI": round(adjusted_rand_score(labels, estimator.labels_), 3),
-            "AMI": round(adjusted_mutual_info_score(labels, estimator.labels_, average_method="arithmetic"), 3),
-            "silhouette": round(silhouette_score(data, estimator.labels_, sample_size=sample_size), 3),
-        }
-
-    @staticmethod
-    def __get_lims(data):
-        return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
-
-    def __generate_classes_img(self, data, labels):
-        x_min, x_max, y_min, y_max = self.__get_lims(data)
+    def __generate_classes_img(self):
+        x_min, x_max, y_min, y_max = self.__get_lims()
 
         plt.figure(1)
         plt.clf()
-        plt.scatter(*data.T, c=labels, cmap="tab10", marker=".", s=20)
+        plt.scatter(*self.reduced_data.T, c=self.labels, cmap="tab10", marker=".", s=20)
         plt.xlim(x_min, x_max)
         plt.ylim(y_min, y_max)
-        plt.xticks(())
-        plt.yticks(())
+        plt.xticks([])
+        plt.yticks([])
         plt.tight_layout()
 
         return self.__plt_to_img()
 
-    def __generate_clusters_img(self, data, estimator):
-        x_min, x_max, y_min, y_max = self.__get_lims(data)
-        h = .02
-        xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    def __generate_clusters_img(self):
+        x_min, x_max, y_min, y_max = self.__get_lims()
+        step = .02
+        x_1, y_1 = np.meshgrid(np.arange(x_min, x_max, step), np.arange(y_min, y_max, step))
 
-        z = estimator.predict(np.c_[xx.ravel(), yy.ravel()])
-        z = z.reshape(xx.shape)
-        centroids = estimator.cluster_centers_
+        predicted_clusters = self.fitted_model.predict(np.c_[x_1.ravel(), y_1.ravel()])
+        predicted_clusters = predicted_clusters.reshape(x_1.shape)
+        centroids = self.fitted_model.cluster_centers_
 
         plt.figure(1)
         plt.clf()
-        plt.imshow(z, interpolation="nearest", extent=(xx.min(), xx.max(), yy.min(), yy.max()), cmap="tab10",
-                   aspect="auto", origin="lower")
-        plt.scatter(*data.T, c="k", marker=".", s=20)
+        plt.imshow(predicted_clusters, interpolation="nearest", extent=(x_1.min(), x_1.max(), y_1.min(), y_1.max()),
+                   cmap="tab10", aspect="auto", origin="lower")
+        plt.scatter(*self.reduced_data.T, c="k", marker=".", s=20)
         plt.scatter(*centroids.T, marker="X", s=300, color="w", zorder=10)
         plt.xlim(x_min, x_max)
         plt.ylim(y_min, y_max)
-        plt.xticks(())
-        plt.yticks(())
+        plt.xticks([])
+        plt.yticks([])
         plt.tight_layout()
 
         return self.__plt_to_img()
@@ -102,36 +96,19 @@ class ClusteringAnalyzer:
         return Image.open(byte_img)
 
 
-def digits_example():
-    digits = load_digits()
-    return digits.data, digits.target
-
-
-def mnist_example():
-    mnist = fetch_mldata("MNIST Original")
-    data, _, labels, _ = train_test_split(mnist.data, mnist.target, test_size=.7, random_state=42)
-    return data, labels
-
-
-def main():
-    data, labels = digits_example()
-
-    print("In:")
-    print(data.shape, type(data))
-    print(labels.shape, type(labels))
-
-    clustering_analyzer = ClusteringAnalyzer()
-    t0 = time()
-    classes_img, clusters_img, scores = clustering_analyzer.analyze(data, labels)
-    print("\nAnalysis took {:.3f}s\n".format(time() - t0))
-
-    print("Out:")
-    print(type(classes_img))
-    print(type(clusters_img))
-    print(scores)
-    classes_img.show()
-    clusters_img.show()
+def main(argv):
+    with open(argv[1], "r") as fp:
+        params = json.load(fp)
+    clustering_analyzer = ClusteringAnalyzer(
+        params["path_to_reduced_data"],
+        params["path_to_labels"],
+        params["path_to_fitted_model"],
+        params["path_to_classes_img"],
+        params["path_to_clusters_img"],
+        params["path_to_scores"]
+    )
+    clustering_analyzer.analyze()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

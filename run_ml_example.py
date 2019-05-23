@@ -49,7 +49,7 @@ def run_script(args):
 
 
 def main():
-    path_to_data, path_to_labels = load_mnist_to_npy()
+    path_to_data, path_to_labels = load_digits_to_npy()
     path_to_reduced_data = generate_unique_path("tmp") + ".npy"
     path_to_fitted_model = generate_unique_path("tmp") + ".joblib"
     path_to_result_prefix = generate_unique_path("out")

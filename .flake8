@@ -1,3 +1,0 @@
-[flake8]
-exclude = data,docs,out,venv
-max-line-length = 120

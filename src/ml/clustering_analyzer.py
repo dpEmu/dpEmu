@@ -9,13 +9,13 @@ from sklearn.metrics import v_measure_score, adjusted_rand_score, adjusted_mutua
 
 class ClusteringAnalyzer:
 
-    def __init__(self, params):
-        self.reduced_data = np.load(params["path_to_reduced_data"])
-        self.labels = np.load(params["path_to_labels"])
-        self.fitted_model = load(params["path_to_fitted_model"])
-        self.path_to_classes_img = params["path_to_classes_img"]
-        self.path_to_clusters_img = params["path_to_clusters_img"]
-        self.path_to_scores = params["path_to_scores"]
+    def __init__(self, paths):
+        self.reduced_data = np.load(paths[0])
+        self.labels = np.load(paths[1])
+        self.fitted_model = load(paths[2])
+        self.path_to_classes_img = paths[3]
+        self.path_to_clusters_img = paths[4]
+        self.path_to_scores = paths[5]
         np.random.seed(42)
 
     def analyze(self, ):
@@ -80,9 +80,7 @@ class ClusteringAnalyzer:
 
 
 def main(argv):
-    with open(argv[1], "r") as fp:
-        params = json.load(fp)
-    clustering_analyzer = ClusteringAnalyzer(params)
+    clustering_analyzer = ClusteringAnalyzer([argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]])
     clustering_analyzer.analyze()
 
 

@@ -1,4 +1,3 @@
-import json
 import sys
 
 import numpy as np
@@ -11,11 +10,11 @@ from umap import UMAP
 
 class ReducedKMeans:
 
-    def __init__(self, params):
-        self.data = np.load(params["path_to_data"])
-        self.labels = np.load(params["path_to_labels"])
-        self.path_to_reduced_data = params["path_to_reduced_data"]
-        self.path_to_fitted_model = params["path_to_fitted_model"]
+    def __init__(self, paths):
+        self.data = np.load(paths[0])
+        self.labels = np.load(paths[1])
+        self.path_to_reduced_data = paths[2]
+        self.path_to_fitted_model = paths[3]
         self.seed = 42
         np.random.seed(self.seed)
 
@@ -41,9 +40,7 @@ class ReducedKMeans:
 
 
 def main(argv):
-    with open(argv[1], "r") as file:
-        params = json.load(file)
-    reduced_kmeans = ReducedKMeans(params)
+    reduced_kmeans = ReducedKMeans([argv[1], argv[2], argv[3], argv[4]])
     reduced_kmeans.reduce_and_fit_data()
 
 

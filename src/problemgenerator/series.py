@@ -8,8 +8,9 @@ class Series:
 
     def process(self, data):
         data_length = data.shape[0]
-        return np.array([self.child.process(data[i, ...]) for i in range(data_length)])
-
+        for i in range(data_length):
+            self.child.process(data[i, ...])
+        return data  # TO DO: make return conditional on being root node
 
 class TupleSeries:
 
@@ -18,6 +19,7 @@ class TupleSeries:
 
     def process(self, data):
         data_length = data[0].shape[0]
-        as_list = [np.array([child.process(data[index][j, ...]) for j in range(
-            data_length)]) for (index, child) in enumerate(self.children)]
-        return tuple(as_list)
+        for i, child in enumerate(self.children):
+            for j in range(data_length):
+                child.process(data[i][j, ...])
+        return data # TO DO: make return conditional on being root node

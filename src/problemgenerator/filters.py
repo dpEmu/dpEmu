@@ -17,9 +17,7 @@ class Missing(Filter):
         mask = np.random.choice([True, False],
                                 size=data.shape,
                                 p=[self.probability, 1. - self.probability])
-        copy = data.copy()
-        copy[mask] = np.nan
-        return copy
+        data[mask] = np.nan
 
 
 class GaussianNoise(Filter):
@@ -29,5 +27,4 @@ class GaussianNoise(Filter):
         super().__init__()
 
     def apply(self, data):
-        noise = np.random.normal(loc=self.mean, scale=self.std, size=data.shape)
-        return data + noise
+        data += np.random.normal(loc=self.mean, scale=self.std, size=data.shape)

@@ -12,4 +12,3 @@ class Array:
         output = input_source
         for f in self.filters:
             output = f.apply(output)
-        return output

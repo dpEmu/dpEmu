@@ -106,6 +106,7 @@ class Combiner:
     def __save(image, path):
         print("Saving an image to " + path)
         image.save(path)
+        Image.open(path).verify()
 
     def combine(self, data, output_path=None, config_path=None):
         """

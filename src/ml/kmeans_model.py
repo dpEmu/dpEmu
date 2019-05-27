@@ -22,11 +22,10 @@ class ReducedKMeans:
     def reduce_and_fit_data(self):
         n_features = self.data.shape[1]
         n_classes = len(np.unique(self.labels))
-        jl_limit = johnson_lindenstrauss_min_dim(
-            n_samples=self.data.shape[0], eps=.3)
-
+        jl_limit = johnson_lindenstrauss_min_dim(n_samples=self.data.shape[0], eps=.3)
         reduced_data = self.data
-        if n_features > jl_limit:
+
+        if n_features > jl_limit and n_features > 100:
             reduced_data = SparseRandomProjection(n_components=jl_limit, random_state=self.seed).fit_transform(
                 reduced_data)
 
@@ -35,16 +34,15 @@ class ReducedKMeans:
 
         reduced_data = UMAP(random_state=self.seed).fit_transform(reduced_data)
 
-        fitted_model = KMeans(n_clusters=n_classes,
-                              random_state=self.seed).fit(reduced_data)
+        fitted_model = KMeans(n_clusters=n_classes, random_state=self.seed).fit(reduced_data)
 
         np.save(self.path_to_reduced_data, reduced_data)
         dump(fitted_model, self.path_to_fitted_model)
 
 
 def main(argv):
-    with open(argv[1], "r") as fp:
-        params = json.load(fp)
+    with open(argv[1], "r") as file:
+        params = json.load(file)
     reduced_kmeans = ReducedKMeans(params)
     reduced_kmeans.reduce_and_fit_data()
 

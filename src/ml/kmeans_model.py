@@ -12,7 +12,8 @@ class ReducedKMeans:
 
     def __init__(self, paths):
         self.data = np.load(paths[0])
-        self.data = self.data.reshape(self.data.shape[:-2] + (-1,))
+        if len(self.data.shape) == 3:
+            self.data = self.data.reshape(self.data.shape[:-2] + (-1,))
         self.labels = np.load(paths[1])
         self.path_to_reduced_data = paths[2]
         self.path_to_fitted_model = paths[3]

@@ -173,7 +173,7 @@ class Combiner:
                 scores = []
                 for element in data:
                     filter_values.append(Combiner.__get_value(element, config_paths["filters"])[filter_type])
-                    scores.append(Combiner.__get_value(element, config_paths["scores"])[score_type])
+                    scores.append(float(Combiner.__get_value(element, config_paths["scores"])[score_type]))
                 plt.figure()
                 plt.clf()
                 plt.plot(filter_values, scores)

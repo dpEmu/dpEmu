@@ -11,6 +11,8 @@ from PIL import Image, ImageDraw
 class Combiner:
     @staticmethod
     def __plot_to_img():
+        """Converts a figure into a .png image"""
+
         buf = io.BytesIO()
         plt.savefig(buf, format="png")
         buf.seek(0)
@@ -20,6 +22,8 @@ class Combiner:
 
     @staticmethod
     def __analyze_config(config):
+        """Analyzes the configuration file and returns the important values"""
+
         paths = {}
         filter_type = config["filter_type"]
         plot_scores_to_same = True
@@ -33,6 +37,8 @@ class Combiner:
 
     @staticmethod
     def __analyze_config_structure(config, paths, path):
+        """Analyzes the structure element of the config file and calculates the paths to different values."""
+
         index = 0
         for elem in config:
             path.append(index)
@@ -52,61 +58,75 @@ class Combiner:
 
     @staticmethod
     def __get_value(element, path):
+        """
+        Returns the value from a n-dimensional structure from a given path.
+
+        e.g. __get_value(((0, 1), (2, 3)), [1, 0]) == 2
+        """
+
         if not path:
             return element
         return Combiner.__get_value(element[path[0]], path[1:])
 
     @staticmethod
-    def __create_combined_image(data, config_paths):
-        total_width = 0
-        total_height = 0
-        largest_image_width_in_column = [] # i-th element contains the width of the largest image in the i-th column
-        for elem in data:
-            max_height = 0
-            index = 0
-            for image_path in config_paths["images"]:
-                image = Combiner.__get_value(elem, image_path)
-                if index == len(largest_image_width_in_column):
-                    largest_image_width_in_column.append(image.size[0])
-                else:
-                    largest_image_width_in_column[index] = max(largest_image_width_in_column[index], image.size[0])
-                max_height = max(max_height, image.size[1])
-                index += 1
-            total_height += max_height
+    def __create_combined_image(data, output_path, config_paths):
+        """
+        Combines images given in each element of the data to a single image
+        """
 
-        total_width = sum(largest_image_width_in_column)
+        if not output_path:
+            return
 
-        # combine images to single images
-        combined_image = Image.new('RGB', (total_width, total_height))
-        x_offset = 0
-        y_offset = 0
-        draw = ImageDraw.Draw(combined_image)
         for elem in data:
-            index = 0
+            total_width = 0
             max_height = 0
             for image_path in config_paths["images"]:
                 image = Combiner.__get_value(elem, image_path)
-                combined_image.paste(image, (x_offset, y_offset))
-                x_offset += largest_image_width_in_column[index]
                 max_height = max(max_height, image.size[1])
-                index += 1
-            y_offset += max_height
+                total_width += image.size[0]
+
+            # combine images to single images
+            combined_image = Image.new('RGB', (total_width, max_height))
             x_offset = 0
+            draw = ImageDraw.Draw(combined_image)
+
+            for image_path in config_paths["images"]:
+                image = Combiner.__get_value(elem, image_path)
+                combined_image.paste(image, (x_offset, 0))
+                x_offset += image.size[0]
 
             filter_map = str(Combiner.__get_value(elem, config_paths["filters"]))
-            draw.text((total_width / 2 - len(filter_map) * 3, y_offset - 15), filter_map, fill=(0, 0, 0))
+            draw.text((total_width / 2 - len(filter_map) * 3, max_height - 15), filter_map, fill=(0, 0, 0))
 
-        combined_image.show()
+            if output_path:
+                time = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+                Combiner.__save(combined_image, output_path + "/combined-" + time + ".png")
 
-    # Plots the data and saves the graphs to the output_path if it's specified.
-    #
-    # A configuration file is required to explain the function the structure of the data.
-    # The .json file is expected to have the following structure:
-    # {
-    #   "filter_type": "...",
-    #   "structure": [...]
-    # }
+    @staticmethod
+    def __save(image, path):
+        print("Saving an image to " + path)
+        image.save(path)
+
     def combine(self, data, output_path=None, config_path=None):
+        """
+        Plots the data and saves the graphs to the output_path if it's specified.
+
+        A configuration file is required to explain the function the structure of the data.
+        The .json file is expected to have the following structure:
+        {
+          "filter_type": "...",
+          "structure": [...]
+        }
+
+        where structure defines the n-dimensional structure of the data.
+        Each array can contain either arrays or strings. The following strings are allowed:
+
+        "scores": this element of data contains a dictionary containing each score and its type
+        "filters": this element of data contains a dictionary which contains the configuration values
+                    of the filters and the names of the filters
+        "image": this element of data contains an image
+        """
+
         if not config_path:
             print("Configuration file for the combiner is not specified.")
             sys.exit()
@@ -144,7 +164,7 @@ class Combiner:
             img = self.__plot_to_img()
             img.show()
             if output_path:
-                img.save(output_path + "/scores-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".png")
+                Combiner.__save(img, output_path + "/scores-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".png")
         else:
             for score_type in score_types:
                 filter_values = []
@@ -164,6 +184,6 @@ class Combiner:
                 img.show()
                 if output_path:
                     path = output_path + "/" + score_type + "-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".png"
-                    img.save(path)
+                    Combiner.__save(img, path)
 
-        self.__create_combined_image(data, config_paths)
+        self.__create_combined_image(data, output_path, config_paths)

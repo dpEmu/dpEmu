@@ -1,18 +1,18 @@
 import numpy as np
-import problemgenerator.array as array
-import problemgenerator.filters as filters
-import problemgenerator.series as series
+import src.problemgenerator.array as array
+import src.problemgenerator.filters as filters
+import src.problemgenerator.series as series
 
 
 def add_noise_to_imgs(x_file, y_file, std):
 
     x = np.load(x_file)
     y = np.load(y_file)
-    data = (x, y)
 
     x_node = array.Array(x[0].shape)
     x_node.addfilter(filters.GaussianNoise(0, std))
     y_node = array.Array(y[0].shape)
     root_node = series.TupleSeries([x_node, y_node])
+    out_x, out_y = root_node.process((x, y))
 
-    return root_node.process(data)
+    return [(out_x, out_y), (x, y)]

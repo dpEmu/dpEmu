@@ -3,6 +3,7 @@ import os
 import datetime
 import subprocess
 import string
+import json
 import numpy as np
 import src.problemgenerator.series as series
 import src.problemgenerator.array as array
@@ -69,6 +70,10 @@ def run_commands(run_model_command, run_analyze_command, in_file_names):
     out_file_names = [value for key, value in out_replacements.items()]
     return mid_file_names, out_file_names
 
+def expand_parameter_to_linspace(param):
+    if len(param) == 1:
+        param = (param[0], param[0], 1)
+    return np.linspace(*param)
 
 def main(): 
     def save_errorified(std, prob):
@@ -91,10 +96,13 @@ def main():
     commands_file_name = sys.argv[1]
     run_model_command, run_analyze_command = read_commands_file(commands_file_name)
 
-    # To be read from file (file name given as argument)!
-    n_output_datasets = 11
-    std_vals = np.linspace(0.0, 1.0, n_output_datasets)
-    prob_missing_vals = np.zeros((1,))
+    # Read error parameters from file (file name given as second argument)
+    error_param_filename = sys.argv[2]
+    error_params = json.load(open(error_param_filename))
+    std_param = error_params['std'] # Iterable of form (start, stop, num)
+    prob_param = error_params['prob'] # Iterable of form (start, stop, num) or (only_value)
+    std_vals = expand_parameter_to_linspace(std_param)
+    prob_missing_vals = expand_parameter_to_linspace(prob_param)
 
     for std in std_vals:
         for prob in prob_missing_vals:

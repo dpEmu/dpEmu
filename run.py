@@ -63,6 +63,9 @@ def run_commands(run_model_command, run_analyze_command, in_file_names):
     run_analyze_command = do_replacements(run_analyze_command, mid_replacements)
     run_analyze_command = do_replacements(run_analyze_command, out_replacements)
 
+    print(run_model_command)
+    print(run_analyze_command)
+
     subprocess.run(run_model_command, shell=True)
     subprocess.run(run_analyze_command, shell=True)
 
@@ -81,8 +84,8 @@ def read_analyzer_files(file_names):
         extension = file_names[i].split('.')[-1]
         if extension == 'json':
             with open(file_names[i], "r") as file:
-	        res.append(json.load(file))
-        else if extension == 'png':
+                res.append(json.load(file))
+        elif extension == 'png':
             res.append(Image.open(file_names[i]))
     return res
 
@@ -99,7 +102,7 @@ def main():
         y_name = unique_filename("tmp", "y", "npy")
         np.save(x_name, x_out)
         np.save(y_name, y_out)
-        return [x_name]
+        return [x_name, y_name]
 
     # Read input
     original_data_files = ["data/mnist_subset/x.npy", "data/mnist_subset/y.npy"] # To be taken as arguments
@@ -124,10 +127,12 @@ def main():
             # err_file_names and mid_file_names are currently unused
             combined_file_names.append(((std, prob), out_file_names))
 
+    '''
     # Read input files for 
     combine_data = [(params, read_analyzer_files(out_file_names)) for (params, out_file_names) in combined_file_names]
     combiner_conf_filename = sys.argv[3]
     Combiner.combine(combine_data, output_path="out", config_path=combiner_conf_filename)
+    '''
 
 if __name__ == '__main__':
     main()

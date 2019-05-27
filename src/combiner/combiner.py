@@ -148,14 +148,14 @@ class Combiner:
         if plot_scores_to_same:
             fig = plt.figure()
             plt.clf()
-            ax = fig.add_subplot(1)
+            ax = fig.add_subplot(111)
             for score_type in score_types:
                 filter_values = []
                 scores = []
                 for element in data:
                     filter_values.append(Combiner.__get_value(element, config_paths["filters"])[filter_type])
-                    scores.append(Combiner.__get_value(element, config_paths["scores"])[score_type])
-                line, = plt.plot(filter_values, scores)
+                    scores.append(float(Combiner.__get_value(element, config_paths["scores"])[score_type]))
+                line, = ax.plot(filter_values, scores)
                 line.set_label(score_type)
                 ax.scatter(filter_values, scores)
                 plt.legend()

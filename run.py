@@ -2,7 +2,6 @@ import sys
 import os
 import datetime
 import subprocess
-import string
 import json
 import re
 import numpy as np
@@ -11,6 +10,7 @@ import src.problemgenerator.series as series
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 from src.combiner.combiner import Combiner
+from src.utils import load_digits_as_npy, load_mnist_as_npy
 
 # File format:
 #     run_model_command ...
@@ -89,7 +89,7 @@ def read_analyzer_files(file_names):
             res.append(Image.open(fn))
     return res
 
-def main(): 
+def main():
     def save_errorified(std, prob):
         print(std, prob)
         x_node = array.Array(original_data[0][0].shape)
@@ -106,7 +106,9 @@ def main():
         return [x_name, y_name]
 
     # Read input
-    original_data_files = ["data/mnist_subset/x.npy", "data/mnist_subset/y.npy"] # To be taken as arguments
+    path_to_data, path_to_labels = load_digits_as_npy() # Values 0..16.
+    # path_to_data, path_to_labels = load_mnist_as_npy(.1) # Values 0..255.
+    original_data_files = [path_to_data, path_to_labels]
     original_data = tuple([np.load(data_file) for data_file in original_data_files])
 
     # original_data[0].reshape((original_data[0].shape[0], 28, 28))

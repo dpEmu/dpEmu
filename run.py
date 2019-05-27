@@ -131,8 +131,8 @@ def main():
             # err_file_names and mid_file_names are currently unused
             combined_file_names.append(({"gaussian" : std, "throwaway" : prob}, out_file_names))
 
-    # Read input files for 
-    combine_data = [(combined_file_names[i][0], read_analyzer_files(combined_file_names[i][1])) for i in range(0, len(combined_file_names))]
+    # Read input files
+    combine_data = [(params, read_analyzer_files(file_names)) for (params, file_names) in combined_file_names]
     print(combine_data)
     combiner_conf_filename = sys.argv[3]
     Combiner.combine(combine_data, output_path="out", config_path=combiner_conf_filename)

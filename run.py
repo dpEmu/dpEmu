@@ -75,11 +75,6 @@ def run_commands(run_model_command, run_analyze_command, in_file_names):
     out_file_names = [value for key, value in sorted(out_replacements.items())]
     return mid_file_names, out_file_names
 
-def expand_parameter_to_linspace(param):
-    if len(param) == 1:
-        param = (param[0], param[0], 1)
-    return np.linspace(*param)
-
 def read_analyzer_files(file_names):
     res = []
     for fn in file_names:

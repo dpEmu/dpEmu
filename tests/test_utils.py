@@ -2,12 +2,6 @@ from mock import patch
 import numpy as np
 import src.utils as utils
 
-'''
-@patch("datetime.datetime.now().strftime", return_value="1")
-@patch("src.utils.get_project_root", return_value="root")
-def test_generate_unique_path(choices_mock):
-    assert utils.generate_unique_path("tmp", "txt") == "root/tmp/1.txt"
-'''
 
 @patch("src.utils.get_project_root", return_value="root")
 def test_get_project_root(root_mock):

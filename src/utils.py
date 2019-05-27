@@ -45,3 +45,9 @@ def generate_unique_path(folder_name, extension, prefix=None):
 
 def get_project_root():
     return dirname(dirname(realpath(__file__)))
+
+
+def expand_parameter_to_linspace(param):
+    if len(param) == 1:
+        param = (param[0], param[0], 1)
+    return np.linspace(*param)

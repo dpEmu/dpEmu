@@ -11,6 +11,8 @@ import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 from src.combiner.combiner import Combiner
 from src.utils import load_digits_as_npy, load_mnist_as_npy
+import src.utils as utils
+import re
 
 # File format:
 #     run_model_command ...
@@ -121,8 +123,8 @@ def main():
     error_params = json.load(open(error_param_filename))
     std_param = error_params['std'] # Iterable of form (start, stop, num)
     prob_param = error_params['prob'] # Iterable of form (start, stop, num) or (only_value)
-    std_vals = expand_parameter_to_linspace(std_param)
-    prob_missing_vals = expand_parameter_to_linspace(prob_param)
+    std_vals = utils.expand_parameter_to_linspace(std_param)
+    prob_missing_vals = utils.expand_parameter_to_linspace(prob_param)
 
     # Run commands
     combined_file_names = []

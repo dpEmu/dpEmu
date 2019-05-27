@@ -7,6 +7,7 @@ import numpy as np
 import src.problemgenerator.series as series
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
+import re
 
 # File format:
 #     run_model_command ...
@@ -32,41 +33,44 @@ def unique_filename(folder, prefix, extension):
     fname = f"{current_folder}/{folder}/{prefix}_{timestamp_string}.{extension}"
     return fname
 
-def substitute_tokens(string, token_signature, substitutions):
-    res = string
-    token_signature = "[" + token_signature + "_"
-    appearances = string.count(token_signature)
-    for i in range(appearances):
-        tar = token_signature + str(i+1) + "]"
-        res = res.replace(tar, substitutions[i])
-    return res
+def do_replacements(command, replacements):
+    for key, value in replacements.items():
+        command = command.replace(key, value)
+    return command
 
-def format_command(command, in_file_names, mid_file_names, out_file_names):
-    res = command
-    res = substitute_tokens(res, "IN", in_file_names)
-    res = substitute_tokens(res, "MID", mid_file_names)
-    res = substitute_tokens(res, "OUT", out_file_names)
-    return res
+def create_replacements(command, token_signature):
+    regex = r'\[' + re.escape(token_signature) + r'_(\d*)\.(\w*)\]'
+    matches = re.findall(regex, command)
+    replacements = {}
+    for pr in matches:
+        replacements["[" + token_signature + "_" + pr[0] + "." + pr[1] + "]"] = unique_filename("tmp", token_signature + "-" + str(pr[0]), pr[1])
+    return replacements
 
 def run_commands(run_model_command, run_analyze_command, in_file_names):
-    n = run_model_command.count("[MID_") + run_analyze_command.count("[MID_")
-    m = run_model_command.count("[OUT_") + run_analyze_command.count("[OUT_")
-    mid_file_names = [unique_filename("tmp", "MID-" + str(i+1), "") for i in range(0, n)]
-    out_file_names = [unique_filename("tmp", "OUT-" + str(i+1), "") for i in range(0, m)]
-   
-    command_1 = format_command(run_model_command, in_file_names, mid_file_names, out_file_names)
-    command_2 = format_command(run_analyze_command, in_file_names, mid_file_names, out_file_names)
-    print(command_1)
-    print(command_2)
+    in_replacements = {'[IN_' + str(i+1) + ']': in_file_names[i] for i in range(0, len(in_file_names))}
+    mid_replacements = create_replacements(run_model_command + run_analyze_command, "MID")
+    out_replacements = create_replacements(run_model_command + run_analyze_command, "OUT")
+
+    run_model_command = do_replacements(run_model_command, in_replacements)
+    run_model_command = do_replacements(run_model_command, mid_replacements)
+    run_model_command = do_replacements(run_model_command, out_replacements)
+
+    run_analyze_command = do_replacements(run_analyze_command, in_replacements)
+    run_analyze_command = do_replacements(run_analyze_command, mid_replacements)
+    run_analyze_command = do_replacements(run_analyze_command, out_replacements)
+
+    # print(run_model_command)
+    # print(run_analyze_command)
 
     subprocess.run(command_1, shell=True)
     subprocess.run(command_2, shell=True)
 
+    mid_file_names = [value for key, value in mid_replacements.items()]
+    out_file_names = [value for key, value in out_replacements.items()]
     return mid_file_names, out_file_names
 
 
-def main():
-      
+def main(): 
     def save_errorified(std, prob):
         print(std, prob)
         x_node = array.Array(original_data[0][0].shape)

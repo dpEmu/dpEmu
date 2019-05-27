@@ -69,8 +69,8 @@ def run_commands(run_model_command, run_analyze_command, in_file_names):
     subprocess.run(run_model_command, shell=True)
     subprocess.run(run_analyze_command, shell=True)
 
-    mid_file_names = [value for key, value in mid_replacements.items()]
-    out_file_names = [value for key, value in out_replacements.items()]
+    mid_file_names = [value for key, value in sorted(mid_replacements.items())]
+    out_file_names = [value for key, value in sorted(out_replacements.items())]
     return mid_file_names, out_file_names
 
 def expand_parameter_to_linspace(param):
@@ -80,7 +80,7 @@ def expand_parameter_to_linspace(param):
 
 def read_analyzer_files(file_names):
     res = []
-    for i in len(file_names):
+    for i in range(0, len(file_names)):
         extension = file_names[i].split('.')[-1]
         if extension == 'json':
             with open(file_names[i], "r") as file:

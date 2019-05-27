@@ -80,13 +80,13 @@ def expand_parameter_to_linspace(param):
 
 def read_analyzer_files(file_names):
     res = []
-    for i in range(0, len(file_names)):
-        extension = file_names[i].split('.')[-1]
+    for fn in file_names:
+        extension = fn.split('.')[-1]
         if extension == 'json':
-            with open(file_names[i], "r") as file:
+            with open(fn, "r") as file:
                 res.append(json.load(file))
         elif extension == 'png':
-            res.append(Image.open(file_names[i]))
+            res.append(Image.open(fn))
     return res
 
 def main(): 
@@ -98,6 +98,7 @@ def main():
         y_node = array.Array(original_data[1][0].shape)
         error_generator_root = series.TupleSeries([x_node, y_node])
         x_out, y_out = error_generator_root.process(original_data)
+        # x_out.reshape((x_out.shape[0], 28*28))
         x_name = unique_filename("tmp", "x", "npy")
         y_name = unique_filename("tmp", "y", "npy")
         np.save(x_name, x_out)
@@ -107,6 +108,9 @@ def main():
     # Read input
     original_data_files = ["data/mnist_subset/x.npy", "data/mnist_subset/y.npy"] # To be taken as arguments
     original_data = tuple([np.load(data_file) for data_file in original_data_files])
+
+    # original_data[0].reshape((original_data[0].shape[0], 28, 28))
+
     commands_file_name = sys.argv[1]
     run_model_command, run_analyze_command = read_commands_file(commands_file_name)
 
@@ -125,14 +129,13 @@ def main():
             err_file_names = save_errorified(std, prob)
             mid_file_names, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
             # err_file_names and mid_file_names are currently unused
-            combined_file_names.append(((std, prob), out_file_names))
+            combined_file_names.append(({"gaussian" : std, "throwaway" : prob}, out_file_names))
 
-    '''
     # Read input files for 
-    combine_data = [(params, read_analyzer_files(out_file_names)) for (params, out_file_names) in combined_file_names]
+    combine_data = [(combined_file_names[i][0], read_analyzer_files(combined_file_names[i][1])) for i in range(0, len(combined_file_names))]
+    print(combine_data)
     combiner_conf_filename = sys.argv[3]
     Combiner.combine(combine_data, output_path="out", config_path=combiner_conf_filename)
-    '''
 
 if __name__ == '__main__':
     main()

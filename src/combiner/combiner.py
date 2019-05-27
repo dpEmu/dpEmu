@@ -146,9 +146,9 @@ class Combiner:
 
         # plot scores
         if plot_scores_to_same:
-            plt.figure()
+            fig = plt.figure()
             plt.clf()
-
+            ax = fig.add_subplot(1)
             for score_type in score_types:
                 filter_values = []
                 scores = []
@@ -157,7 +157,7 @@ class Combiner:
                     scores.append(Combiner.__get_value(element, config_paths["scores"])[score_type])
                 line, = plt.plot(filter_values, scores)
                 line.set_label(score_type)
-                plt.scatter(filter_values, scores)
+                ax.scatter(filter_values, scores)
                 plt.legend()
             plt.title("Scores")
             plt.xlabel("error")

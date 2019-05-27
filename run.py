@@ -107,9 +107,10 @@ def main():
 
     # Read input
     path_to_data, path_to_labels = load_digits_as_npy() # Values 0..16.
-    # path_to_data, path_to_labels = load_mnist_as_npy(.1) # Values 0..255.
+    # path_to_data, path_to_labels = load_mnist_as_npy(70000) # Values 0..255.
     original_data_files = [path_to_data, path_to_labels]
     original_data = tuple([np.load(data_file) for data_file in original_data_files])
+    print(original_data[0].shape)
 
     # original_data[0].reshape((original_data[0].shape[0], 28, 28))
 

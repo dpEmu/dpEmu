@@ -1,9 +1,7 @@
 import tempfile
-from mock import patch
 import json
 import numpy as np
 from PIL import Image
-
 import run
 
 

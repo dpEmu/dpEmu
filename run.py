@@ -63,8 +63,8 @@ def run_commands(run_model_command, run_analyze_command, in_file_names):
     # print(run_model_command)
     # print(run_analyze_command)
 
-    subprocess.run(command_1, shell=True)
-    subprocess.run(command_2, shell=True)
+    subprocess.run(run_model_command, shell=True)
+    subprocess.run(run_analyze_command, shell=True)
 
     mid_file_names = [value for key, value in mid_replacements.items()]
     out_file_names = [value for key, value in out_replacements.items()]

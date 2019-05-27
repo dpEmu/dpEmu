@@ -1,2 +1,2 @@
-cat [IN_1] > [MID_1]
-echo "lol" > [OUT_1]
+cat [IN_1] > [MID_1.txt]
+echo "lol" > [OUT_1.txt]

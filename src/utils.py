@@ -16,10 +16,14 @@ def load_digits_as_npy():
 
 def load_mnist_as_npy(train_size):
     mnist = fetch_openml("mnist_784")
-    data, _, labels, _ = train_test_split(mnist["data"], mnist["target"].astype(int), train_size=train_size,
-                                          random_state=42)
-    path_to_data = join(get_project_root(), "{}/{}.{}".format("data", "mnist_data", "npy"))
-    path_to_labels = join(get_project_root(), "{}/{}.{}".format("data", "mnist_labels", "npy"))
+    if train_size == mnist["data"].shape[0]:
+        data = mnist["data"]
+        labels = mnist["target"].astype(int)
+    else:
+        data, _, labels, _ = train_test_split(mnist["data"], mnist["target"].astype(int), train_size=train_size,
+                                              random_state=42)
+    path_to_data = join(get_project_root(), "{}/{}_{}.{}".format("data", "mnist_data", train_size, "npy"))
+    path_to_labels = join(get_project_root(), "{}/{}_{}.{}".format("data", "mnist_labels", train_size, "npy"))
     _save_data_and_labels(data, labels, path_to_data, path_to_labels)
     return path_to_data, path_to_labels
 

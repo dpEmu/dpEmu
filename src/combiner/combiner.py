@@ -108,7 +108,8 @@ class Combiner:
         image.save(path)
         Image.open(path).verify()
 
-    def combine(self, data, output_path=None, config_path=None):
+    @staticmethod
+    def combine(data, output_path=None, config_path=None):
         """
         Plots the data and saves the graphs to the output_path if it's specified.
 
@@ -133,11 +134,11 @@ class Combiner:
             sys.exit()
 
         config = json.loads(open(config_path, 'r').read())
-        config_paths, filter_type, plot_scores_to_same = self.__analyze_config(config)
+        config_paths, filter_type, plot_scores_to_same = Combiner.__analyze_config(config)
 
         score_types = []
         for element in data:
-            for score in self.__get_value(element, config_paths["scores"]):
+            for score in Combiner.__get_value(element, config_paths["scores"]):
                 score_types.append(score)
 
         # force list to contain only unique elements
@@ -152,8 +153,8 @@ class Combiner:
                 filter_values = []
                 scores = []
                 for element in data:
-                    filter_values.append(self.__get_value(element, config_paths["filters"])[filter_type])
-                    scores.append(self.__get_value(element, config_paths["scores"])[score_type])
+                    filter_values.append(Combiner.__get_value(element, config_paths["filters"])[filter_type])
+                    scores.append(Combiner.__get_value(element, config_paths["scores"])[score_type])
                 line, = plt.plot(filter_values, scores)
                 line.set_label(score_type)
                 plt.scatter(filter_values, scores)
@@ -162,7 +163,7 @@ class Combiner:
             plt.xlabel("error")
             plt.ylabel("score")
             plt.tight_layout()
-            img = self.__plot_to_img()
+            img = Combiner.__plot_to_img()
             img.show()
             if output_path:
                 Combiner.__save(img, output_path + "/scores-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".png")
@@ -171,8 +172,8 @@ class Combiner:
                 filter_values = []
                 scores = []
                 for element in data:
-                    filter_values.append(self.__get_value(element, config_paths["filters"])[filter_type])
-                    scores.append(self.__get_value(element, config_paths["scores"])[score_type])
+                    filter_values.append(Combiner.__get_value(element, config_paths["filters"])[filter_type])
+                    scores.append(Combiner.__get_value(element, config_paths["scores"])[score_type])
                 plt.figure()
                 plt.clf()
                 plt.plot(filter_values, scores)
@@ -181,10 +182,10 @@ class Combiner:
                 plt.xlabel("error")
                 plt.ylabel("score")
                 plt.tight_layout()
-                img = self.__plot_to_img()
+                img = Combiner.__plot_to_img()
                 img.show()
                 if output_path:
                     path = output_path + "/" + score_type + "-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".png"
                     Combiner.__save(img, path)
 
-        self.__create_combined_image(data, output_path, config_paths)
+        Combiner.__create_combined_image(data, output_path, config_paths)

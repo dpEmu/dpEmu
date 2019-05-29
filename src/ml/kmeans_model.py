@@ -23,8 +23,9 @@ class ReducedKMeans:
     def reduce_and_fit_data(self):
         n_classes = len(np.unique(self.labels))
         jl_limit = johnson_lindenstrauss_min_dim(n_samples=self.data.shape[0], eps=.3)
-        pca_limit = 100
+        pca_limit = 50
         reduced_data = self.data
+
         if reduced_data.shape[1] > jl_limit and reduced_data.shape[1] > pca_limit:
             reduced_data = SparseRandomProjection(n_components=jl_limit, random_state=self.seed).fit_transform(
                 reduced_data)

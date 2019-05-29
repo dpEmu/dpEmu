@@ -23,7 +23,7 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 *  ```cd dpEmu```
 *  ```python3 -m venv venv```
 *  ```source venv/bin/activate```
-*  ```pip install -U pip setuptools```
+*  ```pip install -U pip setuptools wheel```
 *  ```pip install -r requirements.txt```
 
 ### Windows
@@ -31,7 +31,7 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 *  ```cd dpEmu```
 *  ```python -m venv venv```
 *  ```source venv/Scripts/activate```
-*  ```python -m pip install -U pip setuptools```
+*  ```python -m pip install -U pip setuptools wheel```
 *  ```pip install -r requirements.txt```
 
 ## Usage <a name="usage"/>

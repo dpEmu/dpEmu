@@ -1,3 +1,4 @@
+import pickle
 from datetime import datetime
 from os.path import dirname, isfile, join, realpath
 
@@ -28,20 +29,17 @@ def load_mnist_as_npy(train_size):
     return path_to_data, path_to_labels
 
 
-def load_20newsgroups_as_npy(size):
-    np.random.seed(42)
+def load_20newsgroups_as_pickle(categories=None):
+    newsgroups = fetch_20newsgroups(subset="all", categories=categories, remove=("headers", "footers", "quotes"),
+                                    random_state=42)
+    path_to_data = join(get_project_root(), "{}/{}.{}".format("data", "20newsgroups_data", "pickle"))
+    path_to_labels = join(get_project_root(), "{}/{}.{}".format("data", "20newsgroups_labels", "pickle"))
 
-    newsgroups = fetch_20newsgroups(subset="all", remove=("headers", "footers", "quotes"), random_state=42)
-    if size == len(newsgroups["data"]):
-        data = newsgroups["data"]
-        labels = newsgroups["target"]
-    else:
-        data, _, labels, _ = train_test_split(newsgroups["data"], newsgroups["target"], train_size=size,
-                                              random_state=42)
+    with open(path_to_data, "wb") as fp:
+        pickle.dump(newsgroups["data"], fp)
+    with open(path_to_labels, "wb") as fp:
+        pickle.dump(newsgroups["target"], fp)
 
-    path_to_data = join(get_project_root(), "{}/{}_{}.{}".format("data", "20newsgroups_data", size, "npy"))
-    path_to_labels = join(get_project_root(), "{}/{}_{}.{}".format("data", "20newsgroups_labels", size, "npy"))
-    _save_data_and_labels(data, labels, path_to_data, path_to_labels)
     return path_to_data, path_to_labels
 
 

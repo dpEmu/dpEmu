@@ -1,41 +1,46 @@
 import json
+import pickle
 import sys
 
 import numpy as np
-from sklearn.externals.joblib import load
+from joblib import load
+from scipy.sparse import load_npz
 from sklearn.model_selection import train_test_split
 
 
 class ClusteringAnalyzer:
 
     def __init__(self, paths):
-        self.data = np.load(paths[0])
-        self.labels = np.load(paths[1])
-        self.fitted_model = load(paths[2])
-        self.path_to_scores = paths[3]
-        self.path_to_best_params = paths[4]
         np.random.seed(42)
+        self.vectorized_data = load_npz(paths[0])
+        with open(paths[1], "rb") as file:
+            self.labels = pickle.load(file)
+        self.fitted_clf = load(paths[2])
+        self.path_to_scores = paths[3]
+        self.path_to_best_clf_params = paths[4]
 
     def analyze(self):
-        train_data, test_data, train_labels, test_labels = train_test_split(self.data, self.labels, test_size=.2,
-                                                                            random_state=42)
-        scores = self.__get_scores(test_data, test_labels)
-        best_params = self.__get_best_params()
+        vectorized_train_data, vectorized_test_data, train_labels, test_labels = train_test_split(
+            self.vectorized_data,
+            self.labels,
+            test_size=.2,
+            random_state=42
+        )
+
+        scores = self.__get_scores(vectorized_train_data, vectorized_test_data, train_labels, test_labels)
 
         with open(self.path_to_scores, "w") as fp:
             json.dump(scores, fp)
 
-        with open(self.path_to_best_params, "w") as fp:
-            json.dump(best_params, fp)
+        with open(self.path_to_best_clf_params, "w") as fp:
+            json.dump(self.fitted_clf.best_params_, fp)
 
-    def __get_scores(self, test_data, test_labels):
+    def __get_scores(self, vectorized_train_data, vectorized_test_data, train_labels, test_labels):
         scores = {
-            "mean_accuracy": self.fitted_model.score(test_data, test_labels),
+            "train_set_mean_accuracy": self.fitted_clf.score(vectorized_train_data, train_labels),
+            "test_set_mean_accuracy": self.fitted_clf.score(vectorized_test_data, test_labels),
         }
         return {k: str(round(v, 3)) for k, v in scores.items()}
-
-    def __get_best_params(self):
-        return {k: str(round(v, 3)) for k, v in self.fitted_model.best_params_.items()}
 
 
 def main(argv):

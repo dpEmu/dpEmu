@@ -2,7 +2,7 @@ import json
 import warnings
 
 from src.ml.utils import run_ml_script
-from src.utils import load_20newsgroups_as_pickle, generate_unique_path
+from src.utils import load_newsgroups_as_pickle, generate_unique_path
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
         "comp.graphics",
         "sci.space",
     ]
-    path_to_data, path_to_labels = load_20newsgroups_as_pickle()
+    path_to_data, path_to_labels = load_newsgroups_as_pickle()
     # path_to_data, path_to_labels = load_20newsgroups_as_pickle(categories)
     path_to_clf_params = generate_unique_path("tmp", "json")
     path_to_vectorized_data = generate_unique_path("tmp", "npz")

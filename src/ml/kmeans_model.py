@@ -5,7 +5,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.externals.joblib import dump
 from sklearn.random_projection import johnson_lindenstrauss_min_dim, SparseRandomProjection
-from umap import UMAP
+from umap.umap_ import UMAP
 
 
 class ReducedKMeans:

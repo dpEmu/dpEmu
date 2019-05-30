@@ -29,7 +29,7 @@ def load_mnist_as_npy(train_size):
     return path_to_data, path_to_labels
 
 
-def load_20newsgroups_as_pickle(categories=None):
+def load_newsgroups_as_pickle(categories=None):
     newsgroups = fetch_20newsgroups(subset="all", categories=categories, remove=("headers", "footers", "quotes"),
                                     random_state=42)
     path_to_data = join(get_project_root(), "{}/{}.{}".format("data", "20newsgroups_data", "pickle"))

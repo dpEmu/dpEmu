@@ -2,7 +2,7 @@ from datetime import datetime
 from os.path import dirname, isfile, join, realpath
 
 import numpy as np
-from sklearn.datasets import load_digits, fetch_openml
+from sklearn.datasets import load_digits, fetch_openml, fetch_20newsgroups
 from sklearn.model_selection import train_test_split
 
 
@@ -24,6 +24,23 @@ def load_mnist_as_npy(train_size):
                                               random_state=42)
     path_to_data = join(get_project_root(), "{}/{}_{}.{}".format("data", "mnist_data", train_size, "npy"))
     path_to_labels = join(get_project_root(), "{}/{}_{}.{}".format("data", "mnist_labels", train_size, "npy"))
+    _save_data_and_labels(data, labels, path_to_data, path_to_labels)
+    return path_to_data, path_to_labels
+
+
+def load_20newsgroups_as_npy(size):
+    np.random.seed(42)
+
+    newsgroups = fetch_20newsgroups(subset="all", remove=("headers", "footers", "quotes"), random_state=42)
+    if size == len(newsgroups["data"]):
+        data = newsgroups["data"]
+        labels = newsgroups["target"]
+    else:
+        data, _, labels, _ = train_test_split(newsgroups["data"], newsgroups["target"], train_size=size,
+                                              random_state=42)
+
+    path_to_data = join(get_project_root(), "{}/{}_{}.{}".format("data", "20newsgroups_data", size, "npy"))
+    path_to_labels = join(get_project_root(), "{}/{}_{}.{}".format("data", "20newsgroups_labels", size, "npy"))
     _save_data_and_labels(data, labels, path_to_data, path_to_labels)
     return path_to_data, path_to_labels
 

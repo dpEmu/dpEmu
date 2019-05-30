@@ -18,7 +18,7 @@ class ClusteringAnalyzer:
         self.path_to_scores = paths[5]
         np.random.seed(42)
 
-    def analyze(self, ):
+    def analyze(self):
         self.__save_classes_img()
         self.__save_clusters_img()
         scores = self.__get_scores()

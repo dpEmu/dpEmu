@@ -13,8 +13,8 @@ def main():
         "comp.graphics",
         "sci.space",
     ]
-    path_to_data, path_to_labels = load_newsgroups_as_pickle()
-    # path_to_data, path_to_labels = load_20newsgroups_as_pickle(categories)
+    path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle()
+    # path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle(categories)
     path_to_clf_params = generate_unique_path("tmp", "json")
     path_to_vectorized_data = generate_unique_path("tmp", "npz")
     path_to_fitted_clf = generate_unique_path("tmp", "joblib")
@@ -35,14 +35,15 @@ def main():
         path_to_vectorized_data,
         path_to_fitted_clf
     ))
-    run_ml_script("python src/ml/classifying_analyzer.py {} {} {} {} {}".format(
+
+    run_ml_script("python src/ml/classification_analyzer.py {} {} {} {} {} {}".format(
         path_to_vectorized_data,
         path_to_labels,
         path_to_fitted_clf,
         path_to_scores,
-        path_to_best_clf_params
+        path_to_best_clf_params,
+        path_to_label_names
     ))
-
     with open(path_to_scores, "r") as file:
         scores = json.load(file)
     with open(path_to_best_clf_params, "r") as file:

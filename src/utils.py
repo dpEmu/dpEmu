@@ -34,13 +34,16 @@ def load_newsgroups_as_pickle(categories=None):
                                     random_state=42)
     path_to_data = join(get_project_root(), "{}/{}.{}".format("data", "20newsgroups_data", "pickle"))
     path_to_labels = join(get_project_root(), "{}/{}.{}".format("data", "20newsgroups_labels", "pickle"))
+    path_to_label_names = join(get_project_root(), "{}/{}.{}".format("data", "20newsgroups_label_names", "pickle"))
 
     with open(path_to_data, "wb") as fp:
         pickle.dump(newsgroups["data"], fp)
     with open(path_to_labels, "wb") as fp:
         pickle.dump(newsgroups["target"], fp)
+    with open(path_to_label_names, "wb") as fp:
+        pickle.dump(newsgroups["target_names"], fp)
 
-    return path_to_data, path_to_labels
+    return path_to_data, path_to_labels, path_to_label_names
 
 
 def _save_data_and_labels(data, labels, path_to_data, path_to_labels):

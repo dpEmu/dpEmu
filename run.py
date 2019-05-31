@@ -11,9 +11,9 @@ import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.copy as copy
 from src.combiner.combiner import Combiner
-from src.utils import load_digits_as_npy, load_mnist_as_npy
+from src.utils import load_digits_as_npy
+from src.paramselector.param_selector import ParamSelector
 import src.utils as utils
-import re
 
 # File format:
 #     run_model_command ...
@@ -50,7 +50,9 @@ def create_replacements(command, token_signature):
     matches = re.findall(regex, command)
     replacements = {}
     for pr in matches:
-        replacements["[" + token_signature + "_" + pr[0] + "." + pr[1] + "]"] = unique_filename("tmp", token_signature + "-" + str(pr[0]), pr[1])
+        rep_str = "[" + token_signature + "_" + pr[0] + "." + pr[1] + "]"
+        tar_str = unique_filename("tmp", token_signature + "-" + str(pr[0]), pr[1])
+        replacements[rep_str] = tar_str
     return replacements
 
 def run_commands(run_model_command, run_analyze_command, in_file_names):
@@ -88,56 +90,64 @@ def read_analyzer_files(file_names):
     return res
 
 def main():
-    def save_errorified(std, prob):
-        print(std, prob)
-        x_node = array.Array(original_data[0][0].shape)
-        x_node.addfilter(filters.GaussianNoise(0, std))
-        x_node.addfilter(filters.Missing(prob))
-        y_node = array.Array(original_data[1][0].shape)
-        series_node = series.TupleSeries([x_node, y_node])
-        error_generator_root = copy.Copy(series_node)
-        x_out, y_out = error_generator_root.process(original_data)
-        # x_out.reshape((x_out.shape[0], 28*28))
-        x_name = unique_filename("tmp", "x", "npy")
-        y_name = unique_filename("tmp", "y", "npy")
-        np.save(x_name, x_out)
-        np.save(y_name, y_out)
-        return [x_name, y_name]
-
-    # Read input
+    # Read input files
     path_to_data, path_to_labels = load_digits_as_npy() # Values 0..16.
-    # path_to_data, path_to_labels = load_mnist_as_npy(70000) # Values 0..255.
     original_data_files = [path_to_data, path_to_labels]
     original_data = tuple([np.load(data_file) for data_file in original_data_files])
-    print(original_data[0].shape)
 
-    # original_data[0].reshape((original_data[0].shape[0], 28, 28))
+    # Read config for parameter selector
+    parsel_config_filename = sys.argv[1]
+    error_config_filename = sys.argv[2]
+    combiner_config_filename = sys.argv[3]
+    model_config_filename = sys.argv[4]
 
-    commands_file_name = sys.argv[1]
-    run_model_command, run_analyze_command = read_commands_file(commands_file_name)
+    param_selector = ParamSelector(parsel_config_filename=parsel_config_filename,
+                                   model_config_filename=model_config_filename,
+                                   error_config_filename=error_config_filename)
 
-    # Read error parameters from file (file name given as second argument)
-    error_param_filename = sys.argv[2]
-    error_params = json.load(open(error_param_filename))
-    std_param = error_params['std'] # Iterable of form (start, stop, num)
-    prob_param = error_params['prob'] # Iterable of form (start, stop, num) or (only_value)
-    std_vals = utils.expand_parameter_to_linspace(std_param)
-    prob_missing_vals = utils.expand_parameter_to_linspace(prob_param)
+    while(param_selector.should_continue()):
+        # For parallel processing, take multiple sets of commands here
+        run_model_command, run_analyze_command = param_selector.next_commands()
 
-    # Run commands
-    combined_file_names = []
-    for std in std_vals:
-        for prob in prob_missing_vals:
-            err_file_names = save_errorified(std, prob)
-            mid_file_names, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
-            # err_file_names and mid_file_names are currently unused
-            combined_file_names.append(({"gaussian" : std, "throwaway" : prob}, out_file_names))
+        def save_errorified(std, prob):
+            print(std, prob)
+            x_node = array.Array(original_data[0][0].shape)
+            x_node.addfilter(filters.GaussianNoise(0, std))
+            x_node.addfilter(filters.Missing(prob))
+            y_node = array.Array(original_data[1][0].shape)
+            series_node = series.TupleSeries([x_node, y_node])
+            error_generator_root = copy.Copy(series_node)
+            x_out, y_out = error_generator_root.process(original_data)
+            # x_out.reshape((x_out.shape[0], 28*28))
+            x_name = unique_filename("tmp", "x", "npy")
+            y_name = unique_filename("tmp", "y", "npy")
+            np.save(x_name, x_out)
+            np.save(y_name, y_out)
+            return [x_name, y_name]
 
-    # Read input files
-    combine_data = [(params, read_analyzer_files(file_names)) for (params, file_names) in combined_file_names]
-    print(combine_data)
-    combiner_conf_filename = sys.argv[3]
-    Combiner.combine(combine_data, output_path="out", config_path=combiner_conf_filename)
+        # Read error parameters from file (file name given as second argument)
+        error_params = json.load(open(error_config_filename))
+        std_param = error_params['std'] # Iterable of form (start, stop, num)
+        prob_param = error_params['prob'] # Iterable of form (start, stop, num) or (only_value)
+        std_vals = utils.expand_parameter_to_linspace(std_param)
+        prob_missing_vals = utils.expand_parameter_to_linspace(prob_param)
+
+        # Run commands
+        combined_file_names = []
+        for std in std_vals:
+            for prob in prob_missing_vals:
+                err_file_names = save_errorified(std, prob)
+                _, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
+                combined_file_names.append(({"gaussian" : std, "throwaway" : prob}, out_file_names))
+
+        # Read input files
+        combine_data = [(params, read_analyzer_files(file_names)) for (params, file_names) in combined_file_names]
+
+        param_selector.read_analysis(combine_data)
+
+        # Maybe do not output combined results if param_selector doesn't want to,
+        # or combine results over multiple runs
+        Combiner.combine(combine_data, output_path="out", config_path=combiner_config_filename)
 
 if __name__ == '__main__':
     main()

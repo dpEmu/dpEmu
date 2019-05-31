@@ -8,6 +8,6 @@ class Array:
         self.filters.append(custom_filter)
         custom_filter.shape = self.shape
 
-    def process(self, input_source):
+    def process(self, data, index_tuple=()):
         for f in self.filters:
-            f.apply(input_source)
+            f.apply(data, (index_tuple))

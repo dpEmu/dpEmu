@@ -8,6 +8,7 @@ import numpy as np
 import src.problemgenerator.series as series
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
+import src.problemgenerator.copy as copy
 import re
 
 # File format:
@@ -82,7 +83,8 @@ def main():
         x_node.addfilter(filters.GaussianNoise(0, std))
         x_node.addfilter(filters.Missing(prob))
         y_node = array.Array(original_data[1][0].shape)
-        error_generator_root = series.TupleSeries([x_node, y_node])
+        series_node = series.TupleSeries([x_node, y_node])
+        error_generator_root = copy.Copy(series_node)
         x_out, y_out = error_generator_root.process(original_data)
         x_name = unique_filename("tmp", "x", "npy")
         y_name = unique_filename("tmp", "y", "npy")

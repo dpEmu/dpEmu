@@ -2,6 +2,7 @@ import numpy as np
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.series as series
+import src.problemgenerator.copy as copy
 
 # To load data from a csv file, uncomment the rows below and
 # give the data file name as the first command line argument.
@@ -26,9 +27,12 @@ sensor_array.addfilter(filters.Missing(probability=.3))
 # Create a series to represent the 100 data points
 observation_series = series.Series(sensor_array)
 
+# Add copy node
+root_node = copy.Copy(observation_series)
+
 # The data model tree is now complete.
 # Process the data to introduce errors
-output = observation_series.process(data)
+output = root_node.process(data)
 
 # Sanity check: does the shape of the output equal that of the input?
 print("input data has shape", data.shape)

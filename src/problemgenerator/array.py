@@ -9,6 +9,5 @@ class Array:
         custom_filter.shape = self.shape
 
     def process(self, input_source):
-        output = input_source
         for f in self.filters:
-            output = f.apply(output)
+            f.apply(input_source)

@@ -16,8 +16,7 @@ class CustomMultinomialNB:
         np.random.seed(42)
         with open(paths[0], "rb") as file:
             self.data = pickle.load(file)
-        with open(paths[1], "rb") as file:
-            self.labels = pickle.load(file)
+        self.labels = np.load(paths[1])
         with open(paths[2], "r") as file:
             self.clf_param_grid = json.load(file)
         self.path_to_vectorized_data = paths[3]

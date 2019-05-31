@@ -1,20 +1,19 @@
 import json
 
-from pandas.tests.extension.numpy_.test_numpy_nested import np
+import numpy as np
 
 from src.ml.utils import run_ml_script
-from src.utils import load_newsgroups_as_pickle, generate_unique_path
+from src.utils import generate_unique_path, load_newsgroups_as_pickle
 
 
-def main():
+def test_naive_bayes_with_analysis():
     categories = [
         "alt.atheism",
         "talk.religion.misc",
         "comp.graphics",
         "sci.space",
     ]
-    path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle(categories)
-    # path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle()
+    path_to_data, path_to_labels, _ = load_newsgroups_as_pickle(categories)
     path_to_clf_param_grid = generate_unique_path("tmp", "json")
     path_to_vectorized_data = generate_unique_path("tmp", "npz")
     path_to_fitted_clf = generate_unique_path("tmp", "joblib")
@@ -24,7 +23,6 @@ def main():
 
     clf_param_grid = {
         "alpha": [10 ** i for i in range(-3, 1)],
-        # "C": [10 ** k for k in range(-3, 4)],
     }
     with open(path_to_clf_param_grid, "w") as file:
         json.dump(clf_param_grid, file)
@@ -51,10 +49,14 @@ def main():
         best_clf_params = json.load(file)
     cm = np.load(path_to_confusion_matrix)
 
-    print(scores)
-    print(best_clf_params)
-    print(cm)
+    assert scores == {"train_set_mean_accuracy": 0.971, "test_set_mean_accuracy": 0.836}
+    assert best_clf_params == {"alpha": 0.01}
 
+    predicted_cm = np.array([
+        [116, 2, 12, 25],
+        [2, 182, 10, 1],
+        [9, 9, 179, 4],
+        [23, 4, 10, 90]
+    ])
 
-if __name__ == "__main__":
-    main()
+    assert np.array_equal(cm, predicted_cm)

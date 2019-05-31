@@ -101,8 +101,8 @@ def main():
     model_config_filename = sys.argv[4]
 
     param_selector = ParamSelector(parsel_config_filename=parsel_config_filename,
-        model_config_filename=model_config_filename,
-        error_config_filename=error_config_filename)
+            model_config_filename=model_config_filename,
+            error_config_filename=error_config_filename)
 
     while(param_selector.should_continue()):
         # For parallel processing, take multiple sets of commands here

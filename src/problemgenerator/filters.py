@@ -4,7 +4,7 @@ import numpy as np
 class Filter:
 
     def __init__(self):
-        pass
+        np.random.seed(42)
 
 
 class Missing(Filter):

@@ -26,4 +26,4 @@ def test_kmeans_with_analysis():
     Image.open(path_to_classes_img).verify()
     Image.open(path_to_clusters_img).verify()
 
-    assert scores == {"v-meas": "0.905", "ARI": "0.822", "AMI": "0.904", "silhouette": "0.792"}
+    assert scores == {"v-meas": "0.919", "ARI": "0.898", "AMI": "0.919", "silhouette": "0.79"}

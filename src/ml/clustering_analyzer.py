@@ -18,7 +18,7 @@ class ClusteringAnalyzer:
         self.path_to_scores = paths[5]
         np.random.seed(42)
 
-    def analyze(self, ):
+    def analyze(self):
         self.__save_classes_img()
         self.__save_clusters_img()
         scores = self.__get_scores()
@@ -34,7 +34,9 @@ class ClusteringAnalyzer:
             "AMI": adjusted_mutual_info_score(self.labels, self.fitted_model.labels_, average_method="arithmetic"),
             "silhouette": silhouette_score(self.reduced_data, self.fitted_model.labels_, sample_size=sample_size),
         }
-        return {k: str(round(v, 3)) for k, v in scores.items()}
+        scores = {k: str(round(v, 3)) for k, v in scores.items()}
+        print(scores)
+        return scores
 
     def __save_classes_img(self):
         x_min, x_max, y_min, y_max = self.__get_lims()

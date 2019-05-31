@@ -3,11 +3,12 @@ import json
 from PIL import Image
 
 from src.ml.utils import run_ml_script
-from src.utils import load_digits_as_npy, generate_unique_path
+from src.utils import load_digits_as_npy, load_mnist_as_npy, generate_unique_path
 
 
 def main():
     path_to_data, path_to_labels = load_digits_as_npy()
+    # path_to_data, path_to_labels = load_mnist_as_npy(70000)
     path_to_reduced_data = generate_unique_path("tmp", "npy")
     path_to_fitted_model = generate_unique_path("tmp", "joblib")
     path_to_classes_img = generate_unique_path("tmp", "png")

@@ -55,6 +55,12 @@
 
     Done independently by each developer.
 
+#### Branches
+
+  Developers delete their own branches when they are no longer required.
+
+
+    Done independently by each developer.
 
 #### Daily
 

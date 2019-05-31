@@ -1,8 +1,9 @@
+import pickle
 from datetime import datetime
 from os.path import dirname, isfile, join, realpath
 
 import numpy as np
-from sklearn.datasets import load_digits, fetch_openml
+from sklearn.datasets import load_digits, fetch_openml, fetch_20newsgroups
 from sklearn.model_selection import train_test_split
 
 
@@ -16,12 +17,33 @@ def load_digits_as_npy():
 
 def load_mnist_as_npy(train_size):
     mnist = fetch_openml("mnist_784")
-    data, _, labels, _ = train_test_split(mnist["data"], mnist["target"].astype(int), train_size=train_size,
-                                          random_state=42)
-    path_to_data = join(get_project_root(), "{}/{}.{}".format("data", "mnist_data", "npy"))
-    path_to_labels = join(get_project_root(), "{}/{}.{}".format("data", "mnist_labels", "npy"))
+    if train_size == mnist["data"].shape[0]:
+        data = mnist["data"]
+        labels = mnist["target"].astype(int)
+    else:
+        data, _, labels, _ = train_test_split(mnist["data"], mnist["target"].astype(int), train_size=train_size,
+                                              random_state=42)
+    path_to_data = join(get_project_root(), "{}/{}_{}.{}".format("data", "mnist_data", train_size, "npy"))
+    path_to_labels = join(get_project_root(), "{}/{}_{}.{}".format("data", "mnist_labels", train_size, "npy"))
     _save_data_and_labels(data, labels, path_to_data, path_to_labels)
     return path_to_data, path_to_labels
+
+
+def load_newsgroups_as_pickle(categories=None):
+    newsgroups = fetch_20newsgroups(subset="all", categories=categories, remove=("headers", "footers", "quotes"),
+                                    random_state=42)
+    path_to_data = join(get_project_root(), "{}/{}.{}".format("data", "20newsgroups_data", "pickle"))
+    path_to_labels = join(get_project_root(), "{}/{}.{}".format("data", "20newsgroups_labels", "pickle"))
+    path_to_label_names = join(get_project_root(), "{}/{}.{}".format("data", "20newsgroups_label_names", "pickle"))
+
+    with open(path_to_data, "wb") as fp:
+        pickle.dump(newsgroups["data"], fp)
+    with open(path_to_labels, "wb") as fp:
+        pickle.dump(newsgroups["target"], fp)
+    with open(path_to_label_names, "wb") as fp:
+        pickle.dump(newsgroups["target_names"], fp)
+
+    return path_to_data, path_to_labels, path_to_label_names
 
 
 def _save_data_and_labels(data, labels, path_to_data, path_to_labels):
@@ -41,3 +63,9 @@ def generate_unique_path(folder_name, extension, prefix=None):
 
 def get_project_root():
     return dirname(dirname(realpath(__file__)))
+
+
+def expand_parameter_to_linspace(param):
+    if len(param) == 1:
+        param = (param[0], param[0], 1)
+    return np.linspace(*param)

@@ -1,2 +1,2 @@
-cat [IN_1] > [MID_1.txt]
-echo "lol" > [OUT_1.txt]
+python3 ./src/ml/kmeans_model.py [IN_1] [IN_2] [MID_1.npy] [MID_2.joblib]
+python3 ./src/ml/clustering_analyzer.py [MID_1.npy] [IN_2] [MID_2.joblib] [OUT_2.png] [OUT_3.png] [OUT_1.json]

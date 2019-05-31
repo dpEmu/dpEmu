@@ -5,13 +5,15 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.externals.joblib import dump
 from sklearn.random_projection import johnson_lindenstrauss_min_dim, SparseRandomProjection
-from umap import UMAP
+from umap.umap_ import UMAP
 
 
 class ReducedKMeans:
 
     def __init__(self, paths):
         self.data = np.load(paths[0])
+        if len(self.data.shape) == 3:
+            self.data = self.data.reshape(self.data.shape[:-2] + (-1,))
         self.labels = np.load(paths[1])
         self.path_to_reduced_data = paths[2]
         self.path_to_fitted_model = paths[3]
@@ -19,17 +21,17 @@ class ReducedKMeans:
         np.random.seed(self.seed)
 
     def reduce_and_fit_data(self):
-        n_features = self.data.shape[1]
         n_classes = len(np.unique(self.labels))
         jl_limit = johnson_lindenstrauss_min_dim(n_samples=self.data.shape[0], eps=.3)
+        pca_limit = 50
         reduced_data = self.data
 
-        if n_features > jl_limit and n_features > 100:
+        if reduced_data.shape[1] > jl_limit and reduced_data.shape[1] > pca_limit:
             reduced_data = SparseRandomProjection(n_components=jl_limit, random_state=self.seed).fit_transform(
                 reduced_data)
 
-        if n_features > 100:
-            reduced_data = PCA(n_components=100, random_state=self.seed).fit_transform(reduced_data)
+        if reduced_data.shape[1] > pca_limit:
+            reduced_data = PCA(n_components=pca_limit, random_state=self.seed).fit_transform(reduced_data)
 
         reduced_data = UMAP(random_state=self.seed).fit_transform(reduced_data)
 

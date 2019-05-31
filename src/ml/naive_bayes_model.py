@@ -8,7 +8,6 @@ from scipy.sparse import save_npz
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
 
 
 class CustomMultinomialNB:
@@ -20,24 +19,22 @@ class CustomMultinomialNB:
         with open(paths[1], "rb") as file:
             self.labels = pickle.load(file)
         with open(paths[2], "r") as file:
-            self.clf_params = json.load(file)
+            self.clf_param_grid = json.load(file)
         self.path_to_vectorized_data = paths[3]
         self.path_to_fitted_clf = paths[4]
 
     def fit_and_optimize(self):
-        vectorizer = TfidfVectorizer(max_df=0.5, min_df=2, stop_words="english")
+        vectorizer = TfidfVectorizer(max_df=0.5, min_df=2)
         vectorized_data = vectorizer.fit_transform(self.data)
         print(vectorized_data.shape)
 
         vectorized_train_data, _, train_labels, _ = train_test_split(vectorized_data, self.labels, test_size=.2,
                                                                      random_state=42)
 
-        pipeline = Pipeline([
-            ("nb", MultinomialNB()),
-            # ("svc", LinearSVC(random_state=42)),
-        ])
+        clf = MultinomialNB()
+        # clf = LinearSVC(random_state=42)
 
-        grid_search_cv = GridSearchCV(pipeline, self.clf_params, cv=3)
+        grid_search_cv = GridSearchCV(clf, self.clf_param_grid, cv=3, n_jobs=-1)
         grid_search_cv.fit(vectorized_train_data, train_labels)
 
         save_npz(self.path_to_vectorized_data, vectorized_data)

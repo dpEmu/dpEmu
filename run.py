@@ -9,6 +9,7 @@ from PIL import Image
 import src.problemgenerator.series as series
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
+import src.problemgenerator.copy as copy
 from src.combiner.combiner import Combiner
 from src.utils import load_digits_as_npy, load_mnist_as_npy
 import src.utils as utils
@@ -93,7 +94,8 @@ def main():
         x_node.addfilter(filters.GaussianNoise(0, std))
         x_node.addfilter(filters.Missing(prob))
         y_node = array.Array(original_data[1][0].shape)
-        error_generator_root = series.TupleSeries([x_node, y_node])
+        series_node = series.TupleSeries([x_node, y_node])
+        error_generator_root = copy.Copy(series_node)
         x_out, y_out = error_generator_root.process(original_data)
         # x_out.reshape((x_out.shape[0], 28*28))
         x_name = unique_filename("tmp", "x", "npy")

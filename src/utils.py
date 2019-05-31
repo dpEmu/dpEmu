@@ -68,3 +68,6 @@ def expand_parameter_to_linspace(param):
     if len(param) == 1:
         param = (param[0], param[0], 1)
     return np.linspace(*param)
+
+def load_ocr_error_frequencies_and_normalize(filename):
+    pass

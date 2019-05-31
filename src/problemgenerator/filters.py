@@ -61,7 +61,7 @@ class OCRerror(Filter):
         """ Pass replacements as a dict.
 
         For example {"e": (["E", "i"], [.5, .5]), "g": (["q", "9"], [.2, .8])}
-        where the latter list consists of probabilities which sum to 1"""
+        where the latter list consists of probabilities which should sum to 1."""
 
         self.prob = p
         self.replacements = replacements

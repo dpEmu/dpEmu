@@ -11,10 +11,9 @@ import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.copy as copy
 from src.combiner.combiner import Combiner
-from src.utils import load_digits_as_npy, load_mnist_as_npy
+from src.utils import load_digits_as_npy
 from src.paramselector.param_selector import ParamSelector
 import src.utils as utils
-import re
 
 # File format:
 #     run_model_command ...
@@ -51,7 +50,9 @@ def create_replacements(command, token_signature):
     matches = re.findall(regex, command)
     replacements = {}
     for pr in matches:
-        replacements["[" + token_signature + "_" + pr[0] + "." + pr[1] + "]"] = unique_filename("tmp", token_signature + "-" + str(pr[0]), pr[1])
+        rep_str = "[" + token_signature + "_" + pr[0] + "." + pr[1] + "]"
+        tar_str = unique_filename("tmp", token_signature + "-" + str(pr[0]), pr[1])
+        replacements[rep_str] = tar_str
     return replacements
 
 def run_commands(run_model_command, run_analyze_command, in_file_names):
@@ -101,8 +102,8 @@ def main():
     model_config_filename = sys.argv[4]
 
     param_selector = ParamSelector(parsel_config_filename=parsel_config_filename,
-            model_config_filename=model_config_filename,
-            error_config_filename=error_config_filename)
+                                   model_config_filename=model_config_filename,
+                                   error_config_filename=error_config_filename)
 
     while(param_selector.should_continue()):
         # For parallel processing, take multiple sets of commands here
@@ -136,7 +137,7 @@ def main():
         for std in std_vals:
             for prob in prob_missing_vals:
                 err_file_names = save_errorified(std, prob)
-                mid_file_names, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
+                _, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
                 combined_file_names.append(({"gaussian" : std, "throwaway" : prob}, out_file_names))
 
         # Read input files

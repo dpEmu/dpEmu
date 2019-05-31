@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Series:
 
     def __init__(self, child):

@@ -15,23 +15,23 @@ def main():
     ]
     path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle()
     # path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle(categories)
-    path_to_clf_params = generate_unique_path("tmp", "json")
+    path_to_clf_param_grid = generate_unique_path("tmp", "json")
     path_to_vectorized_data = generate_unique_path("tmp", "npz")
     path_to_fitted_clf = generate_unique_path("tmp", "joblib")
     path_to_scores = generate_unique_path("tmp", "json")
     path_to_best_clf_params = generate_unique_path("tmp", "json")
 
-    clf_params = {
-        "nb__alpha": [10 ** i for i in range(-3, 1)],
-        # "svc__C": [10 ** k for k in range(-3, 4)],
+    clf_param_grid = {
+        "alpha": [10 ** i for i in range(-3, 1)],
+        # "C": [10 ** k for k in range(-3, 4)],
     }
-    with open(path_to_clf_params, "w") as file:
-        json.dump(clf_params, file)
+    with open(path_to_clf_param_grid, "w") as file:
+        json.dump(clf_param_grid, file)
 
     run_ml_script("python src/ml/naive_bayes_model.py {} {} {} {} {}".format(
         path_to_data,
         path_to_labels,
-        path_to_clf_params,
+        path_to_clf_param_grid,
         path_to_vectorized_data,
         path_to_fitted_clf
     ))

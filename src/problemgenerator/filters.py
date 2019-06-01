@@ -49,3 +49,14 @@ class Uppercase(Filter):
             original_string = element
             modified_string = "".join([stochastic_upper(c, self.prob) for c in original_string])
             data[index_tuple][index] = modified_string
+
+class MissingArea(Filter):
+
+    def __init__(self, probability, mean_radius, missing_value):
+        self.probability = probability
+        self.mean_radius = mean_radius
+        self.missing_value = missing_value
+        super().__init__()
+
+    def apply(self, data, index_tuple):
+        pass

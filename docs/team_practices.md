@@ -100,7 +100,9 @@
 
 #### Sprint Retro
 
-  Each developer answers the following questions:
+  Scrum Master selects a retrospective plan. [A good source for ideas](http://retrospectivewiki.org/index.php?title=Retrospective_Plans)
+  
+  Regardless of what retrospective plan is selected, the following questions should be addressed:
   1. What went well?
   2. What could have gone better?
   3. How to improve?

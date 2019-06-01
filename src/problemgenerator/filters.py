@@ -7,6 +7,7 @@ class Filter:
 
     def __init__(self):
         np.random.seed(42)
+        random.seed(42)
         self.shape = ()
 
 
@@ -63,7 +64,6 @@ class OCRerror(Filter):
         For example {"e": (["E", "i"], [.5, .5]), "g": (["q", "9"], [.2, .8])}
         where the latter list consists of probabilities which should sum to 1."""
 
-        random.seed(42)
         self.replacements = replacements
         super().__init__()
 

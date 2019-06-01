@@ -19,7 +19,7 @@ data = np.array(["Lorem ipsum dolor sit amet,\n" +
                  "Hello\n" +
                  "Hello\n" +
                  "Hello\n" +
-                 "Hello\n"])
+                 "Hello"])
 
 
 y_node = array.Array(data.shape)
@@ -34,7 +34,7 @@ for index, elem in enumerate(out):
 
 
 y_node = array.Array(data.shape)
-# when a missing area is generated, its radius is 1 with probability 0.6 and 2 with 0.4 probability
+# when a missing area is generated, its radius is 1 with probability of 0.6 and 2 with the probability of 0.4
 y_node.addfilter(filters.MissingArea(0.05, filters.MissingArea.ProbabilityArrayRadius([0, 0.6, 0.4]), " "))
 
 root_node = copy.Copy(y_node)

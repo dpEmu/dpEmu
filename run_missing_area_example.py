@@ -2,7 +2,6 @@ import numpy as np
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.copy as copy
-import src.problemgenerator.series as series
 
 data = np.array(["Lorem ipsum dolor sit amet,\n" +
                  "consectetur adipisci elit,\n" +
@@ -15,17 +14,31 @@ data = np.array(["Lorem ipsum dolor sit amet,\n" +
                  "velit esse cillum dolore eu fugiat nulla pariatur.\n" +
                  "Excepteur sint obcaecat cupiditat non proident,\n" +
                  "sunt in culpa qui officia\n" +
-                 "deserunt mollit anim id est laborum."])
+                 "deserunt mollit anim id est laborum.",
+                 "Hello\n" + # the next string starts here
+                 "Hello\n" +
+                 "Hello\n" +
+                 "Hello\n" +
+                 "Hello\n"])
 
-x_node = array.Array(data.shape)
-x_node.addfilter(filters.MissingArea(0.03, 1, 1, " "))
 
-root_node = copy.Copy(x_node)
+y_node = array.Array(data.shape)
+y_node.addfilter(filters.MissingArea(0.03, filters.MissingArea.GaussianRadius(2, 1), " "))
+
+root_node = copy.Copy(y_node)
 
 out = root_node.process(data)
 for index, elem in enumerate(out):
-    print("Line" + str(index + 1) + ":")
     print(elem, end="\n\n")
-print("output shape:", out.shape, ", output dtype:", out.dtype)
 
 
+
+y_node = array.Array(data.shape)
+# when a missing area is generated, its radius is 1 with probability 0.6 and 2 with 0.4 probability
+y_node.addfilter(filters.MissingArea(0.05, filters.MissingArea.ProbabilityArrayRadius([0, 0.6, 0.4]), " "))
+
+root_node = copy.Copy(y_node)
+
+out = root_node.process(data)
+for index, elem in enumerate(out):
+    print(elem, end="\n\n")

@@ -1,5 +1,4 @@
 import random
-from copy import deepcopy
 import numpy as np
 
 
@@ -77,9 +76,9 @@ class OCRerror(Filter):
                 data[index_tuple][index] = self.generate_ocr_errors(string_)
 
     def generate_ocr_errors(self, string_):
-        return "".join([self.__replace_char(c, self.replacements) for c in string_])
+        return "".join([self.replace_char(c, self.replacements) for c in string_])
 
-    def __replace_char(self, c, replacements):
+    def replace_char(self, c, replacements):
         if c in replacements:
             chars, probs = replacements[c]
             return random.choices(chars, probs)[0]

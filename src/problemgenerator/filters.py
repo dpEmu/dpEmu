@@ -32,6 +32,7 @@ class GaussianNoise(Filter):
                                               scale=self.std,
                                               size=data[index_tuple].shape)
 
+
 class Uppercase(Filter):
 
     def __init__(self, probability):
@@ -49,6 +50,7 @@ class Uppercase(Filter):
             original_string = element
             modified_string = "".join([stochastic_upper(c, self.prob) for c in original_string])
             data[index_tuple][index] = modified_string
+
 
 class MissingArea(Filter):
     class GaussianRadiusGenerator:
@@ -69,7 +71,7 @@ class MissingArea(Filter):
                 if np.random.random() <= self.probability_array[radius] / sum_of_probabilities:
                     return radius
                 sum_of_probabilities -= self.probability_array[radius]
-            return 0 # if for some reason none of the radii is chosen return 0 i.e. no missing area
+            return 0  # if for some reason none of the radii is chosen return 0 i.e. no missing area
 
     def __init__(self, probability, radius_generator, missing_value):
         self.probability = probability
@@ -79,7 +81,7 @@ class MissingArea(Filter):
 
     def apply(self, data, index_tuple):
         for index, _ in np.ndenumerate(data[index_tuple]):
-            missing_areas = [] # list of tuples (x, y, radius)
+            missing_areas = []  # list of tuples (x, y, radius)
 
             # generate missing areas
             element = data[index_tuple][index].split("\n")
@@ -95,7 +97,7 @@ class MissingArea(Filter):
                 for x, _ in enumerate(element[y]):
                     inside_missing_area = False
                     for area in missing_areas:
-                        if abs(x - area[0]) < area[2] and abs(y - area[1]) < area[2]:
+                        if abs(x - area[0]) <= area[2] and abs(y - area[1]) <= area[2]:
                             inside_missing_area = True
                             break
                     if inside_missing_area:

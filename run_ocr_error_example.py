@@ -1,7 +1,8 @@
 import numpy as np
+
 import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
 import src.problemgenerator.copy as copy
+import src.problemgenerator.filters as filters
 import src.problemgenerator.utils as utils
 
 data = np.array(["shambler", "shub-niggurath", "ogre", "difficulty: nightmare",
@@ -10,9 +11,13 @@ data = np.array(["shambler", "shub-niggurath", "ogre", "difficulty: nightmare",
 x_node = array.Array(data.shape)
 error_params = utils.load_ocr_error_frequencies(
     "example_ocr_error_weights.json")
-replacements = utils.create_normalized_probs(error_params)
 
-x_node.addfilter(filters.OCRerror(0.2, replacements))
+replacements = utils.create_normalized_probs(error_params, p=.5)
+
+for c in ["a", "q", "1", ":"]:
+    print(error_params[c], replacements[c])
+
+x_node.addfilter(filters.OCRerror(replacements))
 root_node = copy.Copy(x_node)
 out = root_node.process(data)
 print(out)

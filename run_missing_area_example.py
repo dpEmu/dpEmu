@@ -23,7 +23,7 @@ data = np.array(["Lorem ipsum dolor sit amet,\n" +
 
 
 y_node = array.Array(data.shape)
-y_node.addfilter(filters.MissingArea(0.03, filters.MissingArea.GaussianRadius(2, 1), " "))
+y_node.addfilter(filters.MissingArea(0.03, filters.MissingArea.GaussianRadiusGenerator(2, 1), " "))
 
 root_node = copy.Copy(y_node)
 
@@ -35,7 +35,7 @@ for index, elem in enumerate(out):
 
 y_node = array.Array(data.shape)
 # when a missing area is generated, its radius is 1 with probability of 0.6 and 2 with the probability of 0.4
-y_node.addfilter(filters.MissingArea(0.05, filters.MissingArea.ProbabilityArrayRadius([0, 0.6, 0.4]), " "))
+y_node.addfilter(filters.MissingArea(0.05, filters.MissingArea.ProbabilityArrayRadiusGenerator([0, 0.6, 0.4]), " "))
 
 root_node = copy.Copy(y_node)
 

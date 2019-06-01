@@ -51,7 +51,7 @@ class Uppercase(Filter):
             data[index_tuple][index] = modified_string
 
 class MissingArea(Filter):
-    class GaussianRadius:
+    class GaussianRadiusGenerator:
         def __init__(self, mean, std):
             self.mean = mean
             self.std = std
@@ -59,7 +59,7 @@ class MissingArea(Filter):
         def generate(self):
             return max(0, self.mean + round(np.random.normal(scale=self.std)))
 
-    class ProbabilityArrayRadius:
+    class ProbabilityArrayRadiusGenerator:
         def __init__(self, probability_array):
             self.probability_array = probability_array
 

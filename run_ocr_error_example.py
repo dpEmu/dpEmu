@@ -12,7 +12,8 @@ x_node = array.Array(data.shape)
 error_params = utils.load_ocr_error_frequencies(
     "example_ocr_error_weights.json")
 
-replacements = utils.create_normalized_probs(error_params, p=.5)
+for i in range(100000):
+    replacements = utils.create_normalized_probs(error_params, p=.5)
 
 for c in ["a", "q", "1", ":"]:
     print(error_params[c], replacements[c])

@@ -1,5 +1,4 @@
 import json
-from copy import deepcopy
 
 
 def load_ocr_error_frequencies(error_frequencies_config):

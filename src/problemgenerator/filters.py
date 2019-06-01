@@ -76,11 +76,11 @@ class OCRerror(Filter):
                 data[index_tuple][index] = self.generate_ocr_errors(string_)
 
     def generate_ocr_errors(self, string_):
-        return "".join([self.replace_char(c, self.replacements) for c in string_])
+        return "".join([self.replace_char(c) for c in string_])
 
-    def replace_char(self, c, replacements):
-        if c in replacements:
-            chars, probs = replacements[c]
+    def replace_char(self, c):
+        if c in self.replacements:
+            chars, probs = self.replacements[c]
             return random.choices(chars, probs)[0]
 
         return c

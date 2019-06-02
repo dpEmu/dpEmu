@@ -58,13 +58,14 @@ class Uppercase(Filter):
 
 class OCRError(Filter):
 
-    def __init__(self, replacements):
+    def __init__(self, normalized_params, p):
         """ Pass replacements as a dict.
 
         For example {"e": (["E", "i"], [.5, .5]), "g": (["q", "9"], [.2, .8])}
         where the latter list consists of probabilities which should sum to 1."""
 
-        self.replacements = replacements
+        self.normalized_params = normalized_params
+        self.p = p
         super().__init__()
 
     def apply(self, data, index_tuple):
@@ -75,8 +76,8 @@ class OCRError(Filter):
         return "".join([self.replace_char(c) for c in string_])
 
     def replace_char(self, c):
-        if c in self.replacements:
-            chars, probs = self.replacements[c]
+        if c in self.normalized_params and np.random.random() < self.p:
+            chars, probs = self.normalized_params[c]
             return random.choices(chars, probs)[0]
 
         return c

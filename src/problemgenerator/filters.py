@@ -56,7 +56,7 @@ class Uppercase(Filter):
             data[index_tuple][index] = modified_string
 
 
-class OCRerror(Filter):
+class OCRError(Filter):
 
     def __init__(self, replacements):
         """ Pass replacements as a dict.

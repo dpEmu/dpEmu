@@ -1,27 +1,23 @@
 import json
 
 
-def load_ocr_error_frequencies(error_frequencies_config):
-    return json.load(open(error_frequencies_config))
+def load_ocr_error_params(filename):
+    return json.load(open(filename))
 
 
-def create_normalized_probs(params, p):
-    replacements = {}
-    for key, weight_pairs in params.items():
-        chars, probs = weight_pairs
-        chars = chars[1:]
-        chars.append(key)
-        probs = normalize(probs, p)
-        replacements[key] = (chars, probs)
+def normalize_ocr_error_params(params, p):
+    normalized_params = {}
+    for k, v in params.items():
+        chars, probs = v
+        key_idx = chars.index(k)
+        normalized_probs = normalize_probs(probs, key_idx, p)
+        normalized_params[k] = (chars, normalized_probs)
 
-    return replacements
+    return normalized_params
 
 
-def normalize(weights, p):
-    support = sum(weights)
-    normalized_weights = []
-    for weight in weights[1:]:
-        normalized_weights.append(p * weight / support)
-
-    normalized_weights.append(1 - sum(normalized_weights))
-    return normalized_weights
+def normalize_probs(probs, key_idx, p):
+    total = sum(probs)
+    normalized_probs = [p * probs[i] / total for i in range(len(probs)) if i is not key_idx]
+    normalized_probs.insert(key_idx, 1 - sum(normalized_probs))
+    return normalized_probs

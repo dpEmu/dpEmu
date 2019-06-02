@@ -22,20 +22,20 @@ def test_load_ocr_error_params():
 
 def test_normalize_ocr_error_params():
     params = {"a": [["a", "o"], [20, 5]],
-              "b": [["b", "o"], [8, 2]]}
+              "b": [["o", "b"], [2, 8]]}
 
-    normalized_params = utils.normalize_ocr_error_params(params, 0.5)
+    normalized_params = utils.normalize_ocr_error_params(params)
 
     assert normalized_params["a"][0][0] == "a"
     assert normalized_params["a"][0][1] == "o"
-    assert normalized_params["a"][1][0] == approx(0.9)
-    assert normalized_params["a"][1][1] == approx(0.1)
-    assert normalized_params["b"][0][0] == "b"
-    assert normalized_params["b"][0][1] == "o"
-    assert normalized_params["b"][1][0] == approx(0.9)
-    assert normalized_params["b"][1][1] == approx(0.1)
+    assert normalized_params["a"][1][0] == approx(0.8)
+    assert normalized_params["a"][1][1] == approx(0.2)
+    assert normalized_params["b"][0][0] == "o"
+    assert normalized_params["b"][0][1] == "b"
+    assert normalized_params["b"][1][0] == approx(0.2)
+    assert normalized_params["b"][1][1] == approx(0.8)
 
 
 def test_normalize_probs():
-    s = sum(utils.normalize_probs([10, 15, 67, 87, 90], 1, 0.5))
+    s = sum(utils.normalize_probs([10, 15, 67, 87, 90]))
     assert s == approx(1)

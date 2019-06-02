@@ -1,23 +1,14 @@
 import json
 
 
-def load_ocr_error_params(filename):
-    return json.load(open(filename))
+def load_ocr_error_params(path_to_error_params):
+    return json.load(open(path_to_error_params))
 
 
-def normalize_ocr_error_params(params, p):
-    normalized_params = {}
-    for k, v in params.items():
-        chars, probs = v
-        key_idx = chars.index(k)
-        normalized_probs = normalize_probs(probs, key_idx, p)
-        normalized_params[k] = (chars, normalized_probs)
-
-    return normalized_params
+def normalize_ocr_error_params(params):
+    return {k: (v[0], normalize_probs(v[1])) for k, v in params.items()}
 
 
-def normalize_probs(probs, key_idx, p):
+def normalize_probs(probs):
     total = sum(probs)
-    normalized_probs = [p * probs[i] / total for i in range(len(probs)) if i is not key_idx]
-    normalized_probs.insert(key_idx, 1 - sum(normalized_probs))
-    return normalized_probs
+    return [prob / total for prob in probs]

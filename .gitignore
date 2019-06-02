@@ -134,5 +134,4 @@ tmp/*
 .idea/
 .vscode
 data/*
-!data/word_sample_text.txt
 !data/mnist_subset/

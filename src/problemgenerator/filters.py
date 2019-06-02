@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 
 
@@ -5,6 +7,7 @@ class Filter:
 
     def __init__(self):
         np.random.seed(42)
+        random.seed(42)
         self.shape = ()
 
 
@@ -48,8 +51,35 @@ class Uppercase(Filter):
 
         for index, element in np.ndenumerate(data[index_tuple]):
             original_string = element
-            modified_string = "".join([stochastic_upper(c, self.prob) for c in original_string])
+            modified_string = "".join(
+                [stochastic_upper(c, self.prob) for c in original_string])
             data[index_tuple][index] = modified_string
+
+
+class OCRError(Filter):
+
+    def __init__(self, replacements):
+        """ Pass replacements as a dict.
+
+        For example {"e": (["E", "i"], [.5, .5]), "g": (["q", "9"], [.2, .8])}
+        where the latter list consists of probabilities which should sum to 1."""
+
+        self.replacements = replacements
+        super().__init__()
+
+    def apply(self, data, index_tuple):
+        for index, string_ in np.ndenumerate(data[index_tuple]):
+            data[index_tuple][index] = self.generate_ocr_errors(string_)
+
+    def generate_ocr_errors(self, string_):
+        return "".join([self.replace_char(c) for c in string_])
+
+    def replace_char(self, c):
+        if c in self.replacements:
+            chars, probs = self.replacements[c]
+            return random.choices(chars, probs)[0]
+
+        return c
 
 
 class MissingArea(Filter):

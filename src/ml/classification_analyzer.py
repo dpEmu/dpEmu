@@ -56,7 +56,6 @@ class ClassificationAnalyzer:
         ax.set_title("confusion matrix")
         fig.tight_layout()
         plt.savefig(self.path_to_confusion_matrix_img, bbox_inches='tight')
-        
 
     def analyze(self):
         train_data, test_data, train_labels, test_labels = train_test_split(self.data, self.labels, test_size=.2,

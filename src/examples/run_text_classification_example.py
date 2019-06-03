@@ -45,7 +45,7 @@ def main():
         path_to_scores,
         path_to_confusion_matrix_img
     ))
-    
+
     with open(path_to_best_clf_params, "r") as file:
         best_clf_params = json.load(file)
     with open(path_to_scores, "r") as file:

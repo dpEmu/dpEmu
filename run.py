@@ -12,7 +12,6 @@ import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.copy as copy
 from src.combiner.combiner import Combiner
-#from src.utils import load_digits_as_npy
 from src.utils import load_newsgroups_as_pickle
 from src.paramselector.param_selector import ParamSelector
 import src.utils as utils

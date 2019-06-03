@@ -4,6 +4,7 @@ import datetime
 import subprocess
 import json
 import re
+import pickle
 import numpy as np
 from PIL import Image
 import src.problemgenerator.series as series
@@ -122,13 +123,19 @@ def main():
             series_node = series.TupleSeries([x_node, y_node, z_node])
             error_generator_root = copy.Copy(series_node)
             x_out, y_out, z_out = error_generator_root.process(original_data)
-            x_name = unique_filename("tmp", "x", "npy")
+            x_name = unique_filename("tmp", "x", "pickle")
             y_name = unique_filename("tmp", "y", "npy")
-            z_name = unique_filename("tmp", "z", "npy")
-            np.save(x_name, x_out)
+            z_name = unique_filename("tmp", "z", "pickle")
+            with open(x_name, 'wb') as f:
+                pickle.dump(x_out.tolist(), f)
+            #np.save(x_name, x_out)
             np.save(y_name, y_out)
-            np.save(z_name, z_out)
-            return [x_name, y_name, z_name]
+
+            with open(z_name, 'wb') as f:
+                pickle.dump(z_out.tolist(), f)
+            
+            #np.save(z_name, z_out)
+            return [x_name, y_name, z_name, sys.argv[4]]
 
         # Read error parameters from file (file name given as second argument)
         error_params = json.load(open(error_config_filename))

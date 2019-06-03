@@ -70,7 +70,7 @@ class OCRError(Filter):
 
     def apply(self, data, index_tuple):
         for index, string_ in np.ndenumerate(data[index_tuple]):
-            data[index_tuple][index] = np.str_(self.generate_ocr_errors(str(string_)))
+            data[index_tuple][index] = (self.generate_ocr_errors(string_))
 
     def generate_ocr_errors(self, string_):
         return "".join([self.replace_char(c) for c in string_])
@@ -111,6 +111,10 @@ class MissingArea(Filter):
         super().__init__()
 
     def apply(self, data, index_tuple):
+        def insert_default_value_for_missing_key(key, missing_areas):
+            if key not in missing_areas:
+                missing_areas[key] = 0
+
         for index, _ in np.ndenumerate(data[index_tuple]):
             missing_areas = {}  # map with keys (x, y) and values (radius)
 
@@ -125,22 +129,18 @@ class MissingArea(Filter):
                         radius = self.radius_generator.generate()
                         missing_areas[(x - radius, y - radius)] = 2 * radius
                         max_radius = max(max_radius, radius)
-            
+
             # calculate missing areas
             for y in range(-max_radius, len(element)):
                 for x in range(-max_radius, max_len):
-                    if (x, y) in missing_areas:
+                    if (x, y) in missing_areas and missing_areas[(x, y)] > 0:
                         val = missing_areas[(x, y)]
-                        if val > 0:
-                            if (x + 1, y) not in missing_areas:
-                                missing_areas[(x + 1, y)] = 0    
-                            missing_areas[(x + 1, y)] = max(missing_areas[(x + 1, y)], val - 1)
-                            if (x, y + 1) not in missing_areas:
-                                missing_areas[(x, y + 1)] = 0    
-                            missing_areas[(x, y + 1)] = max(missing_areas[(x, y + 1)], val - 1)
-                            if (x + 1, y + 1) not in missing_areas:
-                                missing_areas[(x + 1, y + 1)] = 0    
-                            missing_areas[(x + 1, y + 1)] = max(missing_areas[(x + 1, y + 1)], val - 1)
+                        insert_default_value_for_missing_key((x + 1, y), missing_areas)
+                        insert_default_value_for_missing_key((x, y + 1), missing_areas)
+                        insert_default_value_for_missing_key((x + 1, y + 1), missing_areas)
+                        missing_areas[(x + 1, y)] = max(missing_areas[(x + 1, y)], val - 1)
+                        missing_areas[(x, y + 1)] = max(missing_areas[(x, y + 1)], val - 1)
+                        missing_areas[(x + 1, y + 1)] = max(missing_areas[(x + 1, y + 1)], val - 1)
 
             # replace elements in the missing areas by missing_value
             modified = []

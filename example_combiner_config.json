@@ -1,7 +1,7 @@
 {
     "description": "This .json file tells the combiner that we're interested in plotting the results based on the scores from gaussian filters and that the data will be given in the following format: (filters, (scores, image1, image2))",
     "plot_scores_to_same_diagram": true,
-    "filter_type": "gaussian",
+    "filter_type": "p",
     "structure": [
         "filters",
         [

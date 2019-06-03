@@ -120,10 +120,11 @@ def main():
         # For parallel processing, take multiple sets of commands here
         run_model_command, run_analyze_command = param_selector.next_commands()
 
-        def save_errorified(ocr_error_prob, ocr_dict):
-            print(ocr_error_prob, ocr_dict)
+        def save_errorified(ocr_error_prob, ocr_dict, missing_area_prob, radius_generator):
+            print(ocr_error_prob, missing_area_prob)
             x_node = array.Array(original_data[0][0].shape)
             x_node.addfilter(filters.OCRError(ocr_dict, p=ocr_error_prob))
+            x_node.addfilter(filters.MissingArea(missing_area_prob, radius_generator, " "))
             y_node = array.Array(original_data[1][0].shape)
             z_node = array.Array(original_data[2][0].shape)
             series_node = series.TupleSeries([x_node, y_node, z_node])
@@ -150,12 +151,19 @@ def main():
         ocr_prob_vals = utils.expand_parameter_to_linspace(ocr_prob_param)
         ocr_dict = src.problemgenerator.utils.normalize_ocr_error_params(ocr_params['errors'])
 
+        missing_area_params = error_params['missing_area']
+        missing_area_prob_param = missing_area_params['p'] # Iterable of form (start, stop, num)
+        missing_area_prob_vals = utils.expand_parameter_to_linspace(missing_area_prob_param)
+        missing_area_mean = missing_area_params['gaussian'][0]
+        missing_area_std = missing_area_params['gaussian'][1]
+
         # Run commands
         combined_file_names = []
         for ocr_prob in ocr_prob_vals:
-            err_file_names = save_errorified(ocr_prob, ocr_dict)
-            _, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
-            combined_file_names.append(({"gaussian" : ocr_prob, "throwaway" : 0.0}, out_file_names))
+            for missing_area_prob in missing_area_prob_vals:
+                err_file_names = save_errorified(ocr_prob, ocr_dict, missing_area_prob, filters.MissingArea.GaussianRadiusGenerator(missing_area_mean, missing_area_std))
+                _, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
+                combined_file_names.append(({"p" : ocr_prob + missing_area_prob, "throwaway" : 0.0}, out_file_names))
 
         # Read input files
         combine_data = [(params, read_analyzer_files(file_names)) for (params, file_names) in combined_file_names]

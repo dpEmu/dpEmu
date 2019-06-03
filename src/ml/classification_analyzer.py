@@ -7,6 +7,9 @@ from joblib import load
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 
 class ClassificationAnalyzer:
 
@@ -34,8 +37,39 @@ class ClassificationAnalyzer:
         scores = {k: round(v, 3) for k, v in scores.items()}
         cm = confusion_matrix(test_labels, predicted_test_labels)
 
-        # TODO
+        # Draw image of confusion matrix
+        color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
+        n = cm.shape[0]
+        fig, ax = plt.subplots();
+        im = ax.imshow(cm, color_map)
 
+        ax.set_xticks(np.arange(n))
+        ax.set_yticks(np.arange(n))
+        ax.set_xticklabels(self.label_names)
+        ax.set_yticklabels(self.label_names)
+
+        # Rotate the tick labels and set their alignment.
+        plt.setp(ax.get_xticklabels(), rotation=30, ha="right", rotation_mode="anchor")
+
+        min_val = np.amin(cm)
+        max_val = np.amax(cm)
+        breakpoint = (max_val + min_val) / 2
+
+        # Loop over data dimensions and create text annotations.
+        for i in range(n):
+            for j in range(n):
+                col = (1,1,1)
+                if cm[i, j] <= breakpoint:
+                    col = (0,0,0)
+                text = ax.text(j, i, cm[i, j], ha="center", va="center", color=col, fontsize=16)
+
+        fig.colorbar(im, ax=ax)
+
+        ax.set_title("confusion matrix")
+        fig.tight_layout()
+        plt.savefig(self.path_to_confusion_matrix_img, bbox_inches='tight')
+
+        # Save output files
         with open(self.path_to_best_clf_params, "w") as fp:
             json.dump(self.fitted_clf.best_params_, fp)
         with open(self.path_to_scores, "w") as fp:

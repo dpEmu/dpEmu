@@ -10,18 +10,18 @@ import src.problemgenerator.copy as copy
 # explanatory variables and y_i represents the corresponding
 # value of the response variable.
 x = np.random.rand(100, 10)
-y = np.random.rand(100,)
+y = np.random.rand(100, 1)
 data = (x, y)
 
 # Build a data model tree.
-x_node = array.Array(10)
-y_node = array.Array(1)
+x_node = array.Array(x[0].shape)
+y_node = array.Array(y[0].shape)
 series_node = series.TupleSeries([x_node, y_node])
 root_node = copy.Copy(series_node)
 
 # Suppose we want to introduce NaN values (i.e. missing data)
 # to y only (thus keeping x intact).
-probability = .2
+probability = .3
 y_node.addfilter(filters.Missing(probability=probability))
 
 # Feed the data to the root node.

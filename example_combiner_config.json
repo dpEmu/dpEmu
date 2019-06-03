@@ -5,9 +5,9 @@
     "structure": [
         "filters",
         [
+            "foo",
             "scores",
-            "image",
-            "image"
+            "foo"
         ]
     ]
 }

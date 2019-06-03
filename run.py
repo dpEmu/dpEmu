@@ -94,11 +94,17 @@ def read_analyzer_files(file_names):
 
 def main():
     # Read input files
-    path_to_data, path_to_labels, path_to_label_strings = load_newsgroups_as_pickle() # Values 0..16.
+    categories = [
+        "alt.atheism",
+        "talk.religion.misc",
+        "comp.graphics",
+        "sci.space",
+    ]
+    path_to_data, path_to_labels, path_to_label_strings = load_newsgroups_as_pickle(categories) # Values 0..16.
     print(path_to_data, path_to_labels, path_to_label_strings)
     original_data_files = [path_to_data, path_to_labels, path_to_label_strings]
-    original_data = tuple([np.array(np.load(data_file, allow_pickle=True)[0:1000]) for data_file in original_data_files])
-    original_data = tuple([original_data[0].reshape((1000, 1)), original_data[1].reshape((1000, 1)), original_data[2]])
+    original_data = tuple([np.array(np.load(data_file, allow_pickle=True)) for data_file in original_data_files])
+    original_data = tuple([original_data[0].reshape((original_data[0].shape[0], 1)), original_data[1].reshape((original_data[1].shape[0], 1)), original_data[2]])
 
     # Read config for parameter selector
     parsel_config_filename = sys.argv[1]
@@ -123,14 +129,14 @@ def main():
             series_node = series.TupleSeries([x_node, y_node, z_node])
             error_generator_root = copy.Copy(series_node)
             x_out, y_out, z_out = error_generator_root.process(original_data)
+            x_out = x_out.reshape((x_out.shape[0],))
+            y_out = y_out.reshape((y_out.shape[0],))
             x_name = unique_filename("tmp", "x", "pickle")
             y_name = unique_filename("tmp", "y", "npy")
             z_name = unique_filename("tmp", "z", "pickle")
             with open(x_name, 'wb') as f:
                 pickle.dump(x_out.tolist(), f)
-            #np.save(x_name, x_out)
             np.save(y_name, y_out)
-
             with open(z_name, 'wb') as f:
                 pickle.dump(z_out.tolist(), f)
             

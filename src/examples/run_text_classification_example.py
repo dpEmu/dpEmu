@@ -14,8 +14,8 @@ def main():
         "sci.space",
     ]
     path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle(categories)
-
     # path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle()
+
     path_to_clf_param_grid = generate_unique_path("tmp", "json")
     path_to_fitted_clf = generate_unique_path("tmp", "joblib")
     path_to_best_clf_params = generate_unique_path("tmp", "json")

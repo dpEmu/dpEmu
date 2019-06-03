@@ -1,12 +1,11 @@
-import json
 import io
+import json
 import sys
-
 from datetime import datetime
 
 import matplotlib.pyplot as plt
-
 from PIL import Image, ImageDraw
+
 
 class Combiner:
     @staticmethod
@@ -98,7 +97,7 @@ class Combiner:
                 x_offset += image.size[0]
 
             filter_map = str(Combiner.__get_value(elem, config_paths["filters"]))
-            draw.text((total_width / 2 - len(filter_map) * 3, max_height - 15), filter_map, fill=(0, 0, 0))
+            draw.text((total_width / 2 - len(filter_map) * 3, max_height - 11), filter_map, fill=(0, 0, 0))
 
             if output_path:
                 time = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
@@ -158,9 +157,11 @@ class Combiner:
                     filter_values.append(Combiner.__get_value(element, config_paths["filters"])[filter_type])
                     scores.append(float(Combiner.__get_value(element, config_paths["scores"])[score_type]))
                 line, = ax.plot(filter_values, scores)
+                # line, = ax.semilogy(filter_values, scores)
                 line.set_label(score_type)
                 ax.scatter(filter_values, scores)
                 plt.legend()
+            # plt.yticks([0.001, 0.01, 0.1, 1])
             plt.title("Scores")
             plt.xlabel("error")
             plt.ylabel("score")

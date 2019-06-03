@@ -126,10 +126,6 @@ dmypy.json
 .log
 .aux
 
-# out- and tmp-folders
-out/*
-tmp/*
-
 # Others
 .idea/
 .vscode

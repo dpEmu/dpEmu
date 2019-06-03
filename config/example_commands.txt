@@ -1,2 +1,2 @@
 python3 ./src/ml/multinomial_nb_model.py [IN_1] [IN_2] [IN_4] [MID_1.joblib]
-python3 ./src/ml/classification_analyzer.py [IN_1] [IN_2] [MID_1.joblib] [OUT_1.json] [OUT_2.json] [OUT_3.npy]
+python3 ./src/ml/classification_analyzer.py [IN_1] [IN_2] [IN_3] [MID_1.joblib] [OUT_1.json] [OUT_2.json] [OUT_3.png]

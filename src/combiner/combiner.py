@@ -82,6 +82,8 @@ class Combiner:
             max_height = 0
             for image_path in config_paths["images"]:
                 image = Combiner.__get_value(elem, image_path)
+                if isinstance(image, str):
+                    image = Image.open(image)
                 max_height = max(max_height, image.size[1])
                 total_width += image.size[0]
 

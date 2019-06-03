@@ -11,9 +11,11 @@ import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.copy as copy
 from src.combiner.combiner import Combiner
-from src.utils import load_digits_as_npy
+#from src.utils import load_digits_as_npy
+from src.utils import load_newsgroups_as_pickle
 from src.paramselector.param_selector import ParamSelector
 import src.utils as utils
+import src.problemgenerator.utils
 
 # File format:
 #     run_model_command ...
@@ -91,9 +93,10 @@ def read_analyzer_files(file_names):
 
 def main():
     # Read input files
-    path_to_data, path_to_labels = load_digits_as_npy() # Values 0..16.
-    original_data_files = [path_to_data, path_to_labels]
-    original_data = tuple([np.load(data_file) for data_file in original_data_files])
+    path_to_data, path_to_labels, path_to_label_strings = load_newsgroups_as_pickle() # Values 0..16.
+    print(path_to_data, path_to_labels, path_to_label_strings)
+    original_data_files = [path_to_data, path_to_labels, path_to_label_strings]
+    original_data = tuple([np.array(np.load(data_file, allow_pickle=True)[0:1000]) for data_file in original_data_files])
 
     # Read config for parameter selector
     parsel_config_filename = sys.argv[1]
@@ -109,12 +112,11 @@ def main():
         # For parallel processing, take multiple sets of commands here
         run_model_command, run_analyze_command = param_selector.next_commands()
 
-        def save_errorified(std, prob):
-            print(std, prob)
-            x_node = array.Array(original_data[0][0].shape)
-            x_node.addfilter(filters.GaussianNoise(0, std))
-            x_node.addfilter(filters.Missing(prob))
-            y_node = array.Array(original_data[1][0].shape)
+        def save_errorified(ocr_error_prob, ocr_dict):
+            print(ocr_error_prob, ocr_dict)
+            x_node = array.Array(original_data[0].shape)
+            x_node.addfilter(filters.OCRError(ocr_dict, p=ocr_error_prob))
+            y_node = array.Array(original_data[1].shape)
             series_node = series.TupleSeries([x_node, y_node])
             error_generator_root = copy.Copy(series_node)
             x_out, y_out = error_generator_root.process(original_data)
@@ -127,18 +129,17 @@ def main():
 
         # Read error parameters from file (file name given as second argument)
         error_params = json.load(open(error_config_filename))
-        std_param = error_params['std'] # Iterable of form (start, stop, num)
-        prob_param = error_params['prob'] # Iterable of form (start, stop, num) or (only_value)
-        std_vals = utils.expand_parameter_to_linspace(std_param)
-        prob_missing_vals = utils.expand_parameter_to_linspace(prob_param)
+        ocr_params = error_params['ocr']
+        ocr_prob_param = ocr_params['p'] # Iterable of form (start, stop, num)
+        ocr_prob_vals = utils.expand_parameter_to_linspace(ocr_prob_param)
+        ocr_dict = src.problemgenerator.utils.normalize_ocr_error_params(ocr_params['errors'])
 
         # Run commands
         combined_file_names = []
-        for std in std_vals:
-            for prob in prob_missing_vals:
-                err_file_names = save_errorified(std, prob)
-                _, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
-                combined_file_names.append(({"gaussian" : std, "throwaway" : prob}, out_file_names))
+        for ocr_prob in ocr_prob_vals:
+            err_file_names = save_errorified(ocr_prob, ocr_dict)
+            _, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
+            combined_file_names.append(({"gaussian" : ocr_prob, "throwaway" : 0.0}, out_file_names))
 
         # Read input files
         combine_data = [(params, read_analyzer_files(file_names)) for (params, file_names) in combined_file_names]

@@ -70,7 +70,7 @@ class OCRError(Filter):
 
     def apply(self, data, index_tuple):
         for index, string_ in np.ndenumerate(data[index_tuple]):
-            data[index_tuple][index] = self.generate_ocr_errors(string_)
+            data[index_tuple][index] = np.str_(self.generate_ocr_errors(str(string_)))
 
     def generate_ocr_errors(self, string_):
         return "".join([self.replace_char(c) for c in string_])

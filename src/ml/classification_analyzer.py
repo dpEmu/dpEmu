@@ -7,7 +7,6 @@ from joblib import load
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -40,7 +39,7 @@ class ClassificationAnalyzer:
         # Draw image of confusion matrix
         color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
         n = cm.shape[0]
-        fig, ax = plt.subplots();
+        fig, ax = plt.subplots()
         im = ax.imshow(cm, color_map)
 
         ax.set_xticks(np.arange(n))
@@ -58,10 +57,10 @@ class ClassificationAnalyzer:
         # Loop over data dimensions and create text annotations.
         for i in range(n):
             for j in range(n):
-                col = (1,1,1)
+                col = (1, 1, 1)
                 if cm[i, j] <= breakpoint:
-                    col = (0,0,0)
-                text = ax.text(j, i, cm[i, j], ha="center", va="center", color=col, fontsize=16)
+                    col = (0, 0, 0)
+                ax.text(j, i, cm[i, j], ha="center", va="center", color=col, fontsize=16)
 
         fig.colorbar(im, ax=ax)
 

@@ -102,8 +102,10 @@ def main():
     path_to_data, path_to_labels, path_to_label_strings = load_newsgroups_as_pickle(categories) # Values 0..16.
     print(path_to_data, path_to_labels, path_to_label_strings)
     original_data_files = [path_to_data, path_to_labels, path_to_label_strings]
-    original_data = tuple([np.array(np.load(data_file, allow_pickle=True)) for data_file in original_data_files])
-    original_data = tuple([original_data[0].reshape((original_data[0].shape[0], 1)), original_data[1].reshape((original_data[1].shape[0], 1)), original_data[2]])
+    loaded_data = tuple([np.array(np.load(data_file, allow_pickle=True)) for data_file in original_data_files])
+    data = loaded_data[0]
+    labels = loaded_data[1]
+    original_data = tuple([data.reshape((data.shape[0], 1)), labels.reshape((labels.shape[0], 1)), loaded_data[2]])
 
     # Read config for parameter selector
     parsel_config_filename = sys.argv[1]
@@ -139,8 +141,6 @@ def main():
             np.save(y_name, y_out)
             with open(z_name, 'wb') as f:
                 pickle.dump(z_out.tolist(), f)
-            
-            #np.save(z_name, z_out)
             return [x_name, y_name, z_name, sys.argv[4]]
 
         # Read error parameters from file (file name given as second argument)
@@ -160,7 +160,8 @@ def main():
         combined_file_names = []
         for ocr_prob in ocr_prob_vals:
             for missing_area_prob in missing_area_prob_vals:
-                err_file_names = save_errorified(ocr_prob, ocr_dict, missing_area_prob, filters.MissingArea.GaussianRadiusGenerator(missing_area_mean, missing_area_std))
+                radius_generator = filters.MissingArea.GaussianRadiusGenerator(missing_area_mean, missing_area_std)
+                err_file_names = save_errorified(ocr_prob, ocr_dict, missing_area_prob, radius_generator)
                 _, out_file_names = run_commands(run_model_command, run_analyze_command, err_file_names)
                 combined_file_names.append(({"p" : ocr_prob + missing_area_prob, "throwaway" : 0.0}, out_file_names))
 

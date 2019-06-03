@@ -70,7 +70,7 @@ class OCRError(Filter):
 
     def apply(self, data, index_tuple):
         for index, string_ in np.ndenumerate(data[index_tuple]):
-            data[index_tuple][index] = self.generate_ocr_errors(string_)
+            data[index_tuple][index] = (self.generate_ocr_errors(string_))
 
     def generate_ocr_errors(self, string_):
         return "".join([self.replace_char(c) for c in string_])
@@ -111,27 +111,43 @@ class MissingArea(Filter):
         super().__init__()
 
     def apply(self, data, index_tuple):
+        def insert_default_value_for_missing_key(key, missing_areas):
+            if key not in missing_areas:
+                missing_areas[key] = 0
+
         for index, _ in np.ndenumerate(data[index_tuple]):
-            missing_areas = []  # list of tuples (x, y, radius)
+            missing_areas = {}  # map with keys (x, y) and values (radius)
 
             # generate missing areas
             element = data[index_tuple][index].split("\n")
+            max_len = 0
+            max_radius = 0
             for y, _ in enumerate(element):
                 for x, _ in enumerate(element[y]):
+                    max_len = max(max_len, x)
                     if np.random.random() <= self.probability:
-                        missing_areas.append((x, y, self.radius_generator.generate()))
+                        radius = self.radius_generator.generate()
+                        missing_areas[(x - radius, y - radius)] = 2 * radius
+                        max_radius = max(max_radius, radius)
+
+            # calculate missing areas
+            for y in range(-max_radius, len(element)):
+                for x in range(-max_radius, max_len):
+                    if (x, y) in missing_areas and missing_areas[(x, y)] > 0:
+                        val = missing_areas[(x, y)]
+                        insert_default_value_for_missing_key((x + 1, y), missing_areas)
+                        insert_default_value_for_missing_key((x, y + 1), missing_areas)
+                        insert_default_value_for_missing_key((x + 1, y + 1), missing_areas)
+                        missing_areas[(x + 1, y)] = max(missing_areas[(x + 1, y)], val - 1)
+                        missing_areas[(x, y + 1)] = max(missing_areas[(x, y + 1)], val - 1)
+                        missing_areas[(x + 1, y + 1)] = max(missing_areas[(x + 1, y + 1)], val - 1)
 
             # replace elements in the missing areas by missing_value
             modified = []
             for y, _ in enumerate(element):
                 modified_line = ""
                 for x, _ in enumerate(element[y]):
-                    inside_missing_area = False
-                    for area in missing_areas:
-                        if abs(x - area[0]) <= area[2] and abs(y - area[1]) <= area[2]:
-                            inside_missing_area = True
-                            break
-                    if inside_missing_area:
+                    if (x, y) in missing_areas:
                         modified_line += self.missing_value
                     else:
                         modified_line += element[y][x]

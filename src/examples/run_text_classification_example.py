@@ -14,6 +14,7 @@ def main():
         "sci.space",
     ]
     path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle(categories)
+
     # path_to_data, path_to_labels, path_to_label_names = load_newsgroups_as_pickle()
     path_to_clf_param_grid = generate_unique_path("tmp", "json")
     path_to_fitted_clf = generate_unique_path("tmp", "joblib")
@@ -44,7 +45,7 @@ def main():
         path_to_scores,
         path_to_confusion_matrix_img
     ))
-
+    
     with open(path_to_best_clf_params, "r") as file:
         best_clf_params = json.load(file)
     with open(path_to_scores, "r") as file:

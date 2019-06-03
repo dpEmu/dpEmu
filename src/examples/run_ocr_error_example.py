@@ -13,7 +13,7 @@ t0 = time()
 for i in range(20000):
     x_node = array.Array(data.shape)
     params = utils.load_ocr_error_params(
-        "config/example_ocr_error_params.json")
+        "config/example_ocr_error_params_realistic.json")
 
     normalized_params = utils.normalize_ocr_error_params(params)
 

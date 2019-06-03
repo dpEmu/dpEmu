@@ -24,18 +24,7 @@ class ClassificationAnalyzer:
         self.path_to_confusion_matrix_img = paths[6]
         np.random.seed(42)
 
-    def analyze(self):
-        train_data, test_data, train_labels, test_labels = train_test_split(self.data, self.labels, test_size=.2,
-                                                                            random_state=42)
-
-        predicted_test_labels = self.fitted_clf.predict(test_data)
-
-        scores = {}
-        scores["train_data_mean_accuracy"] = self.fitted_clf.score(train_data, train_labels)
-        scores["test_data_mean_accuracy"] = np.mean(predicted_test_labels == test_labels)
-        scores = {k: round(v, 3) for k, v in scores.items()}
-        cm = confusion_matrix(test_labels, predicted_test_labels)
-
+    def __build_cm_image(self, cm):
         # Draw image of confusion matrix
         color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
         n = cm.shape[0]
@@ -67,6 +56,21 @@ class ClassificationAnalyzer:
         ax.set_title("confusion matrix")
         fig.tight_layout()
         plt.savefig(self.path_to_confusion_matrix_img, bbox_inches='tight')
+        
+
+    def analyze(self):
+        train_data, test_data, train_labels, test_labels = train_test_split(self.data, self.labels, test_size=.2,
+                                                                            random_state=42)
+
+        predicted_test_labels = self.fitted_clf.predict(test_data)
+
+        scores = {}
+        scores["train_data_mean_accuracy"] = self.fitted_clf.score(train_data, train_labels)
+        scores["test_data_mean_accuracy"] = np.mean(predicted_test_labels == test_labels)
+        scores = {k: round(v, 3) for k, v in scores.items()}
+        cm = confusion_matrix(test_labels, predicted_test_labels)
+
+        self.__build_cm_image(cm)
 
         # Save output files
         with open(self.path_to_best_clf_params, "w") as fp:

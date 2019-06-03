@@ -11,7 +11,6 @@ from sklearn.model_selection import train_test_split
 class ClassificationAnalyzer:
 
     def __init__(self, paths):
-        np.random.seed(42)
         with open(paths[0], "rb") as file:
             self.data = pickle.load(file)
         self.labels = np.load(paths[1])
@@ -19,6 +18,7 @@ class ClassificationAnalyzer:
         self.path_to_best_clf_params = paths[3]
         self.path_to_scores = paths[4]
         self.path_to_confusion_matrix = paths[5]
+        np.random.seed(42)
 
     def analyze(self):
         train_data, test_data, train_labels, test_labels = train_test_split(self.data, self.labels, test_size=.2,

@@ -1,6 +1,6 @@
 import json
 
-from pandas.tests.extension.numpy_.test_numpy_nested import np
+import numpy as np
 
 from src.ml.utils import run_ml_script
 from src.utils import load_newsgroups_as_pickle, generate_unique_path

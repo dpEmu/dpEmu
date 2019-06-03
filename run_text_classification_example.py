@@ -29,7 +29,7 @@ def main():
     with open(path_to_clf_param_grid, "w") as file:
         json.dump(clf_param_grid, file)
 
-    run_ml_script("python src/ml/naive_bayes_model.py {} {} {} {} {}".format(
+    run_ml_script("python src/ml/multinomialnb_model.py {} {} {} {} {}".format(
         path_to_data,
         path_to_labels,
         path_to_clf_param_grid,

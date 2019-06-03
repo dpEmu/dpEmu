@@ -41,15 +41,15 @@ class ClassificationAnalyzer:
 
     def __get_scores(self, vectorized_train_data, vectorized_test_data, train_labels, test_labels):
         scores = {
-            "train_set_mean_accuracy": self.fitted_clf.score(vectorized_train_data, train_labels),
-            "test_set_mean_accuracy": self.fitted_clf.score(vectorized_test_data, test_labels),
+            "train_data_mean_accuracy": self.fitted_clf.score(vectorized_train_data, train_labels),
+            "test_data_mean_accuracy": self.fitted_clf.score(vectorized_test_data, test_labels),
         }
         return {k: round(v, 3) for k, v in scores.items()}
 
 
 def main(argv):
-    classification_analyzer = ClassificationAnalyzer([argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]])
-    classification_analyzer.analyze()
+    analyzer = ClassificationAnalyzer(argv[1:])
+    analyzer.analyze()
 
 
 if __name__ == "__main__":

@@ -41,8 +41,8 @@ class CustomMultinomialNB:
 
 
 def main(argv):
-    naive_bayes = CustomMultinomialNB([argv[1], argv[2], argv[3], argv[4], argv[5]])
-    naive_bayes.fit_and_optimize()
+    model = CustomMultinomialNB(argv[1:])
+    model.fit_and_optimize()
 
 
 if __name__ == "__main__":

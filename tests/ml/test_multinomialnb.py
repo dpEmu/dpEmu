@@ -27,7 +27,7 @@ def test_naive_bayes_with_analysis():
     with open(path_to_clf_param_grid, "w") as file:
         json.dump(clf_param_grid, file)
 
-    run_ml_script("python src/ml/naive_bayes_model.py {} {} {} {} {}".format(
+    run_ml_script("python src/ml/multinomialnb_model.py {} {} {} {} {}".format(
         path_to_data,
         path_to_labels,
         path_to_clf_param_grid,
@@ -49,7 +49,7 @@ def test_naive_bayes_with_analysis():
         best_clf_params = json.load(file)
     cm = np.load(path_to_confusion_matrix)
 
-    assert scores == {"train_set_mean_accuracy": 0.971, "test_set_mean_accuracy": 0.836}
+    assert scores == {"train_data_mean_accuracy": 0.971, "test_data_mean_accuracy": 0.836}
     assert best_clf_params == {"alpha": 0.01}
 
     predicted_cm = np.array([

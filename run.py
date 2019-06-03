@@ -97,6 +97,7 @@ def main():
     print(path_to_data, path_to_labels, path_to_label_strings)
     original_data_files = [path_to_data, path_to_labels, path_to_label_strings]
     original_data = tuple([np.array(np.load(data_file, allow_pickle=True)[0:1000]) for data_file in original_data_files])
+    original_data = tuple([original_data[0].reshape((1000, 1)), original_data[1].reshape((1000, 1)), original_data[2]])
 
     # Read config for parameter selector
     parsel_config_filename = sys.argv[1]
@@ -114,18 +115,20 @@ def main():
 
         def save_errorified(ocr_error_prob, ocr_dict):
             print(ocr_error_prob, ocr_dict)
-            x_node = array.Array(original_data[0].shape)
+            x_node = array.Array(original_data[0][0].shape)
             x_node.addfilter(filters.OCRError(ocr_dict, p=ocr_error_prob))
-            y_node = array.Array(original_data[1].shape)
-            series_node = series.TupleSeries([x_node, y_node])
+            y_node = array.Array(original_data[1][0].shape)
+            z_node = array.Array(original_data[2][0].shape)
+            series_node = series.TupleSeries([x_node, y_node, z_node])
             error_generator_root = copy.Copy(series_node)
-            x_out, y_out = error_generator_root.process(original_data)
-            # x_out.reshape((x_out.shape[0], 28*28))
+            x_out, y_out, z_out = error_generator_root.process(original_data)
             x_name = unique_filename("tmp", "x", "npy")
             y_name = unique_filename("tmp", "y", "npy")
+            z_name = unique_filename("tmp", "z", "npy")
             np.save(x_name, x_out)
             np.save(y_name, y_out)
-            return [x_name, y_name]
+            np.save(z_name, z_out)
+            return [x_name, y_name, z_name]
 
         # Read error parameters from file (file name given as second argument)
         error_params = json.load(open(error_config_filename))

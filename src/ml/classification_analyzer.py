@@ -43,6 +43,9 @@ class ClassificationAnalyzer:
         max_val = np.amax(cm)
         breakpoint = (max_val + min_val) / 2
 
+        plt.ylabel("true label")
+        plt.xlabel("predicted label")
+
         # Loop over data dimensions and create text annotations.
         for i in range(n):
             for j in range(n):

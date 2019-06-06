@@ -18,9 +18,7 @@ class Missing(Filter):
         super().__init__()
 
     def apply(self, data, index_tuple):
-        mask = np.random.choice([True, False],
-                                size=data[index_tuple].shape,
-                                p=[self.probability, 1. - self.probability])
+        mask = np.random.rand(*(data[index_tuple].shape)) <= self.probability
         data[index_tuple][mask] = np.nan
 
 
@@ -45,7 +43,7 @@ class Uppercase(Filter):
     def apply(self, data, index_tuple):
 
         def stochastic_upper(char, probability):
-            if np.random.binomial(1, probability):
+            if np.random.rand() <= probability:
                 return char.upper()
             return char
 

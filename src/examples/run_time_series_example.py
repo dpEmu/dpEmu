@@ -1,11 +1,13 @@
 import os
 import random
 from collections import OrderedDict
+from io import BytesIO
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from PIL import Image
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.models import Sequential
@@ -23,8 +25,8 @@ class Model:
     def run(self):
         n_input, n_features = 3, 1
         train_size = int(len(self.data) * .67)
-        train, test = self.data[:train_size, ], self.data[train_size - n_input:, ]
-        train_gen = TimeseriesGenerator(train, train, length=n_input, batch_size=3)
+        train, test = self.data[:train_size], self.data[train_size - n_input:]
+        train_gen = TimeseriesGenerator(train, train, length=n_input)
         test_gen = TimeseriesGenerator(test, test, length=n_input)
 
         model = Sequential()
@@ -35,9 +37,19 @@ class Model:
         model.fit_generator(train_gen, epochs=200, verbose=0)
         predicted_test = model.predict_generator(test_gen)
         print(predicted_test)
+        predicted_test = np.concatenate((self.data[:train_size, ], predicted_test))
+
+        plt.plot(self.data)
+        plt.plot(predicted_test)
+        plt.tight_layout()
+        buf = BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+        byte_img = buf.read()
+        byte_img = BytesIO(byte_img)
 
         out = OrderedDict()
-        out["prediction_img"] = np.concatenate((self.data[:train_size, ], predicted_test))
+        out["prediction_img"] = Image.open(byte_img)
         return out
 
 
@@ -45,10 +57,7 @@ def main():
     data = pd.read_csv("data/temperature.csv", header=0, usecols=["Vancouver"])[1:91].values
     model = Model(data)
     out = model.run()
-    plt.plot(data)
-    plt.plot(out["prediction_img"])
-    plt.tight_layout()
-    plt.show()
+    out["prediction_img"].show()
 
 
 if __name__ == "__main__":

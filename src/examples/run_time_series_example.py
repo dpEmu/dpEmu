@@ -41,6 +41,7 @@ class Model:
         for _ in range(n_test):
             y_cur = model.predict(x_cur)
             predicted_test = np.concatenate([predicted_test, y_cur], axis=0)
+            x_cur = np.delete(x_cur, 0, axis=1)
             x_cur = np.concatenate([x_cur, y_cur.reshape((1, 1, n_features))], axis=1)
 
         plt.plot(self.data, label="data")

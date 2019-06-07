@@ -28,7 +28,7 @@ def strange(a):
 y_node.addfilter(filters.Gap(max_length=5, grace_period=5))
 output = root_node.process(data)
 
-print("x output", output[0])
-print("y output", output[1])
+print("x output:\n", output[0])
+print("y output:\n", output[1])
 print("x output", output[0].dtype)
 print("y output", output[1].dtype)

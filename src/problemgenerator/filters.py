@@ -156,13 +156,14 @@ class MissingArea(Filter):
 class Gap(Filter):
     def __init__(self, max_length=10, grace_period=10, missing_value=np.nan):
         self.length = max_length
-        self.gap_duration = np.random.random_integers(0, 1) * np.random.random_integers(0, self.length)
+        self.gap_duration = np.random.random_integers(
+            0, 1) * np.random.random_integers(0, self.length)
         self.immunity_remaining = 0
         self.grace_period = grace_period
         self.missing_value = missing_value
 
     def apply(self, data, index_tuple):
-        """Select gap lengths from a discrete uniform distribution.
+        """Selects gap lengths from a discrete uniform distribution.
 
         If a gap just occurred, then enforce a grace period when gaps cannot occur."""
         if self.gap_duration <= 0:
@@ -176,7 +177,7 @@ class Gap(Filter):
 
     def determine_gap(self):
         self.gap_duration = np.random.random_integers(0, self.length)
-        self.immunity_remaining = self.grace_period
+        self.immunity_remaining = self.grace_period - 1
 
 
 class SensorDrift(Filter):

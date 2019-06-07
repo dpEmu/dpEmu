@@ -57,7 +57,7 @@ class Uppercase(Filter):
 class OCRError(Filter):
 
     def __init__(self, normalized_params, p):
-        """ Pass replacements as a dict.
+        """ Pass normalized_params as a dict.
 
         For example {"e": (["E", "i"], [.5, .5]), "g": (["q", "9"], [.2, .8])}
         where the latter list consists of probabilities which should sum to 1."""
@@ -151,3 +151,49 @@ class MissingArea(Filter):
                         modified_line += element[y][x]
                 modified.append(modified_line)
             data[index_tuple][index] = "\n".join(modified)
+
+
+class Gap(Filter):
+    def __init__(self, max_length=10, grace_period=10, missing_value=np.nan):
+        self.length = max_length
+        self.gap_duration = np.random.random_integers(0, 1) * np.random.random_integers(0, self.length)
+        self.immunity_remaining = 0
+        self.grace_period = grace_period
+        self.missing_value = missing_value
+
+    def apply(self, data, index_tuple):
+        """Select gap lengths from a discrete uniform distribution.
+
+        If a gap just occurred, then enforce a grace period when gaps cannot occur."""
+        if self.gap_duration <= 0:
+            self.determine_gap()
+        else:
+            if self.immunity_remaining <= 0:
+                data[index_tuple] = self.missing_value
+                self.gap_duration -= 1
+            else:
+                self.immunity_remaining -= 1
+
+    def determine_gap(self):
+        self.gap_duration = np.random.random_integers(0, self.length)
+        self.immunity_remaining = self.grace_period
+
+
+class SensorDrift(Filter):
+    def __init__(self, magnitude):
+        """Magnitude is the increase in drift during time period t_i -> t_i+1."""
+        self.magnitude = magnitude
+        self.increase = magnitude
+
+    def apply(self, data, index_tuple):
+        data[index_tuple] += self.increase
+        self.increase += self.magnitude
+
+
+class StrangeBehaviour(Filter):
+    def __init__(self, do_strange_behaviour):
+        """The function do_strange_behaviour outputs strange sensor values into the data."""
+        self.do_strange_behaviour = do_strange_behaviour
+
+    def apply(self, data, index_tuple):
+        data[index_tuple] = self.do_strange_behaviour(data[index_tuple])

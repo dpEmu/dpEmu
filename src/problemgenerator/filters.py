@@ -155,6 +155,7 @@ class MissingArea(Filter):
 
 class Gap(Filter):
     def __init__(self, max_length=10, grace_period=10, missing_value=np.nan):
+        super().__init__()
         self.length = max_length
         self.gap_duration = np.random.random_integers(
             0, 1) * np.random.random_integers(0, self.length)
@@ -182,7 +183,8 @@ class Gap(Filter):
 
 class SensorDrift(Filter):
     def __init__(self, magnitude):
-        """Magnitude is the increase in drift during time period t_i -> t_i+1."""
+        """Magnitude is the linear increase in drift during time period t_i -> t_i+1."""
+        super().__init__()
         self.magnitude = magnitude
         self.increase = magnitude
 
@@ -194,6 +196,7 @@ class SensorDrift(Filter):
 class StrangeBehaviour(Filter):
     def __init__(self, do_strange_behaviour):
         """The function do_strange_behaviour outputs strange sensor values into the data."""
+        super().__init__()
         self.do_strange_behaviour = do_strange_behaviour
 
     def apply(self, data, index_tuple):

@@ -66,6 +66,7 @@ def main():
     data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"]).values
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[100:300].values
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Eilat"])[50:400].values
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[100:500].values
     plt.plot(data)
     plt.tight_layout()
     plt.show()

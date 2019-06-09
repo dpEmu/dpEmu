@@ -29,9 +29,7 @@ class GaussianNoise(Filter):
         super().__init__()
 
     def apply(self, data, random_state, index_tuple):
-        data[index_tuple] += random_state.normal(loc=self.mean,
-                                              scale=self.std,
-                                              size=data[index_tuple].shape)
+        data[index_tuple] += random_state.normal(loc=self.mean, scale=self.std, size=data[index_tuple].shape)
 
 
 class Uppercase(Filter):

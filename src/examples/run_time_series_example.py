@@ -11,10 +11,11 @@ from keras import backend
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.models import Sequential
-from keras.preprocessing.sequence import TimeseriesGenerator
 from math import sqrt
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
+
+from src.problemgenerator.utils import to_time_series_x_y
 
 
 class Model:
@@ -31,9 +32,9 @@ class Model:
         data.dropna(inplace=True)
         self.data = data.values
 
-        plt.plot(self.data)
-        plt.tight_layout()
-        plt.show()
+        # plt.plot(self.data)
+        # plt.tight_layout()
+        # plt.show()
 
     @staticmethod
     def __get_diffs_to_prev(data, interval):
@@ -61,16 +62,15 @@ class Model:
 
         train, test = self.data[:-n_test], self.data[-n_test:]
         train = self.scaler.fit_transform(train)
-
         train_diff = self.__get_diffs_to_prev(train, n_interval)
-        train_gen = TimeseriesGenerator(train_diff, train_diff, length=n_steps)
-        # train_gen = TimeseriesGenerator(train, train, length=n_steps)
+        train_x_y = to_time_series_x_y(train_diff, n_steps)
+
         model = Sequential()
         model.add(LSTM(n_nodes, activation="relu", input_shape=(n_steps, n_features)))
         model.add(Dense(n_nodes, activation="relu"))
         model.add(Dense(1))
-        model.compile(loss="mae", optimizer="adam")
-        model.fit_generator(train_gen, epochs=n_epochs)
+        model.compile(loss="mse", optimizer="adam")
+        model.fit(train_x_y[0], train_x_y[1], epochs=n_epochs)
 
         train_with_pred = train
         for _ in range(n_test):
@@ -84,19 +84,20 @@ class Model:
 
         out = OrderedDict()
         out["prediction_img"] = self.__get_plot(train_with_pred)
-        out["rsme"] = sqrt(mean_squared_error(test, train_with_pred[-n_test:]))
+        out["rmse"] = sqrt(mean_squared_error(test, train_with_pred[-n_test:]))
         return out
 
 
 def main():
     data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"])
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:200]
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:400]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Eilat"])[:400]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:500]
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
     model = Model(data)
     out = model.run()
     out["prediction_img"].show()
-    print(out["rsme"])
+    print("RMSE: {}".format(out["rmse"]))
 
 
 if __name__ == "__main__":

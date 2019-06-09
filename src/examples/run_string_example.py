@@ -9,6 +9,6 @@ data = np.array(["hello world",
 x_node = array.Array(data.shape)
 x_node.addfilter(filters.Uppercase(.45))
 root_node = copy.Copy(x_node)
-out = root_node.process(data)
+out = root_node.process(data, np.random.RandomState(seed=42))
 print(out)
 print("output shape:", out.shape, ", output dtype:", out.dtype)

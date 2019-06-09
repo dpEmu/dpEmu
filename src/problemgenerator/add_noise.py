@@ -5,7 +5,7 @@ import src.problemgenerator.series as series
 import src.problemgenerator.copy as copy
 
 
-def add_noise_to_imgs(x_file, y_file, std):
+def add_noise_to_imgs(x_file, y_file, std, random_state):
 
     x = np.load(x_file)
     y = np.load(y_file)
@@ -15,6 +15,6 @@ def add_noise_to_imgs(x_file, y_file, std):
     y_node = array.Array(y[0].shape)
     series_node = series.TupleSeries([x_node, y_node])
     root_node = copy.Copy(series_node)
-    out_x, out_y = root_node.process((x, y))
+    out_x, out_y = root_node.process((x, y), random_state)
 
     return [(out_x, out_y), (x, y)]

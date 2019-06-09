@@ -17,7 +17,7 @@ for i in range(20000):
 
     x_node.addfilter(filters.OCRError(normalized_params, p=.5))
     root_node = copy.Copy(x_node)
-    out = root_node.process(data)
+    out = root_node.process(data, np.random.RandomState(seed=42))
 
 print("Time:", time() - t0)
 

@@ -19,7 +19,7 @@ x_node.addfilter(filters.Missing(prob))
 y_node = array.Array(y[0].shape)
 series_node = series.TupleSeries([x_node, y_node])
 root_node = copy.Copy(series_node)
-out_x, out_y = root_node.process((x, y))
+out_x, out_y = root_node.process((x, y), np.random.RandomState(seed=42))
 
 print((y != out_y).sum(), "elements of y have been modified in (should be 0).")
 

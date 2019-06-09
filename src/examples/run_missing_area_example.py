@@ -27,7 +27,7 @@ y_node.addfilter(filters.MissingArea(.02, filters.MissingArea.GaussianRadiusGene
 
 root_node = copy.Copy(y_node)
 
-out = root_node.process(data)
+out = root_node.process(data, np.random.RandomState(seed=42))
 for index, elem in enumerate(out):
     print(elem, end="\n\n")
 
@@ -37,6 +37,6 @@ y_node.addfilter(filters.MissingArea(.02, filters.MissingArea.ProbabilityArrayRa
 
 root_node = copy.Copy(y_node)
 
-out = root_node.process(data)
+out = root_node.process(data, np.random.RandomState(seed=42))
 for index, elem in enumerate(out):
     print(elem, end="\n\n")

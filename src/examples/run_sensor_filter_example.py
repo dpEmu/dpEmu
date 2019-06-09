@@ -28,9 +28,9 @@ def strange(a):
     return a
 """
 # y_node.addfilter(filters.StrangeBehaviour(strange))
-y_node.addfilter(filters.Gap(max_length=5, grace_period=5))
+y_node.addfilter(filters.Gap(np.random.RandomState(seed=1337), max_length=5, grace_period=5))
 
-output = root_node.process(data)
+output = root_node.process(data, np.random.RandomState(seed=42))
 print("x output:\n", output[0])
 print("y output:\n", output[1])
 print("x output", output[0].dtype)

@@ -25,7 +25,7 @@ probability = .3
 y_node.addfilter(filters.Missing(probability=probability))
 
 # Feed the data to the root node.
-output = root_node.process(data)
+output = root_node.process(data, np.random.RandomState(seed=42))
 
 print("Output type (should be tuple):", type(output))
 print("Output length (should be 2):", len(output))

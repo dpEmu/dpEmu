@@ -12,6 +12,9 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from keras.models import Sequential
 from keras.preprocessing.sequence import TimeseriesGenerator
+from math import sqrt
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import MinMaxScaler
 
 
 class Model:
@@ -23,32 +26,22 @@ class Model:
         conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
         session = tf.Session(graph=tf.get_default_graph(), config=conf)
         backend.set_session(session)
-        self.data = data
 
-    def run(self):
-        n_input = 1
-        n_train = int(len(self.data) * .67)
-        n_test = len(self.data) - n_train
-        n_steps = min(n_train, 25)
-        train = self.data[:n_train]
+        self.scaler = MinMaxScaler(feature_range=(0, 1))
+        data.dropna(inplace=True)
+        self.data = data.values
 
-        train_gen = TimeseriesGenerator(train, train, length=n_steps)
-        model = Sequential()
-        model.add(LSTM(500, activation="relu", input_shape=(n_steps, n_input)))
-        model.add(Dense(1))
-        model.compile(loss="mse", optimizer="adam")
-        model.fit_generator(train_gen, steps_per_epoch=1, epochs=500)
+        plt.plot(self.data)
+        plt.tight_layout()
+        plt.show()
 
-        predicted_test = train
-        x_cur = train[-n_steps:].reshape((1, n_steps, n_input))
-        for _ in range(n_test):
-            y_cur = model.predict(x_cur)
-            predicted_test = np.concatenate([predicted_test, y_cur], axis=0)
-            x_cur = np.delete(x_cur, 0, axis=1)
-            x_cur = np.concatenate([x_cur, y_cur.reshape((1, 1, n_input))], axis=1)
+    @staticmethod
+    def __get_diffs_to_prev(data, interval):
+        return np.array([data[i] - data[i - interval] for i in range(interval, len(data))])
 
+    def __get_plot(self, train_with_pred):
         plt.plot(self.data, label="data")
-        plt.plot(predicted_test, label="pred", zorder=1)
+        plt.plot(train_with_pred, label="pred", zorder=1)
         plt.legend()
         plt.tight_layout()
         buf = BytesIO()
@@ -56,23 +49,54 @@ class Model:
         buf.seek(0)
         byte_img = buf.read()
         byte_img = BytesIO(byte_img)
+        return Image.open(byte_img)
+
+    def run(self):
+        n_features = 1
+        n_test = int(len(self.data) * .33)
+        n_interval = 24
+        n_steps = 3 * n_interval
+        n_nodes = 200
+        n_epochs = 200
+
+        train, test = self.data[:-n_test], self.data[-n_test:]
+        train = self.scaler.fit_transform(train)
+
+        train_diff = self.__get_diffs_to_prev(train, n_interval)
+        train_gen = TimeseriesGenerator(train_diff, train_diff, length=n_steps)
+        # train_gen = TimeseriesGenerator(train, train, length=n_steps)
+        model = Sequential()
+        model.add(LSTM(n_nodes, activation="relu", input_shape=(n_steps, n_features)))
+        model.add(Dense(n_nodes, activation="relu"))
+        model.add(Dense(1))
+        model.compile(loss="mae", optimizer="adam")
+        model.fit_generator(train_gen, epochs=n_epochs)
+
+        train_with_pred = train
+        for _ in range(n_test):
+            x_cur = self.__get_diffs_to_prev(train_with_pred, n_interval)[-n_steps:]
+            # x_cur = train_with_pred[-n_steps:]
+            x_cur = np.reshape(x_cur, (1, n_steps, n_features))
+            y_cur = model.predict(x_cur) + train_with_pred[-n_interval]
+            # y_cur = model.predict(x_cur)
+            train_with_pred = np.concatenate([train_with_pred, y_cur], axis=0)
+        train_with_pred = self.scaler.inverse_transform(train_with_pred)
 
         out = OrderedDict()
-        out["prediction_img"] = Image.open(byte_img)
+        out["prediction_img"] = self.__get_plot(train_with_pred)
+        out["rsme"] = sqrt(mean_squared_error(test, train_with_pred[-n_test:]))
         return out
 
 
 def main():
-    data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"]).values
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[100:300].values
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Eilat"])[50:400].values
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[100:500].values
-    plt.plot(data)
-    plt.tight_layout()
-    plt.show()
+    data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"])
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:200]
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Eilat"])[:400]
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:500]
     model = Model(data)
     out = model.run()
     out["prediction_img"].show()
+    print(out["rsme"])
 
 
 if __name__ == "__main__":

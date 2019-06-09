@@ -8,7 +8,7 @@ y = np.load(y_file)
 
 def test_add_noise_to_imgs_with_zero_std():
     std = 0
-    results = add_noise_to_imgs(x_file, y_file, std)
+    results = add_noise_to_imgs(x_file, y_file, std, np.random.RandomState(42))
 
     assert np.array_equal(x, results[0][0])
     assert np.array_equal(y, results[0][1])
@@ -18,7 +18,7 @@ def test_add_noise_to_imgs_with_zero_std():
 
 def test_add_noise_to_imgs():
     std = 0.2
-    results = add_noise_to_imgs(x_file, y_file, std)
+    results = add_noise_to_imgs(x_file, y_file, std, np.random.RandomState(42))
 
     assert not np.array_equal(x, results[0][0])
     assert np.array_equal(y, results[0][1])

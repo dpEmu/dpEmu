@@ -24,7 +24,7 @@ from src.problemgenerator.utils import to_time_series_x_y
 
 
 class Model:
-    def __init__(self, data):
+    def __init__(self):
         seed = 42
         rn.seed(seed)
         np.random.seed(seed)
@@ -34,8 +34,7 @@ class Model:
         backend.set_session(session)
 
         self.scaler = MinMaxScaler(feature_range=(0, 1))
-        self.data = data[~np.isnan(data)]
-        self.data = np.reshape(self.data, (len(self.data), 1))
+        self.data = None
 
         # plt.plot(self.data)
         # plt.tight_layout()
@@ -57,7 +56,10 @@ class Model:
         byte_img = BytesIO(byte_img)
         return Image.open(byte_img)
 
-    def run(self):
+    def run(self, data):
+        data = data[~np.isnan(data)]
+        self.data = np.reshape(data, (len(data), 1))
+
         n_features = 1
         n_test = int(len(self.data) * .33)
         n_period = 24
@@ -127,6 +129,7 @@ class ParamSelector:
     def analyze(self, res):
         self.params = None
 
+
 # Example usage
 def main():
     data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"])
@@ -135,7 +138,8 @@ def main():
     err_gen = ErrGen(y, 0)
     output = err_gen.generate_error({"mean": 5, "std": 15})
 
-    model = Model(output)
+    model = Model()
+    model.run(output)
     param_selector = ParamSelector([({"mean": a, "std": b}, None) for (a, b) in [(0, 0), (5, 15), (10, 20)]])
 
     res = runner.run(model, err_gen, param_selector)

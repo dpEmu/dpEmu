@@ -29,8 +29,8 @@ class Model:
         backend.set_session(session)
 
         self.scaler = MinMaxScaler(feature_range=(0, 1))
-        data.dropna(inplace=True)
-        self.data = data.values
+        self.data = data[~np.isnan(data)]
+        self.data = np.reshape(self.data, (len(self.data), 1))
 
         # plt.plot(self.data)
         # plt.tight_layout()
@@ -94,7 +94,7 @@ def main():
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Miami"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
-    model = Model(data)
+    model = Model(data.values)
     out = model.run()
     out["prediction_img"].show()
     print("RMSE: {}".format(out["rmse"]))

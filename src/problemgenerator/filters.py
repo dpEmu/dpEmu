@@ -185,8 +185,9 @@ class SensorDrift(Filter):
         self.increase = magnitude
 
     def apply(self, data, random_state, index_tuple):
-        data[index_tuple] += self.increase
-        self.increase += self.magnitude
+        for index, _ in np.ndenumerate(data[index_tuple]):
+            data[index_tuple][index] += self.increase
+            self.increase += self.magnitude
 
 
 class StrangeBehaviour(Filter):

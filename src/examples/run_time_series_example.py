@@ -60,7 +60,7 @@ class Model:
     def run(self):
         n_features = 1
         n_test = int(len(self.data) * .33)
-        n_period = 24
+        n_period = 12
         n_steps = 3 * n_period
         n_nodes = 100
         n_epochs = 200
@@ -99,21 +99,24 @@ def main():
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Miami"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
-    y = data.values
-    data = y
+    y = data.values.astype(float)
+    print(y)
     y_node = array.Array(y.shape)
     root_node = copy.Copy(y_node)
 
     def strange(a, _):
-        if a <= 170 and a >= 150:
+        if a <= 500 and a >= 400:
             return 1729
 
         return a
 
-    y_node.addfilter(filters.StrangeBehaviour(strange))
-    # y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
+    # y_node.addfilter(filters.StrangeBehaviour(strange))
+    # y_node.addfilter(filters.SensorDrift(1))
+    #y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
+    y_node.addfilter(filters.GaussianNoise(5, 5))
 
-    output = root_node.process(data, np.random.RandomState(seed=42))
+    output = root_node.process(y, np.random.RandomState(seed=42))
+    print("Changed\n", output)
     model = Model(output)
     out = model.run()
     out["prediction_img"].show()

@@ -17,7 +17,10 @@ def run(model, errgen, param_chooser):
             describing the results in some way.
     '''
     def run_model(mod, out, i, md, mp):
-        out[i] = mod.run(md, model_params=mp)
+        if mp is not None:
+            out[i] = mod.run(md, model_params=mp)
+        else:
+            out[i] = mod.run(md)
 
     rows = []
     batches = 0

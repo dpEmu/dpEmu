@@ -60,7 +60,7 @@ class Model:
     def run(self):
         n_features = 1
         n_test = int(len(self.data) * .33)
-        n_period = 12
+        n_period = 24
         n_steps = 3 * n_period
         n_nodes = 100
         n_epochs = 200
@@ -113,7 +113,7 @@ def main():
     # y_node.addfilter(filters.StrangeBehaviour(strange))
     # y_node.addfilter(filters.SensorDrift(1))
     #y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
-    y_node.addfilter(filters.GaussianNoise(5, 5))
+    y_node.addfilter(filters.GaussianNoise(5, 15))
 
     output = root_node.process(y, np.random.RandomState(seed=42))
     print("Changed\n", output)

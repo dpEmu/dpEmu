@@ -37,12 +37,12 @@ class Model:
         # plt.show()
 
     @staticmethod
-    def __get_periodic_diffs(data, interval):
-        return np.array([data[i] - data[i - interval] for i in range(interval, len(data))])
+    def __get_periodic_diffs(data, n_period):
+        return np.array([data[i] - data[i - n_period] for i in range(n_period, len(data))])
 
-    def __get_plot(self, train_with_pred):
+    def __get_plot(self, train_with_test_pred):
         plt.plot(self.data, label="data")
-        plt.plot(train_with_pred, label="pred", zorder=1)
+        plt.plot(train_with_test_pred, label="pred", zorder=1)
         plt.legend()
         plt.tight_layout()
         buf = BytesIO()

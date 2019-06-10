@@ -123,8 +123,8 @@ dmypy.json
 .pyre/
 
 # Latex temporary files
-.log
-.aux
+*.log
+*.aux
 
 # Others
 .idea/

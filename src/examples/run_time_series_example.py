@@ -37,7 +37,7 @@ class Model:
         # plt.show()
 
     @staticmethod
-    def __get_diffs_to_prev(data, interval):
+    def __get_periodic_diffs(data, interval):
         return np.array([data[i] - data[i - interval] for i in range(interval, len(data))])
 
     def __get_plot(self, train_with_pred):
@@ -55,45 +55,45 @@ class Model:
     def run(self):
         n_features = 1
         n_test = int(len(self.data) * .33)
-        n_interval = 24
-        n_steps = 3 * n_interval
-        n_nodes = 200
+        n_period = 24
+        n_steps = 3 * n_period
+        n_nodes = 100
         n_epochs = 200
 
         train, test = self.data[:-n_test], self.data[-n_test:]
         train = self.scaler.fit_transform(train)
-        train_diff = self.__get_diffs_to_prev(train, n_interval)
-        train_x_y = to_time_series_x_y(train_diff, n_steps)
+        train_periodic_diffs = self.__get_periodic_diffs(train, n_period)
+        train_periodic_diffs = to_time_series_x_y(train_periodic_diffs, n_steps)
 
         model = Sequential()
         model.add(LSTM(n_nodes, activation="relu", input_shape=(n_steps, n_features)))
         model.add(Dense(n_nodes, activation="relu"))
         model.add(Dense(1))
         model.compile(loss="mse", optimizer="adam")
-        model.fit(train_x_y[0], train_x_y[1], epochs=n_epochs)
+        model.fit(train_periodic_diffs[0], train_periodic_diffs[1], epochs=n_epochs)
 
-        train_with_pred = train
+        train_with_test_pred = train
         for _ in range(n_test):
-            x_cur = self.__get_diffs_to_prev(train_with_pred, n_interval)[-n_steps:]
-            # x_cur = train_with_pred[-n_steps:]
+            x_cur = self.__get_periodic_diffs(train_with_test_pred, n_period)[-n_steps:]
             x_cur = np.reshape(x_cur, (1, n_steps, n_features))
-            y_cur = model.predict(x_cur) + train_with_pred[-n_interval]
-            # y_cur = model.predict(x_cur)
-            train_with_pred = np.concatenate([train_with_pred, y_cur], axis=0)
-        train_with_pred = self.scaler.inverse_transform(train_with_pred)
+            y_cur = model.predict(x_cur) + train_with_test_pred[-n_period]
+            train_with_test_pred = np.concatenate([train_with_test_pred, y_cur], axis=0)
+        train_with_test_pred = self.scaler.inverse_transform(train_with_test_pred)
 
         out = OrderedDict()
-        out["prediction_img"] = self.__get_plot(train_with_pred)
-        out["rmse"] = sqrt(mean_squared_error(test, train_with_pred[-n_test:]))
+        out["prediction_img"] = self.__get_plot(train_with_test_pred)
+        out["rmse"] = sqrt(mean_squared_error(test, train_with_test_pred[-n_test:]))
         return out
 
 
 def main():
     data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"])
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:200]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:400]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Eilat"])[:400]
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:400]
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Miami"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
     model = Model(data)
     out = model.run()
     out["prediction_img"].show()

@@ -35,7 +35,8 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 *  ```pip install -r requirements.txt```
 
 ## Usage <a name="usage"/>
-* Run examples with commands like ```python3 -m src.examples.run_ocr_error_example```
+* Run the program with ```python run.py config/example_commands.txt config/example_text_error_params.json config/example_combiner_config.json config/example_model_config.json```
+* Run examples with commands like ```python -m src.examples.run_ocr_error_example```
 
 ## Contributing <a name="contributing"/>
 See [Wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing).

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from src.problemgenerator.add_noise import add_noise_to_imgs
 
 std = float(sys.argv[1])
-out = add_noise_to_imgs("data/mnist_subset/x.npy", "data/mnist_subset/y.npy", std)
+out = add_noise_to_imgs("data/mnist_subset/x.npy", "data/mnist_subset/y.npy", std, np.random.RandomState(42))
 out_x, out_y = out[0][0], out[0][1]
 x, y = out[1][0], out[1][1]
 print((y != out_y).sum(), "elements of y have been modified in (should be 0).")

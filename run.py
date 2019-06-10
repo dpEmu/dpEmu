@@ -139,7 +139,7 @@ def main():
             z_node = array.Array(original_data[2][0].shape)
             series_node = series.TupleSeries([x_node, y_node, z_node])
             error_generator_root = copy.Copy(series_node)
-            x_out, y_out, z_out = error_generator_root.process(original_data)
+            x_out, y_out, z_out = error_generator_root.process(original_data, np.random.RandomState(seed=42))
             x_out = x_out.reshape((x_out.shape[0],))
             y_out = y_out.reshape((y_out.shape[0],))
             x_name = unique_filename("tmp", "x", "pickle")

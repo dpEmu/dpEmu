@@ -129,5 +129,3 @@ dmypy.json
 # Others
 .idea/
 .vscode
-data/*
-!data/mnist_subset/

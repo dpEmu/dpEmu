@@ -1,0 +1,5 @@
+*
+!.gitignore
+!mnist_subset/
+!temperature.csv
+!passengers.csv

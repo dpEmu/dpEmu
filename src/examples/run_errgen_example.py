@@ -32,7 +32,7 @@ root_node = copy.Copy(observation_series)
 
 # The data model tree is now complete.
 # Process the data to introduce errors
-output = root_node.process(data)
+output = root_node.process(data, np.random.RandomState(seed=42))
 
 # Sanity check: does the shape of the output equal that of the input?
 print("input data has shape", data.shape)

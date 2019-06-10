@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from PIL import Image
+from keras import backend
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.models import Sequential
@@ -23,14 +24,7 @@ from src.problemgenerator.utils import to_time_series_x_y
 
 class Model:
     def __init__(self):
-        seed = 42
-        rn.seed(seed)
-        np.random.seed(seed)
-        tf.set_random_seed(seed)
-        # conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
-        # session = tf.Session(graph=tf.get_default_graph(), config=conf)
-        # backend.set_session(session)
-
+        pass
         # plt.plot(self.data)
         # plt.tight_layout()
         # plt.show()
@@ -53,6 +47,14 @@ class Model:
         return Image.open(byte_img)
 
     def run(self, data):
+        seed = 42
+        rn.seed(seed)
+        np.random.seed(seed)
+        tf.set_random_seed(seed)
+        conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+        session = tf.Session(graph=tf.get_default_graph(), config=conf)
+        backend.set_session(session)
+
         data = data[~np.isnan(data)]
         data = np.reshape(data, (len(data), 1))
 

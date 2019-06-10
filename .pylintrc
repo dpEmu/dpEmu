@@ -7,11 +7,10 @@ extension-pkg-whitelist=numpy
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS
+ignore=CVS,src/examples
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
@@ -421,7 +420,7 @@ known-third-party=enchant
 [DESIGN]
 
 # Maximum number of arguments for function / method
-max-args=5
+max-args=6
 
 # Maximum number of attributes for a class (see R0902).
 max-attributes=7

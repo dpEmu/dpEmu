@@ -37,7 +37,7 @@ def run(model, errgen, param_chooser):
             (err_param, mod_param) = param_pair
             mod_data = errgen.generate_error(err_param)
             pool_input.append((deepcopy(model), mod_data, mod_param))
-        pool = multiprocessing.Pool(processes = len(params))
+        pool = multiprocessing.Pool(processes=len(params))
         outputs = pool.map(worker, pool_input)
 
         param_chooser.analyze(outputs)

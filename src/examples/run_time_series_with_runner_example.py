@@ -23,21 +23,20 @@ from src.problemgenerator.utils import to_time_series_x_y
 
 
 class Model:
-    def __init__(self):
-        pass
-        # plt.plot(self.data)
-        # plt.tight_layout()
-        # plt.show()
-
     @staticmethod
     def __get_periodic_diffs(data, n_period):
         return np.array([data[i] - data[i - n_period] for i in range(n_period, len(data))])
 
     @staticmethod
-    def __get_plot(data, train_with_test_pred):
+    def __get_rmse(test_pred, test):
+        return sqrt(mean_squared_error(test_pred, test))
+
+    @staticmethod
+    def __get_plot(data, train_with_test_pred, rmse):
         plt.plot(data, label="data")
         plt.plot(train_with_test_pred, label="pred", zorder=1)
         plt.legend()
+        plt.title("RMSE: {}".format(rmse))
         plt.tight_layout()
         buf = BytesIO()
         plt.savefig(buf, format="png")
@@ -54,6 +53,10 @@ class Model:
         conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
         session = tf.Session(graph=tf.get_default_graph(), config=conf)
         backend.set_session(session)
+
+        # plt.plot(data)
+        # plt.tight_layout()
+        # plt.show()
 
         data = data[~np.isnan(data)]
         data = np.reshape(data, (len(data), 1))
@@ -87,11 +90,13 @@ class Model:
             train_with_test_pred = np.concatenate([train_with_test_pred, y_cur], axis=0)
         train_with_test_pred = scaler.inverse_transform(train_with_test_pred)
 
-        # out = OrderedDict()
-        out = dict()
-        out["prediction_img"] = self.__get_plot(data, train_with_test_pred)
-        out["rmse"] = sqrt(mean_squared_error(test, train_with_test_pred[-n_test:]))
-        return out
+        rmse = self.__get_rmse(train_with_test_pred[-n_test:], test)
+        plot = self.__get_plot(data, train_with_test_pred, rmse)
+        plot.show()
+        return {
+            "prediction_img": plot,
+            "rmse": rmse
+        }
 
 
 # Add gaussian noise with parameters to data
@@ -106,9 +111,8 @@ class ErrGen:
         root_node = copy.Copy(y_node)
 
         def strange(a, _):
-            if a <= 500 and a >= 400:
-                return 1729
-
+            if 400 <= a <= 500:
+                return 1000
             return a
 
         # y_node.addfilter(filters.StrangeBehaviour(strange))
@@ -133,10 +137,9 @@ class ParamSelector:
 
 # Example usage
 def main():
-    data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"])
-    y = data.values.astype(float)
+    data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"]).values.astype(float)
 
-    err_gen = ErrGen(y, 0)
+    err_gen = ErrGen(data, 0)
 
     model = Model()
     param_selector = ParamSelector([({"mean": a, "std": b}, None) for (a, b) in [(0, 0), (5, 15), (10, 20)]])

@@ -68,7 +68,7 @@ def test_seed_determines_result_for_gap_filter():
 
 def test_seed_determines_result_for_strange_behaviour_filter():
     def f(data, random_state):
-        return data * random_state.randint(-5, 5)
+        return data * random_state.randint(2, 4)
 
     a = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
     x_node = array.Array(a.shape)

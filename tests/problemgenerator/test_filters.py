@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 import numpy as np
 import src.problemgenerator.filters as filters
 import src.problemgenerator.array as array
@@ -53,7 +51,7 @@ def test_seed_determines_result_for_missing_area_filter_with_gaussian_radius_gen
 def test_seed_determines_result_for_missing_area_filter_with_probability_array_radius_generator():
     a = np.array(["hello world\n" * 10])
     x_node = array.Array(a.shape)
-    x_node.addfilter(filters.MissingArea(0.05, filters.MissingArea.ProbabilityArrayRadiusGenerator([0.6, 0.3, 0.1]), "#"))
+    x_node.addfilter(filters.MissingArea(0.05, filters.MissingArea.ProbabilityArrayRadiusGenerator([.6, .3, .1]), "#"))
     root_node = copy.Copy(x_node)
     out1 = root_node.process(a, np.random.RandomState(seed=42))
     out2 = root_node.process(a, np.random.RandomState(seed=42))

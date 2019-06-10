@@ -42,7 +42,7 @@ class ClassificationAnalyzer:
 
         min_val = np.amin(cm)
         max_val = np.amax(cm)
-        breakpoint = (max_val + min_val) / 2
+        break_point = (max_val + min_val) / 2
 
         plt.ylabel("true label")
         plt.xlabel("predicted label")
@@ -51,7 +51,7 @@ class ClassificationAnalyzer:
         for i in range(n):
             for j in range(n):
                 col = (1, 1, 1)
-                if cm[i, j] <= breakpoint:
+                if cm[i, j] <= break_point:
                     col = (0, 0, 0)
                 ax.text(j, i, cm[i, j], ha="center", va="center", color=col, fontsize=12)
 

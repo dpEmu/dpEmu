@@ -16,6 +16,11 @@ from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
 from src.problemgenerator.utils import to_time_series_x_y
+import src.problemgenerator.array as array
+import src.problemgenerator.filters as filters
+import src.problemgenerator.series as series
+import src.problemgenerator.copy as copy
+
 
 
 class Model:
@@ -94,7 +99,22 @@ def main():
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Miami"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
-    model = Model(data.values)
+    y = data.values
+    data = y
+    y_node = array.Array(y.shape)
+    root_node = copy.Copy(y_node)
+
+    def strange(a, _):
+        if a <= 170 and a >= 150:
+            return 1729
+
+        return a
+
+    y_node.addfilter(filters.StrangeBehaviour(strange))
+    # y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
+
+    output = root_node.process(data, np.random.RandomState(seed=42))
+    model = Model(output)
     out = model.run()
     out["prediction_img"].show()
     print("RMSE: {}".format(out["rmse"]))

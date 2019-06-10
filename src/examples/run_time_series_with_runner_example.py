@@ -1,5 +1,6 @@
 import random as rn
 from collections import OrderedDict
+from copy import deepcopy
 from io import BytesIO
 
 import matplotlib.pyplot as plt
@@ -18,6 +19,7 @@ from sklearn.preprocessing import MinMaxScaler
 import src.problemgenerator.array as array
 import src.problemgenerator.copy as copy
 import src.problemgenerator.filters as filters
+from src import runner
 from src.problemgenerator.utils import to_time_series_x_y
 
 
@@ -89,36 +91,69 @@ class Model:
         return out
 
 
+# Add gaussian noise with parameters to data
+class ErrGen:
+    def __init__(self, data, seed):
+        self.data = data
+        self.seed = seed
+
+    def generate_error(self, params):
+        y = deepcopy(self.data)
+        y_node = array.Array(y.shape)
+        root_node = copy.Copy(y_node)
+
+        def strange(a, _):
+            if a <= 500 and a >= 400:
+                return 1729
+
+            return a
+
+        # y_node.addfilter(filters.StrangeBehaviour(strange))
+        # y_node.addfilter(filters.SensorDrift(2))
+        # y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
+        y_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+
+        return root_node.process(y, np.random.RandomState(seed=42))
+
+
+# Ternary searches best parameter
+class ParamSelector:
+    def __init__(self, low, high, eps, params):
+        self.low = low
+        self.high = high
+        self.eps = eps
+        self.params = params
+
+    def next(self):
+        if self.high - self.low <= self.eps:
+            return None
+        left_mid = (2 * self.low + self.high) / 3
+        right_mid = (self.low + 2 * self.high) / 3
+        return [(self.params, {"a": a}) for a in [left_mid, right_mid]]
+
+    def analyze(self, res):
+        left_mid = (2 * self.low + self.high) / 3
+        right_mid = (self.low + 2 * self.high) / 3
+        if res[0]["error"] <= res[1]["error"]:
+            self.high = right_mid
+        else:
+            self.low = left_mid
+
+
+# Example usage
 def main():
     data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"])
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:200]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Eilat"])[:400]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:400]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Miami"])[:600]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
     y = data.values.astype(float)
-    y_node = array.Array(y.shape)
-    root_node = copy.Copy(y_node)
 
-    def strange(a, _):
-        if a <= 500 and a >= 400:
-            return 1729
+    err_gen = ErrGen(y, 0)
+    output = err_gen.generate_error({"mean": 5, "std": 15})
 
-        return a
-
-    # y_node.addfilter(filters.StrangeBehaviour(strange))
-    # y_node.addfilter(filters.SensorDrift(2))
-    # y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
-    y_node.addfilter(filters.GaussianNoise(5, 15))
-
-    output = root_node.process(y, np.random.RandomState(seed=42))
-    print("Changed\n", output)
     model = Model(output)
-    out = model.run()
-    out["prediction_img"].show()
-    print("RMSE: {}".format(out["rmse"]))
+    param_selector = ParamSelector(0, 10, 0.001, {"mean": 0, "std": 1})
+
+    res = runner.run(model, err_gen, param_selector)
+    print(res)
 
 
-if __name__ == "__main__":
-    main()
+# Call main
+main()

@@ -1,6 +1,13 @@
-from threading import Thread
+import multiprocessing
 from copy import deepcopy
 import pandas as pd
+
+def worker(inputs):
+    mod, md, mp = inputs
+    if mp is not None:
+        return mod.run(md, model_params=mp)
+    else:
+        return mod.run(md)
 
 def run(model, errgen, param_chooser):
     ''' Runs the model in parallel while parameters for error generation are provided.
@@ -16,11 +23,6 @@ def run(model, errgen, param_chooser):
             and model_params is the parameters returned by param_chooser. it should return an dictionary
             describing the results in some way.
     '''
-    def run_model(mod, out, i, md, mp):
-        if mp is not None:
-            out[i] = mod.run(md, model_params=mp)
-        else:
-            out[i] = mod.run(md)
 
     rows = []
     batches = 0
@@ -30,24 +32,17 @@ def run(model, errgen, param_chooser):
         if not params:
             break
 
-        processes = []
-        outputs = [None] * len(params)
-
+        pool_input = []
         for i, param_pair in enumerate(params):
             (err_param, mod_param) = param_pair
             mod_data = errgen.generate_error(err_param)
-            p = Thread(target=run_model,
-                       args=(deepcopy(model), outputs, i, mod_data, mod_param))
-            p.start()
-            processes.append(p)
-
-        for i, p in enumerate(processes):
-            p.join()
+            pool_input.append((deepcopy(model), mod_data, mod_param))
+        pool = multiprocessing.Pool(processes = len(params))
+        outputs = pool.map(worker, pool_input)
 
         param_chooser.analyze(outputs)
-
-        for i, p in enumerate(processes):
-            (outputs[i]["err_param"], outputs[i]["mod_param"]) = params[i]
+        for i, param_pair in enumerate(params):
+            (outputs[i]["err_param"], outputs[i]["mod_param"]) = param_pair
             outputs[i]["batch"] = batches
             rows.append(outputs[i])
     return pd.DataFrame(rows)

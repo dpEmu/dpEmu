@@ -152,31 +152,29 @@ class MissingArea(Filter):
 
 
 class Gap(Filter):
-    def __init__(self, random_state, max_length=10, grace_period=10, missing_value=np.nan):
+    def __init__(self, prob_break, prob_recover, missing_value=np.nan):
         super().__init__()
-        self.length = max_length
-        self.gap_duration = random_state.random_integers(
-            0, 1) * random_state.random_integers(0, self.length)
-        self.immunity_remaining = 0
-        self.grace_period = grace_period
         self.missing_value = missing_value
+        self.prob_break = prob_break
+        self.prob_recover = prob_recover
+        self.working = True
 
     def apply(self, data, random_state, index_tuple):
         """Selects gap lengths from a discrete uniform distribution.
 
         If a gap just occurred, then enforce a grace period when gaps cannot occur."""
-        if self.gap_duration <= 0:
-            self.determine_gap(random_state)
-        else:
-            if self.immunity_remaining <= 0:
-                data[index_tuple] = self.missing_value
-                self.gap_duration -= 1
+        def update_working_state():
+            if self.working:
+                if random_state.rand() <= self.prob_break:
+                    self.working = False
             else:
-                self.immunity_remaining -= 1
+                if random_state.rand() <= self.prob_recover:
+                    self.working = True
 
-    def determine_gap(self, random_state):
-        self.gap_duration = random_state.random_integers(0, self.length)
-        self.immunity_remaining = self.grace_period - 1
+        for index, _ in np.ndenumerate(data[index_tuple]):
+            update_working_state()
+            if not self.working:
+                data[index_tuple][index] = self.missing_value
 
 
 class SensorDrift(Filter):

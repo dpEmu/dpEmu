@@ -1,9 +1,18 @@
-from threading import Thread
+import multiprocessing
 from copy import deepcopy
+
 import pandas as pd
 
+
+def worker(inputs):
+    mod, md, mp = inputs
+    if mp is None:
+        return mod.run(md)
+    return mod.run(md, model_params=mp)
+
+
 def run(model, errgen, param_chooser):
-    ''' Runs the model in parallel while parameters for error generation are provided.
+    """ Runs the model in parallel while parameters for error generation are provided.
         errgen: class for generating erronous data. Should have function
             .generate_error(err_param), that adds error to the data according to the parameters.
         param_chooser: class for selecting parameters for error generation and the model.
@@ -15,36 +24,27 @@ def run(model, errgen, param_chooser):
             .run(data, model_params=...) where data is the data the model is run on,
             and model_params is the parameters returned by param_chooser. it should return an dictionary
             describing the results in some way.
-    '''
-    def run_model(mod, out, i, md, mp):
-        out[i] = mod.run(md, model_params=mp)
+    """
 
     rows = []
     batches = 0
-    while(True):
+    while True:
         batches += 1
         params = param_chooser.next()
         if not params:
             break
 
-        processes = []
-        outputs = [None] * len(params)
-
+        pool_input = []
         for i, param_pair in enumerate(params):
             (err_param, mod_param) = param_pair
             mod_data = errgen.generate_error(err_param)
-            p = Thread(target=run_model,
-                       args=(deepcopy(model), outputs, i, mod_data, mod_param))
-            p.start()
-            processes.append(p)
-
-        for i, p in enumerate(processes):
-            p.join()
+            pool_input.append((deepcopy(model), mod_data, mod_param))
+        pool = multiprocessing.Pool(processes=len(params))
+        outputs = pool.map(worker, pool_input)
 
         param_chooser.analyze(outputs)
-
-        for i, p in enumerate(processes):
-            (outputs[i]["err_param"], outputs[i]["mod_param"]) = params[i]
+        for i, param_pair in enumerate(params):
+            (outputs[i]["err_param"], outputs[i]["mod_param"]) = param_pair
             outputs[i]["batch"] = batches
             rows.append(outputs[i])
     return pd.DataFrame(rows)

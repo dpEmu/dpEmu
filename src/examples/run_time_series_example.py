@@ -15,12 +15,10 @@ from math import sqrt
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
-from src.problemgenerator.utils import to_time_series_x_y
 import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.series as series
 import src.problemgenerator.copy as copy
-
+import src.problemgenerator.filters as filters
+from src.problemgenerator.utils import to_time_series_x_y
 
 
 class Model:
@@ -100,7 +98,6 @@ def main():
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
     y = data.values.astype(float)
-    print(y)
     y_node = array.Array(y.shape)
     root_node = copy.Copy(y_node)
 
@@ -111,8 +108,8 @@ def main():
         return a
 
     # y_node.addfilter(filters.StrangeBehaviour(strange))
-    # y_node.addfilter(filters.SensorDrift(1))
-    #y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
+    # y_node.addfilter(filters.SensorDrift(2))
+    # y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
     y_node.addfilter(filters.GaussianNoise(5, 15))
 
     output = root_node.process(y, np.random.RandomState(seed=42))

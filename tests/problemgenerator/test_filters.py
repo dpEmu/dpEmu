@@ -80,11 +80,11 @@ def test_seed_determines_result_for_strange_behaviour_filter():
 
 
 def test_sensor_drift():
-    weird = filters.SensorDrift(1.0)
+    weird = filters.SensorDrift(1)
     y = np.full((100), 1)
     weird.apply(y, np.random.RandomState(), ())
 
-    increases = np.arange(1.0, 101.0)
+    increases = np.arange(1, 101)
 
     assert len(y) == len(increases)
     for i, val in enumerate(y):

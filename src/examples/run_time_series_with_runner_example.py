@@ -115,10 +115,10 @@ class ErrGen:
                 return 1000
             return a
 
-        # y_node.addfilter(filters.StrangeBehaviour(strange))
+        y_node.addfilter(filters.StrangeBehaviour(strange))
         # y_node.addfilter(filters.SensorDrift(2))
         # y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
-        y_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+        #y_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
 
         return root_node.process(y, np.random.RandomState(seed=42))
 

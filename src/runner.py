@@ -1,7 +1,9 @@
 import multiprocessing
 import time
 from copy import deepcopy
+
 import pandas as pd
+
 
 def worker(inputs):
     mod, md, mp = inputs
@@ -16,7 +18,7 @@ def worker(inputs):
     return res
 
 def run(model, errgen, param_chooser):
-    ''' Runs the model in parallel while parameters for error generation are provided.
+    """ Runs the model in parallel while parameters for error generation are provided.
         errgen: class for generating erronous data. Should have function
             .generate_error(err_param), that adds error to the data according to the parameters.
         param_chooser: class for selecting parameters for error generation and the model.
@@ -28,11 +30,11 @@ def run(model, errgen, param_chooser):
             .run(data, model_params=...) where data is the data the model is run on,
             and model_params is the parameters returned by param_chooser. it should return an dictionary
             describing the results in some way.
-    '''
+    """
 
     rows = []
     batches = 0
-    while(True):
+    while True:
         batches += 1
         params = param_chooser.next()
         if not params:

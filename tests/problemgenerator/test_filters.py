@@ -77,3 +77,48 @@ def test_seed_determines_result_for_strange_behaviour_filter():
     out1 = root_node.process(a, np.random.RandomState(seed=42))
     out2 = root_node.process(a, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
+
+
+def test_sensor_drift():
+    weird = filters.SensorDrift(1.0)
+    y = np.full((100), 1)
+    weird.apply(y, np.random.RandomState(), ())
+
+    increases = np.arange(1.0, 101.0)
+
+    assert len(y) == len(increases)
+    for i, val in enumerate(y):
+        assert val == increases[i] + 1
+
+
+def test_strange_behaviour():
+    def strange(x, _):
+        if 15 <= x <= 20:
+            return -300
+
+        return x
+
+    weird = filters.StrangeBehaviour(strange)
+    y = np.arange(0, 30)
+    weird.apply(y, np.random.RandomState(), ())
+
+    for i in range(15, 21):
+        assert y[i] == -300
+
+
+def test_one_gap():
+    gap = filters.Gap(0.0, 1)
+    y = np.arange(10000.0)
+    gap.apply(y, np.random.RandomState(), ())
+
+    for _, val in enumerate(y):
+        assert not np.isnan(val)
+
+
+def test_two_gap():
+    gap = filters.Gap(1, 0)
+    y = np.arange(10000.0)
+    gap.apply(y, np.random.RandomState(), ())
+
+    for _, val in enumerate(y):
+        assert np.isnan(val)

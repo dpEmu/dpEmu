@@ -160,15 +160,12 @@ class Gap(Filter):
         self.working = True
 
     def apply(self, data, random_state, index_tuple):
-        """Selects gap lengths from a discrete uniform distribution.
-
-        If a gap just occurred, then enforce a grace period when gaps cannot occur."""
         def update_working_state():
             if self.working:
-                if random_state.rand() <= self.prob_break:
+                if random_state.rand() < self.prob_break:
                     self.working = False
             else:
-                if random_state.rand() <= self.prob_recover:
+                if random_state.rand() < self.prob_recover:
                     self.working = True
 
         for index, _ in np.ndenumerate(data[index_tuple]):

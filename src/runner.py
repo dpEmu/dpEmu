@@ -1,13 +1,19 @@
 import multiprocessing
+import time
 from copy import deepcopy
 import pandas as pd
 
 def worker(inputs):
     mod, md, mp = inputs
+    start_time = time.time()
+    res = None
     if mp is not None:
-        return mod.run(md, model_params=mp)
+        res = mod.run(md, model_params=mp)
     else:
-        return mod.run(md)
+        res = mod.run(md)
+    time_used = time.time() - start_time
+    res["time_used"] = time_used
+    return res
 
 def run(model, errgen, param_chooser):
     ''' Runs the model in parallel while parameters for error generation are provided.

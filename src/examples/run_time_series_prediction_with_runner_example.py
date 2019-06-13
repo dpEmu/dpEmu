@@ -45,8 +45,8 @@ class Model:
         byte_img = BytesIO(byte_img)
         return Image.open(byte_img)
 
-    def run(self, data):
-        seed = 42
+    def run(self, data, model_params):
+        seed = model_params["seed"]
         rn.seed(seed)
         np.random.seed(seed)
         tf.set_random_seed(seed)
@@ -66,6 +66,7 @@ class Model:
         n_features = 1
         n_test = int(len(data) * .33)
         n_period = 24
+        # n_period = 12
         n_steps = 3 * n_period
         n_nodes = 100
         n_epochs = 200
@@ -101,26 +102,26 @@ class Model:
 
 # Add gaussian noise with parameters to data
 class ErrGen:
-    def __init__(self, data, seed):
+    def __init__(self, data):
         self.data = data
-        self.seed = seed
 
     def generate_error(self, params):
+        seed = params["seed"]
         y = deepcopy(self.data)
         y_node = array.Array(y.shape)
         root_node = copy.Copy(y_node)
 
         def strange(a, _):
-            if 400 <= a <= 500:
-                return 1000
+            if 100 <= a <= 150:
+                return 1
             return a
 
-        y_node.addfilter(filters.StrangeBehaviour(strange))
-        # y_node.addfilter(filters.SensorDrift(2))
-        # y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
-        #y_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+        y_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+        # y_node.addfilter(filters.StrangeBehaviour(strange))
+        # y_node.addfilter(filters.SensorDrift(params["magnitude"]))
+        # y_node.addfilter(filters.Gap(params["prob_break"], params["prob_recover"]))
 
-        return root_node.process(y, np.random.RandomState(seed=42))
+        return root_node.process(y, np.random.RandomState(seed=seed))
 
 
 # Ternary searches best parameter
@@ -138,11 +139,16 @@ class ParamSelector:
 # Example usage
 def main():
     data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"]).values.astype(float)
+    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:200].values.astype(float)
 
-    err_gen = ErrGen(data, 0)
+    err_gen = ErrGen(data)
 
     model = Model()
-    param_selector = ParamSelector([({"mean": a, "std": b}, None) for (a, b) in [(0, 0), (5, 15), (10, 20)]])
+    param_selector = ParamSelector([({"mean": a, "std": b, "seed": d}, {"seed": c}) for (a, b, c, d) in
+                                    [(0, 0, 0, 0), (0, 15, 0, 0), (0, 20, 0, 0)]])
+    # param_selector = ParamSelector([({"magnitude": a}, None) for a in [0, 2, 10]])
+    # param_selector = ParamSelector([({"prob_break": a, "prob_recover": b, "seed": d}, {"seed": c}) for (a, b, c, d) in
+    #                                 [(.1, .5, 0, 0), (.1, .5, 0, 0), (.1, .5, 0, 0)]])
 
     res = runner.run(model, err_gen, param_selector)
     print(res)

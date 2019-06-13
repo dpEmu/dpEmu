@@ -91,7 +91,7 @@ def test_seed_determines_result_for_strange_behaviour_filter():
 def test_sensor_drift():
     drift = filters.SensorDrift(1)
     y = np.full((100), 1)
-    drift.apply(y, np.random.RandomState(), ())
+    drift.apply(y, np.random.RandomState(), (), named_dims={})
 
     increases = np.arange(1, 101)
 
@@ -109,7 +109,7 @@ def test_strange_behaviour():
 
     weird = filters.StrangeBehaviour(strange)
     y = np.arange(0, 30)
-    weird.apply(y, np.random.RandomState(), ())
+    weird.apply(y, np.random.RandomState(), (), named_dims={})
 
     for i in range(15, 21):
         assert y[i] == -300
@@ -118,7 +118,7 @@ def test_strange_behaviour():
 def test_one_gap():
     gap = filters.Gap(0.0, 1)
     y = np.arange(10000.0)
-    gap.apply(y, np.random.RandomState(), ())
+    gap.apply(y, np.random.RandomState(), (), named_dims={})
 
     for _, val in enumerate(y):
         assert not np.isnan(val)
@@ -127,7 +127,7 @@ def test_one_gap():
 def test_two_gap():
     gap = filters.Gap(1, 0)
     y = np.arange(10000.0)
-    gap.apply(y, np.random.RandomState(), ())
+    gap.apply(y, np.random.RandomState(), (), named_dims={})
 
     for _, val in enumerate(y):
         assert np.isnan(val)

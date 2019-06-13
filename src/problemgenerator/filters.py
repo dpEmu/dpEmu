@@ -17,7 +17,7 @@ class Missing(Filter):
         self.probability = probability
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple):
+    def apply(self, data, random_state, index_tuple, named_dims):
         mask = random_state.rand(*(data[index_tuple].shape)) <= self.probability
         data[index_tuple][mask] = np.nan
 
@@ -28,8 +28,23 @@ class GaussianNoise(Filter):
         self.std = std
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple):
+    def apply(self, data, random_state, index_tuple, named_dims):
         data[index_tuple] += random_state.normal(loc=self.mean, scale=self.std, size=data[index_tuple].shape)
+
+class GaussianNoiseTimeDependent(Filter):
+    def __init__(self, mean, std, mean_increase, std_increase):
+        self.mean = mean
+        self.std = std
+        self.mean_increase = mean_increase
+        self.std_increase = std_increase
+
+        super().__init__()
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        time = named_dims["time"]
+        data[index_tuple] += random_state.normal(loc=self.mean + self.mean_increase * time,
+                                                 scale=self.std + self.std_increase * time,
+                                                 size=data[index_tuple].shape)
 
 
 class Uppercase(Filter):
@@ -38,7 +53,7 @@ class Uppercase(Filter):
         self.prob = probability
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple):
+    def apply(self, data, random_state, index_tuple, named_dims):
 
         def stochastic_upper(char, probability):
             if random_state.rand() <= probability:
@@ -64,7 +79,7 @@ class OCRError(Filter):
         self.p = p
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple):
+    def apply(self, data, random_state, index_tuple, named_dims):
         for index, string_ in np.ndenumerate(data[index_tuple]):
             data[index_tuple][index] = (self.generate_ocr_errors(string_, random_state))
 
@@ -106,7 +121,7 @@ class MissingArea(Filter):
         self.missing_value = missing_value
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple):
+    def apply(self, data, random_state, index_tuple, named_dims):
         def insert_default_value_for_missing_key(key, missing_areas):
             if key not in missing_areas:
                 missing_areas[key] = 0
@@ -159,7 +174,7 @@ class Gap(Filter):
         self.prob_recover = prob_recover
         self.working = True
 
-    def apply(self, data, random_state, index_tuple):
+    def apply(self, data, random_state, index_tuple, named_dims):
         def update_working_state():
             if self.working:
                 if random_state.rand() < self.prob_break:
@@ -181,7 +196,7 @@ class SensorDrift(Filter):
         self.magnitude = magnitude
         self.increase = magnitude
 
-    def apply(self, data, random_state, index_tuple):
+    def apply(self, data, random_state, index_tuple, named_dims):
         for index, _ in np.ndenumerate(data[index_tuple]):
             data[index_tuple][index] += self.increase
             self.increase += self.magnitude
@@ -193,6 +208,6 @@ class StrangeBehaviour(Filter):
         super().__init__()
         self.do_strange_behaviour = do_strange_behaviour
 
-    def apply(self, data, random_state, index_tuple):
+    def apply(self, data, random_state, index_tuple, named_dims):
         for index, _ in np.ndenumerate(data[index_tuple]):
             data[index_tuple][index] = self.do_strange_behaviour(data[index_tuple][index], random_state)

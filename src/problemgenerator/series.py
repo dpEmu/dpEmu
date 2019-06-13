@@ -8,6 +8,7 @@ class Series:
         for i in range(data_length):
             self.child.process(data, random_state, (i, *index_tuple))
 
+
 class TupleSeries:
 
     def __init__(self, children):

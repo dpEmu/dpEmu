@@ -1,5 +1,6 @@
 import copy
 
+
 class Copy:
     def __init__(self, child):
         self.child = child

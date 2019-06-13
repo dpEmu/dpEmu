@@ -17,6 +17,7 @@ def worker(inputs):
     res["time_used"] = time_used
     return res
 
+
 def run(model, errgen, param_chooser):
     """ Runs the model in parallel while parameters for error generation are provided.
         errgen: class for generating erronous data. Should have function

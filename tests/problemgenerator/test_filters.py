@@ -1,7 +1,9 @@
 import numpy as np
-import src.problemgenerator.filters as filters
+
 import src.problemgenerator.array as array
 import src.problemgenerator.copy as copy
+import src.problemgenerator.filters as filters
+
 
 def test_seed_determines_result_for_missing_filter():
     a = np.array([0., 1., 2., 3., 4.])
@@ -12,6 +14,7 @@ def test_seed_determines_result_for_missing_filter():
     out2 = root_node.process(a, np.random.RandomState(seed=42))
     assert np.allclose(out1, out2, equal_nan=True)
 
+
 def test_seed_determines_result_for_gaussian_noise_filter():
     a = np.array([0., 1., 2., 3., 4.])
     x_node = array.Array(a.shape)
@@ -20,6 +23,7 @@ def test_seed_determines_result_for_gaussian_noise_filter():
     out1 = root_node.process(a, np.random.RandomState(seed=42))
     out2 = root_node.process(a, np.random.RandomState(seed=42))
     assert np.allclose(out1, out2, equal_nan=True)
+
 
 def test_seed_determines_result_for_uppercase_filter():
     a = np.array(["hello world"])
@@ -30,6 +34,7 @@ def test_seed_determines_result_for_uppercase_filter():
     out2 = root_node.process(a, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
 
+
 def test_seed_determines_result_for_ocr_error_filter():
     a = np.array(["hello world"])
     x_node = array.Array(a.shape)
@@ -38,6 +43,7 @@ def test_seed_determines_result_for_ocr_error_filter():
     out1 = root_node.process(a, np.random.RandomState(seed=42))
     out2 = root_node.process(a, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
+
 
 def test_seed_determines_result_for_missing_area_filter_with_gaussian_radius_generator():
     a = np.array(["hello world\n" * 10])
@@ -48,6 +54,7 @@ def test_seed_determines_result_for_missing_area_filter_with_gaussian_radius_gen
     out2 = root_node.process(a, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
 
+
 def test_seed_determines_result_for_missing_area_filter_with_probability_array_radius_generator():
     a = np.array(["hello world\n" * 10])
     x_node = array.Array(a.shape)
@@ -57,6 +64,7 @@ def test_seed_determines_result_for_missing_area_filter_with_probability_array_r
     out2 = root_node.process(a, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
 
+
 def test_seed_determines_result_for_gap_filter():
     a = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
     x_node = array.Array(a.shape)
@@ -65,6 +73,7 @@ def test_seed_determines_result_for_gap_filter():
     out1 = root_node.process(a, np.random.RandomState(seed=42))
     out2 = root_node.process(a, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
+
 
 def test_seed_determines_result_for_strange_behaviour_filter():
     def f(data, random_state):

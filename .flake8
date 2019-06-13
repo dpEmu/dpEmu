@@ -1,0 +1,3 @@
+[flake8]
+exclude = config,data,docs,out,tmp,venv
+max-line-length = 120

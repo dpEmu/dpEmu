@@ -1,8 +1,8 @@
 import numpy as np
+
 import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.series as series
 import src.problemgenerator.copy as copy
+import src.problemgenerator.filters as filters
 
 y = np.arange(100.0, 200.0)
 print("Original y:\n", y)

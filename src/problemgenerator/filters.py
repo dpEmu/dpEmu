@@ -31,6 +31,7 @@ class GaussianNoise(Filter):
     def apply(self, data, random_state, index_tuple, named_dims):
         data[index_tuple] += random_state.normal(loc=self.mean, scale=self.std, size=data[index_tuple].shape)
 
+
 class GaussianNoiseTimeDependent(Filter):
     def __init__(self, mean, std, mean_increase, std_increase):
         self.mean = mean

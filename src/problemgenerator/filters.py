@@ -349,3 +349,26 @@ class Snow(Filter):
                             b = round(b + (255 - b) * self.snowflake_alpha * max(0, 1 - dist / radius))
                             data[ty][tx] = (r, g, b)
         add_noise(data)
+
+
+class Blur(Filter):
+    def __init__(self, repeats):
+        super().__init__()
+        self.repeats = repeats
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+        for _ in range(self.repeats):
+            original = np.copy(data)
+            for y0 in range(height):
+                for x0 in range(width):
+                    pixel_sum = np.array([0, 0, 0])
+                    pixel_count = 0
+                    for y in range(y0 - 1, y0 + 2):
+                        for x in range(x0 - 1, x0 + 2):
+                            if y < 0 or x < 0 or y == height or x == width:
+                                continue
+                            pixel_sum += original[y][x]
+                            pixel_count += 1
+                    data[y0][x0] = pixel_sum // pixel_count

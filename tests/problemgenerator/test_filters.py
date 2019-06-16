@@ -89,9 +89,6 @@ def test_seed_determines_result_for_strange_behaviour_filter():
 
 
 def test_seed_determines_result_for_rain_filter():
-    def f(data, random_state):
-        return data * random_state.randint(2, 4)
-
     a = np.zeros((10, 10, 3), dtype=int)
     x_node = array.Array(a.shape)
     x_node.addfilter(filters.Rain(0.03))
@@ -102,12 +99,22 @@ def test_seed_determines_result_for_rain_filter():
 
 
 def test_seed_determines_result_for_snow_filter():
-    def f(data, random_state):
-        return data * random_state.randint(2, 4)
-
     a = np.zeros((10, 10, 3), dtype=int)
     x_node = array.Array(a.shape)
     x_node.addfilter(filters.Snow(0.04, 0.4, 1))
+    root_node = copy.Copy(x_node)
+    out1 = root_node.process(a, np.random.RandomState(seed=42))
+    out2 = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out1, out2)
+
+
+def test_seed_determines_result_for_blur_filter():
+    def f(data, random_state):
+        return data * random_state.randint(2, 4)
+
+    a = np.random.RandomState(seed=42).randint(0, 255, size=300).reshape((10, 10, 3))
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Blur(5))
     root_node = copy.Copy(x_node)
     out1 = root_node.process(a, np.random.RandomState(seed=42))
     out2 = root_node.process(a, np.random.RandomState(seed=42))

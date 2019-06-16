@@ -97,26 +97,6 @@ class OCRError(Filter):
 
 
 class MissingArea(Filter):
-    class GaussianRadiusGenerator:
-        def __init__(self, mean, std):
-            self.mean = mean
-            self.std = std
-
-        def generate(self, random_state):
-            return max(0, self.mean + round(random_state.normal(scale=self.std)))
-
-    class ProbabilityArrayRadiusGenerator:
-        def __init__(self, probability_array):
-            self.probability_array = probability_array
-
-        def generate(self, random_state):
-            sum_of_probabilities = 1
-            for radius, _ in enumerate(self.probability_array):
-                if random_state.random_sample() <= self.probability_array[radius] / sum_of_probabilities:
-                    return radius
-                sum_of_probabilities -= self.probability_array[radius]
-            return 0  # if for some reason none of the radii is chosen return 0 i.e. no missing area
-
     def __init__(self, probability, radius_generator, missing_value):
         self.probability = probability
         self.radius_generator = radius_generator
@@ -166,6 +146,36 @@ class MissingArea(Filter):
                         modified_line += element[y][x]
                 modified.append(modified_line)
             data[index_tuple][index] = "\n".join(modified)
+
+
+class StainArea(Filter):
+    def __init__(self, probability, radius_generator, transparency_percentage):
+        """This filter adds stains to the images.
+            probability: probability of adding a stain at each pixel.
+            radius_generator: object implementing a generate(random_state) function
+                which returns the radius of the stain.
+            transparency_percentage: 1 means that the stain is invisible and 0 means
+                that the part of the image where the stain is is completely black.
+        """
+        self.probability = probability
+        self.radius_generator = radius_generator
+        self.transparency_percentage = transparency_percentage
+        super().__init__()
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        for y0, _ in enumerate(data[index_tuple]):
+            for x0, _ in enumerate(data[index_tuple][y0]):
+                if random_state.random_sample() <= self.probability:
+                    radius = self.radius_generator.generate(random_state)
+                    for y in range(y0 - radius, y0 + radius + 1):
+                        for x in range(x0 - radius, x0 + radius + 1):
+                            if y < 0 or x < 0 or y >= len(data[index_tuple]) or x >= len(data[index_tuple][0]):
+                                continue
+                            v = [data[index_tuple][y][x][0], data[index_tuple][y][x][1], data[index_tuple][y][x][2]]
+                            v[0] *= self.transparency_percentage
+                            v[1] *= self.transparency_percentage
+                            v[2] *= self.transparency_percentage
+                            data[index_tuple][y][x] = [round(v[0]), round(v[1]), round(v[2])]
 
 
 class Gap(Filter):

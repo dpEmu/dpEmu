@@ -18,25 +18,17 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 *  [Documentation](#documentation)
 
 ## Installation <a name="installation"/>
-### Linux
 *  ```git clone git@github.com:dpEmu/dpEmu.git```
 *  ```cd dpEmu```
 *  ```python3 -m venv venv```
 *  ```source venv/bin/activate```
 *  ```pip install -U pip setuptools wheel```
 *  ```pip install -r requirements.txt```
-
-### Windows
-*  ```git clone git@github.com:dpEmu/dpEmu.git```
-*  ```cd dpEmu```
-*  ```python -m venv venv```
-*  ```source venv/Scripts/activate```
-*  ```python -m pip install -U pip setuptools wheel```
-*  ```pip install -r requirements.txt```
+*  ```pip install pycocotools```
 
 ## Usage <a name="usage"/>
-* Run the program with ```python run.py config/example_commands.txt config/example_text_error_params.json config/example_combiner_config.json config/example_model_config.json```
-* Run examples with commands like ```python -m src.examples.run_ocr_error_example```
+* Run format: ```python run.py config/example_commands.txt config/example_text_error_params.json config/example_combiner_config.json config/example_model_config.json```
+* Run example format: ```python -m src.examples.run_ocr_error_example```
 
 ## Contributing <a name="contributing"/>
 See [Wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing).

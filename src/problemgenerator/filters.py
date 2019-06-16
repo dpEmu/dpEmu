@@ -1,6 +1,7 @@
 import random
 
 import numpy as np
+from math import pi, sin, cos, sqrt
 
 
 class Filter:
@@ -96,26 +97,6 @@ class OCRError(Filter):
 
 
 class MissingArea(Filter):
-    class GaussianRadiusGenerator:
-        def __init__(self, mean, std):
-            self.mean = mean
-            self.std = std
-
-        def generate(self, random_state):
-            return max(0, self.mean + round(random_state.normal(scale=self.std)))
-
-    class ProbabilityArrayRadiusGenerator:
-        def __init__(self, probability_array):
-            self.probability_array = probability_array
-
-        def generate(self, random_state):
-            sum_of_probabilities = 1
-            for radius, _ in enumerate(self.probability_array):
-                if random_state.random_sample() <= self.probability_array[radius] / sum_of_probabilities:
-                    return radius
-                sum_of_probabilities -= self.probability_array[radius]
-            return 0  # if for some reason none of the radii is chosen return 0 i.e. no missing area
-
     def __init__(self, probability, radius_generator, missing_value):
         self.probability = probability
         self.radius_generator = radius_generator
@@ -167,6 +148,36 @@ class MissingArea(Filter):
             data[index_tuple][index] = "\n".join(modified)
 
 
+class StainArea(Filter):
+    def __init__(self, probability, radius_generator, transparency_percentage):
+        """This filter adds stains to the images.
+            probability: probability of adding a stain at each pixel.
+            radius_generator: object implementing a generate(random_state) function
+                which returns the radius of the stain.
+            transparency_percentage: 1 means that the stain is invisible and 0 means
+                that the part of the image where the stain is is completely black.
+        """
+        self.probability = probability
+        self.radius_generator = radius_generator
+        self.transparency_percentage = transparency_percentage
+        super().__init__()
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        for y0, _ in enumerate(data[index_tuple]):
+            for x0, _ in enumerate(data[index_tuple][y0]):
+                if random_state.random_sample() <= self.probability:
+                    radius = self.radius_generator.generate(random_state)
+                    for y in range(y0 - radius, y0 + radius + 1):
+                        for x in range(x0 - radius, x0 + radius + 1):
+                            if y < 0 or x < 0 or y >= len(data[index_tuple]) or x >= len(data[index_tuple][0]):
+                                continue
+                            v = [data[index_tuple][y][x][0], data[index_tuple][y][x][1], data[index_tuple][y][x][2]]
+                            v[0] *= self.transparency_percentage
+                            v[1] *= self.transparency_percentage
+                            v[2] *= self.transparency_percentage
+                            data[index_tuple][y][x] = [round(v[0]), round(v[1]), round(v[2])]
+
+
 class Gap(Filter):
     def __init__(self, prob_break, prob_recover, missing_value=np.nan):
         super().__init__()
@@ -212,3 +223,162 @@ class StrangeBehaviour(Filter):
     def apply(self, data, random_state, index_tuple, named_dims):
         for index, _ in np.ndenumerate(data[index_tuple]):
             data[index_tuple][index] = self.do_strange_behaviour(data[index_tuple][index], random_state)
+
+
+class Rain(Filter):
+    def __init__(self, probability):
+        super().__init__()
+        self.probability = probability
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+
+        direction = random_state.normal(0, 0.1) * pi + pi / 2
+
+        for y in range(height):
+            for x in range(width):
+                if random_state.rand() <= self.probability:
+                    length = round(random_state.normal(20, 10))
+                    for k in range(4):
+                        ty = y + sin(direction + pi / 4) * 0.5 * k - length / 2 * sin(direction)
+                        tx = x + cos(direction + pi / 4) * 0.5 * k - length / 2 * cos(direction)
+                        for _ in range(length):
+                            if round(ty) < 0 or round(tx) < 0 or round(ty) >= height or round(tx) >= width:
+                                ty += sin(direction)
+                                tx += cos(direction)
+                                continue
+                            brightness = random_state.rand() * 10
+                            r = data[round(ty)][round(tx)][0]
+                            g = data[round(ty)][round(tx)][1]
+                            b = data[round(ty)][round(tx)][2]
+                            b = min(b + 30, 255)
+                            r = min(r + random_state.normal(brightness, 4), 255)
+                            g = min(g + random_state.normal(brightness, 4), 255)
+                            b = min(b + random_state.normal(brightness, 4), 255)
+                            data[round(ty)][round(tx)] = (round(r), round(g), round(b))
+                            ty += sin(direction)
+                            tx += cos(direction)
+
+
+class Snow(Filter):
+    def __init__(self, snowflake_probability, snowflake_alpha, snowstorm_alpha):
+        super().__init__()
+        self.snowflake_probability = snowflake_probability
+        self.snowflake_alpha = snowflake_alpha
+        self.snowstorm_alpha = snowstorm_alpha
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        def generate_perlin_noise(height, width, random_state):
+            # Pierre Vigier's implementation of 2d perlin noise with slight changes.
+            # https://github.com/pvigier/perlin-numpy
+            #
+            # The code is licensed under MIT License:
+            #
+            # MIT License
+            #
+            # Copyright (c) 2019 Pierre Vigier
+            #
+            # Permission is hereby granted, free of charge, to any person obtaining a copy
+            # of this software and associated documentation files (the "Software"), to deal
+            # in the Software without restriction, including without limitation the rights
+            # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+            # copies of the Software, and to permit persons to whom the Software is
+            # furnished to do so, subject to the following conditions:
+            #
+            # The above copyright notice and this permission notice shall be included in all
+            # copies or substantial portions of the Software.
+            #
+            # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+            # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+            # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+            # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+            # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+            # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+            # SOFTWARE.
+
+            def f(t):
+                return 6*t**5 - 15*t**4 + 10*t**3
+
+            delta = (1 / height, 1 / width)
+            d = (height, width)
+            grid = np.mgrid[0:1:delta[0], 0:1:delta[1]].transpose(1, 2, 0) % 1
+            # Gradients
+            angles = 2 * np.pi * random_state.rand(2, 2)
+            gradients = np.dstack((np.cos(angles), np.sin(angles)))
+            g00 = gradients[0:-1, 0:-1].repeat(d[0], 0).repeat(d[1], 1)
+            g10 = gradients[1:, 0:-1].repeat(d[0], 0).repeat(d[1], 1)
+            g01 = gradients[0:-1, 1:].repeat(d[0], 0).repeat(d[1], 1)
+            g11 = gradients[1:, 1:].repeat(d[0], 0).repeat(d[1], 1)
+            # Ramps
+            n00 = np.sum(grid * g00, 2)
+            n10 = np.sum(np.dstack((grid[:, :, 0] - 1, grid[:, :, 1])) * g10, 2)
+            n01 = np.sum(np.dstack((grid[:, :, 0], grid[:, :, 1]-1)) * g01, 2)
+            n11 = np.sum(np.dstack((grid[:, :, 0] - 1, grid[:, :, 1]-1)) * g11, 2)
+            # Interpolation
+            t = f(grid)
+            n0 = n00*(1-t[:, :, 0]) + t[:, :, 0]*n10
+            n1 = n01*(1-t[:, :, 0]) + t[:, :, 0]*n11
+            return np.sqrt(2)*((1-t[:, :, 1])*n0 + t[:, :, 1]*n1)
+
+        def add_noise(data):
+            width = data[index_tuple].shape[1]
+            height = data[index_tuple].shape[0]
+            noise = generate_perlin_noise(height, width, random_state)
+            noise = (noise + 1) / 2  # transform the noise to be in range [0, 1]
+
+            # add noise
+            for y in range(height):
+                for x in range(width):
+                    r = data[y][x][0]
+                    g = data[y][x][1]
+                    b = data[y][x][2]
+                    r = int(r + self.snowstorm_alpha * (255 - r) * noise[y][x])
+                    g = int(g + self.snowstorm_alpha * (255 - g) * noise[y][x])
+                    b = int(b + self.snowstorm_alpha * (255 - b) * noise[y][x])
+                    data[y][x] = (r, g, b)
+
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+
+        # generate snowflakes
+        for y in range(height):
+            for x in range(width):
+                if random_state.rand() <= self.snowflake_probability:
+                    radius = round(random_state.normal(5, 2))
+                    for tx in range(x - radius, x + radius):
+                        for ty in range(y - radius, y + radius):
+                            if ty < 0 or tx < 0 or ty >= height or tx >= width:
+                                continue
+                            r = data[ty][tx][0]
+                            g = data[ty][tx][1]
+                            b = data[ty][tx][2]
+                            dist = sqrt((x - tx) * (x - tx) + (y - ty) * (y - ty))
+                            r = round(r + (255 - r) * self.snowflake_alpha * max(0, 1 - dist / radius))
+                            g = round(g + (255 - g) * self.snowflake_alpha * max(0, 1 - dist / radius))
+                            b = round(b + (255 - b) * self.snowflake_alpha * max(0, 1 - dist / radius))
+                            data[ty][tx] = (r, g, b)
+        add_noise(data)
+
+
+class Blur(Filter):
+    def __init__(self, repeats):
+        super().__init__()
+        self.repeats = repeats
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+        for _ in range(self.repeats):
+            original = np.copy(data)
+            for y0 in range(height):
+                for x0 in range(width):
+                    pixel_sum = np.array([0, 0, 0])
+                    pixel_count = 0
+                    for y in range(y0 - 1, y0 + 2):
+                        for x in range(x0 - 1, x0 + 2):
+                            if y < 0 or x < 0 or y == height or x == width:
+                                continue
+                            pixel_sum += original[y][x]
+                            pixel_count += 1
+                    data[y0][x0] = pixel_sum // pixel_count

@@ -121,6 +121,7 @@ def test_seed_determines_result_for_blur_filter():
     out2 = root_node.process(a, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
 
+
 def test_seed_determines_result_for_stain_filter():
     def f(data, random_state):
         return data * random_state.randint(2, 4)

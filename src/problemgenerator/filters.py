@@ -349,3 +349,37 @@ class Snow(Filter):
                             b = round(b + (255 - b) * self.snowflake_alpha * max(0, 1 - dist / radius))
                             data[ty][tx] = (r, g, b)
         add_noise(data)
+
+class Rotate(Filter):
+    def __init__(self, angle_radians):
+        super().__init__()
+        self.phi = angle_radians
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+        max_ = max(height, width)
+        new_data = np.full((2*max_, 2*max_, 3), fill_value=0)
+        print(new_data[index_tuple].shape)
+
+        # w = new_data[index_tuple].shape[1]
+        # h = new_data[index_tuple].shape[0]
+        # for y in range(h):
+        #     for x in range(w):
+        #         print(x,y)
+        #         print("New", new_data[y][x])
+
+        for y in range(height):
+            for x in range(width):
+                r = data[y][x][0]
+                g = data[y][x][1]
+                b = data[y][x][2]
+                #print("RGB", r, g, b)
+
+                tx = cos(self.phi) * x - sin(self.phi) * y
+                ty = sin(self.phi) * x + cos(self.phi) * y
+                new_data[round(ty) + max_][round(tx) + max_] = (r, g, b)
+                # print("Change:", round(tx) + width, round(ty) + height)
+
+
+        data = new_data

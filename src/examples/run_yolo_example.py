@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
+from tqdm import tqdm
 
 from src.utils import generate_unique_path
 
@@ -54,11 +55,13 @@ class Model:
                         "bbox": [x, y, w, h],
                         "score": conf,
                     }
-                    print(res)
+                    # print(res)
                     self.results.append(res)
 
-    def run(self, data):
-        [self.__add_img_to_results(img, img_id) for img, img_id in data]
+    def run(self, imgs, model_params):
+        img_ids = model_params["img_ids"]
+
+        [self.__add_img_to_results(imgs[i], img_ids[i]) for i in tqdm(range(len(imgs)))]
 
         path_to_results = generate_unique_path("tmp", "json")
         with open(path_to_results, "w") as fp:
@@ -66,7 +69,7 @@ class Model:
 
         coco_gt = COCO("data/annotations/instances_val2017.json")
         coco_eval = COCOeval(coco_gt, coco_gt.loadRes(path_to_results), "bbox")
-        coco_eval.params.imgIds = [img_id for _, img_id in data]
+        coco_eval.params.imgIds = img_ids
         coco_eval.evaluate()
         coco_eval.accumulate()
         coco_eval.summarize()
@@ -86,13 +89,13 @@ def load_coco_val_2017():
     img_ids = sorted(coco.getImgIds())[:10]
     img_dicts = coco.loadImgs(img_ids)
     imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
-    return [(imgs[i], img_ids[i]) for i in range(len(imgs))]
+    return imgs, img_ids
 
 
 def main():
-    data = load_coco_val_2017()
+    imgs, img_ids = load_coco_val_2017()
     model = Model()
-    out = model.run(data)
+    out = model.run(imgs, {"img_ids": img_ids})
     print(out)
 
 

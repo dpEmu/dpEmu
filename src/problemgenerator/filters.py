@@ -299,12 +299,12 @@ class Snow(Filter):
 
             def f(t):
                 return 6*t**5 - 15*t**4 + 10*t**3
-            
+
             d = (height, width)
             grid = np.mgrid[0:d[0], 0:d[1]].astype(float)
             grid[0] /= height
             grid[1] /= width
-            
+
             grid = grid.transpose(1, 2, 0) % 1
             # Gradients
             angles = 2 * np.pi * random_state.rand(2, 2)

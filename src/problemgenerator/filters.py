@@ -421,3 +421,63 @@ class Rotation(Filter):
         x0 = round((resized_width - width)/2)
         y0 = round((resized_height - height)/2)
         data[index_tuple] = resized[y0:y0+height, x0:x0+width]
+
+
+class LensFlare(Filter):
+    def __init__(self):
+        super().__init__()
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        def flare(x0, y0, radius):
+            gt = random_state.randint(130, 180)
+            rt = random_state.randint(220, 255)
+            bt = random_state.randint(0, 50)
+            x_offset = random_state.normal(0, 5)
+            y_offset = random_state.normal(0, 5)
+            for x in range(x0 - radius, x0 + radius + 1):
+                for y in range(y0 - radius, y0 + radius + 1):
+                    if y < 0 or x < 0 or y >= height or x >= width:
+                        continue
+                    dist = sqrt((x - x0) * (x - x0) + (y - y0) * (y - y0))
+                    if dist > radius:
+                        continue
+                    offset_dist = sqrt((x - x0 + x_offset) * (x - x0 + x_offset) + (y - y0 + y_offset) * (y - y0 + y_offset))
+                    r = data[y][x][0]
+                    g = data[y][x][1]
+                    b = data[y][x][2]
+                    a = 3
+                    t = max(0, min(1, (1 - (radius - offset_dist) / radius)))
+                    visibility = max(0, a * t * t + (1 - a) * t) * 0.8
+                    r = round(r + (rt - r) * visibility)
+                    g = round(g + (gt - g) * visibility)
+                    b = round(b + (bt - b) * visibility)
+                    data[y][x] = (r, g, b)
+        
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+
+        pixel_sum_x = [0, 0, 0]
+        pixel_sum_y = [0, 0, 0]
+        for y0 in range(height):
+            for x0 in range(width):
+                pixel_sum_x += data[y0][x0] * x0 / (height * width * 255)
+                pixel_sum_y += data[y0][x0] * y0 / (height * width * 255)
+        best_y = int((pixel_sum_y[0] + pixel_sum_y[1] + pixel_sum_y[2]) / 3)
+        best_x = int((pixel_sum_x[0] + pixel_sum_x[1] + pixel_sum_x[2]) / 3)
+
+        origo_vector = np.array([width / 2 - best_x, height / 2 - best_y])
+        origo_vector = origo_vector / sqrt(origo_vector[0] * origo_vector[0] + origo_vector[1] * origo_vector[1])
+
+        y = best_y
+        x = best_x
+        steps = 0
+        while True:
+            if steps < 0:
+                radius = round(max(40, random_state.normal(100, 100)))
+                flare(int(x), int(y), radius)
+                steps = random_state.normal(radius, 15)
+            if (best_x - width / 2)**2 + (best_y - height / 2)**2 + 1 <= (x - width / 2)**2 + (y - height / 2)**2:
+                break
+            y += origo_vector[1]
+            x += origo_vector[0]
+            steps -= 1

@@ -456,18 +456,26 @@ class LensFlare(Filter):
         width = data[index_tuple].shape[1]
         height = data[index_tuple].shape[0]
 
+        # estimate the brightest spot in the image
         pixel_sum_x = [0, 0, 0]
         pixel_sum_y = [0, 0, 0]
+        expected_x = [0, 0, 0]
+        expected_y = [0, 0, 0]
         for y0 in range(height):
             for x0 in range(width):
-                pixel_sum_x += data[y0][x0] * x0 / (height * width * 255)
-                pixel_sum_y += data[y0][x0] * y0 / (height * width * 255)
-        best_y = int((pixel_sum_y[0] + pixel_sum_y[1] + pixel_sum_y[2]) / 3)
-        best_x = int((pixel_sum_x[0] + pixel_sum_x[1] + pixel_sum_x[2]) / 3)
+                pixel_sum_x += data[y0][x0]
+                pixel_sum_y += data[y0][x0]
+        for y0 in range(height):
+            for x0 in range(width):
+                expected_x += x0 * data[y0][x0] / pixel_sum_x
+                expected_y += y0 * data[y0][x0] / pixel_sum_y
+        best_y = int((expected_y[0] + expected_y[1] + expected_y[2]) / 3)
+        best_x = int((expected_x[0] + expected_x[1] + expected_x[2]) / 3)
 
         origo_vector = np.array([width / 2 - best_x, height / 2 - best_y])
         origo_vector = origo_vector / sqrt(origo_vector[0] * origo_vector[0] + origo_vector[1] * origo_vector[1])
 
+        # move towards origo and draw flares
         y = best_y
         x = best_x
         steps = 0

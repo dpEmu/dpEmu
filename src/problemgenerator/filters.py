@@ -441,7 +441,7 @@ class LensFlare(Filter):
                     dist = sqrt((x - x0) * (x - x0) + (y - y0) * (y - y0))
                     if dist > radius:
                         continue
-                    offset_dist = sqrt((x - x0 + x_offset) * (x - x0 + x_offset) + (y - y0 + y_offset) * (y - y0 + y_offset))
+                    offset_dist = sqrt((x - x0 + x_offset)**2 + (y - y0 + y_offset)**2)
                     r = data[y][x][0]
                     g = data[y][x][1]
                     b = data[y][x][2]
@@ -452,7 +452,7 @@ class LensFlare(Filter):
                     g = round(g + (gt - g) * visibility)
                     b = round(b + (bt - b) * visibility)
                     data[y][x] = (r, g, b)
-        
+
         width = data[index_tuple].shape[1]
         height = data[index_tuple].shape[0]
 

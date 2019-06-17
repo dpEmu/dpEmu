@@ -5,7 +5,6 @@ from copy import deepcopy
 
 import cv2
 import numpy as np
-from PIL import Image
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tqdm import tqdm
@@ -18,7 +17,6 @@ from src.utils import generate_unique_path
 class Model:
 
     def __init__(self):
-        # cv2.setNumThreads(1)
         self.results = []
         self.coco91class = [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33,
@@ -69,7 +67,8 @@ class Model:
 
         indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
         for i in indices:
-            x, y, w, h = boxes[i[0]]
+            i = i[0]
+            x, y, w, h = boxes[i]
 
             result = {
                 "image_id": img_id,
@@ -92,7 +91,6 @@ class Model:
         coco_gt = COCO("data/annotations/instances_val2017.json")
         coco_eval = COCOeval(coco_gt, coco_gt.loadRes(path_to_results), "bbox")
         coco_eval.params.imgIds = img_ids
-        # coco_eval.params.imgIds = [139]
         coco_eval.evaluate()
         coco_eval.accumulate()
         coco_eval.summarize()
@@ -108,10 +106,8 @@ def load_coco_val_2017():
         subprocess.call(["./data/get_yolov3.sh"])
 
     coco = COCO("data/annotations/instances_val2017.json")
-    # img_ids = sorted(coco.getImgIds())
-    img_ids = sorted(coco.getImgIds())[:2]
+    img_ids = sorted(coco.getImgIds())[:5]
     img_dicts = coco.loadImgs(img_ids)
-    # img_dicts = coco.loadImgs([139])
     imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
     return imgs, img_ids
 
@@ -128,11 +124,12 @@ class ErrGen:
             root_node = copy.Copy(img_node)
             img_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
             result = root_node.process(img.astype(float), np.random.RandomState(seed=42))
+            result = np.uint8(result)
             results.append(result)
 
-            cv2.imshow("GaussianNoise: mean {}, std {}".format(params["mean"], params["std"]), np.uint8(result))
-            cv2.waitKey()
-            cv2.destroyAllWindows()
+            # cv2.imshow("GaussianNoise: mean {}, std {}".format(params["mean"], params["std"]), result)
+            # cv2.waitKey()
+            # cv2.destroyAllWindows()
         return results
 
 

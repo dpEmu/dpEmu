@@ -1,7 +1,7 @@
-import time
 from copy import deepcopy
 
 import pandas as pd
+
 
 def run(model, errgen, param_chooser):
     """ Runs the model (NOT in parallel!) while parameters for error generation are provided.

@@ -1,7 +1,7 @@
 import random
-
 import numpy as np
 from math import pi, sin, cos, sqrt
+from scipy.ndimage import gaussian_filter
 
 
 class Filter:
@@ -359,6 +359,19 @@ class Snow(Filter):
                             b = round(b + (255 - b) * self.snowflake_alpha * max(0, 1 - dist / radius))
                             data[ty][tx] = (r, g, b)
         add_noise(data)
+
+
+class Blur_Gaussian(Filter):
+    """
+    Create blur in images by applying a Gaussian filter.
+    The standard deviation of the Gaussian is taken as a parameter.
+    """
+    def __init__(self, standard_dev):
+        super().__init__()
+        self.std = standard_dev
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        data[index_tuple] = gaussian_filter(data[index_tuple], self.std)
 
 
 class Blur(Filter):

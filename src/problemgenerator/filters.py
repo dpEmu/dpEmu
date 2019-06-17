@@ -3,6 +3,7 @@ import random
 import numpy as np
 from math import pi, sin, cos, sqrt
 import imutils
+import cv2
 
 
 class Filter:
@@ -392,3 +393,15 @@ class Rotation(Filter):
 
     def apply(self, data, random_state, index_tuple, named_dims):
         data[index_tuple] = imutils.rotate(data[index_tuple], self.angle)
+
+        # Guesstimation for a large enough resize to avoid black areas in cropped picture
+        factor = 1.8
+        resized = cv2.resize(data[index_tuple], None, fx=factor, fy=factor)
+        resized_width = resized.shape[1]
+        resized_height = resized.shape[0]
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+
+        x0 = round((resized_width - width)/2)
+        y0 = round((resized_height - height)/2)
+        data[index_tuple] = resized[y0:y0+height, x0:x0+width]

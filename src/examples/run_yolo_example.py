@@ -98,7 +98,7 @@ def load_coco_val_2017():
 
     coco = COCO("data/annotations/instances_val2017.json")
     # img_ids = sorted(coco.getImgIds())
-    img_ids = sorted(coco.getImgIds())[:1]
+    img_ids = sorted(coco.getImgIds())[:2]
     img_dicts = coco.loadImgs(img_ids)
     # img_dicts = coco.loadImgs([139])
     imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
@@ -113,20 +113,15 @@ class ErrGen:
         imgs = deepcopy(self.imgs)
         results = []
         for img in imgs:
-            # cv2.imshow("Original", img)
-            # cv2.waitKey()
-            # cv2.destroyAllWindows()
-
             img_node = array.Array(img.shape)
             root_node = copy.Copy(img_node)
             img_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
             result = root_node.process(img.astype(float), np.random.RandomState(seed=42))
-
-            # cv2.imshow("GaussianNoise: mean {}, std {}".format(params["mean"], params["std"]), result.astype(int))
-            # cv2.waitKey()
-            # cv2.destroyAllWindows()
-
             results.append(result)
+
+            cv2.imshow("GaussianNoise: mean {}, std {}".format(params["mean"], params["std"]), np.uint8(result))
+            cv2.waitKey()
+            cv2.destroyAllWindows()
         return results
 
 

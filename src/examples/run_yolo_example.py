@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+from copy import deepcopy
 
 import cv2
 import numpy as np
@@ -20,43 +21,49 @@ class Model:
             34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
             62, 63, 64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90
         ]
+        with open("data/coco.names", "r") as fp:
+            self.class_names = [line.strip() for line in fp.readlines()]
+
+    def __print_result(self, result):
+        result = deepcopy(result)
+        result["category_id"] = self.class_names[self.coco91class.index(result["category_id"])]
+        print(result)
 
     def __add_img_to_results(self, img, img_id):
-        conf_threshold = .5
+        conf_threshold = .25
         img_h = img.shape[0]
         img_w = img.shape[1]
-        inf_size = 416
+        inference_size = 416
         scale = 0.00392
 
         net = cv2.dnn.readNet("data/yolov3.weights", "data/yolov3.cfg")
-        blob = cv2.dnn.blobFromImage(img, scale, (inf_size, inf_size), (0, 0, 0), True, crop=False)
+        blob = cv2.dnn.blobFromImage(img, scale, (inference_size, inference_size), (0, 0, 0), True, crop=False)
         net.setInput(blob)
 
-        layer_names = net.getLayerNames()
-        output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-        outs = net.forward(output_layers)
+        out_layer_names = net.getUnconnectedOutLayersNames()
+        outs = net.forward(out_layer_names)
 
         for out in outs:
-            for obj in out:
-                scores = obj[5:]
+            for detection in out:
+                scores = detection[5:]
                 class_id = np.argmax(scores)
-                conf = round(float(scores[class_id]), 3)
+                conf = round(scores[class_id], 3)
                 if conf > conf_threshold:
-                    center_x = float(obj[0]) * img_w
-                    center_y = float(obj[1]) * img_h
-                    w = round(float(obj[2]) * img_w, 2)
-                    h = round(float(obj[3]) * img_h, 2)
+                    center_x = detection[0] * img_w
+                    center_y = detection[1] * img_h
+                    w = round(detection[2] * img_w, 2)
+                    h = round(detection[3] * img_h, 2)
                     x = round(center_x - w / 2, 2)
                     y = round(center_y - h / 2, 2)
 
-                    res = {
+                    result = {
                         "image_id": img_id,
                         "category_id": self.coco91class[class_id],
                         "bbox": [x, y, w, h],
-                        "score": conf,
+                        "score": float(conf),
                     }
-                    # print(res)
-                    self.results.append(res)
+                    self.results.append(result)
+                    # self.__print_result(result)
 
     def run(self, imgs, model_params):
         img_ids = model_params["img_ids"]
@@ -70,6 +77,7 @@ class Model:
         coco_gt = COCO("data/annotations/instances_val2017.json")
         coco_eval = COCOeval(coco_gt, coco_gt.loadRes(path_to_results), "bbox")
         coco_eval.params.imgIds = img_ids
+        # coco_eval.params.imgIds = [139]
         coco_eval.evaluate()
         coco_eval.accumulate()
         coco_eval.summarize()
@@ -88,6 +96,7 @@ def load_coco_val_2017():
     # img_ids = sorted(coco.getImgIds())
     img_ids = sorted(coco.getImgIds())[:10]
     img_dicts = coco.loadImgs(img_ids)
+    # img_dicts = coco.loadImgs([139])
     imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
     return imgs, img_ids
 

@@ -17,6 +17,7 @@ from src.utils import generate_unique_path
 class Model:
 
     def __init__(self):
+        cv2.setNumThreads(1)
         self.results = []
         self.coco91class = [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33,
@@ -117,12 +118,6 @@ class ErrGen:
             results.append(root_node.process(img.astype(float), np.random.RandomState(seed=42)))
         return results
 
-        # imgs = deepcopy(self.imgs)
-        # y_node = array.Array(len(imgs))
-        # root_node = copy.Copy(y_node)
-        # y_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
-        # return root_node.process(imgs, np.random.RandomState(seed=42))
-
 
 class ParamSelector:
     def __init__(self, params):
@@ -137,14 +132,12 @@ class ParamSelector:
 
 def main():
     imgs, img_ids = load_coco_val_2017()
-
-    err_gen = ErrGen(imgs)
     model = Model()
 
-    # param_selector = ParamSelector([({"mean": a, "std": b}, {"img_ids": img_ids}) for (a, b) in [(0, 0), (0, 15), (0, 30)]])
+    err_gen = ErrGen(imgs)
     param_selector = ParamSelector([({"mean": a, "std": b}, {"img_ids": img_ids}) for (a, b) in [(0, 0)]])
-
     out = runner.run(model, err_gen, param_selector)
+
     # out = model.run(imgs, {"img_ids": img_ids})
 
     print(out)

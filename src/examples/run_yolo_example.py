@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+from copy import deepcopy
 
 import cv2
 import numpy as np
@@ -8,6 +9,8 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tqdm import tqdm
 
+from src import runner
+from src.problemgenerator import array, copy, filters
 from src.utils import generate_unique_path
 
 
@@ -20,43 +23,61 @@ class Model:
             34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
             62, 63, 64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90
         ]
+        with open("data/coco.names", "r") as fp:
+            self.class_names = [line.strip() for line in fp.readlines()]
+
+    def __print_result(self, result):
+        result = deepcopy(result)
+        result["category_id"] = self.class_names[self.coco91class.index(result["category_id"])]
+        print(result)
 
     def __add_img_to_results(self, img, img_id):
-        conf_threshold = .5
+        conf_threshold = .25
+        nms_threshold = .4
         img_h = img.shape[0]
         img_w = img.shape[1]
-        inf_size = 416
-        scale = 0.00392
+        inference_size = 416
+        scale = 1 / 255
 
         net = cv2.dnn.readNet("data/yolov3.weights", "data/yolov3.cfg")
-        blob = cv2.dnn.blobFromImage(img, scale, (inf_size, inf_size), (0, 0, 0), True, crop=False)
+        blob = cv2.dnn.blobFromImage(img, scale, (inference_size, inference_size), (0, 0, 0), True, crop=False)
         net.setInput(blob)
 
-        layer_names = net.getLayerNames()
-        output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-        outs = net.forward(output_layers)
+        out_layer_names = net.getUnconnectedOutLayersNames()
+        outs = net.forward(out_layer_names)
 
+        class_ids = []
+        confidences = []
+        boxes = []
         for out in outs:
-            for obj in out:
-                scores = obj[5:]
+            for detection in out:
+                scores = detection[5:]
                 class_id = np.argmax(scores)
-                conf = round(float(scores[class_id]), 3)
-                if conf > conf_threshold:
-                    center_x = float(obj[0]) * img_w
-                    center_y = float(obj[1]) * img_h
-                    w = round(float(obj[2]) * img_w, 2)
-                    h = round(float(obj[3]) * img_h, 2)
+                confidence = round(scores[class_id], 3)
+                if confidence > conf_threshold:
+                    center_x = detection[0] * img_w
+                    center_y = detection[1] * img_h
+                    w = round(detection[2] * img_w, 2)
+                    h = round(detection[3] * img_h, 2)
                     x = round(center_x - w / 2, 2)
                     y = round(center_y - h / 2, 2)
+                    class_ids.append(class_id)
+                    confidences.append(float(confidence))
+                    boxes.append([x, y, w, h])
 
-                    res = {
-                        "image_id": img_id,
-                        "category_id": self.coco91class[class_id],
-                        "bbox": [x, y, w, h],
-                        "score": conf,
-                    }
-                    # print(res)
-                    self.results.append(res)
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
+        for i in indices:
+            i = i[0]
+            x, y, w, h = boxes[i]
+
+            result = {
+                "image_id": img_id,
+                "category_id": self.coco91class[class_ids[i]],
+                "bbox": [x, y, w, h],
+                "score": confidences[i],
+            }
+            self.results.append(result)
+            # self.__print_result(result)
 
     def run(self, imgs, model_params):
         img_ids = model_params["img_ids"]
@@ -85,17 +106,55 @@ def load_coco_val_2017():
         subprocess.call(["./data/get_yolov3.sh"])
 
     coco = COCO("data/annotations/instances_val2017.json")
-    # img_ids = sorted(coco.getImgIds())
-    img_ids = sorted(coco.getImgIds())[:10]
+    img_ids = sorted(coco.getImgIds())[:5]
     img_dicts = coco.loadImgs(img_ids)
     imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
     return imgs, img_ids
 
 
+class ErrGen:
+    def __init__(self, imgs):
+        self.imgs = imgs
+
+    def generate_error(self, params):
+        imgs = deepcopy(self.imgs)
+        results = []
+        for img in imgs:
+            img_node = array.Array(img.shape)
+            root_node = copy.Copy(img_node)
+            img_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+            result = root_node.process(img.astype(float), np.random.RandomState(seed=42))
+            result = np.uint8(result)
+            results.append(result)
+
+            # cv2.imshow("GaussianNoise: mean {}, std {}".format(params["mean"], params["std"]), result)
+            # cv2.waitKey()
+            # cv2.destroyAllWindows()
+        return results
+
+
+class ParamSelector:
+    def __init__(self, params):
+        self.params = params
+
+    def next(self):
+        return self.params
+
+    def analyze(self, res):
+        self.params = None
+
+
 def main():
     imgs, img_ids = load_coco_val_2017()
     model = Model()
-    out = model.run(imgs, {"img_ids": img_ids})
+
+    err_gen = ErrGen(imgs)
+    param_selector = ParamSelector(
+        [({"mean": a, "std": b}, {"img_ids": img_ids}) for (a, b) in [(0, 0), (0, 15), (0, 30)]])
+    out = runner.run(model, err_gen, param_selector)
+
+    # out = model.run(imgs, {"img_ids": img_ids})
+
     print(out)
 
 

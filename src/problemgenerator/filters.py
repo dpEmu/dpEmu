@@ -2,9 +2,7 @@ import random
 
 import numpy as np
 from math import pi, sin, cos, sqrt
-from PIL import Image
 import imutils
-import cv2
 
 
 class Filter:

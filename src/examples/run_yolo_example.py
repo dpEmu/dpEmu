@@ -5,6 +5,7 @@ from copy import deepcopy
 
 import cv2
 import numpy as np
+from PIL import Image
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tqdm import tqdm
@@ -97,7 +98,7 @@ def load_coco_val_2017():
 
     coco = COCO("data/annotations/instances_val2017.json")
     # img_ids = sorted(coco.getImgIds())
-    img_ids = sorted(coco.getImgIds())[:10]
+    img_ids = sorted(coco.getImgIds())[:1]
     img_dicts = coco.loadImgs(img_ids)
     # img_dicts = coco.loadImgs([139])
     imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
@@ -112,10 +113,20 @@ class ErrGen:
         imgs = deepcopy(self.imgs)
         results = []
         for img in imgs:
+            # cv2.imshow("Original", img)
+            # cv2.waitKey()
+            # cv2.destroyAllWindows()
+
             img_node = array.Array(img.shape)
             root_node = copy.Copy(img_node)
             img_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
-            results.append(root_node.process(img.astype(float), np.random.RandomState(seed=42)))
+            result = root_node.process(img.astype(float), np.random.RandomState(seed=42))
+
+            # cv2.imshow("GaussianNoise: mean {}, std {}".format(params["mean"], params["std"]), result.astype(int))
+            # cv2.waitKey()
+            # cv2.destroyAllWindows()
+
+            results.append(result)
         return results
 
 
@@ -135,7 +146,8 @@ def main():
     model = Model()
 
     err_gen = ErrGen(imgs)
-    param_selector = ParamSelector([({"mean": a, "std": b}, {"img_ids": img_ids}) for (a, b) in [(0, 0)]])
+    param_selector = ParamSelector(
+        [({"mean": a, "std": b}, {"img_ids": img_ids}) for (a, b) in [(0, 0), (0, 15), (0, 30)]])
     out = runner.run(model, err_gen, param_selector)
 
     # out = model.run(imgs, {"img_ids": img_ids})

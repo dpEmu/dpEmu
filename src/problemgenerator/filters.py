@@ -2,6 +2,9 @@ import random
 
 import numpy as np
 from math import pi, sin, cos, sqrt
+from PIL import Image
+import imutils
+import cv2
 
 
 class Filter:
@@ -382,3 +385,12 @@ class Blur(Filter):
                             pixel_sum += original[y][x]
                             pixel_count += 1
                     data[y0][x0] = pixel_sum // pixel_count
+
+
+class Rotation(Filter):
+    def __init__(self, angle):
+        super().__init__()
+        self.angle = angle
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        data[index_tuple] = imutils.rotate(data[index_tuple], self.angle)

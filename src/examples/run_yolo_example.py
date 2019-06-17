@@ -9,6 +9,8 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tqdm import tqdm
 
+from src import runner
+from src.problemgenerator import array, copy, filters
 from src.utils import generate_unique_path
 
 
@@ -34,7 +36,7 @@ class Model:
         img_h = img.shape[0]
         img_w = img.shape[1]
         inference_size = 416
-        scale = 0.00392
+        scale = 1 / 255
 
         net = cv2.dnn.readNet("data/yolov3.weights", "data/yolov3.cfg")
         blob = cv2.dnn.blobFromImage(img, scale, (inference_size, inference_size), (0, 0, 0), True, crop=False)
@@ -101,10 +103,50 @@ def load_coco_val_2017():
     return imgs, img_ids
 
 
+class ErrGen:
+    def __init__(self, imgs):
+        self.imgs = imgs
+
+    def generate_error(self, params):
+        imgs = deepcopy(self.imgs)
+        results = []
+        for img in imgs:
+            img_node = array.Array(img.shape)
+            root_node = copy.Copy(img_node)
+            img_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+            results.append(root_node.process(img.astype(float), np.random.RandomState(seed=42)))
+        return results
+
+        # imgs = deepcopy(self.imgs)
+        # y_node = array.Array(len(imgs))
+        # root_node = copy.Copy(y_node)
+        # y_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+        # return root_node.process(imgs, np.random.RandomState(seed=42))
+
+
+class ParamSelector:
+    def __init__(self, params):
+        self.params = params
+
+    def next(self):
+        return self.params
+
+    def analyze(self, res):
+        self.params = None
+
+
 def main():
     imgs, img_ids = load_coco_val_2017()
+
+    err_gen = ErrGen(imgs)
     model = Model()
-    out = model.run(imgs, {"img_ids": img_ids})
+
+    # param_selector = ParamSelector([({"mean": a, "std": b}, {"img_ids": img_ids}) for (a, b) in [(0, 0), (0, 15), (0, 30)]])
+    param_selector = ParamSelector([({"mean": a, "std": b}, {"img_ids": img_ids}) for (a, b) in [(0, 0)]])
+
+    out = runner.run(model, err_gen, param_selector)
+    # out = model.run(imgs, {"img_ids": img_ids})
+
     print(out)
 
 

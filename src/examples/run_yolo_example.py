@@ -18,7 +18,7 @@ from src.utils import generate_unique_path
 class Model:
 
     def __init__(self):
-        cv2.setNumThreads(1)
+        # cv2.setNumThreads(1)
         self.results = []
         self.coco91class = [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33,
@@ -35,6 +35,7 @@ class Model:
 
     def __add_img_to_results(self, img, img_id):
         conf_threshold = .25
+        nms_threshold = .4
         img_h = img.shape[0]
         img_w = img.shape[1]
         inference_size = 416
@@ -47,27 +48,37 @@ class Model:
         out_layer_names = net.getUnconnectedOutLayersNames()
         outs = net.forward(out_layer_names)
 
+        class_ids = []
+        confidences = []
+        boxes = []
         for out in outs:
             for detection in out:
                 scores = detection[5:]
                 class_id = np.argmax(scores)
-                conf = round(scores[class_id], 3)
-                if conf > conf_threshold:
+                confidence = round(scores[class_id], 3)
+                if confidence > conf_threshold:
                     center_x = detection[0] * img_w
                     center_y = detection[1] * img_h
                     w = round(detection[2] * img_w, 2)
                     h = round(detection[3] * img_h, 2)
                     x = round(center_x - w / 2, 2)
                     y = round(center_y - h / 2, 2)
+                    class_ids.append(class_id)
+                    confidences.append(float(confidence))
+                    boxes.append([x, y, w, h])
 
-                    result = {
-                        "image_id": img_id,
-                        "category_id": self.coco91class[class_id],
-                        "bbox": [x, y, w, h],
-                        "score": float(conf),
-                    }
-                    self.results.append(result)
-                    # self.__print_result(result)
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
+        for i in indices:
+            x, y, w, h = boxes[i[0]]
+
+            result = {
+                "image_id": img_id,
+                "category_id": self.coco91class[class_ids[i]],
+                "bbox": [x, y, w, h],
+                "score": confidences[i],
+            }
+            self.results.append(result)
+            # self.__print_result(result)
 
     def run(self, imgs, model_params):
         img_ids = model_params["img_ids"]

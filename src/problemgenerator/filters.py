@@ -1,9 +1,10 @@
 import random
+from colorsys import rgb_to_hls, hls_to_rgb
+from math import pi, sin, cos, sqrt, exp
 import numpy as np
-from math import pi, sin, cos, sqrt
-import imutils
-import cv2
 from scipy.ndimage import gaussian_filter
+import cv2
+import imutils
 import StringIO
 from PIL import Image
 
@@ -419,6 +420,24 @@ class Blur(Filter):
                     data[y0][x0] = pixel_sum // pixel_count
 
 
+class Resolution(Filter):
+    """
+    Makes resolution k times smaller. K must be an integer
+    """
+    def __init__(self, k):
+        super().__init__()
+        self.k = k
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+        for y0 in range(height):
+            y = (y0 // self.k) * self.k
+            for x0 in range(width):
+                x = (x0 // self.k) * self.k
+                data[y0, x0] = data[y, x]
+
+
 class Rotation(Filter):
     def __init__(self, angle):
         super().__init__()
@@ -438,6 +457,66 @@ class Rotation(Filter):
         x0 = round((resized_width - width)/2)
         y0 = round((resized_height - height)/2)
         data[index_tuple] = resized[y0:y0+height, x0:x0+width]
+
+
+class Brightness(Filter):
+    """
+    Increases or decreases brightness in the image.
+    tar: 0 if you want to decrease brightness, 1 if you want to increase it
+    rat: scales the brightness change
+    """
+    def __init__(self, tar, rat):
+        super().__init__()
+        self.tar = tar
+        self.rat = rat
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+        for y0 in range(height):
+            for x0 in range(width):
+                r = float(data[y0, x0, 0]) * (1 / 255)
+                g = float(data[y0, x0, 1]) * (1 / 255)
+                b = float(data[y0, x0, 2]) * (1 / 255)
+                (hu, li, sa) = rgb_to_hls(r, g, b)
+
+                mult = 1 - exp(-2 * self.rat)
+                li = li * (1 - mult) + self.tar * mult
+
+                (r, g, b) = hls_to_rgb(hu, li, sa)
+                data[y0, x0, 0] = 255 * r
+                data[y0, x0, 1] = 255 * g
+                data[y0, x0, 2] = 255 * b
+
+
+class Saturation(Filter):
+    """
+    Increases or decreases saturation in the image.
+    tar: 0 if you want to decrease saturation, 1 if you want to increase it
+    rat: scales the saturation change
+    """
+    def __init__(self, tar, rat):
+        super().__init__()
+        self.tar = tar
+        self.rat = rat
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+        for y0 in range(height):
+            for x0 in range(width):
+                r = float(data[y0, x0, 0]) * (1 / 255)
+                g = float(data[y0, x0, 1]) * (1 / 255)
+                b = float(data[y0, x0, 2]) * (1 / 255)
+                (hu, li, sa) = rgb_to_hls(r, g, b)
+
+                mult = 1 - exp(-2 * self.rat * sa)
+                sa = sa * (1 - mult) + self.tar * mult
+
+                (r, g, b) = hls_to_rgb(hu, li, sa)
+                data[y0, x0, 0] = 255 * r
+                data[y0, x0, 1] = 255 * g
+                data[y0, x0, 2] = 255 * b
 
 
 class LensFlare(Filter):

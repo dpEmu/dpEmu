@@ -6,7 +6,8 @@ import pandas as pd
 
 
 def worker(inputs):
-    mod, md, mp = inputs
+    eg, mod, ep, mp = inputs
+    md = eg.generate_error(ep)
     start_time = time.time()
     res = None
     if mp is not None:
@@ -43,9 +44,8 @@ def run(model, errgen, param_chooser):
 
         pool_input = []
         for i, param_pair in enumerate(params):
-            (err_param, mod_param) = param_pair
-            mod_data = errgen.generate_error(err_param)
-            pool_input.append((deepcopy(model), mod_data, mod_param))
+            err_param, mod_param = param_pair
+            pool_input.append((deepcopy(errgen), deepcopy(model), err_param, mod_param))
         pool = multiprocessing.Pool(processes=len(params))
         outputs = pool.map(worker, pool_input)
 

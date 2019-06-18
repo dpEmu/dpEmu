@@ -403,6 +403,24 @@ class Blur(Filter):
                     data[y0][x0] = pixel_sum // pixel_count
 
 
+class Resolution(Filter):
+    """
+    Makes resolution k times smaller. K must be an integer
+    """
+    def __init__(self, k):
+        super().__init__()
+        self.k = k
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+        for y0 in range(height):
+            y = (y0 // self.k) * self.k
+            for x0 in range(width):
+                x = (x0 // self.k) * self.k
+                data[y0, x0] = data[y, x]
+
+
 class Rotation(Filter):
     def __init__(self, angle):
         super().__init__()

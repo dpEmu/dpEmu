@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
-from tqdm import tqdm
+from tqdm import tqdm, trange
 
 from src import runner
 from src.problemgenerator import array, copy, filters, radius_generators
@@ -83,7 +83,7 @@ class Model:
     def run(self, imgs, model_params):
         img_ids = model_params["img_ids"]
 
-        [self.__add_img_to_results(imgs[i], img_ids[i]) for i in tqdm(range(len(imgs)))]
+        [self.__add_img_to_results(imgs[i], img_ids[i]) for i in trange(len(imgs))]
         if not self.results:
             return {"mAP-50": 0}
 
@@ -122,7 +122,7 @@ class ErrGen:
     def generate_error(self, params):
         imgs = deepcopy(self.imgs)
         results = []
-        for img in imgs:
+        for img in tqdm(imgs):
             img_node = array.Array(img.shape)
             root_node = copy.Copy(img_node)
 
@@ -175,7 +175,8 @@ def visualize(df):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.tight_layout()
-    plt.show()
+    path_to_plot = generate_unique_path("out", "png")
+    plt.savefig(path_to_plot)
 
 
 def main():
@@ -206,8 +207,6 @@ def main():
     # param_selector = ParamSelector([({}, {"img_ids": img_ids})])
 
     df = runner.run(model, err_gen, param_selector)
-
-    # df = model.run(imgs, {"img_ids": img_ids})
 
     print(df)
     visualize(df)

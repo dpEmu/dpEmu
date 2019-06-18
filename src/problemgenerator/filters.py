@@ -5,6 +5,8 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 import cv2
 import imutils
+from io import BytesIO
+from PIL import Image
 
 
 class Filter:
@@ -367,6 +369,28 @@ class Snow(Filter):
         add_noise(data)
 
 
+class JPEG_Compression(Filter):
+    """
+    Compress the image as JPEG and uncompress. Quality should be in range [1, 100], the bigger the less loss
+    """
+    def __init__(self, quality):
+        super().__init__()
+        self.quality = quality
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        iml = Image.fromarray(data)
+        buf = BytesIO()
+        iml.save(buf, "JPEG", quality=self.quality)
+        iml = Image.open(buf)
+        res_data = np.array(iml)
+
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+        for y0 in range(height):
+            for x0 in range(width):
+                data[y0, x0] = res_data[y0, x0]
+
+
 class Blur_Gaussian(Filter):
     """
     Create blur in images by applying a Gaussian filter.
@@ -381,6 +405,7 @@ class Blur_Gaussian(Filter):
 
 
 class Blur(Filter):
+
     def __init__(self, repeats):
         super().__init__()
         self.repeats = repeats

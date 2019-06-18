@@ -4,6 +4,8 @@ from math import pi, sin, cos, sqrt
 import imutils
 import cv2
 from scipy.ndimage import gaussian_filter
+import StringIO
+from PIL import Image
 
 
 class Filter:
@@ -364,6 +366,21 @@ class Snow(Filter):
                             b = round(b + (255 - b) * self.snowflake_alpha * max(0, 1 - dist / radius))
                             data[ty][tx] = (r, g, b)
         add_noise(data)
+
+def Compression(Filter):
+    """
+    Compress the image as JPEG and uncompress. compression quality should be in range [1, 10]
+    """
+    def __init__(self, quality):
+        super().__init__()
+        self.quality = quality
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        iml = Image.fromArray(data)
+        buf = StringIO.StringIO()
+        iml.save(buf, "JPEG", quality=self.quality)
+        iml = Image.open(buf)
+        data = np.array(iml)
 
 
 class Blur_Gaussian(Filter):

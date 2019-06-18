@@ -51,7 +51,8 @@ def run(model, errgen, param_chooser):
 
         param_chooser.analyze(outputs)
         for i, param_pair in enumerate(params):
-            (outputs[i]["err_param"], outputs[i]["mod_param"]) = param_pair
+            outputs[i].update({k: v for k, v in param_pair[0].items()})
+            outputs[i].update({k: v for k, v in param_pair[1].items()})
             outputs[i]["batch"] = batches
             rows.append(outputs[i])
     return pd.DataFrame(rows)

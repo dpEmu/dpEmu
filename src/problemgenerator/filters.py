@@ -5,9 +5,8 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 import cv2
 import imutils
-import StringIO
+from io import BytesIO
 from PIL import Image
-
 
 class Filter:
 
@@ -368,7 +367,8 @@ class Snow(Filter):
                             data[ty][tx] = (r, g, b)
         add_noise(data)
 
-def Compression(Filter):
+
+class JPEG_Compression(Filter):
     """
     Compress the image as JPEG and uncompress. compression quality should be in range [1, 10]
     """
@@ -377,12 +377,17 @@ def Compression(Filter):
         self.quality = quality
 
     def apply(self, data, random_state, index_tuple, named_dims):
-        iml = Image.fromArray(data)
-        buf = StringIO.StringIO()
+        iml = Image.fromarray(data)
+        buf = BytesIO()
         iml.save(buf, "JPEG", quality=self.quality)
         iml = Image.open(buf)
-        data = np.array(iml)
+        res_data = np.array(iml)
 
+        width = data[index_tuple].shape[1]
+        height = data[index_tuple].shape[0]
+        for y0 in range(height):
+            for x0 in range(width):
+                data[y0, x0] = res_data[y0, x0]
 
 class Blur_Gaussian(Filter):
     """

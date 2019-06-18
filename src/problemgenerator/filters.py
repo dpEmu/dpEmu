@@ -8,6 +8,7 @@ import imutils
 from io import BytesIO
 from PIL import Image
 
+
 class Filter:
 
     def __init__(self):
@@ -370,7 +371,7 @@ class Snow(Filter):
 
 class JPEG_Compression(Filter):
     """
-    Compress the image as JPEG and uncompress. compression quality should be in range [1, 10]
+    Compress the image as JPEG and uncompress. Quality should be in range [1, 100], the bigger the less loss
     """
     def __init__(self, quality):
         super().__init__()
@@ -389,6 +390,7 @@ class JPEG_Compression(Filter):
             for x0 in range(width):
                 data[y0, x0] = res_data[y0, x0]
 
+
 class Blur_Gaussian(Filter):
     """
     Create blur in images by applying a Gaussian filter.
@@ -403,6 +405,7 @@ class Blur_Gaussian(Filter):
 
 
 class Blur(Filter):
+
     def __init__(self, repeats):
         super().__init__()
         self.repeats = repeats

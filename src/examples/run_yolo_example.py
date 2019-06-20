@@ -140,8 +140,10 @@ class ErrGen:
                 params["transparency_percentage"]
             ))
             # img_node.addfilter(filters.LensFlare())
+            # img_node.addfilter(filters.JPEG_Compression(params["quality"]))
 
             result = root_node.process(img.astype(float), np.random.RandomState(seed=42))
+            # result = root_node.process(img, np.random.RandomState(seed=42))
             result = np.uint8(result)
             results.append(result)
 
@@ -167,6 +169,7 @@ def visualize(df):
     # xlabel = "std"
     # xlabel = "snowflake_probability"
     xlabel = "probability"
+    # xlabel = "quality"
 
     # plt.plot(df[xlabel], df[ylabel])
     plt.semilogx(df[xlabel], df[ylabel])
@@ -205,6 +208,7 @@ def main():
         (.001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
     ]])
     # param_selector = ParamSelector([({}, {"img_ids": img_ids})])
+    # param_selector = ParamSelector([({"quality": a}, {"img_ids": img_ids}) for a in [1, 5, 10, 50, 100]])
 
     df = runner.run(model, err_gen, param_selector)
 

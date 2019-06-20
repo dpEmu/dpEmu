@@ -111,7 +111,7 @@ def load_coco_val_2017():
     coco = COCO("data/annotations/instances_val2017.json")
     img_ids = sorted(coco.getImgIds())[:1]
     img_dicts = coco.loadImgs(img_ids)
-    imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
+    imgs = [cv2.cvtColor(cv2.imread(os.path.join(img_folder, img_dict["file_name"])), cv2.COLOR_BGR2RGB) for img_dict in img_dicts]
     return imgs, img_ids
 
 
@@ -133,19 +133,19 @@ class ErrGen:
             #     params["snowflake_alpha"],
             #     params["snowstorm_alpha"]
             # ))
-            # img_node.addfilter(filters.Rain(params["probability"]))
-            img_node.addfilter(filters.StainArea(
-                params["probability"],
-                params["radius_generator"],
-                params["transparency_percentage"]
-            ))
+            img_node.addfilter(filters.Rain(params["probability"]))
+            # img_node.addfilter(filters.StainArea(
+            #     params["probability"],
+            #     params["radius_generator"],
+            #     params["transparency_percentage"]
+            # ))
             # img_node.addfilter(filters.LensFlare())
 
             result = root_node.process(img.astype(float), np.random.RandomState(seed=42))
             result = np.uint8(result)
             results.append(result)
 
-            cv2.imshow(str(params), result)
+            cv2.imshow(str(params), cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
             cv2.waitKey()
             cv2.destroyAllWindows()
         return results
@@ -194,16 +194,16 @@ def main():
     #     {"snowflake_probability": a, "snowflake_alpha": b, "snowstorm_alpha": c},
     #     {"img_ids": img_ids}
     # ) for (a, b, c) in [(0.0001, .4, 1), (0.001, .4, 1), (0.01, .4, 1), (0.1, .4, 1)]])
-    # param_selector = ParamSelector([({"probability": a}, {"img_ids": img_ids}) for a in [0.0001, 0.001, 0.01, 0.1]])
-    param_selector = ParamSelector([(
-        {"probability": a, "radius_generator": b, "transparency_percentage": c},
-        {"img_ids": img_ids}
-    ) for (a, b, c) in [
-        (.000001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
-        (.00001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
-        (.0001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
-        (.001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
-    ]])
+    param_selector = ParamSelector([({"probability": a}, {"img_ids": img_ids}) for a in [0.0001, 0.001, 0.01, 0.1]])
+    # param_selector = ParamSelector([(
+    #     {"probability": a, "radius_generator": b, "transparency_percentage": c},
+    #     {"img_ids": img_ids}
+    # ) for (a, b, c) in [
+    #     (.000001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
+    #     (.00001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
+    #     (.0001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
+    #     (.001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
+    # ]])
     # param_selector = ParamSelector([({}, {"img_ids": img_ids})])
 
     df = runner.run(model, err_gen, param_selector)

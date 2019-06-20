@@ -593,3 +593,14 @@ class LensFlare(Filter):
             y += origo_vector[1]
             x += origo_vector[0]
             steps -= 1
+
+
+class ApplyWithProbability(Filter):
+    def __init__(self, ftr, probability):
+        super().__init__()
+        self.ftr = ftr
+        self.probability = probability
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        if random_state.rand() < self.probability:
+            self.ftr.apply(data, random_state, index_tuple, named_dims)

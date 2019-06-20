@@ -604,3 +604,77 @@ class ApplyWithProbability(Filter):
     def apply(self, data, random_state, index_tuple, named_dims):
         if random_state.rand() < self.probability:
             self.ftr.apply(data, random_state, index_tuple, named_dims)
+
+
+class Constant(Filter):
+    def __init__(self, value):
+        super().__init__()
+        self.value = value
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        data[index_tuple].fill(self.value)
+
+
+class Identity(Filter):
+    def __init__(self):
+        super().__init__()
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        pass
+
+
+class BinaryFilter(Filter):
+    def __init__(self, filter_a, filter_b):
+        super().__init__()
+        self.filter_a = filter_a
+        self.filter_b = filter_b
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        data_a = data.copy()
+        data_b = data.copy()
+        self.filter_a.apply(data_a, random_state, index_tuple, named_dims)
+        self.filter_b.apply(data_b, random_state, index_tuple, named_dims)
+        for index, _ in np.ndenumerate(data[index_tuple]):
+            data[index] = self.operation(data_a[index], data_b[index])
+
+    def operation(self, element_a, element_b):
+        raise NotImplementedError()
+
+
+class Addition(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return element_a + element_b
+
+
+class Subtraction(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return element_a - element_b
+
+
+class Multiplication(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return element_a - element_b
+
+
+class Division(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return element_a - element_b
+
+
+class Difference(Filter):
+    def __init__(self, ftr):
+        super().__init__()
+        self.ftr = Subtraction(ftr, Identity())
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        self.ftr.apply(data, random_state, index_tuple, named_dims)
+
+
+class Max(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return max(element_a, element_b)
+
+
+class Min(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return min(element_a, element_b)

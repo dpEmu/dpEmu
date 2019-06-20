@@ -11,7 +11,7 @@ from pycocotools.cocoeval import COCOeval
 from tqdm import tqdm, trange
 
 from src import runner
-from src.problemgenerator import array, copy, filters, radius_generators
+from src.problemgenerator import array, copy, filters
 from src.utils import generate_unique_path
 
 
@@ -111,7 +111,8 @@ def load_coco_val_2017():
     coco = COCO("data/annotations/instances_val2017.json")
     img_ids = sorted(coco.getImgIds())[:1]
     img_dicts = coco.loadImgs(img_ids)
-    imgs = [cv2.cvtColor(cv2.imread(os.path.join(img_folder, img_dict["file_name"])), cv2.COLOR_BGR2RGB) for img_dict in img_dicts]
+    imgs = [cv2.cvtColor(cv2.imread(os.path.join(img_folder, img_dict["file_name"])),
+            cv2.COLOR_BGR2RGB) for img_dict in img_dicts]
     return imgs, img_ids
 
 

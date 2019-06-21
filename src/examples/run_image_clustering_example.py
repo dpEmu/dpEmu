@@ -1,15 +1,14 @@
-import io
+from abc import ABC, abstractmethod
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
-from sklearn.cluster import KMeans
+from hdbscan import HDBSCAN
+from sklearn.cluster import KMeans, SpectralClustering, AgglomerativeClustering, DBSCAN
 from sklearn.datasets import fetch_openml
 from sklearn.decomposition import PCA
-from sklearn.metrics import v_measure_score, adjusted_rand_score, adjusted_mutual_info_score, silhouette_score
+from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from sklearn.model_selection import train_test_split
-from sklearn.random_projection import johnson_lindenstrauss_min_dim, SparseRandomProjection
 from umap import UMAP
 
 from src import runner
@@ -17,94 +16,84 @@ from src.problemgenerator import array, copy, filters
 from src.utils import generate_unique_path
 
 
-class Model:
+class AbstractModel(ABC):
 
     def __init__(self):
         np.random.seed(42)
 
-    @staticmethod
-    def __plot_to_img():
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png")
-        buf.seek(0)
-        byte_img = buf.read()
-        byte_img = io.BytesIO(byte_img)
-        return Image.open(byte_img)
-
-    def __get_classes_img(self, reduced_data, labels):
-        x_min, x_max, y_min, y_max = self.__get_lims(reduced_data)
-
-        plt.figure(1)
-        plt.clf()
-        plt.scatter(*reduced_data.T, c=labels, cmap="tab10", marker=".", s=40)
-        plt.xlim(x_min, x_max)
-        plt.ylim(y_min, y_max)
-        plt.xticks([])
-        plt.yticks([])
-        plt.tight_layout()
-        return self.__plot_to_img()
-
-    def __get_clusters_img(self, fitted_model, reduced_data):
-        x_min, x_max, y_min, y_max = self.__get_lims(reduced_data)
-        step = .01
-        x, y = np.meshgrid(np.arange(x_min, x_max, step), np.arange(y_min, y_max, step))
-
-        predicted_clusters = fitted_model.predict(np.c_[x.ravel(), y.ravel()])
-        predicted_clusters = predicted_clusters.reshape(x.shape)
-        centroids = fitted_model.cluster_centers_
-
-        plt.figure(1)
-        plt.clf()
-        plt.imshow(predicted_clusters, extent=(x_min, x_max, y_min, y_max), cmap="tab10", aspect="auto", origin="lower")
-        plt.scatter(*reduced_data.T, c="k", marker=".", s=40)
-        plt.scatter(*centroids.T, marker="X", s=300, color="w", zorder=10)
-        plt.xlim(x_min, x_max)
-        plt.ylim(y_min, y_max)
-        plt.xticks([])
-        plt.yticks([])
-        plt.tight_layout()
-        return self.__plot_to_img()
-
-    @staticmethod
-    def __get_lims(reduced_data):
-        return (
-            reduced_data[:, 0].min() - 1,
-            reduced_data[:, 0].max() + 1,
-            reduced_data[:, 1].min() - 1,
-            reduced_data[:, 1].max() + 1
-        )
+    @abstractmethod
+    def get_fitted_model(self, reduced_data, labels, model_params):
+        pass
 
     def run(self, data, model_params):
-        if len(data.shape) == 3:
-            data = data.reshape(self.data.shape[:-2] + (-1,))
         labels = model_params["labels"]
-
-        n_classes = len(np.unique(labels))
-        jl_limit = johnson_lindenstrauss_min_dim(n_samples=data.shape[0], eps=.3)
-        pca_limit = 50
-        sample_size = 300
+        pca_limit = 30
 
         reduced_data = data
-        if reduced_data.shape[1] > jl_limit and reduced_data.shape[1] > pca_limit:
-            reduced_data = SparseRandomProjection(n_components=jl_limit, random_state=42).fit_transform(reduced_data)
         if reduced_data.shape[1] > pca_limit:
             reduced_data = PCA(n_components=pca_limit, random_state=42).fit_transform(reduced_data)
-        reduced_data = UMAP(random_state=42).fit_transform(reduced_data)
+        reduced_data = UMAP(n_neighbors=30, min_dist=0.0, random_state=42).fit_transform(reduced_data)
 
-        fitted_model = KMeans(n_clusters=n_classes, random_state=42).fit(reduced_data)
+        fitted_model = self.get_fitted_model(reduced_data, labels, model_params)
 
         return {
-            "classes_img": self.__get_classes_img(reduced_data, labels),
-            "clusters_img": self.__get_clusters_img(fitted_model, reduced_data),
-            "v-meas": round(v_measure_score(labels, fitted_model.labels_), 3),
+            "reduced_data": reduced_data,
             "ARI": round(adjusted_rand_score(labels, fitted_model.labels_), 3),
             "AMI": round(adjusted_mutual_info_score(labels, fitted_model.labels_, average_method="arithmetic"), 3),
-            "silhouette": round(silhouette_score(reduced_data, fitted_model.labels_, sample_size=sample_size), 3),
         }
 
 
-def load_mnist(train_size=1000):
+class KMeansModel(AbstractModel):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_fitted_model(self, reduced_data, labels, model_params):
+        n_classes = len(np.unique(labels))
+        return KMeans(n_clusters=n_classes, random_state=42).fit(reduced_data)
+
+
+class SpectralModel(AbstractModel):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_fitted_model(self, reduced_data, labels, model_params):
+        n_classes = len(np.unique(labels))
+        return SpectralClustering(n_clusters=n_classes, random_state=42).fit(reduced_data)
+
+
+class AgglomerativeModel(AbstractModel):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_fitted_model(self, reduced_data, labels, model_params):
+        n_classes = len(np.unique(labels))
+        return AgglomerativeClustering(n_clusters=n_classes).fit(reduced_data)
+
+
+class DBSCANModel(AbstractModel):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_fitted_model(self, reduced_data, labels, model_params):
+        return DBSCAN(min_samples=10, eps=model_params["eps"]).fit(reduced_data)
+
+
+class HDBSCANModel(AbstractModel):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_fitted_model(self, reduced_data, labels, model_params):
+        return HDBSCAN(min_samples=10, min_cluster_size=model_params["min_cluster_size"]).fit(reduced_data)
+
+
+def load_mnist(train_size=70000):
     mnist = fetch_openml("mnist_784")
+    # mnist = fetch_openml("Fashion-MNIST")
     if train_size == mnist["data"].shape[0]:
         data = mnist["data"]
         labels = mnist["target"].astype(int)
@@ -139,56 +128,98 @@ class ParamSelector:
         self.params = None
 
 
-def visualize(df):
+def visualize_scores(dfs):
     xlabel = "std"
 
-    plt.figure(1)
     plt.clf()
-    plt.plot(df[xlabel], df["v-meas"], label="v-meas")
-    plt.plot(df[xlabel], df["AMI"], label="AMI")
-    plt.plot(df[xlabel], df["ARI"], label="ARI")
-    plt.plot(df[xlabel], df["silhouette"], label="silhouette")
+    plt.figure(figsize=(8, 4))
+    plt.subplot(121)
+    for df in dfs:
+        plt.plot(df[xlabel], df["AMI"], label=df.name)
+        plt.xlabel(xlabel)
+        plt.ylabel("AMI")
+        plt.xlim([0, 255])
+        plt.ylim([0, 1])
+        plt.legend()
+    plt.subplot(122)
+    for df in dfs:
+        plt.plot(df[xlabel], df["ARI"], label=df.name)
+        plt.xlabel(xlabel)
+        plt.ylabel("ARI")
+        plt.xlim([0, 255])
+        plt.ylim([0, 1])
+        plt.legend()
+    plt.subplots_adjust(wspace=.25)
+    plt.suptitle("Clustering scores with added gaussian noise")
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-    plt.legend()
-    plt.xlim([0, 255])
-    plt.ylim([0, 1])
-    plt.xlabel(xlabel)
-    plt.ylabel("score")
-    plt.title("Gaussian noise")
-    plt.tight_layout()
     path_to_plot = generate_unique_path("out", "png")
     plt.savefig(path_to_plot)
 
-    for img_name in ["classes_img", "clusters_img"]:
-        plt.figure(1)
-        plt.clf()
-        _, axs = plt.subplots(2, 3)
-        if img_name == "classes_img":
-            plt.suptitle("MNIST classes")
-        else:
-            plt.suptitle("KMeans clusters")
-        for i, ax in enumerate(axs.ravel()):
-            ax.imshow(df[img_name][i])
-            ax.set_title("std " + str(df["std"][i]))
-            ax.set_xticks([])
-            ax.set_yticks([])
-        plt.tight_layout()
-        path_to_plot = generate_unique_path("out", "png")
-        plt.savefig(path_to_plot)
+
+def visualize_classes(dfs):
+    def get_lims(data):
+        return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
+
+    df = dfs[0]
+    labels = df["labels"][0]
+
+    plt.clf()
+    fig, axs = plt.subplots(2, 3, figsize=(8, 5))
+    for i, ax in enumerate(axs.ravel()):
+        reduced_data = df["reduced_data"][i]
+        x_min, x_max, y_min, y_max = get_lims(reduced_data)
+        sc = ax.scatter(*reduced_data.T, c=labels, cmap="tab10", marker=".", s=40)
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(y_min, y_max)
+        ax.set_title("std=" + str(df["std"][i]))
+        ax.set_xticks([])
+        ax.set_yticks([])
+    fig.suptitle("MNIST classes with added gaussian noise")
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.colorbar(sc, ax=axs, boundaries=np.arange(11) - 0.5, ticks=np.arange(10), use_gridspec=True)
+
+    path_to_plot = generate_unique_path("out", "png")
+    fig.savefig(path_to_plot)
+
+
+def visualize(dfs):
+    visualize_scores(dfs)
+    visualize_classes(dfs)
 
 
 def main():
-    data, labels = load_mnist(500)
+    data, labels = load_mnist(25000)
 
-    model = Model()
     err_gen = ErrGen(data)
+    steps = [0, 51, 102, 153, 204, 255]
+    model_param_pairs = [
+        (KMeansModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in [
+            0, 51, 102, 153, 204, 255
+        ]])),
+        (SpectralModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in [
+            0, 51, 102, 153, 204, 255
+        ]])),
+        (AgglomerativeModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in [
+            0, 51, 102, 153, 204, 255
+        ]])),
+        (DBSCANModel(), ParamSelector([(
+            {"mean": 0, "std": std},
+            {"labels": labels, "eps": eps})
+            for std, eps in [(step, .5) for step in steps]])),
+        (HDBSCANModel(), ParamSelector([(
+            {"mean": 0, "std": std},
+            {"labels": labels, "min_cluster_size": min_cluster_size}
+        ) for std, min_cluster_size in [(step, 500) for step in steps]])),
+    ]
 
-    param_selector = ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in range(0, 256, 51)])
+    dfs = []
+    for model_param_pair in model_param_pairs:
+        df = runner.run(model_param_pair[0], err_gen, model_param_pair[1])
+        df.name = model_param_pair[0].__class__.__name__.replace("Model", "")
+        dfs.append(df)
 
-    df = runner.run(model, err_gen, param_selector)
-
-    print(df)
-    visualize(df)
+    visualize(dfs)
 
 
 if __name__ == "__main__":

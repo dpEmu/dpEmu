@@ -1,10 +1,11 @@
+import random as rn
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
 from hdbscan import HDBSCAN
-from sklearn.cluster import KMeans, SpectralClustering, AgglomerativeClustering, DBSCAN
+from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.datasets import fetch_openml
 from sklearn.decomposition import PCA
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
@@ -20,6 +21,7 @@ from src.utils import generate_unique_path
 class AbstractModel(ABC):
 
     def __init__(self):
+        rn.seed(42)
         np.random.seed(42)
 
     @abstractmethod
@@ -54,16 +56,6 @@ class KMeansModel(AbstractModel):
         return KMeans(n_clusters=n_classes, random_state=42).fit(reduced_data)
 
 
-class SpectralModel(AbstractModel):
-
-    def __init__(self):
-        super().__init__()
-
-    def get_fitted_model(self, reduced_data, labels, model_params):
-        n_classes = len(np.unique(labels))
-        return SpectralClustering(n_clusters=n_classes, random_state=42).fit(reduced_data)
-
-
 class AgglomerativeModel(AbstractModel):
 
     def __init__(self):
@@ -74,22 +66,31 @@ class AgglomerativeModel(AbstractModel):
         return AgglomerativeClustering(n_clusters=n_classes).fit(reduced_data)
 
 
-class DBSCANModel(AbstractModel):
+class HDBSCAN500Model(AbstractModel):
 
     def __init__(self):
         super().__init__()
 
     def get_fitted_model(self, reduced_data, labels, model_params):
-        return DBSCAN(min_samples=10, eps=model_params["eps"]).fit(reduced_data)
+        return HDBSCAN(min_samples=10, min_cluster_size=500).fit(reduced_data)
 
 
-class HDBSCANModel(AbstractModel):
+class HDBSCAN1000Model(AbstractModel):
 
     def __init__(self):
         super().__init__()
 
     def get_fitted_model(self, reduced_data, labels, model_params):
-        return HDBSCAN(min_samples=10, min_cluster_size=model_params["min_cluster_size"]).fit(reduced_data)
+        return HDBSCAN(min_samples=10, min_cluster_size=1000).fit(reduced_data)
+
+
+class HDBSCAN1500Model(AbstractModel):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_fitted_model(self, reduced_data, labels, model_params):
+        return HDBSCAN(min_samples=10, min_cluster_size=1500).fit(reduced_data)
 
 
 def load_mnist(train_size=70000):
@@ -192,7 +193,7 @@ def visualize(dfs):
 
 
 def main():
-    data, labels = load_mnist(5000)
+    data, labels = load_mnist(500)
     # data, labels = load_mnist()
 
     err_gen = ErrGen(data)
@@ -201,16 +202,10 @@ def main():
 
     model_param_pairs = [
         (KMeansModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
-        (SpectralModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
         (AgglomerativeModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
-        (DBSCANModel(), ParamSelector([(
-            {"mean": 0, "std": std},
-            {"labels": labels, "eps": eps})
-            for std, eps in [(step, .1) for step in steps]])),
-        (HDBSCANModel(), ParamSelector([(
-            {"mean": 0, "std": std},
-            {"labels": labels, "min_cluster_size": min_cluster_size}
-        ) for std, min_cluster_size in [(step, 500) for step in steps]])),
+        (HDBSCAN500Model(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
+        (HDBSCAN1000Model(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
+        (HDBSCAN1500Model(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
     ]
 
     for model_param_pair in tqdm(model_param_pairs):

@@ -9,6 +9,7 @@ from sklearn.datasets import fetch_openml
 from sklearn.decomposition import PCA
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 from umap import UMAP
 
 from src import runner
@@ -95,6 +96,7 @@ def load_mnist(train_size=70000):
     mnist = fetch_openml("mnist_784")
     # mnist = fetch_openml("mnist_784", data_home="/wrk/users/thalvari/")
     # mnist = fetch_openml("Fashion-MNIST")
+    # mnist = fetch_openml("Fashion-MNIST", data_home="/wrk/users/thalvari/")
     if train_size == mnist["data"].shape[0]:
         data = mnist["data"]
         labels = mnist["target"].astype(int)
@@ -190,10 +192,13 @@ def visualize(dfs):
 
 
 def main():
-    data, labels = load_mnist(500)
+    data, labels = load_mnist(5000)
+    # data, labels = load_mnist()
 
     err_gen = ErrGen(data)
     steps = [0, 51, 102, 153, 204, 255]
+    dfs = []
+
     model_param_pairs = [
         (KMeansModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
         (SpectralModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
@@ -201,15 +206,14 @@ def main():
         (DBSCANModel(), ParamSelector([(
             {"mean": 0, "std": std},
             {"labels": labels, "eps": eps})
-            for std, eps in [(step, .5) for step in steps]])),
+            for std, eps in [(step, .1) for step in steps]])),
         (HDBSCANModel(), ParamSelector([(
             {"mean": 0, "std": std},
             {"labels": labels, "min_cluster_size": min_cluster_size}
         ) for std, min_cluster_size in [(step, 500) for step in steps]])),
     ]
 
-    dfs = []
-    for model_param_pair in model_param_pairs:
+    for model_param_pair in tqdm(model_param_pairs):
         df = runner.run(model_param_pair[0], err_gen, model_param_pair[1])
         df.name = model_param_pair[0].__class__.__name__.replace("Model", "")
         dfs.append(df)

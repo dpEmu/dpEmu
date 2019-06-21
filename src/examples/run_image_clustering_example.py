@@ -93,6 +93,7 @@ class HDBSCANModel(AbstractModel):
 
 def load_mnist(train_size=70000):
     mnist = fetch_openml("mnist_784")
+    # mnist = fetch_openml("mnist_784", data_home="/wrk/users/thalvari/")
     # mnist = fetch_openml("Fashion-MNIST")
     if train_size == mnist["data"].shape[0]:
         data = mnist["data"]
@@ -189,20 +190,14 @@ def visualize(dfs):
 
 
 def main():
-    data, labels = load_mnist(25000)
+    data, labels = load_mnist(500)
 
     err_gen = ErrGen(data)
     steps = [0, 51, 102, 153, 204, 255]
     model_param_pairs = [
-        (KMeansModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in [
-            0, 51, 102, 153, 204, 255
-        ]])),
-        (SpectralModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in [
-            0, 51, 102, 153, 204, 255
-        ]])),
-        (AgglomerativeModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in [
-            0, 51, 102, 153, 204, 255
-        ]])),
+        (KMeansModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
+        (SpectralModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
+        (AgglomerativeModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
         (DBSCANModel(), ParamSelector([(
             {"mean": 0, "std": std},
             {"labels": labels, "eps": eps})
@@ -218,6 +213,9 @@ def main():
         df = runner.run(model_param_pair[0], err_gen, model_param_pair[1])
         df.name = model_param_pair[0].__class__.__name__.replace("Model", "")
         dfs.append(df)
+
+    for df in dfs:
+        print(df.drop(columns=["batch", "labels", "reduced_data"]))
 
     visualize(dfs)
 

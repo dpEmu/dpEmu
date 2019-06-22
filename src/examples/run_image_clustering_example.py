@@ -88,21 +88,21 @@ def split_data(data, labels, train_size):
 def load_digits_(train_size=1797):
     mnist = load_digits()
     data, labels = split_data(mnist["data"], mnist["target"], train_size)
-    return data, labels, None
+    return data, labels, None, "Digits"
 
 
 def load_mnist(train_size=70000):
     mnist = fetch_openml("mnist_784")
     # mnist = fetch_openml("mnist_784", data_home="/wrk/users/thalvari/")
     data, labels = split_data(mnist["data"], mnist["target"].astype(int), train_size)
-    return data, labels, None
+    return data, labels, None, "MNIST"
 
 
 def load_fashion(train_size=70000):
     mnist = fetch_openml("Fashion-MNIST")
     # mnist = fetch_openml("Fashion-MNIST", data_home="/wrk/users/thalvari/")
     data, labels = split_data(mnist["data"], mnist["target"].astype(int), train_size)
-    return data, labels, [
+    label_names = [
         "T-shirt",
         "Trouser",
         "Pullover",
@@ -114,6 +114,7 @@ def load_fashion(train_size=70000):
         "Bag",
         "Ankle boot",
     ]
+    return data, labels, label_names, "Fashion MNIST"
 
 
 class ErrGen:
@@ -130,7 +131,7 @@ class ErrGen:
         return root_node.process(data, np.random.RandomState(seed=42))
 
 
-def visualize_scores(dfs):
+def visualize_scores(dfs, dataset_name):
     xlabel = "std"
     scores = ["AMI", "ARI"]
 
@@ -159,14 +160,14 @@ def visualize_scores(dfs):
             ax.legend()
 
     plt.subplots_adjust(wspace=.25)
-    plt.suptitle("Clustering scores with added gaussian noise")
+    plt.suptitle(f"{dataset_name} clustering scores with added gaussian noise")
     plt.tight_layout(rect=[0, 0, 1, 0.95])
 
     path_to_plot = generate_unique_path("out", "png")
     plt.savefig(path_to_plot)
 
 
-def visualize_classes(dfs, label_names):
+def visualize_classes(dfs, label_names, dataset_name):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
@@ -187,7 +188,7 @@ def visualize_classes(dfs, label_names):
         ax.set_xticks([])
         ax.set_yticks([])
     n_data = df["reduced_data"].values[0].shape[0]
-    fig.suptitle(f"MNIST (n={n_data}) classes with added gaussian noise")
+    fig.suptitle(f"{dataset_name} (n={n_data}) classes with added gaussian noise")
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     cbar = fig.colorbar(sc, ax=axs, boundaries=np.arange(11) - 0.5, ticks=np.arange(10), use_gridspec=True)
     if label_names:
@@ -197,16 +198,16 @@ def visualize_classes(dfs, label_names):
     fig.savefig(path_to_plot)
 
 
-def visualize(dfs, label_names):
-    visualize_classes(dfs, label_names)
-    visualize_scores(dfs)
+def visualize(dfs, label_names, dataset_name):
+    visualize_classes(dfs, label_names, dataset_name)
+    visualize_scores(dfs, dataset_name)
 
 
 def main():
     n_data = 5000
-    data, labels, label_names = load_digits_(n_data)
-    # data, labels, label_names = load_mnist(n_data)
-    # data, labels, label_names = load_fashion(n_data)
+    data, labels, label_names, dataset_name = load_digits_(n_data)
+    # data, labels, label_names, dataset_name = load_mnist(n_data)
+    # data, labels, label_names, dataset_name = load_fashion(n_data)
     n_data = data.shape[0]
 
     std_steps = [0, 3, 6, 9, 12, 15]  # For digits
@@ -226,7 +227,7 @@ def main():
         print(df.name)
         print(df.drop(columns=["labels", "reduced_data"]))
 
-    visualize(dfs, label_names)
+    visualize(dfs, label_names, dataset_name)
 
 
 if __name__ == "__main__":

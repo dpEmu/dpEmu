@@ -9,7 +9,7 @@ import numpy as np
 from hdbscan import HDBSCAN
 from numba.errors import NumbaDeprecationWarning, NumbaWarning
 from sklearn.cluster import KMeans, AgglomerativeClustering
-from sklearn.datasets import fetch_openml
+from sklearn.datasets import fetch_openml, load_digits
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
@@ -81,9 +81,15 @@ class HDBSCANModel(AbstractModel):
 
 
 def split_data(data, labels, train_size):
-    if train_size != data.shape[0]:
+    if train_size < data.shape[0]:
         data, _, labels, _ = train_test_split(data, labels, train_size=train_size, random_state=42)
     return data, labels
+
+
+def load_digits_(train_size=1797):
+    mnist = load_digits()
+    data, labels = split_data(mnist["data"], mnist["target"], train_size)
+    return data, labels, None
 
 
 def load_mnist(train_size=70000):
@@ -160,33 +166,9 @@ def visualize_scores(dfs):
                 ax.plot(df[xlabel], df[scores[i]], label=df.name)
             ax.set_xlabel(xlabel)
             ax.set_ylabel(scores[i])
-            ax.set_xlim([0, 255])
+            ax.set_xlim([0, df[xlabel].max()])
             ax.set_ylim([0, 1])
             ax.legend()
-
-    # plt.figure(figsize=(8, 4))
-    # plt.subplot(121)
-    # for df in dfs:
-    #     if "min_cluster_size" in df:
-    #         plt.plot(df[xlabel], df["AMI"], label=df.name + str(df["min_cluster_size"].values[0]))
-    #     else:
-    #         plt.plot(df[xlabel], df["AMI"], label=df.name)
-    #     plt.xlabel(xlabel)
-    #     plt.ylabel("AMI")
-    #     plt.xlim([0, 255])
-    #     plt.ylim([0, 1])
-    #     plt.legend()
-    # plt.subplot(122)
-    # for df in dfs:
-    #     if "min_cluster_size" in df:
-    #         plt.plot(df[xlabel], df["ARI"], label=df.name + str(df["min_cluster_size"].values[0]))
-    #     else:
-    #         plt.plot(df[xlabel], df["ARI"], label=df.name)
-    #     plt.xlabel(xlabel)
-    #     plt.ylabel("ARI")
-    #     plt.xlim([0, 255])
-    #     plt.ylim([0, 1])
-    #     plt.legend()
 
     plt.subplots_adjust(wspace=.25)
     plt.suptitle("Clustering scores with added gaussian noise")
@@ -216,7 +198,8 @@ def visualize_classes(dfs, label_names):
         ax.set_title("std=" + str(df["std"][i]))
         ax.set_xticks([])
         ax.set_yticks([])
-    fig.suptitle("MNIST classes with added gaussian noise")
+    n_data = df["reduced_data"].values[0].shape[0]
+    fig.suptitle(f"MNIST ({n_data})classes with added gaussian noise")
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     cbar = fig.colorbar(sc, ax=axs, boundaries=np.arange(11) - 0.5, ticks=np.arange(10), use_gridspec=True)
     if label_names:
@@ -233,12 +216,15 @@ def visualize(dfs, label_names):
 
 def main():
     n_data = 5000
-    # data, labels, label_names = load_mnist(n_data)
-    data, labels, label_names = load_fashion(n_data)
+    # data, labels, label_names = load_digits_(n_data)
+    data, labels, label_names = load_mnist(n_data)
+    # data, labels, label_names = load_fashion(n_data)
+    n_data = data.shape[0]
 
     err_gen = ErrGen(data)
+    # std_steps = [0, 3, 6, 9, 12, 15]  # For digits
     std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
-    min_cluster_size_steps = map(int, [n_data / 100, n_data / 50, n_data / 20])
+    min_cluster_size_steps = map(int, [n_data / 200, n_data / 50, n_data / 10])
     dfs = []
 
     model_param_pairs = [

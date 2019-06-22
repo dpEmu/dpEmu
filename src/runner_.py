@@ -2,6 +2,7 @@ import multiprocessing
 import time
 
 import pandas as pd
+from tqdm import tqdm
 
 
 def worker(inputs):
@@ -20,7 +21,7 @@ def worker(inputs):
 
 def run(errgen, err_params_list, model_param_pairs):
     results = {}
-    for err_params in err_params_list:
+    for err_params in tqdm(err_params_list):
         err_data = errgen.generate_error(err_params)
         pool_inputs = []
         for model_param_pair in model_param_pairs:

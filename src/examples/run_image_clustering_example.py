@@ -1,13 +1,15 @@
+import itertools
 import random as rn
+import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
 from hdbscan import HDBSCAN
+from numba.errors import NumbaDeprecationWarning, NumbaWarning
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.datasets import fetch_openml
-from sklearn.decomposition import PCA
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
@@ -16,6 +18,9 @@ from umap import UMAP
 from src import runner
 from src.problemgenerator import array, copy, filters
 from src.utils import generate_unique_path
+
+warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
+warnings.simplefilter("ignore", category=NumbaWarning)
 
 
 class AbstractModel(ABC):
@@ -30,11 +35,11 @@ class AbstractModel(ABC):
 
     def run(self, data, model_params):
         labels = model_params["labels"]
-        pca_limit = 30
+        pca_limit = 50
 
         reduced_data = data
-        if reduced_data.shape[1] > pca_limit:
-            reduced_data = PCA(n_components=pca_limit, random_state=42).fit_transform(reduced_data)
+        # if reduced_data.shape[1] > pca_limit:
+        #     reduced_data = PCA(n_components=pca_limit, random_state=42).fit_transform(reduced_data)
         reduced_data = UMAP(n_neighbors=30, min_dist=0.0, random_state=42).fit_transform(reduced_data)
 
         fitted_model = self.get_fitted_model(reduced_data, labels, model_params)
@@ -66,45 +71,44 @@ class AgglomerativeModel(AbstractModel):
         return AgglomerativeClustering(n_clusters=n_classes).fit(reduced_data)
 
 
-class HDBSCAN500Model(AbstractModel):
+class HDBSCANModel(AbstractModel):
 
     def __init__(self):
         super().__init__()
 
     def get_fitted_model(self, reduced_data, labels, model_params):
-        return HDBSCAN(min_samples=10, min_cluster_size=500).fit(reduced_data)
+        return HDBSCAN(min_samples=10, min_cluster_size=model_params["min_cluster_size"]).fit(reduced_data)
 
 
-class HDBSCAN1000Model(AbstractModel):
-
-    def __init__(self):
-        super().__init__()
-
-    def get_fitted_model(self, reduced_data, labels, model_params):
-        return HDBSCAN(min_samples=10, min_cluster_size=1000).fit(reduced_data)
-
-
-class HDBSCAN1500Model(AbstractModel):
-
-    def __init__(self):
-        super().__init__()
-
-    def get_fitted_model(self, reduced_data, labels, model_params):
-        return HDBSCAN(min_samples=10, min_cluster_size=1500).fit(reduced_data)
+def split_data(data, labels, train_size):
+    if train_size != data.shape[0]:
+        data, _, labels, _ = train_test_split(data, labels, train_size=train_size, random_state=42)
+    return data, labels
 
 
 def load_mnist(train_size=70000):
     mnist = fetch_openml("mnist_784")
     # mnist = fetch_openml("mnist_784", data_home="/wrk/users/thalvari/")
-    # mnist = fetch_openml("Fashion-MNIST")
+    data, labels = split_data(mnist["data"], mnist["target"].astype(int), train_size)
+    return data, labels, None
+
+
+def load_fashion(train_size=70000):
+    mnist = fetch_openml("Fashion-MNIST")
     # mnist = fetch_openml("Fashion-MNIST", data_home="/wrk/users/thalvari/")
-    if train_size == mnist["data"].shape[0]:
-        data = mnist["data"]
-        labels = mnist["target"].astype(int)
-    else:
-        data, _, labels, _ = train_test_split(mnist["data"], mnist["target"].astype(int), train_size=train_size,
-                                              random_state=42)
-    return data, labels
+    data, labels = split_data(mnist["data"], mnist["target"].astype(int), train_size)
+    return data, labels, [
+        "T-shirt",
+        "Trouser",
+        "Pullover",
+        "Dress",
+        "Coat",
+        "Sandal",
+        "Shirt",
+        "Sneaker",
+        "Bag",
+        "Ankle boot",
+    ]
 
 
 class ErrGen:
@@ -134,25 +138,56 @@ class ParamSelector:
 
 def visualize_scores(dfs):
     xlabel = "std"
+    scores = ["AMI", "ARI"]
+
+    def inherit_name(df_new, df_old):
+        df_new.name = df_old.name
+        return df_new
+
+    dfs_with_mcs = [df for df in dfs if "min_cluster_size" in df]
+    dfs = [df for df in dfs if "min_cluster_size" not in df]
+    for df_with_mcs in dfs_with_mcs:
+        dfs.extend([inherit_name(df, df_with_mcs) for _, df in df_with_mcs.groupby("min_cluster_size")])
 
     plt.clf()
-    plt.figure(figsize=(8, 4))
-    plt.subplot(121)
-    for df in dfs:
-        plt.plot(df[xlabel], df["AMI"], label=df.name)
-        plt.xlabel(xlabel)
-        plt.ylabel("AMI")
-        plt.xlim([0, 255])
-        plt.ylim([0, 1])
-        plt.legend()
-    plt.subplot(122)
-    for df in dfs:
-        plt.plot(df[xlabel], df["ARI"], label=df.name)
-        plt.xlabel(xlabel)
-        plt.ylabel("ARI")
-        plt.xlim([0, 255])
-        plt.ylim([0, 1])
-        plt.legend()
+
+    _, axs = plt.subplots(1, 2, figsize=(8, 4))
+    for i, ax in enumerate(axs.ravel()):
+        for df in dfs:
+            if "min_cluster_size" in df:
+                ax.plot(df[xlabel], df[scores[i]], label=df.name + str(df["min_cluster_size"].values[0]))
+            else:
+                ax.plot(df[xlabel], df[scores[i]], label=df.name)
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(scores[i])
+            ax.set_xlim([0, 255])
+            ax.set_ylim([0, 1])
+            ax.legend()
+
+    # plt.figure(figsize=(8, 4))
+    # plt.subplot(121)
+    # for df in dfs:
+    #     if "min_cluster_size" in df:
+    #         plt.plot(df[xlabel], df["AMI"], label=df.name + str(df["min_cluster_size"].values[0]))
+    #     else:
+    #         plt.plot(df[xlabel], df["AMI"], label=df.name)
+    #     plt.xlabel(xlabel)
+    #     plt.ylabel("AMI")
+    #     plt.xlim([0, 255])
+    #     plt.ylim([0, 1])
+    #     plt.legend()
+    # plt.subplot(122)
+    # for df in dfs:
+    #     if "min_cluster_size" in df:
+    #         plt.plot(df[xlabel], df["ARI"], label=df.name + str(df["min_cluster_size"].values[0]))
+    #     else:
+    #         plt.plot(df[xlabel], df["ARI"], label=df.name)
+    #     plt.xlabel(xlabel)
+    #     plt.ylabel("ARI")
+    #     plt.xlim([0, 255])
+    #     plt.ylim([0, 1])
+    #     plt.legend()
+
     plt.subplots_adjust(wspace=.25)
     plt.suptitle("Clustering scores with added gaussian noise")
     plt.tight_layout(rect=[0, 0, 1, 0.95])
@@ -161,11 +196,13 @@ def visualize_scores(dfs):
     plt.savefig(path_to_plot)
 
 
-def visualize_classes(dfs):
+def visualize_classes(dfs, label_names):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
     df = dfs[0]
+    if "min_cluster_size" in df:
+        df = list(df.groupby("min_cluster_size"))[0][1].reset_index(drop=True)
     labels = df["labels"][0]
 
     plt.clf()
@@ -181,31 +218,36 @@ def visualize_classes(dfs):
         ax.set_yticks([])
     fig.suptitle("MNIST classes with added gaussian noise")
     fig.tight_layout(rect=[0, 0, 1, 0.95])
-    fig.colorbar(sc, ax=axs, boundaries=np.arange(11) - 0.5, ticks=np.arange(10), use_gridspec=True)
+    cbar = fig.colorbar(sc, ax=axs, boundaries=np.arange(11) - 0.5, ticks=np.arange(10), use_gridspec=True)
+    if label_names:
+        cbar.ax.yaxis.set_ticklabels(label_names)
 
     path_to_plot = generate_unique_path("out", "png")
     fig.savefig(path_to_plot)
 
 
-def visualize(dfs):
+def visualize(dfs, label_names):
+    visualize_classes(dfs, label_names)
     visualize_scores(dfs)
-    visualize_classes(dfs)
 
 
 def main():
-    data, labels = load_mnist(500)
-    # data, labels = load_mnist()
+    n_data = 5000
+    # data, labels, label_names = load_mnist(n_data)
+    data, labels, label_names = load_fashion(n_data)
 
     err_gen = ErrGen(data)
-    steps = [0, 51, 102, 153, 204, 255]
+    std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
+    min_cluster_size_steps = map(int, [n_data / 100, n_data / 50, n_data / 20])
     dfs = []
 
     model_param_pairs = [
-        (KMeansModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
-        (AgglomerativeModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
-        (HDBSCAN500Model(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
-        (HDBSCAN1000Model(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
-        (HDBSCAN1500Model(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in steps])),
+        (KMeansModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in std_steps])),
+        (AgglomerativeModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in std_steps])),
+        (HDBSCANModel(), ParamSelector([(
+            {"mean": 0, "std": std},
+            {"labels": labels, "min_cluster_size": min_cluster_size}
+        ) for std, min_cluster_size in list(itertools.product(std_steps, min_cluster_size_steps))])),
     ]
 
     for model_param_pair in tqdm(model_param_pairs):
@@ -216,7 +258,7 @@ def main():
     for df in dfs:
         print(df.drop(columns=["batch", "labels", "reduced_data"]))
 
-    visualize(dfs)
+    visualize(dfs, label_names)
 
 
 if __name__ == "__main__":

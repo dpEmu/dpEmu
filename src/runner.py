@@ -46,7 +46,7 @@ def run(model, errgen, param_chooser):
         for i, param_pair in enumerate(params):
             err_param, mod_param = param_pair
             pool_input.append((deepcopy(errgen), deepcopy(model), err_param, mod_param))
-        pool = multiprocessing.Pool(processes=len(params))
+        pool = multiprocessing.Pool()
         outputs = pool.map(worker, pool_input)
         pool.close()
         pool.join()

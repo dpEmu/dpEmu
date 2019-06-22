@@ -1,4 +1,3 @@
-import itertools
 import random as rn
 import warnings
 from abc import ABC, abstractmethod
@@ -10,12 +9,12 @@ from hdbscan import HDBSCAN
 from numba.errors import NumbaDeprecationWarning, NumbaWarning
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.datasets import fetch_openml, load_digits
+from sklearn.decomposition import PCA
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from sklearn.model_selection import train_test_split
-from tqdm import tqdm
 from umap import UMAP
 
-from src import runner
+from src import runner_
 from src.problemgenerator import array, copy, filters
 from src.utils import generate_unique_path
 
@@ -35,11 +34,11 @@ class AbstractModel(ABC):
 
     def run(self, data, model_params):
         labels = model_params["labels"]
-        pca_limit = 50
+        pca_limit = 30
 
         reduced_data = data
-        # if reduced_data.shape[1] > pca_limit:
-        #     reduced_data = PCA(n_components=pca_limit, random_state=42).fit_transform(reduced_data)
+        if reduced_data.shape[1] > pca_limit:
+            reduced_data = PCA(n_components=pca_limit, random_state=42).fit_transform(reduced_data)
         reduced_data = UMAP(n_neighbors=30, min_dist=0.0, random_state=42).fit_transform(reduced_data)
 
         fitted_model = self.get_fitted_model(reduced_data, labels, model_params)
@@ -131,17 +130,6 @@ class ErrGen:
         return root_node.process(data, np.random.RandomState(seed=42))
 
 
-class ParamSelector:
-    def __init__(self, params):
-        self.params = params
-
-    def next(self):
-        return self.params
-
-    def analyze(self, res):
-        self.params = None
-
-
 def visualize_scores(dfs):
     xlabel = "std"
     scores = ["AMI", "ARI"]
@@ -199,7 +187,7 @@ def visualize_classes(dfs, label_names):
         ax.set_xticks([])
         ax.set_yticks([])
     n_data = df["reduced_data"].values[0].shape[0]
-    fig.suptitle(f"MNIST ({n_data})classes with added gaussian noise")
+    fig.suptitle(f"MNIST (n={n_data}) classes with added gaussian noise")
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     cbar = fig.colorbar(sc, ax=axs, boundaries=np.arange(11) - 0.5, ticks=np.arange(10), use_gridspec=True)
     if label_names:
@@ -216,33 +204,27 @@ def visualize(dfs, label_names):
 
 def main():
     n_data = 5000
-    # data, labels, label_names = load_digits_(n_data)
-    data, labels, label_names = load_mnist(n_data)
+    data, labels, label_names = load_digits_(n_data)
+    # data, labels, label_names = load_mnist(n_data)
     # data, labels, label_names = load_fashion(n_data)
     n_data = data.shape[0]
 
-    err_gen = ErrGen(data)
-    # std_steps = [0, 3, 6, 9, 12, 15]  # For digits
-    std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
-    min_cluster_size_steps = map(int, [n_data / 200, n_data / 50, n_data / 10])
-    dfs = []
+    std_steps = [0, 3, 6, 9, 12, 15]  # For digits
+    # std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
+    err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
+    mcs_steps = map(int, [n_data / 75, n_data / 50, n_data / 25])
     model_param_pairs = [
-        (KMeansModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in std_steps])),
-        (AgglomerativeModel(), ParamSelector([({"mean": 0, "std": std}, {"labels": labels}) for std in std_steps])),
-        (HDBSCANModel(), ParamSelector([(
-            {"mean": 0, "std": std},
-            {"labels": labels, "min_cluster_size": min_cluster_size}
-        ) for std, min_cluster_size in list(itertools.product(std_steps, min_cluster_size_steps))])),
+        (KMeansModel(), [{"labels": labels}]),
+        (AgglomerativeModel(), [{"labels": labels}]),
+        (HDBSCANModel(), [{"labels": labels, "min_cluster_size": mcs} for mcs in mcs_steps]),
     ]
 
-    for model_param_pair in tqdm(model_param_pairs):
-        df = runner.run(model_param_pair[0], err_gen, model_param_pair[1])
-        df.name = model_param_pair[0].__class__.__name__.replace("Model", "")
-        dfs.append(df)
+    dfs = runner_.run(ErrGen(data), err_params_list, model_param_pairs)
 
     for df in dfs:
-        print(df.drop(columns=["batch", "labels", "reduced_data"]))
+        print(df.name)
+        print(df.drop(columns=["labels", "reduced_data"]))
 
     visualize(dfs, label_names)
 

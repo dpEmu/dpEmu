@@ -150,7 +150,7 @@ def visualize_scores(dfs, dataset_name):
     for i, ax in enumerate(axs.ravel()):
         for df in dfs:
             if "min_cluster_size" in df:
-                ax.plot(df[xlabel], df[scores[i]], label=df.name + str(df["min_cluster_size"].values[0]))
+                ax.plot(df[xlabel], df[scores[i]], label=df.name + str(int(df["min_cluster_size"].values[0])))
             else:
                 ax.plot(df[xlabel], df[scores[i]], label=df.name)
             ax.set_xlabel(xlabel)

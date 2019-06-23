@@ -1,6 +1,8 @@
 import json
 import tempfile
 
+import numpy as np
+
 from pytest import approx
 
 import src.problemgenerator.utils as utils
@@ -39,3 +41,8 @@ def test_normalize_ocr_error_params():
 def test_normalize_probs():
     s = sum(utils.normalize_probs([10, 15, 67, 87, 90]))
     assert s == approx(1)
+
+
+def test_to_time_series_x_y():
+    x, y = utils.to_time_series_x_y(np.array([0, 1, 2, 3, 4, 5]), 3)
+    assert np.array_equal(x, np.array([[0, 1, 2], [1, 2, 3], [2, 3, 4]])) and np.array_equal(y, np.array([3, 4, 5]))

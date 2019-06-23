@@ -178,3 +178,129 @@ def test_two_gap():
 
     for _, val in enumerate(y):
         assert np.isnan(val)
+
+
+def test_constant():
+    a = np.arange(25).reshape((5, 5))
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Constant(5))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 5))
+
+
+def test_identity():
+    a = np.arange(25).reshape((5, 5))
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Identity())
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, a)
+
+
+def test_addition():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Addition(filters.Constant(2), filters.Identity()))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 7))
+
+
+def test_subtraction():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Subtraction(filters.Constant(2), filters.Identity()))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), -3))
+
+
+def test_multiplication():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Multiplication(filters.Constant(2), filters.Identity()))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 10))
+
+
+def test_division():
+    a = np.full((5, 5), 5.0)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Division(filters.Constant(2), filters.Identity()))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.allclose(out, np.full((5, 5), .4))
+
+
+def test_integer_division():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.IntegerDivision(filters.Identity(), filters.Constant(2)))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 2))
+
+
+def test_modulo():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Modulo(filters.Identity(), filters.Constant(2)))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 1))
+
+
+def test_and():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.And(filters.Identity(), filters.Constant(2)))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 0))
+
+
+def test_or():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Or(filters.Identity(), filters.Constant(2)))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 7))
+
+
+def test_xor():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Xor(filters.Identity(), filters.Constant(3)))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 6))
+
+
+def test_difference():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Difference(filters.Addition(filters.Identity(), filters.Constant(2))))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 2))
+
+
+def test_min():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Min(filters.Identity(), filters.Constant(2)))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 2))
+
+
+def test_max():
+    a = np.full((5, 5), 5)
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Max(filters.Identity(), filters.Constant(2)))
+    root_node = copy.Copy(x_node)
+    out = root_node.process(a, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 5))

@@ -229,7 +229,7 @@ def main():
 
     for df in dfs:
         print(df.name)
-        print(df.drop(columns=["labels", "reduced_data"]))
+        print(df.drop(columns=["labels", "random_state", "reduced_data"]))
 
     visualize(dfs, label_names, dataset_name)
 

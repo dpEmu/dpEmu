@@ -33,7 +33,7 @@ def run(err_gen, err_params_list, model_param_pairs):
     rows = [result for results in outputs for result in results]
     df = pd.DataFrame(rows)
     dfs = []
-    for model_name, df_ in df.groupby("model_name", ):
+    for model_name, df_ in df.groupby("model_name"):
         df_ = df_.dropna(axis=1, how="all")
         df_ = df_.drop("model_name", axis=1)
         df_ = df_.reset_index(drop=True)

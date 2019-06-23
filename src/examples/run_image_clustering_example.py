@@ -135,30 +135,18 @@ class ErrGen:
 
 
 def visualize_scores(dfs, dataset_name):
-    xlabel = "std"
     scores = ["AMI", "ARI"]
-
-    def inherit_name(df_new, df_old):
-        df_new.name = df_old.name
-        return df_new
-
-    dfs_with_mcs = [df for df in dfs if "min_cluster_size" in df]
-    dfs = [df for df in dfs if "min_cluster_size" not in df]
-    for df_with_mcs in dfs_with_mcs:
-        dfs.extend([inherit_name(df, df_with_mcs) for _, df in df_with_mcs.groupby("min_cluster_size")])
+    xlabel = "std"
 
     plt.clf()
-
     _, axs = plt.subplots(1, 2, figsize=(8, 4))
     for i, ax in enumerate(axs.ravel()):
         for df in dfs:
-            if "min_cluster_size" in df:
-                ax.plot(df[xlabel], df[scores[i]], label=df.name + str(int(df["min_cluster_size"].values[0])))
-            else:
-                ax.plot(df[xlabel], df[scores[i]], label=df.name)
+            df_ = df.groupby(xlabel, sort=False)[scores[i]].max()
+            ax.plot(df_.index, df_, label=df.name)
             ax.set_xlabel(xlabel)
             ax.set_ylabel(scores[i])
-            ax.set_xlim([0, df[xlabel].max()])
+            ax.set_xlim([0, df_.index.max()])
             ax.set_ylim([0, 1])
             ax.legend()
 
@@ -212,11 +200,11 @@ def main():
     # data, labels, label_names, dataset_name = load_fashion(5000)
     n_data = data.shape[0]
 
-    # std_steps = [0, 3, 6, 9, 12, 15]  # For digits
-    std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
+    std_steps = [0, 3, 6, 9, 12, 15]  # For digits
+    # std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
-    mcs_steps = map(int, [n_data / 80, n_data / 40, n_data / 20])
+    mcs_steps = map(int, [n_data / 140, n_data / 80, n_data / 55, n_data / 35, n_data / 20, n_data / 12])
     model_param_pairs = [
         (KMeansModel(), [{"labels": labels}]),
         (AgglomerativeModel(), [{"labels": labels}]),

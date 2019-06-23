@@ -1,16 +1,11 @@
 import multiprocessing
-import random as rn
 import time
 
-import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
 
 def worker(inputs):
-    rn.seed(42)
-    np.random.seed(42)
-
     model_param_pairs, err_gen, err_params = inputs
     err_data = err_gen.generate_error(err_params)
     results = []

@@ -1,4 +1,3 @@
-import random as rn
 import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
@@ -25,8 +24,7 @@ warnings.simplefilter("ignore", category=NumbaWarning)
 class AbstractModel(ABC):
 
     def __init__(self):
-        rn.seed(42)
-        np.random.seed(42)
+        self.random_state = None
 
     @abstractmethod
     def get_fitted_model(self, reduced_data, labels, model_params):
@@ -34,12 +32,14 @@ class AbstractModel(ABC):
 
     def run(self, data, model_params):
         labels = model_params["labels"]
+        self.random_state = model_params["random_state"]
+
         pca_limit = 30
 
         reduced_data = data
         if reduced_data.shape[1] > pca_limit:
-            reduced_data = PCA(n_components=pca_limit, random_state=42).fit_transform(reduced_data)
-        reduced_data = UMAP(n_neighbors=30, min_dist=0.0, random_state=42).fit_transform(reduced_data)
+            reduced_data = PCA(n_components=pca_limit, random_state=self.random_state).fit_transform(reduced_data)
+        reduced_data = UMAP(n_neighbors=30, min_dist=0.0, random_state=self.random_state).fit_transform(reduced_data)
 
         fitted_model = self.get_fitted_model(reduced_data, labels, model_params)
 
@@ -57,7 +57,7 @@ class KMeansModel(AbstractModel):
 
     def get_fitted_model(self, reduced_data, labels, model_params):
         n_classes = len(np.unique(labels))
-        return KMeans(n_clusters=n_classes, random_state=42).fit(reduced_data)
+        return KMeans(n_clusters=n_classes, random_state=self.random_state).fit(reduced_data)
 
 
 class AgglomerativeModel(AbstractModel):
@@ -216,9 +216,13 @@ def main():
 
     mcs_steps = map(int, [n_data / 80, n_data / 40, n_data / 20])
     model_param_pairs = [
-        (KMeansModel(), [{"labels": labels}]),
-        (AgglomerativeModel(), [{"labels": labels}]),
-        (HDBSCANModel(), [{"labels": labels, "min_cluster_size": mcs} for mcs in mcs_steps]),
+        (KMeansModel(), [{"labels": labels, "random_state": np.random.RandomState(42)}]),
+        (AgglomerativeModel(), [{"labels": labels, "random_state": np.random.RandomState(42)}]),
+        (HDBSCANModel(), [{
+            "min_cluster_size": mcs,
+            "labels": labels,
+            "random_state": np.random.RandomState(42)
+        } for mcs in mcs_steps]),
     ]
 
     dfs = runner_.run(ErrGen(data), err_params_list, model_param_pairs)

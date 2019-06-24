@@ -707,3 +707,17 @@ class Max(BinaryFilter):
 class Min(BinaryFilter):
     def operation(self, element_a, element_b):
         return min(element_a, element_b)
+
+
+class ModifyAsDataType(Filter):
+    def __init__(self, dtype, ftr):
+        super().__init__()
+        self.dtype = dtype
+        self.ftr = ftr
+
+    def apply(self, data, random_state, index_tuple, named_dims):
+        copy = data.copy().astype(self.dtype)
+        self.ftr.apply(copy, random_state, index_tuple, named_dims)
+        copy = copy.astype(data.dtype)
+        for index, _ in np.ndenumerate(data[index_tuple]):
+            data[index] = copy[index]

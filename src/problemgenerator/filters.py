@@ -211,7 +211,8 @@ class StainArea(Filter):
         errs = np.cumsum(errs, axis=1)
         errs = np.power(self.transparency_percentage, errs)
         for j in range(3):
-            data[index_tuple][:,:,j] = np.multiply(data[index_tuple][:,:,j], errs[0:height,0:width])
+            data[index_tuple][:, :, j] = np.multiply(data[index_tuple][:, :, j], errs[0:height, 0:width])
+
 
 class Gap(Filter):
     def __init__(self, prob_break, prob_recover, missing_value=np.nan):

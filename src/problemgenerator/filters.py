@@ -653,15 +653,44 @@ class Subtraction(BinaryFilter):
 
 class Multiplication(BinaryFilter):
     def operation(self, element_a, element_b):
-        return element_a - element_b
+        return element_a * element_b
 
 
 class Division(BinaryFilter):
     def operation(self, element_a, element_b):
-        return element_a - element_b
+        return element_a / element_b
+
+
+class IntegerDivision(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return element_a // element_b
+
+
+class Modulo(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return element_a % element_b
+
+
+class And(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return element_a & element_b
+
+
+class Or(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return element_a | element_b
+
+
+class Xor(BinaryFilter):
+    def operation(self, element_a, element_b):
+        return element_a ^ element_b
 
 
 class Difference(Filter):
+    """
+    Returns the difference between the original and the filtered data,
+    i.e. it is shorthand for Subtraction(filter, Identity()).
+    """
     def __init__(self, ftr):
         super().__init__()
         self.ftr = Subtraction(ftr, Identity())

@@ -158,9 +158,7 @@ def visualize_scores(dfs, dataset_name):
 
     path_to_plot = generate_unique_path("out", "png")
     fig.savefig(path_to_plot)
-    cv2.imshow("", cv2.imread(path_to_plot))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    return cv2.imread(path_to_plot)
 
 
 def visualize_classes(dfs, label_names, dataset_name):
@@ -192,14 +190,17 @@ def visualize_classes(dfs, label_names, dataset_name):
 
     path_to_plot = generate_unique_path("out", "png")
     fig.savefig(path_to_plot)
-    cv2.imshow("", cv2.imread(path_to_plot))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    return cv2.imread(path_to_plot)
 
 
 def visualize(dfs, label_names, dataset_name):
-    visualize_classes(dfs, label_names, dataset_name)
-    visualize_scores(dfs, dataset_name)
+    classes_img = visualize_classes(dfs, label_names, dataset_name)
+    scores_img = visualize_scores(dfs, dataset_name)
+    cv2.imshow("1", classes_img)
+    cv2.imshow("2", scores_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.waitKey(1)
 
 
 def main(argv):

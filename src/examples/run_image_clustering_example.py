@@ -217,8 +217,7 @@ def main(argv):
     # std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
-    # mcs_steps = map(int, n_data / np.array([12, 15, 20, 30, 55, 80, 140]))
-    mcs_steps = map(int, n_data / np.array([20]))
+    mcs_steps = map(int, n_data / np.array([12, 15, 20, 30, 55, 80, 140]))
     model_param_pairs = [
         (KMeansModel, [{"labels": labels}]),
         (AgglomerativeModel, [{"labels": labels}]),

@@ -73,6 +73,9 @@ class Uppercase(Filter):
                 [stochastic_upper(c, self.prob) for c in original_string])
             data[index_tuple][index] = modified_string
 
+        # for index, _ in np.ndenumerate(data[index_tuple]):
+        #     mask = random_state.rand(*(data[index_tuple][index].shape)) <= self.prob
+        #     data[index_tuple][index] = np.char.upper(data[index_tuple][index][mask])
 
 class OCRError(Filter):
 
@@ -200,6 +203,7 @@ class Gap(Filter):
                 if random_state.rand() < self.prob_recover:
                     self.working = True
 
+        # random_state.rand(data[index_tuple].shape[0], data[index_tuple].shape[1])
         for index, _ in np.ndenumerate(data[index_tuple]):
             update_working_state()
             if not self.working:
@@ -213,8 +217,9 @@ class SensorDrift(Filter):
         self.magnitude = magnitude
 
     def apply(self, data, random_state, index_tuple, named_dims):
-        increases = np.arange(1, data[index_tuple].shape[0] + 1) * self.magnitude
-        data[index_tuple] += increases
+        increases = np.arange(
+            1, data[index_tuple].shape[0] + 1) * self.magnitude
+        data[index_tuple] += increases.reshape((increases.shape[0], 1))
 
 
 class StrangeBehaviour(Filter):

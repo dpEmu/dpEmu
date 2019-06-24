@@ -8,6 +8,7 @@ import imutils
 from io import BytesIO
 from PIL import Image
 
+
 class Filter:
 
     def __init__(self):
@@ -160,7 +161,7 @@ class MissingArea(Filter):
             mask = np.zeros(len(string))
             for y in range(height):
                 ind = row_starts[y]
-                mask[ind : ind + widths[y]] = errs[y, 0 : widths[y]]
+                mask[ind:ind + widths[y]] = errs[y, 0:widths[y]]
 
             # 4. Apply error to string
             res_str = "".join([' ' if mask[i] else string[i] for i in range(len(mask))])

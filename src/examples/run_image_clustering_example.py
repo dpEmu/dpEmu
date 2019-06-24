@@ -24,7 +24,7 @@ warnings.simplefilter("ignore", category=NumbaWarning)
 class AbstractModel(ABC):
 
     def __init__(self):
-        self.random_state = np.random.RandomState(42)
+        self.random_state = np.random.RandomState(2)
 
     @abstractmethod
     def get_fitted_model(self, reduced_data, labels, model_params):

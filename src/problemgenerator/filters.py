@@ -211,12 +211,10 @@ class SensorDrift(Filter):
         """Magnitude is the linear increase in drift during time period t_i -> t_i+1."""
         super().__init__()
         self.magnitude = magnitude
-        self.increase = magnitude
 
     def apply(self, data, random_state, index_tuple, named_dims):
-        for index, _ in np.ndenumerate(data[index_tuple]):
-            data[index_tuple][index] += self.increase
-            self.increase += self.magnitude
+        increases = np.arange(1, data[index_tuple].shape[0] + 1) * self.magnitude
+        data[index_tuple] += increases
 
 
 class StrangeBehaviour(Filter):

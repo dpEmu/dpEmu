@@ -158,9 +158,7 @@ def visualize_scores(dfs, dataset_name):
 
     path_to_plot = generate_unique_path("out", "png")
     fig.savefig(path_to_plot)
-    cv2.imshow("", cv2.imread(path_to_plot))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    return cv2.imread(path_to_plot)
 
 
 def visualize_classes(dfs, label_names, dataset_name):
@@ -192,29 +190,33 @@ def visualize_classes(dfs, label_names, dataset_name):
 
     path_to_plot = generate_unique_path("out", "png")
     fig.savefig(path_to_plot)
-    cv2.imshow("", cv2.imread(path_to_plot))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    return cv2.imread(path_to_plot)
 
 
 def visualize(dfs, label_names, dataset_name):
-    visualize_classes(dfs, label_names, dataset_name)
-    visualize_scores(dfs, dataset_name)
+    classes_img = visualize_classes(dfs, label_names, dataset_name)
+    scores_img = visualize_scores(dfs, dataset_name)
+    cv2.imshow("1", classes_img)
+    cv2.imshow("2", scores_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.waitKey(1)
 
 
 def main(argv):
     if len(argv) == 3 and argv[1] == "digits":
         data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
+        std_steps = [0, 3, 6, 9, 12, 15]
     elif len(argv) == 3 and argv[1] == "mnist":
         data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
+        std_steps = [0, 51, 102, 153, 204, 255]
     elif len(argv) == 3 and argv[1] == "fashion":
         data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
+        std_steps = [0, 51, 102, 153, 204, 255]
     else:
         exit(0)
-    n_data = data.shape[0]
 
-    std_steps = [0, 3, 6, 9, 12, 15]  # For digits
-    # std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
+    n_data = data.shape[0]
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
     mcs_steps = map(int, n_data / np.array([12, 15, 20, 30, 55, 80, 140]))

@@ -11,10 +11,10 @@ def worker(inputs):
     results = []
     for model_param_pair in tqdm(model_param_pairs):
         model, model_params_list = model_param_pair
-        model_name = model.__class__.__name__.replace("Model", "")
+        model_name = model.__name__.replace("Model", "")
         for model_params in model_params_list:
             start_time = time.time()
-            result = model.run(err_data, model_params)
+            result = model().run(err_data, model_params)
             time_used = time.time() - start_time
             result["time_used"] = time_used
             result["model_name"] = model_name

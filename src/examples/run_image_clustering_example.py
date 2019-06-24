@@ -24,7 +24,7 @@ warnings.simplefilter("ignore", category=NumbaWarning)
 class AbstractModel(ABC):
 
     def __init__(self):
-        self.random_state = None
+        self.random_state = np.random.RandomState(42)
 
     @abstractmethod
     def get_fitted_model(self, reduced_data, labels, model_params):
@@ -32,7 +32,6 @@ class AbstractModel(ABC):
 
     def run(self, data, model_params):
         labels = model_params["labels"]
-        self.random_state = model_params["random_state"]
 
         pca_limit = 30
 
@@ -57,7 +56,7 @@ class KMeansModel(AbstractModel):
 
     def get_fitted_model(self, reduced_data, labels, model_params):
         n_classes = len(np.unique(labels))
-        return KMeans(n_clusters=n_classes, random_state=self.random_state).fit(reduced_data)
+        return KMeans(n_clusters=n_classes, random_state=self.random_state, n_jobs=1).fit(reduced_data)
 
 
 class AgglomerativeModel(AbstractModel):
@@ -76,7 +75,11 @@ class HDBSCANModel(AbstractModel):
         super().__init__()
 
     def get_fitted_model(self, reduced_data, labels, model_params):
-        return HDBSCAN(min_samples=10, min_cluster_size=model_params["min_cluster_size"]).fit(reduced_data)
+        return HDBSCAN(
+            min_samples=1,
+            min_cluster_size=model_params["min_cluster_size"],
+            core_dist_n_jobs=1
+        ).fit(reduced_data)
 
 
 def split_data(data, labels, train_size):
@@ -128,34 +131,22 @@ class ErrGen:
 
         data_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
 
-        return root_node.process(data, np.random.RandomState(seed=42))
+        return root_node.process(data, np.random.RandomState(42))
 
 
 def visualize_scores(dfs, dataset_name):
-    xlabel = "std"
     scores = ["AMI", "ARI"]
-
-    def inherit_name(df_new, df_old):
-        df_new.name = df_old.name
-        return df_new
-
-    dfs_with_mcs = [df for df in dfs if "min_cluster_size" in df]
-    dfs = [df for df in dfs if "min_cluster_size" not in df]
-    for df_with_mcs in dfs_with_mcs:
-        dfs.extend([inherit_name(df, df_with_mcs) for _, df in df_with_mcs.groupby("min_cluster_size")])
+    xlabel = "std"
 
     plt.clf()
-
     _, axs = plt.subplots(1, 2, figsize=(8, 4))
     for i, ax in enumerate(axs.ravel()):
         for df in dfs:
-            if "min_cluster_size" in df:
-                ax.plot(df[xlabel], df[scores[i]], label=df.name + str(int(df["min_cluster_size"].values[0])))
-            else:
-                ax.plot(df[xlabel], df[scores[i]], label=df.name)
+            df_ = df.groupby(xlabel, sort=False)[scores[i]].max()
+            ax.plot(df_.index, df_, label=df.name)
             ax.set_xlabel(xlabel)
             ax.set_ylabel(scores[i])
-            ax.set_xlim([0, df[xlabel].max()])
+            ax.set_xlim([0, df_.index.max()])
             ax.set_ylim([0, 1])
             ax.legend()
 
@@ -204,32 +195,27 @@ def visualize(dfs, label_names, dataset_name):
 
 
 def main():
-    n_data = 5000
-    data, labels, label_names, dataset_name = load_digits_(n_data)
-    # data, labels, label_names, dataset_name = load_mnist(n_data)
-    # data, labels, label_names, dataset_name = load_fashion(n_data)
+    data, labels, label_names, dataset_name = load_digits_()
+    # data, labels, label_names, dataset_name = load_mnist(5000)
+    # data, labels, label_names, dataset_name = load_fashion(5000)
     n_data = data.shape[0]
 
     std_steps = [0, 3, 6, 9, 12, 15]  # For digits
     # std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
-    mcs_steps = map(int, [n_data / 80, n_data / 40, n_data / 20])
+    mcs_steps = map(int, n_data / np.array([12, 15, 20, 30, 55, 80, 140]))
     model_param_pairs = [
-        (KMeansModel(), [{"labels": labels, "random_state": np.random.RandomState(42)}]),
-        (AgglomerativeModel(), [{"labels": labels, "random_state": np.random.RandomState(42)}]),
-        (HDBSCANModel(), [{
-            "min_cluster_size": mcs,
-            "labels": labels,
-            "random_state": np.random.RandomState(42)
-        } for mcs in mcs_steps]),
+        (KMeansModel, [{"labels": labels}]),
+        (AgglomerativeModel, [{"labels": labels}]),
+        (HDBSCANModel, [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]),
     ]
 
     dfs = runner_.run(ErrGen(data), err_params_list, model_param_pairs)
 
     for df in dfs:
         print(df.name)
-        print(df.drop(columns=["labels", "random_state", "reduced_data"]))
+        print(df.drop(columns=["labels", "reduced_data"]))
 
     visualize(dfs, label_names, dataset_name)
 

@@ -8,7 +8,6 @@ import imutils
 from io import BytesIO
 from PIL import Image
 
-
 class Filter:
 
     def __init__(self):
@@ -101,7 +100,13 @@ class OCRError(Filter):
         return c
 
 
+def replace_inds(mask, str1, str2):
+    return "".join([str1[i] if mask[i] else str2[i] for i in range(len(mask))])
+
+
 class MissingArea(Filter):
+    """ TODO: radius_generator is a struct, not a function. It should be a function for repeatability
+    """
     def __init__(self, probability, radius_generator, missing_value):
         self.probability = probability
         self.radius_generator = radius_generator
@@ -109,48 +114,57 @@ class MissingArea(Filter):
         super().__init__()
 
     def apply(self, data, random_state, index_tuple, named_dims):
-        def insert_default_value_for_missing_key(key, missing_areas):
-            if key not in missing_areas:
-                missing_areas[key] = 0
+        if self.probability == 0:
+            return
 
         for index, _ in np.ndenumerate(data[index_tuple]):
-            missing_areas = {}  # map with keys (x, y) and values (radius)
+            # 1. Get indexes of newline characters. We will not touch those
+            string = data[index_tuple][index]
 
-            # generate missing areas
-            element = data[index_tuple][index].split("\n")
-            max_len = 0
-            max_radius = 0
-            for y, _ in enumerate(element):
-                for x, _ in enumerate(element[y]):
-                    max_len = max(max_len, x)
-                    if random_state.random_sample() <= self.probability:
-                        radius = self.radius_generator.generate(random_state)
-                        missing_areas[(x - radius, y - radius)] = 2 * radius
-                        max_radius = max(max_radius, radius)
+            row_starts = [0]
+            for i, c in enumerate(string):
+                if c == '\n':
+                    row_starts.append(i+1)
+            if not row_starts or row_starts[-1] != len(string):
+                row_starts.append(len(string))
+            height = len(row_starts) - 1
 
-            # calculate missing areas
-            for y in range(-max_radius, len(element)):
-                for x in range(-max_radius, max_len):
-                    if (x, y) in missing_areas and missing_areas[(x, y)] > 0:
-                        val = missing_areas[(x, y)]
-                        insert_default_value_for_missing_key((x + 1, y), missing_areas)
-                        insert_default_value_for_missing_key((x, y + 1), missing_areas)
-                        insert_default_value_for_missing_key((x + 1, y + 1), missing_areas)
-                        missing_areas[(x + 1, y)] = max(missing_areas[(x + 1, y)], val - 1)
-                        missing_areas[(x, y + 1)] = max(missing_areas[(x, y + 1)], val - 1)
-                        missing_areas[(x + 1, y + 1)] = max(missing_areas[(x + 1, y + 1)], val - 1)
+            widths = np.array([row_starts[i+1] - row_starts[i] - 1 for i in range(height)])
+            width = np.max(widths)
 
-            # replace elements in the missing areas by missing_value
-            modified = []
-            for y, _ in enumerate(element):
-                modified_line = ""
-                for x, _ in enumerate(element[y]):
-                    if (x, y) in missing_areas:
-                        modified_line += self.missing_value
-                    else:
-                        modified_line += element[y][x]
-                modified.append(modified_line)
-            data[index_tuple][index] = "\n".join(modified)
+            # 2. Generate error
+            errs = np.zeros(shape=(height+1, width+1))
+            ind = -1
+            while True:
+                ind += random_state.geometric(self.probability)
+
+                if ind >= width * height:
+                    break
+                y = ind // width
+                x = ind - y * width
+                r = self.radius_generator.generate(random_state)
+                x0 = max(x - r, 0)
+                x1 = min(x + r + 1, width)
+                y0 = max(y - r, 0)
+                y1 = min(y + r + 1, height)
+                errs[y0, x0] += 1
+                errs[y0, x1] -= 1
+                errs[y1, x0] -= 1
+                errs[y1, x1] += 1
+
+            # 3. Perform prefix sums, create mask
+            errs = np.cumsum(errs, axis=0)
+            errs = np.cumsum(errs, axis=1)
+            errs = (errs > 0)
+
+            mask = np.zeros(len(string))
+            for y in range(height):
+                ind = row_starts[y]
+                mask[ind : ind + widths[y]] = errs[y, 0 : widths[y]]
+
+            # 4. Apply error to string
+            res_str = "".join([' ' if mask[i] else string[i] for i in range(len(mask))])
+            data[index_tuple][index] = res_str
 
 
 class StainArea(Filter):

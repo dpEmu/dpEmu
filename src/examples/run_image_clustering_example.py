@@ -205,16 +205,17 @@ def visualize(dfs, label_names, dataset_name):
 def main(argv):
     if len(argv) == 3 and argv[1] == "digits":
         data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
+        std_steps = [0, 3, 6, 9, 12, 15]
     elif len(argv) == 3 and argv[1] == "mnist":
         data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
+        std_steps = [0, 51, 102, 153, 204, 255]
     elif len(argv) == 3 and argv[1] == "fashion":
         data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
+        std_steps = [0, 51, 102, 153, 204, 255]
     else:
         exit(0)
-    n_data = data.shape[0]
 
-    std_steps = [0, 3, 6, 9, 12, 15]  # For digits
-    # std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
+    n_data = data.shape[0]
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
     mcs_steps = map(int, n_data / np.array([12, 15, 20, 30, 55, 80, 140]))

@@ -389,9 +389,7 @@ class JPEG_Compression(Filter):
 
         width = data[index_tuple].shape[1]
         height = data[index_tuple].shape[0]
-        for y0 in range(height):
-            for x0 in range(width):
-                data[y0, x0] = res_data[y0, x0]
+        data[:, :] = res_data
 
 
 class Blur_Gaussian(Filter):

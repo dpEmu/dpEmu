@@ -182,20 +182,35 @@ class StainArea(Filter):
         super().__init__()
 
     def apply(self, data, random_state, index_tuple, named_dims):
-        for y0, _ in enumerate(data[index_tuple]):
-            for x0, _ in enumerate(data[index_tuple][y0]):
-                if random_state.random_sample() <= self.probability:
-                    radius = self.radius_generator.generate(random_state)
-                    for y in range(y0 - radius, y0 + radius + 1):
-                        for x in range(x0 - radius, x0 + radius + 1):
-                            if y < 0 or x < 0 or y >= len(data[index_tuple]) or x >= len(data[index_tuple][0]):
-                                continue
-                            v = [data[index_tuple][y][x][0], data[index_tuple][y][x][1], data[index_tuple][y][x][2]]
-                            v[0] *= self.transparency_percentage
-                            v[1] *= self.transparency_percentage
-                            v[2] *= self.transparency_percentage
-                            data[index_tuple][y][x] = [round(v[0]), round(v[1]), round(v[2])]
+        height = data[index_tuple].shape[0]
+        width = data[index_tuple].shape[1]
 
+        # 1. Generate error
+        errs = np.zeros(shape=(height+1, width+1))
+        ind = -1
+        while True:
+            ind += random_state.geometric(self.probability)
+
+            if ind >= width * height:
+                break
+            y = ind // width
+            x = ind - y * width
+            r = self.radius_generator.generate(random_state)
+            x0 = max(x - r, 0)
+            x1 = min(x + r + 1, width)
+            y0 = max(y - r, 0)
+            y1 = min(y + r + 1, height)
+            errs[y0, x0] += 1
+            errs[y0, x1] -= 1
+            errs[y1, x0] -= 1
+            errs[y1, x1] += 1
+
+        # 2. Modify the array
+        errs = np.cumsum(errs, axis=0)
+        errs = np.cumsum(errs, axis=1)
+        errs = np.power(self.transparency_percentage, errs)
+        for j in range(3):
+            data[index_tuple][:,:,j] = np.multiply(data[index_tuple][:,:,j], errs[0:height,0:width])
 
 class Gap(Filter):
     def __init__(self, prob_break, prob_recover, missing_value=np.nan):

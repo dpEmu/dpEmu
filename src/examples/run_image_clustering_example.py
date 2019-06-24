@@ -76,7 +76,7 @@ class HDBSCANModel(AbstractModel):
 
     def get_fitted_model(self, reduced_data, labels, model_params):
         return HDBSCAN(
-            min_samples=10,
+            min_samples=1,
             min_cluster_size=model_params["min_cluster_size"],
             core_dist_n_jobs=1
         ).fit(reduced_data)
@@ -204,11 +204,11 @@ def main():
     # std_steps = [0, 51, 102, 153, 204, 255]  # For mnist and fashion
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
-    mcs_steps = map(int, [n_data / 140, n_data / 80, n_data / 55, n_data / 35, n_data / 20, n_data / 12])
+    mcs_steps = map(int, n_data / np.array([12, 15, 20, 30, 55, 80, 140]))
     model_param_pairs = [
-        (KMeansModel(), [{"labels": labels}]),
-        (AgglomerativeModel(), [{"labels": labels}]),
-        (HDBSCANModel(), [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]),
+        (KMeansModel, [{"labels": labels}]),
+        (AgglomerativeModel, [{"labels": labels}]),
+        (HDBSCANModel, [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]),
     ]
 
     dfs = runner_.run(ErrGen(data), err_params_list, model_param_pairs)

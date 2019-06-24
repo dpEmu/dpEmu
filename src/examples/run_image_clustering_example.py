@@ -1,7 +1,9 @@
+import sys
 import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from hdbscan import HDBSCAN
@@ -24,7 +26,7 @@ warnings.simplefilter("ignore", category=NumbaWarning)
 class AbstractModel(ABC):
 
     def __init__(self):
-        self.random_state = np.random.RandomState(2)
+        self.random_state = np.random.RandomState(1)
 
     @abstractmethod
     def get_fitted_model(self, reduced_data, labels, model_params):
@@ -83,7 +85,7 @@ class HDBSCANModel(AbstractModel):
 
 
 def split_data(data, labels, train_size):
-    if train_size < data.shape[0]:
+    if 0 < train_size < data.shape[0]:
         data, _, labels, _ = train_test_split(data, labels, train_size=train_size, random_state=42)
     return data, labels
 
@@ -139,7 +141,7 @@ def visualize_scores(dfs, dataset_name):
     xlabel = "std"
 
     plt.clf()
-    _, axs = plt.subplots(1, 2, figsize=(8, 4))
+    fig, axs = plt.subplots(1, 2, figsize=(8, 4))
     for i, ax in enumerate(axs.ravel()):
         for df in dfs:
             df_ = df.groupby(xlabel, sort=False)[scores[i]].max()
@@ -150,12 +152,15 @@ def visualize_scores(dfs, dataset_name):
             ax.set_ylim([0, 1])
             ax.legend()
 
-    plt.subplots_adjust(wspace=.25)
-    plt.suptitle(f"{dataset_name} clustering scores with added gaussian noise")
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.subplots_adjust(wspace=.25)
+    fig.suptitle(f"{dataset_name} clustering scores with added gaussian noise")
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
 
     path_to_plot = generate_unique_path("out", "png")
-    plt.savefig(path_to_plot)
+    fig.savefig(path_to_plot)
+    cv2.imshow("", cv2.imread(path_to_plot))
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 def visualize_classes(dfs, label_names, dataset_name):
@@ -187,6 +192,9 @@ def visualize_classes(dfs, label_names, dataset_name):
 
     path_to_plot = generate_unique_path("out", "png")
     fig.savefig(path_to_plot)
+    cv2.imshow("", cv2.imread(path_to_plot))
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 def visualize(dfs, label_names, dataset_name):
@@ -194,10 +202,15 @@ def visualize(dfs, label_names, dataset_name):
     visualize_scores(dfs, dataset_name)
 
 
-def main():
-    data, labels, label_names, dataset_name = load_digits_()
-    # data, labels, label_names, dataset_name = load_mnist(5000)
-    # data, labels, label_names, dataset_name = load_fashion(5000)
+def main(argv):
+    if len(argv) == 3 and argv[1] == "digits":
+        data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
+    elif len(argv) == 3 and argv[1] == "mnist":
+        data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
+    elif len(argv) == 3 and argv[1] == "fashion":
+        data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
+    else:
+        exit(0)
     n_data = data.shape[0]
 
     std_steps = [0, 3, 6, 9, 12, 15]  # For digits
@@ -221,4 +234,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

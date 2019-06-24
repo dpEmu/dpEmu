@@ -7,15 +7,6 @@ import src.problemgenerator.filters as filters
 import src.problemgenerator.copy as copy
 
 
-def img_to_pixel_data(img):
-    pixels = img.load()
-    data = np.zeros((img.size[1], img.size[0]), dtype=(int, 3))
-    for y in range(img.size[1]):
-        for x in range(img.size[0]):
-            data[y][x] = pixels[x, y]
-    return data
-
-
 def rotate(deg):
     return filters.ModifyAsDataType(np.uint8, filters.Rotation(deg))
 

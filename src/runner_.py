@@ -18,6 +18,7 @@ def worker(inputs):
             time_start = time.time()
             result = model().run(err_data, model_params)
             time_used_mod = time.time() - time_start
+            result["err_data"] = err_data
             result["model_name"] = model_name
             result["time_used_err"] = time_used_err
             result["time_used_mod"] = time_used_mod

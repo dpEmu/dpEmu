@@ -13,9 +13,9 @@ from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 from src import runner_
 from src.ml.utils import reduce_dimensions
-from src.plotting.utils import visualize_scores
+from src.plotting.utils import visualize_scores, visualize_classes
 from src.problemgenerator import array, copy, filters
-from src.utils import generate_unique_path, split_data, split_df_by_model
+from src.utils import split_data, split_df_by_model
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
@@ -117,42 +117,16 @@ class ErrGen:
         data_node = array.Array(data.shape)
         root_node = copy.Copy(data_node)
 
-        data_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+        f = filters.GaussianNoise(params["mean"], params["std"])
+
+        min_val = np.amin(self.data)
+        max_val = np.amax(self.data)
+        data_node.addfilter(filters.Min(filters.Max(f, filters.Constant(min_val)), filters.Constant(max_val)))
 
         return root_node.process(data, np.random.RandomState(42))
 
 
-def visualize_classes(dfs, label_names, dataset_name):
-    def get_lims(data):
-        return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
-
-    df = dfs[0]
-    if "min_cluster_size" in df:
-        df = list(df.groupby("min_cluster_size"))[0][1].reset_index(drop=True)
-    labels = df["labels"][0]
-
-    fig, axs = plt.subplots(2, 3, figsize=(8, 5))
-    for i, ax in enumerate(axs.ravel()):
-        reduced_data = df["reduced_data"][i]
-        x_min, x_max, y_min, y_max = get_lims(reduced_data)
-        sc = ax.scatter(*reduced_data.T, c=labels, cmap="tab10", marker=".", s=40)
-        ax.set_xlim(x_min, x_max)
-        ax.set_ylim(y_min, y_max)
-        ax.set_title("std=" + str(df["std"][i]))
-        ax.set_xticks([])
-        ax.set_yticks([])
-    n_data = df["reduced_data"].values[0].shape[0]
-    fig.suptitle(f"{dataset_name} (n={n_data}) classes with added gaussian noise")
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
-    cbar = fig.colorbar(sc, ax=axs, boundaries=np.arange(11) - 0.5, ticks=np.arange(10), use_gridspec=True)
-    if label_names:
-        cbar.ax.yaxis.set_ticklabels(label_names)
-
-    path_to_plot = generate_unique_path("out", "png")
-    fig.savefig(path_to_plot)
-
-
-def visualize_interactive(dfs, label_names, dataset_name, data):
+def visualize_interactive(dfs, data):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
@@ -211,12 +185,16 @@ def visualize_interactive(dfs, label_names, dataset_name, data):
                 fg.show()
 
         Plot(i, fig, reduced_T)
-        fig.show()
 
 
 def visualize(dfs, label_names, dataset_name, data):
-    visualize_interactive(dfs, label_names, dataset_name, data)
-    visualize_classes(dfs, label_names, dataset_name)
+    # visualize_interactive(dfs, data)
+    visualize_classes(
+        dfs,
+        label_names,
+        "std",
+        f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise"
+    )
     visualize_scores(
         dfs,
         ["AMI", "ARI"],
@@ -249,7 +227,7 @@ def main(argv):
         (HDBSCANModel, [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]),
     ]
 
-    df = runner_.run(ErrGen(data), err_params_list, model_param_pairs)
+    df = runner_.run(ErrGen(data), err_params_list, model_param_pairs, True)
     dfs = split_df_by_model(df)
 
     for df in dfs:

@@ -13,6 +13,7 @@ from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 from src import runner_
 from src.ml.utils import reduce_dimensions
+from src.plotting.utils import visualize_scores
 from src.problemgenerator import array, copy, filters
 from src.utils import generate_unique_path, split_data, split_df_by_model
 
@@ -121,29 +122,6 @@ class ErrGen:
         return root_node.process(data, np.random.RandomState(42))
 
 
-def visualize_scores(dfs, dataset_name):
-    scores = ["AMI", "ARI"]
-    xlabel = "std"
-
-    fig, axs = plt.subplots(1, 2, figsize=(8, 4))
-    for i, ax in enumerate(axs.ravel()):
-        for df in dfs:
-            df_ = df.groupby(xlabel, sort=False)[scores[i]].max()
-            ax.plot(df_.index, df_, label=df.name)
-            ax.set_xlabel(xlabel)
-            ax.set_ylabel(scores[i])
-            ax.set_xlim([0, df_.index.max()])
-            ax.set_ylim([0, 1])
-            ax.legend()
-
-    fig.subplots_adjust(wspace=.25)
-    fig.suptitle(f"{dataset_name} clustering scores with added gaussian noise")
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
-
-    path_to_plot = generate_unique_path("out", "png")
-    fig.savefig(path_to_plot)
-
-
 def visualize_classes(dfs, label_names, dataset_name):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
@@ -176,7 +154,12 @@ def visualize_classes(dfs, label_names, dataset_name):
 
 def visualize(dfs, label_names, dataset_name):
     visualize_classes(dfs, label_names, dataset_name)
-    visualize_scores(dfs, dataset_name)
+    visualize_scores(
+        dfs,
+        ["AMI", "ARI"],
+        "std",
+        f"{dataset_name} clustering scores with added gaussian noise"
+    )
     plt.show()
 
 

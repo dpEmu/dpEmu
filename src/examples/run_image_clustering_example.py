@@ -152,7 +152,70 @@ def visualize_classes(dfs, label_names, dataset_name):
     fig.savefig(path_to_plot)
 
 
-def visualize(dfs, label_names, dataset_name):
+def visualize_interactive(dfs, label_names, dataset_name, data):
+    def get_lims(data):
+        return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
+
+    df = dfs[0]
+    if "min_cluster_size" in df:
+        df = list(df.groupby("min_cluster_size"))[0][1].reset_index(drop=True)
+    labels = df["labels"][0]
+
+    plt.clf()
+
+    for i, _ in enumerate(df["reduced_data"]):
+        reduced_data = df["reduced_data"][i]
+        x_min, x_max, y_min, y_max = get_lims(reduced_data)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.scatter(reduced_data.T[0], reduced_data.T[1], c=labels, cmap="tab10", marker=".", s=40, picker=True)
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(y_min, y_max)
+        ax.set_title("std=" + str(df["std"][i]))
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+        reduced_T = reduced_data.T
+
+        class Plot:
+            def __init__(self, i, fig, reduced_T):
+                self.i = i
+                self.fig = fig
+                self.cid = self.fig.canvas.mpl_connect('pick_event', self)
+                self.reduced_T = reduced_T
+
+            def __call__(self, event):
+                if len(event.ind) == 0:
+                    return False
+                mevent = event.mouseevent
+                closest = 0
+
+                def dist(x0, y0, x1, y1):
+                    return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)
+
+                for index, _ in enumerate(event.ind):
+                    elem = event.ind[index]
+                    cl_elem = event.ind[closest]
+                    best_dist = dist(self.reduced_T[0][elem], self.reduced_T[1][elem], mevent.xdata, mevent.ydata)
+                    new_dist = dist(self.reduced_T[0][cl_elem], self.reduced_T[1][cl_elem], mevent.xdata, mevent.ydata)
+                    if best_dist > new_dist:
+                        closest = index
+                    print(best_dist, new_dist)
+                elem = data[event.ind[closest]].reshape((28, 28))
+                modified = df['err_data'][self.i][event.ind[closest]].reshape((28, 28))
+                fg, axs = plt.subplots(1, 2)
+                axs[0].matshow(elem, cmap='gray_r')
+                axs[0].axis('off')
+                axs[1].matshow(modified, cmap='gray_r')
+                axs[1].axis('off')
+                fg.show()
+
+        Plot(i, fig, reduced_T)
+        fig.show()
+
+
+def visualize(dfs, label_names, dataset_name, data):
+    visualize_interactive(dfs, label_names, dataset_name, data)
     visualize_classes(dfs, label_names, dataset_name)
     visualize_scores(
         dfs,
@@ -193,7 +256,7 @@ def main(argv):
         print(df.name)
         print(df.drop(columns=["labels", "reduced_data"]))
 
-    visualize(dfs, label_names, dataset_name)
+    visualize(dfs, label_names, dataset_name, data)
 
 
 if __name__ == "__main__":

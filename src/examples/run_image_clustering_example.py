@@ -185,7 +185,6 @@ def visualize_interactive(dfs, data):
                 fg.show()
 
         Plot(i, fig, reduced_T)
-        # fig.show()
 
 
 def visualize(dfs, label_names, dataset_name, data):

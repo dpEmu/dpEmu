@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 
 def worker(inputs):
-    model_param_pairs, err_gen, err_params = inputs
+    model_param_pairs, err_gen, err_params, enable_interactive_mode = inputs
     time_start = time.time()
     err_data = err_gen.generate_error(err_params)
     time_used_err = time.time() - time_start
@@ -18,7 +18,8 @@ def worker(inputs):
             time_start = time.time()
             result = model().run(err_data, model_params)
             time_used_mod = time.time() - time_start
-            result["err_data"] = err_data
+            if enable_interactive_mode:
+                result["err_data"] = err_data
             result["model_name"] = model_name
             result["time_used_err"] = time_used_err
             result["time_used_mod"] = time_used_mod
@@ -28,10 +29,10 @@ def worker(inputs):
     return results
 
 
-def run(err_gen, err_params_list, model_param_pairs):
+def run(err_gen, err_params_list, model_param_pairs, enable_interactive_mode=False):
     pool_inputs = []
     for err_params in err_params_list:
-        pool_inputs.append((model_param_pairs, err_gen, err_params))
+        pool_inputs.append((model_param_pairs, err_gen, err_params, enable_interactive_mode))
     with multiprocessing.Pool() as pool:
         outputs = pool.map(worker, pool_inputs)
     rows = [result for results in outputs for result in results]

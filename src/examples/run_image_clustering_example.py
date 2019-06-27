@@ -3,21 +3,18 @@ import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from hdbscan import HDBSCAN
 from numba.errors import NumbaDeprecationWarning, NumbaWarning
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.datasets import fetch_openml, load_digits
-from sklearn.decomposition import PCA
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
-from sklearn.model_selection import train_test_split
-from umap import UMAP
 
 from src import runner_
+from src.ml.utils import reduce_dimensions
 from src.problemgenerator import array, copy, filters
-from src.utils import generate_unique_path
+from src.utils import generate_unique_path, split_data, split_df_by_model
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
@@ -29,20 +26,16 @@ class AbstractModel(ABC):
         self.random_state = np.random.RandomState(1)
 
     @abstractmethod
-    def get_fitted_model(self, reduced_data, labels, model_params):
+    def get_fitted_model(self, reduced_data, model_params, n_classes):
         pass
 
     def run(self, data, model_params):
         labels = model_params["labels"]
+        n_classes = len(np.unique(labels))
 
-        pca_limit = 30
+        reduced_data = reduce_dimensions(data, self.random_state)
 
-        reduced_data = data
-        if reduced_data.shape[1] > pca_limit:
-            reduced_data = PCA(n_components=pca_limit, random_state=self.random_state).fit_transform(reduced_data)
-        reduced_data = UMAP(n_neighbors=30, min_dist=0.0, random_state=self.random_state).fit_transform(reduced_data)
-
-        fitted_model = self.get_fitted_model(reduced_data, labels, model_params)
+        fitted_model = self.get_fitted_model(reduced_data, model_params, n_classes)
 
         return {
             "reduced_data": reduced_data,
@@ -56,8 +49,7 @@ class KMeansModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, reduced_data, labels, model_params):
-        n_classes = len(np.unique(labels))
+    def get_fitted_model(self, reduced_data, model_params, n_classes):
         return KMeans(n_clusters=n_classes, random_state=self.random_state, n_jobs=1).fit(reduced_data)
 
 
@@ -66,8 +58,7 @@ class AgglomerativeModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, reduced_data, labels, model_params):
-        n_classes = len(np.unique(labels))
+    def get_fitted_model(self, reduced_data, model_params, n_classes):
         return AgglomerativeClustering(n_clusters=n_classes).fit(reduced_data)
 
 
@@ -76,7 +67,7 @@ class HDBSCANModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, reduced_data, labels, model_params):
+    def get_fitted_model(self, reduced_data, model_params, n_classes):
         return HDBSCAN(
             min_samples=1,
             min_cluster_size=model_params["min_cluster_size"],
@@ -84,29 +75,23 @@ class HDBSCANModel(AbstractModel):
         ).fit(reduced_data)
 
 
-def split_data(data, labels, train_size):
-    if 0 < train_size < data.shape[0]:
-        data, _, labels, _ = train_test_split(data, labels, train_size=train_size, random_state=42)
-    return data, labels
-
-
-def load_digits_(train_size=1797):
+def load_digits_(n_data=1797):
     mnist = load_digits()
-    data, labels = split_data(mnist["data"], mnist["target"], train_size)
+    data, labels = split_data(mnist["data"], mnist["target"], n_data)
     return data, labels, None, "Digits"
 
 
-def load_mnist(train_size=70000):
+def load_mnist(n_data=70000):
     mnist = fetch_openml("mnist_784")
     # mnist = fetch_openml("mnist_784", data_home="/wrk/users/thalvari/")
-    data, labels = split_data(mnist["data"], mnist["target"].astype(int), train_size)
+    data, labels = split_data(mnist["data"], mnist["target"].astype(int), n_data)
     return data, labels, None, "MNIST"
 
 
-def load_fashion(train_size=70000):
+def load_fashion(n_data=70000):
     mnist = fetch_openml("Fashion-MNIST")
     # mnist = fetch_openml("Fashion-MNIST", data_home="/wrk/users/thalvari/")
-    data, labels = split_data(mnist["data"], mnist["target"].astype(int), train_size)
+    data, labels = split_data(mnist["data"], mnist["target"].astype(int), n_data)
     label_names = [
         "T-shirt",
         "Trouser",
@@ -140,7 +125,6 @@ def visualize_scores(dfs, dataset_name):
     scores = ["AMI", "ARI"]
     xlabel = "std"
 
-    plt.clf()
     fig, axs = plt.subplots(1, 2, figsize=(8, 4))
     for i, ax in enumerate(axs.ravel()):
         for df in dfs:
@@ -158,7 +142,6 @@ def visualize_scores(dfs, dataset_name):
 
     path_to_plot = generate_unique_path("out", "png")
     fig.savefig(path_to_plot)
-    return cv2.imread(path_to_plot)
 
 
 def visualize_classes(dfs, label_names, dataset_name):
@@ -170,7 +153,6 @@ def visualize_classes(dfs, label_names, dataset_name):
         df = list(df.groupby("min_cluster_size"))[0][1].reset_index(drop=True)
     labels = df["labels"][0]
 
-    plt.clf()
     fig, axs = plt.subplots(2, 3, figsize=(8, 5))
     for i, ax in enumerate(axs.ravel()):
         reduced_data = df["reduced_data"][i]
@@ -190,17 +172,12 @@ def visualize_classes(dfs, label_names, dataset_name):
 
     path_to_plot = generate_unique_path("out", "png")
     fig.savefig(path_to_plot)
-    return cv2.imread(path_to_plot)
 
 
 def visualize(dfs, label_names, dataset_name):
-    classes_img = visualize_classes(dfs, label_names, dataset_name)
-    scores_img = visualize_scores(dfs, dataset_name)
-    cv2.imshow("1", classes_img)
-    cv2.imshow("2", scores_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    cv2.waitKey(1)
+    visualize_classes(dfs, label_names, dataset_name)
+    visualize_scores(dfs, dataset_name)
+    plt.show()
 
 
 def main(argv):
@@ -226,7 +203,8 @@ def main(argv):
         (HDBSCANModel, [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]),
     ]
 
-    dfs = runner_.run(ErrGen(data), err_params_list, model_param_pairs)
+    df = runner_.run(ErrGen(data), err_params_list, model_param_pairs)
+    dfs = split_df_by_model(df)
 
     for df in dfs:
         print(df.name)

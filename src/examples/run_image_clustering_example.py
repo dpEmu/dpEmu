@@ -126,16 +126,12 @@ class ErrGen:
         return root_node.process(data, np.random.RandomState(42))
 
 
-def visualize_interactive(dfs, data):
+def visualize_interactive(dfs, err_param_name, data):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
-    df = dfs[0]
-    if "min_cluster_size" in df:
-        df = list(df.groupby("min_cluster_size"))[0][1].reset_index(drop=True)
+    df = dfs[0].groupby(err_param_name).first().reset_index()
     labels = df["labels"][0]
-
-    plt.clf()
 
     for i, _ in enumerate(df["reduced_data"]):
         reduced_data = df["reduced_data"][i]
@@ -145,7 +141,7 @@ def visualize_interactive(dfs, data):
         ax.scatter(reduced_data.T[0], reduced_data.T[1], c=labels, cmap="tab10", marker=".", s=40, picker=True)
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
-        ax.set_title("std=" + str(df["std"][i]))
+        ax.set_title(err_param_name + "=" + str(df[err_param_name][i]))
         ax.set_xticks([])
         ax.set_yticks([])
 
@@ -188,7 +184,7 @@ def visualize_interactive(dfs, data):
 
 
 def visualize(dfs, label_names, dataset_name, data):
-    # visualize_interactive(dfs, data)
+    # visualize_interactive(dfs, "std", data)
     visualize_classes(
         dfs,
         label_names,

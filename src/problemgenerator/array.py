@@ -3,7 +3,7 @@ class Array:
     One or more filters (error sources) can be added to the node.
     The filters are applied in the order in which they are added.
     """
-    
+
     def __init__(self, shape):
         self.shape = shape
         self.filters = []

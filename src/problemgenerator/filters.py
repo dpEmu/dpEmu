@@ -77,6 +77,7 @@ class Uppercase(Filter):
         #     mask = random_state.rand(*(data[index_tuple][index].shape)) <= self.prob
         #     data[index_tuple][index] = np.char.upper(data[index_tuple][index][mask])
 
+
 class OCRError(Filter):
 
     def __init__(self, normalized_params, p):
@@ -417,8 +418,8 @@ class JPEG_Compression(Filter):
         iml = Image.open(buf)
         res_data = np.array(iml)
 
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
+        # width = data[index_tuple].shape[1]
+        # height = data[index_tuple].shape[0]
         data[:, :] = res_data
 
 

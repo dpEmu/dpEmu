@@ -73,6 +73,10 @@ class Uppercase(Filter):
                 [stochastic_upper(c, self.prob) for c in original_string])
             data[index_tuple][index] = modified_string
 
+        # for index, _ in np.ndenumerate(data[index_tuple]):
+        #     mask = random_state.rand(*(data[index_tuple][index].shape)) <= self.prob
+        #     data[index_tuple][index] = np.char.upper(data[index_tuple][index][mask])
+
 
 class OCRError(Filter):
 
@@ -231,6 +235,7 @@ class Gap(Filter):
                 if random_state.rand() < self.prob_recover:
                     self.working = True
 
+        # random_state.rand(data[index_tuple].shape[0], data[index_tuple].shape[1])
         for index, _ in np.ndenumerate(data[index_tuple]):
             update_working_state()
             if not self.working:
@@ -242,12 +247,10 @@ class SensorDrift(Filter):
         """Magnitude is the linear increase in drift during time period t_i -> t_i+1."""
         super().__init__()
         self.magnitude = magnitude
-        self.increase = magnitude
 
     def apply(self, data, random_state, index_tuple, named_dims):
-        for index, _ in np.ndenumerate(data[index_tuple]):
-            data[index_tuple][index] += self.increase
-            self.increase += self.magnitude
+        increases = np.arange(1, data[index_tuple].shape[0] + 1) * self.magnitude
+        data[index_tuple] += increases.reshape(data[index_tuple].shape)
 
 
 class StrangeBehaviour(Filter):
@@ -423,11 +426,9 @@ class JPEG_Compression(Filter):
         iml = Image.open(buf)
         res_data = np.array(iml)
 
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
-        for y0 in range(height):
-            for x0 in range(width):
-                data[y0, x0] = res_data[y0, x0]
+        # width = data[index_tuple].shape[1]
+        # height = data[index_tuple].shape[0]
+        data[:, :] = res_data
 
 
 class Blur_Gaussian(Filter):

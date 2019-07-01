@@ -248,9 +248,8 @@ class SensorDrift(Filter):
         self.magnitude = magnitude
 
     def apply(self, data, random_state, index_tuple, named_dims):
-        increases = np.arange(
-            1, data[index_tuple].shape[0] + 1) * self.magnitude
-        data[index_tuple] += increases.reshape((increases.shape[0], 1))
+        increases = np.arange(1, data[index_tuple].shape[0] + 1) * self.magnitude
+        data[index_tuple] += increases.reshape(data[index_tuple].shape)
 
 
 class StrangeBehaviour(Filter):

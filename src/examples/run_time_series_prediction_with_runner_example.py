@@ -112,13 +112,13 @@ class ErrGen:
         root_node = copy.Copy(y_node)
 
         def strange(a, _):
-            if 100 <= a <= 150:
-                return 1
+            if 200 <= a <= 250:
+                return 0
             return a
 
-        y_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+        # y_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
         # y_node.addfilter(filters.StrangeBehaviour(strange))
-        # y_node.addfilter(filters.SensorDrift(params["magnitude"]))
+        y_node.addfilter(filters.SensorDrift(params["magnitude"]))
         # y_node.addfilter(filters.Gap(params["prob_break"], params["prob_recover"]))
 
         return root_node.process(y, np.random.RandomState(seed=seed))
@@ -144,9 +144,10 @@ def main():
     err_gen = ErrGen(data)
 
     model = Model()
-    param_selector = ParamSelector([({"mean": a, "std": b, "seed": d}, {"seed": c}) for (a, b, c, d) in
-                                    [(0, 0, 0, 0), (0, 15, 0, 0), (0, 20, 0, 0)]])
-    # param_selector = ParamSelector([({"magnitude": a}, None) for a in [0, 2, 10]])
+    # param_selector = ParamSelector([({"mean": a, "std": b, "seed": d}, {"seed": c}) for (a, b, c, d) in
+    #                                 [(0, 0, 0, 0), (0, 15, 0, 0), (0, 20, 0, 0)]])
+    #param_selector = ParamSelector([({"seed": 42}, {"seed": 42})])
+    param_selector = ParamSelector([({"magnitude": a, "seed": 42}, {"seed": 42}) for a in [0, 2, 10]])
     # param_selector = ParamSelector([({"prob_break": a, "prob_recover": b, "seed": d}, {"seed": c}) for (a, b, c, d) in
     #                                 [(.1, .5, 0, 0), (.1, .5, 0, 0), (.1, .5, 0, 0)]])
 

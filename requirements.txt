@@ -15,6 +15,7 @@ opencv-contrib-python==4.1.0.25
 opencv-python==4.1.0.25
 pandas==0.24.2
 protobuf==3.8.0
+pydot==1.4.1
 pytest==4.6.3
 pytest-cov==2.7.1
 pyyaml==4.2b2

@@ -21,7 +21,7 @@ def main():
     img = Image.open("demo/landscape.png")
     data = img_to_pixel_data(img)
     x_node = array.Array(data.shape)
-    x_node.addfilter(filters.StainArea(.00002, radius_generators.GaussianRadiusGenerator(50, 20), 0.2))
+    x_node.addfilter(filters.StainArea(.00002, radius_generators.GaussianRadiusGenerator(50, 20), 0.9))
     root_node = copy.Copy(x_node)
     result = root_node.process(data, np.random.RandomState(seed=42))
     filtered_img = Image.fromarray(result.astype('uint8'), 'RGB')

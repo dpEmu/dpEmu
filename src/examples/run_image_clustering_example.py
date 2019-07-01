@@ -3,21 +3,19 @@ import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from hdbscan import HDBSCAN
 from numba.errors import NumbaDeprecationWarning, NumbaWarning
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.datasets import fetch_openml, load_digits
-from sklearn.decomposition import PCA
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
-from sklearn.model_selection import train_test_split
-from umap import UMAP
 
 from src import runner_
+from src.ml.utils import reduce_dimensions
+from src.plotting.utils import visualize_scores, visualize_classes
 from src.problemgenerator import array, copy, filters
-from src.utils import generate_unique_path
+from src.utils import split_data, split_df_by_model
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
@@ -29,20 +27,16 @@ class AbstractModel(ABC):
         self.random_state = np.random.RandomState(1)
 
     @abstractmethod
-    def get_fitted_model(self, reduced_data, labels, model_params):
+    def get_fitted_model(self, reduced_data, model_params, n_classes):
         pass
 
     def run(self, data, model_params):
         labels = model_params["labels"]
+        n_classes = len(np.unique(labels))
 
-        pca_limit = 30
+        reduced_data = reduce_dimensions(data, self.random_state)
 
-        reduced_data = data
-        if reduced_data.shape[1] > pca_limit:
-            reduced_data = PCA(n_components=pca_limit, random_state=self.random_state).fit_transform(reduced_data)
-        reduced_data = UMAP(n_neighbors=30, min_dist=0.0, random_state=self.random_state).fit_transform(reduced_data)
-
-        fitted_model = self.get_fitted_model(reduced_data, labels, model_params)
+        fitted_model = self.get_fitted_model(reduced_data, model_params, n_classes)
 
         return {
             "reduced_data": reduced_data,
@@ -56,8 +50,7 @@ class KMeansModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, reduced_data, labels, model_params):
-        n_classes = len(np.unique(labels))
+    def get_fitted_model(self, reduced_data, model_params, n_classes):
         return KMeans(n_clusters=n_classes, random_state=self.random_state, n_jobs=1).fit(reduced_data)
 
 
@@ -66,8 +59,7 @@ class AgglomerativeModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, reduced_data, labels, model_params):
-        n_classes = len(np.unique(labels))
+    def get_fitted_model(self, reduced_data, model_params, n_classes):
         return AgglomerativeClustering(n_clusters=n_classes).fit(reduced_data)
 
 
@@ -76,7 +68,7 @@ class HDBSCANModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, reduced_data, labels, model_params):
+    def get_fitted_model(self, reduced_data, model_params, n_classes):
         return HDBSCAN(
             min_samples=1,
             min_cluster_size=model_params["min_cluster_size"],
@@ -84,29 +76,23 @@ class HDBSCANModel(AbstractModel):
         ).fit(reduced_data)
 
 
-def split_data(data, labels, train_size):
-    if 0 < train_size < data.shape[0]:
-        data, _, labels, _ = train_test_split(data, labels, train_size=train_size, random_state=42)
-    return data, labels
-
-
-def load_digits_(train_size=1797):
+def load_digits_(n_data=1797):
     mnist = load_digits()
-    data, labels = split_data(mnist["data"], mnist["target"], train_size)
+    data, labels = split_data(mnist["data"], mnist["target"], n_data)
     return data, labels, None, "Digits"
 
 
-def load_mnist(train_size=70000):
+def load_mnist(n_data=70000):
     mnist = fetch_openml("mnist_784")
     # mnist = fetch_openml("mnist_784", data_home="/wrk/users/thalvari/")
-    data, labels = split_data(mnist["data"], mnist["target"].astype(int), train_size)
+    data, labels = split_data(mnist["data"], mnist["target"].astype(int), n_data)
     return data, labels, None, "MNIST"
 
 
-def load_fashion(train_size=70000):
+def load_fashion(n_data=70000):
     mnist = fetch_openml("Fashion-MNIST")
     # mnist = fetch_openml("Fashion-MNIST", data_home="/wrk/users/thalvari/")
-    data, labels = split_data(mnist["data"], mnist["target"].astype(int), train_size)
+    data, labels = split_data(mnist["data"], mnist["target"].astype(int), n_data)
     label_names = [
         "T-shirt",
         "Trouser",
@@ -131,76 +117,87 @@ class ErrGen:
         data_node = array.Array(data.shape)
         root_node = copy.Copy(data_node)
 
-        data_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
+        f = filters.GaussianNoise(params["mean"], params["std"])
+
+        min_val = np.amin(self.data)
+        max_val = np.amax(self.data)
+        data_node.addfilter(filters.Min(filters.Max(f, filters.Constant(min_val)), filters.Constant(max_val)))
 
         return root_node.process(data, np.random.RandomState(42))
 
 
-def visualize_scores(dfs, dataset_name):
-    scores = ["AMI", "ARI"]
-    xlabel = "std"
-
-    plt.clf()
-    fig, axs = plt.subplots(1, 2, figsize=(8, 4))
-    for i, ax in enumerate(axs.ravel()):
-        for df in dfs:
-            df_ = df.groupby(xlabel, sort=False)[scores[i]].max()
-            ax.plot(df_.index, df_, label=df.name)
-            ax.set_xlabel(xlabel)
-            ax.set_ylabel(scores[i])
-            ax.set_xlim([0, df_.index.max()])
-            ax.set_ylim([0, 1])
-            ax.legend()
-
-    fig.subplots_adjust(wspace=.25)
-    fig.suptitle(f"{dataset_name} clustering scores with added gaussian noise")
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
-
-    path_to_plot = generate_unique_path("out", "png")
-    fig.savefig(path_to_plot)
-    return cv2.imread(path_to_plot)
-
-
-def visualize_classes(dfs, label_names, dataset_name):
+def visualize_interactive(dfs, err_param_name, data):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
-    df = dfs[0]
-    if "min_cluster_size" in df:
-        df = list(df.groupby("min_cluster_size"))[0][1].reset_index(drop=True)
+    df = dfs[0].groupby(err_param_name).first().reset_index()
     labels = df["labels"][0]
 
-    plt.clf()
-    fig, axs = plt.subplots(2, 3, figsize=(8, 5))
-    for i, ax in enumerate(axs.ravel()):
+    for i, _ in enumerate(df["reduced_data"]):
         reduced_data = df["reduced_data"][i]
         x_min, x_max, y_min, y_max = get_lims(reduced_data)
-        sc = ax.scatter(*reduced_data.T, c=labels, cmap="tab10", marker=".", s=40)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.scatter(reduced_data.T[0], reduced_data.T[1], c=labels, cmap="tab10", marker=".", s=40, picker=True)
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
-        ax.set_title("std=" + str(df["std"][i]))
+        ax.set_title(err_param_name + "=" + str(df[err_param_name][i]))
         ax.set_xticks([])
         ax.set_yticks([])
-    n_data = df["reduced_data"].values[0].shape[0]
-    fig.suptitle(f"{dataset_name} (n={n_data}) classes with added gaussian noise")
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
-    cbar = fig.colorbar(sc, ax=axs, boundaries=np.arange(11) - 0.5, ticks=np.arange(10), use_gridspec=True)
-    if label_names:
-        cbar.ax.yaxis.set_ticklabels(label_names)
 
-    path_to_plot = generate_unique_path("out", "png")
-    fig.savefig(path_to_plot)
-    return cv2.imread(path_to_plot)
+        reduced_T = reduced_data.T
+
+        class Plot:
+            def __init__(self, i, fig, reduced_T):
+                self.i = i
+                self.fig = fig
+                self.cid = self.fig.canvas.mpl_connect('pick_event', self)
+                self.reduced_T = reduced_T
+
+            def __call__(self, event):
+                if len(event.ind) == 0:
+                    return False
+                mevent = event.mouseevent
+                closest = 0
+
+                def dist(x0, y0, x1, y1):
+                    return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)
+
+                for index, _ in enumerate(event.ind):
+                    elem = event.ind[index]
+                    cl_elem = event.ind[closest]
+                    best_dist = dist(self.reduced_T[0][elem], self.reduced_T[1][elem], mevent.xdata, mevent.ydata)
+                    new_dist = dist(self.reduced_T[0][cl_elem], self.reduced_T[1][cl_elem], mevent.xdata, mevent.ydata)
+                    if best_dist > new_dist:
+                        closest = index
+                    print(best_dist, new_dist)
+                elem = data[event.ind[closest]].reshape((28, 28))
+                modified = df['err_data'][self.i][event.ind[closest]].reshape((28, 28))
+                fg, axs = plt.subplots(1, 2)
+                axs[0].matshow(elem, cmap='gray_r')
+                axs[0].axis('off')
+                axs[1].matshow(modified, cmap='gray_r')
+                axs[1].axis('off')
+                fg.show()
+
+        Plot(i, fig, reduced_T)
 
 
-def visualize(dfs, label_names, dataset_name):
-    classes_img = visualize_classes(dfs, label_names, dataset_name)
-    scores_img = visualize_scores(dfs, dataset_name)
-    cv2.imshow("1", classes_img)
-    cv2.imshow("2", scores_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    cv2.waitKey(1)
+def visualize(dfs, label_names, dataset_name, data):
+    # visualize_interactive(dfs, "std", data)
+    visualize_classes(
+        dfs,
+        label_names,
+        "std",
+        f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise"
+    )
+    visualize_scores(
+        dfs,
+        ["AMI", "ARI"],
+        "std",
+        f"{dataset_name} clustering scores with added gaussian noise"
+    )
+    plt.show()
 
 
 def main(argv):
@@ -226,13 +223,14 @@ def main(argv):
         (HDBSCANModel, [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]),
     ]
 
-    dfs = runner_.run(ErrGen(data), err_params_list, model_param_pairs)
+    df = runner_.run(ErrGen(data), err_params_list, model_param_pairs, True)
+    dfs = split_df_by_model(df)
 
     for df in dfs:
         print(df.name)
         print(df.drop(columns=["labels", "reduced_data"]))
 
-    visualize(dfs, label_names, dataset_name)
+    visualize(dfs, label_names, dataset_name, data)
 
 
 if __name__ == "__main__":

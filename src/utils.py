@@ -68,3 +68,20 @@ def expand_parameter_to_linspace(param):
     if len(param) == 1:
         param = (param[0], param[0], 1)
     return np.linspace(*param)
+
+
+def split_data(data, labels, n_data):
+    if 0 < n_data < data.shape[0]:
+        data, _, labels, _ = train_test_split(data, labels, train_size=n_data, random_state=np.random.RandomState(42))
+    return data, labels
+
+
+def split_df_by_model(df):
+    dfs = []
+    for model_name, df_ in df.groupby("model_name"):
+        df_ = df_.dropna(axis=1, how="all")
+        df_ = df_.drop("model_name", axis=1)
+        df_ = df_.reset_index(drop=True)
+        df_.name = model_name
+        dfs.append(df_)
+    return dfs

@@ -10,6 +10,7 @@ from PIL import Image
 
 
 class Filter:
+    """A Filter is an error source which can be attached to an Array node."""
 
     def __init__(self):
         np.random.seed(42)
@@ -18,6 +19,9 @@ class Filter:
 
 
 class Missing(Filter):
+    """For each element in the array, change the value of the element to nan
+    with the provided probability.
+    """
 
     def __init__(self, probability):
         self.probability = probability
@@ -29,6 +33,9 @@ class Missing(Filter):
 
 
 class GaussianNoise(Filter):
+    """For each element in the array add noise drawn from a Gaussian distribution
+    with the provided parameters mean and std (standard deviation).
+    """
     def __init__(self, mean, std):
         self.mean = mean
         self.std = std
@@ -39,6 +46,11 @@ class GaussianNoise(Filter):
 
 
 class GaussianNoiseTimeDependent(Filter):
+    """For each element in the array add noise drawn from a Gaussian distribution
+    with the provided parameters mean and std (standard deviation). The mean and
+    standard deviation increase with every unit of time by the amount specified
+    in the last two parameters.
+    """
     def __init__(self, mean, std, mean_increase, std_increase):
         self.mean = mean
         self.std = std
@@ -55,7 +67,9 @@ class GaussianNoiseTimeDependent(Filter):
 
 
 class Uppercase(Filter):
-
+    """For each character in the string, convert the character
+    to uppercase with the provided probability.
+    """
     def __init__(self, probability):
         self.prob = probability
         super().__init__()
@@ -72,10 +86,6 @@ class Uppercase(Filter):
             modified_string = "".join(
                 [stochastic_upper(c, self.prob) for c in original_string])
             data[index_tuple][index] = modified_string
-
-        # for index, _ in np.ndenumerate(data[index_tuple]):
-        #     mask = random_state.rand(*(data[index_tuple][index].shape)) <= self.prob
-        #     data[index_tuple][index] = np.char.upper(data[index_tuple][index][mask])
 
 
 class OCRError(Filter):

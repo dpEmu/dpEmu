@@ -130,7 +130,9 @@ def visualize(dfs, label_names, dataset_name, data):
     visualize_interactive(
         dfs,
         "std",
-        data
+        data,
+        "tab10",
+        "gray_r"
     )
     visualize_classes(
         dfs,

@@ -55,11 +55,11 @@ def visualize_classes(dfs, label_names, err_param_name, title):
     fig.savefig(path_to_plot)
 
 
-def visualize_interactive(dfs, err_param_name, data, cmap="gray_r", shape=None):
+def visualize_interactive(dfs, err_param_name, data, scatter_cmap, image_cmap, shape=None):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
-    # Guess the shape of the data
+    # Guess the shape of the data using the assumption that the shape of the images is a square
     if not shape:
         rgb = data[0].shape[-1] == 3
         rgba = data[0].shape[-1] == 4
@@ -94,7 +94,7 @@ def visualize_interactive(dfs, err_param_name, data, cmap="gray_r", shape=None):
         x_min, x_max, y_min, y_max = get_lims(reduced_data)
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        ax.scatter(reduced_data.T[0], reduced_data.T[1], c=labels, cmap="tab10", marker=".", s=40, picker=True)
+        ax.scatter(reduced_data.T[0], reduced_data.T[1], c=labels, cmap=scatter_cmap, marker=".", s=40, picker=True)
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
         ax.set_title(err_param_name + "=" + str(df[err_param_name][i]))
@@ -115,29 +115,27 @@ def visualize_interactive(dfs, err_param_name, data, cmap="gray_r", shape=None):
                 if len(event.ind) == 0:
                     return False
                 mevent = event.mouseevent
-                closest = 0
+                closest = event.ind[0]
 
                 def dist(x0, y0, x1, y1):
                     return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)
 
                 # find closest data point
-                for index, _ in enumerate(event.ind):
-                    elem = event.ind[index]
-                    cl_elem = event.ind[closest]
+                for elem in event.ind:
                     best_dist = dist(self.reduced_T[0][elem], self.reduced_T[1][elem], mevent.xdata, mevent.ydata)
-                    new_dist = dist(self.reduced_T[0][cl_elem], self.reduced_T[1][cl_elem], mevent.xdata, mevent.ydata)
+                    new_dist = dist(self.reduced_T[0][closest], self.reduced_T[1][closest], mevent.xdata, mevent.ydata)
                     if best_dist > new_dist:
-                        closest = index
+                        closest = elem
 
                 # get original and modified data points
-                elem = data[event.ind[closest]].reshape(shape)
-                modified = df['err_data'][self.i][event.ind[closest]].reshape(shape)
+                elem = data[closest].reshape(shape)
+                modified = df['err_data'][self.i][closest].reshape(shape)
 
                 # create a figure and draw the images
                 fg, axs = plt.subplots(1, 2)
-                axs[0].matshow(elem, cmap=cmap)
+                axs[0].matshow(elem, cmap=image_cmap)
                 axs[0].axis('off')
-                axs[1].matshow(modified, cmap=cmap)
+                axs[1].matshow(modified, cmap=image_cmap)
                 axs[1].axis('off')
                 fg.show()
 

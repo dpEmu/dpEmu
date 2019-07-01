@@ -25,6 +25,7 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 *  ```pip install -U pip setuptools wheel```
 *  ```pip install -r requirements.txt```
 *  ```pip install pycocotools```
+*  ```pip install -e git+https://github.com/facebookresearch/Detectron.git#egg=Detectron```
 
 ## Usage <a name="usage"/>
 * Run format: ```python run.py config/example_commands.txt config/example_text_error_params.json config/example_combiner_config.json config/example_model_config.json```

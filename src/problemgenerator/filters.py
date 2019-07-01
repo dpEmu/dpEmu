@@ -360,44 +360,55 @@ class Snow(Filter):
             n1 = n01*(1-t[:, :, 0]) + t[:, :, 0]*n11
             return np.sqrt(2)*((1-t[:, :, 1])*n0 + t[:, :, 1]*n1)
 
-        def add_noise(data):
-            width = data[index_tuple].shape[1]
-            height = data[index_tuple].shape[0]
-            noise = generate_perlin_noise(height, width, random_state)
-            noise = (noise + 1) / 2  # transform the noise to be in range [0, 1]
 
-            # add noise
-            for y in range(height):
-                for x in range(width):
-                    r = data[y][x][0]
-                    g = data[y][x][1]
-                    b = data[y][x][2]
-                    r = int(r + self.snowstorm_alpha * (255 - r) * noise[y][x])
-                    g = int(g + self.snowstorm_alpha * (255 - g) * noise[y][x])
-                    b = int(b + self.snowstorm_alpha * (255 - b) * noise[y][x])
-                    data[y][x] = (r, g, b)
+        def build_snowflake(r):
+            res = np.zeros(shape=(2*r+1,2*r+1))
+            for y in range(0, 2*r+1):
+                for x in range(0, 2*r+1):
+                    dy = y - r
+                    dx = x - r
+                    d = sqrt(dx*dx + dy*dy)
+                    if r == 0:
+                        res[y,x] = 1
+                    else:
+                        res[y,x] = max(0, 1 - d / r)
+            return res * self.snowflake_alpha
+
 
         width = data[index_tuple].shape[1]
         height = data[index_tuple].shape[0]
 
         # generate snowflakes
-        for y in range(height):
-            for x in range(width):
-                if random_state.rand() <= self.snowflake_probability:
-                    radius = round(random_state.normal(5, 2))
-                    for tx in range(x - radius, x + radius):
-                        for ty in range(y - radius, y + radius):
-                            if ty < 0 or tx < 0 or ty >= height or tx >= width:
-                                continue
-                            r = data[ty][tx][0]
-                            g = data[ty][tx][1]
-                            b = data[ty][tx][2]
-                            dist = sqrt((x - tx) * (x - tx) + (y - ty) * (y - ty))
-                            r = round(r + (255 - r) * self.snowflake_alpha * max(0, 1 - dist / radius))
-                            g = round(g + (255 - g) * self.snowflake_alpha * max(0, 1 - dist / radius))
-                            b = round(b + (255 - b) * self.snowflake_alpha * max(0, 1 - dist / radius))
-                            data[ty][tx] = (r, g, b)
-        add_noise(data)
+        flakes = []
+        ind = -1
+        max_r = 0
+        while True:
+            ind += random_state.geometric(self.snowflake_probability)
+            if ind >= height * width:
+                break
+            y = ind // width
+            x = ind % width
+            r = round(random_state.normal(5, 2))
+            if r <= 0:
+                continue
+            while len(flakes) <= r:
+                flakes.append(build_snowflake(len(flakes)))
+            y0 = max(0, y-r)
+            x0 = max(0, x-r)
+            y1 = min(height-1, y+r)+1
+            x1 = min(width-1, x+r)+1
+            fy0 = y0-(y-r)
+            fx0 = x0-(x-r)
+            fy1 = y1-(y-r)
+            fx1 = x1-(x-r)
+            for j in range(3):
+                data[y0:y1,x0:x1,j] += ((255 - data[y0:y1,x0:x1,j]) * flakes[r][fy0:fy1,fx0:fx1]).astype(int)
+
+        # add noise
+        noise = generate_perlin_noise(height, width, random_state)
+        noise = (noise + 1) / 2  # transform the noise to be in range [0, 1]
+        for j in range(3):
+            data[:,:,j] += (self.snowstorm_alpha * (255 - data[:,:,j]) * noise[:,:]).astype(int)
 
 
 class JPEG_Compression(Filter):

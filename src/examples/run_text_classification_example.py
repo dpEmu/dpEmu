@@ -69,18 +69,10 @@ class MultinomialNBCleanModel(AbstractModel):
         super().__init__()
 
     def get_fitted_model(self, train_data, train_labels, model_params):
-        print(train_data[0])
-        train_data, _, train_labels, _ = train_test_split(
-            model_params["data"],
-            model_params["labels"],
-            test_size=.2,
-            random_state=self.random_state
-        )
-        print(train_data[0])
         return Pipeline([
             ("tfidf_vectorizer", TfidfVectorizer(max_df=0.5, min_df=2)),
             ("multinomial_nb", MultinomialNB(model_params["alpha"])),
-        ]).fit(train_data, train_labels)
+        ]).fit(model_params["clean_train_data"], model_params["clean_train_labels"])
 
 
 class LinearSVCModel(AbstractModel):
@@ -101,16 +93,10 @@ class LinearSVCCleanModel(AbstractModel):
         super().__init__()
 
     def get_fitted_model(self, train_data, train_labels, model_params):
-        train_data, _, train_labels, _ = train_test_split(
-            model_params["data"],
-            model_params["labels"],
-            test_size=.2,
-            random_state=self.random_state
-        )
         return Pipeline([
             ("tfidf_vectorizer", TfidfVectorizer(max_df=0.5, min_df=2)),
             ("linear_svc", LinearSVC(C=model_params["C"], random_state=self.random_state)),
-        ]).fit(train_data, train_labels)
+        ]).fit(model_params["clean_train_data"], model_params["clean_train_labels"])
 
 
 def load_newsgroups(categories=None):
@@ -210,9 +196,14 @@ def main():
         "sci.space",
     ]
     data, labels, label_names, dataset_name = load_newsgroups(categories)
+    clean_train_data, _, clean_train_labels, _ = train_test_split(
+        np.array(data),
+        labels,
+        test_size=.2,
+        random_state=np.random.RandomState(42)
+    )
 
-    # p_steps = np.linspace(0, .3, num=5)
-    p_steps = np.linspace(0, .3, num=1)
+    p_steps = np.linspace(0, .3, num=5)
     err_params_list = [{
         "p": p,
         "radius_generator": GaussianRadiusGenerator(0, 1),
@@ -221,11 +212,16 @@ def main():
 
     alpha_steps = [10 ** i for i in range(-3, 1)]
     C_steps = [10 ** k for k in range(-3, 4)]
+    model_params_base = {
+        "labels": labels,
+        "clean_train_data": clean_train_data,
+        "clean_train_labels": clean_train_labels,
+    }
     model_param_pairs = [
-        # (MultinomialNBModel, [{"alpha": alpha, "labels": labels} for alpha in alpha_steps]),
-        (MultinomialNBCleanModel, [{"alpha": alpha, "data": data, "labels": labels} for alpha in alpha_steps]),
-        # (LinearSVCModel, [{"C": C, "labels": labels} for C in C_steps]),
-        # (LinearSVCCleanModel, [{"C": C, "data": data, "labels": labels} for C in C_steps]),
+        (MultinomialNBModel, [{"alpha": alpha, **model_params_base} for alpha in alpha_steps]),
+        (MultinomialNBCleanModel, [{"alpha": alpha, **model_params_base} for alpha in alpha_steps]),
+        (LinearSVCModel, [{"C": C, **model_params_base} for C in C_steps]),
+        (LinearSVCCleanModel, [{"C": C, "data": data, **model_params_base} for C in C_steps]),
     ]
 
     df = runner_.run(ErrGen(data), err_params_list, model_param_pairs)
@@ -233,7 +229,13 @@ def main():
 
     for df in dfs:
         print(df.name)
-        print(df.drop(columns=["labels", "confusion_matrix", "radius_generator"]))
+        print(df.drop(columns=[
+            "labels",
+            "clean_train_data",
+            "clean_train_labels",
+            "confusion_matrix",
+            "radius_generator"
+        ]))
 
     visualize(dfs, dataset_name, label_names)
 

@@ -118,27 +118,40 @@ def main(argv):
         random_state=np.random.RandomState(42)
     )
 
-    p_steps = np.linspace(0, .4, num=6)
+    p_steps = np.linspace(0, .3, num=4)
     err_params_list = [{
         "p": p,
         "radius_generator": GaussianRadiusGenerator(0, 1),
         "missing_value": " "
     } for p in p_steps]
 
+    model_params_base = {"train_labels": train_labels, "test_labels": test_labels}
     alpha_steps = [10 ** i for i in range(-3, 1)]
     # C_steps = [10 ** k for k in range(-3, 4)]
-    model_params_base = {
-        "train_labels": train_labels,
-        "test_labels": test_labels,
-    }
-    model_params_tuple_list = [
-        (MultinomialNBModel, [{"alpha": alpha, **model_params_base} for alpha in alpha_steps]),
-        (MultinomialNBModel, [{"alpha": alpha, **model_params_base} for alpha in alpha_steps], True),
-        # (LinearSVCModel, [{"C": C, **model_params_base} for C in C_steps]),
-        # (LinearSVCModel, [{"C": C, **model_params_base} for C in C_steps], True),
+    model_params_dict_list = [
+        {
+            "model": MultinomialNBModel,
+            "params_list": [{"alpha": alpha, **model_params_base} for alpha in alpha_steps],
+            "use_clean_train_data": False
+        },
+        {
+            "model": MultinomialNBModel,
+            "params_list": [{"alpha": alpha, **model_params_base} for alpha in alpha_steps],
+            "use_clean_train_data": True
+        },
+        # {
+        #     "model": LinearSVCModel,
+        #     "params_list": [{"C": C, **model_params_base} for C in C_steps],
+        #     "use_clean_train_data": False
+        # },
+        # {
+        #     "model": LinearSVCModel,
+        #     "params_list": [{"C": C, **model_params_base} for C in C_steps],
+        #     "use_clean_train_data": True
+        # },
     ]
 
-    df = runner_.run(train_data, test_data, ErrGen, err_params_list, model_params_tuple_list)
+    df = runner_.run(train_data, test_data, ErrGen, err_params_list, model_params_dict_list)
 
     visualize(df, dataset_name, label_names)
 

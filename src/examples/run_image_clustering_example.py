@@ -139,13 +139,13 @@ def main(argv):
 
     n_data = data.shape[0]
     mcs_steps = map(int, n_data / np.array([12, 15, 20, 30, 55, 80, 140]))
-    model_params_tuple_list = [
-        (KMeansModel, [{"labels": labels}]),
-        (AgglomerativeModel, [{"labels": labels}]),
-        (HDBSCANModel, [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]),
+    model_params_dict_list = [
+        {"model": KMeansModel, "params_list": [{"labels": labels}]},
+        {"model": AgglomerativeModel, "params_list": [{"labels": labels}]},
+        {"model": HDBSCANModel, "params_list": [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]},
     ]
 
-    df = runner_.run(None, data, ErrGen, err_params_list, model_params_tuple_list, True)
+    df = runner_.run(None, data, ErrGen, err_params_list, model_params_dict_list, True)
 
     visualize(df, label_names, dataset_name, data)
 

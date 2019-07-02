@@ -1,10 +1,8 @@
+import sys
 from abc import ABC, abstractmethod
 
 import matplotlib.pyplot as plt
 import numpy as np
-from joblib import dump
-from matplotlib.colors import LinearSegmentedColormap
-from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
@@ -13,10 +11,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 
 from src import runner_
-from src.plotting.utils import visualize_scores
+from src.datasets.utils import load_newsgroups
+from src.plotting.utils import visualize_scores, print_dfs, visualize_confusion_matrices
 from src.problemgenerator import array, copy, filters
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator
-from src.utils import split_df_by_model, generate_unique_path
+from src.utils import split_df_by_model
 
 
 class AbstractModel(ABC):
@@ -25,28 +24,21 @@ class AbstractModel(ABC):
         self.random_state = np.random.RandomState(42)
 
     @abstractmethod
-    def get_fitted_model(self, train_data, train_labels, model_params):
+    def get_fitted_model(self, train_data, train_labels, params):
         pass
 
-    def run(self, data, model_params):
-        labels = model_params["labels"]
-        train_data, test_data, train_labels, test_labels = train_test_split(
-            data,
-            labels,
-            test_size=.2,
-            random_state=self.random_state
-        )
+    def run(self, train_data, test_data, params):
+        train_labels = params["train_labels"]
+        test_labels = params["test_labels"]
 
-        fitted_model = self.get_fitted_model(train_data, train_labels, model_params)
-        path_to_fitted_model = generate_unique_path("models", "joblib")
-        dump(fitted_model, path_to_fitted_model)
+        fitted_model = self.get_fitted_model(train_data, train_labels, params)
 
         predicted_test_labels = fitted_model.predict(test_data)
         cm = confusion_matrix(test_labels, predicted_test_labels)
 
         return {
-            "test_data_mean_accuracy": round(np.mean(predicted_test_labels == test_labels), 3),
-            "train_data_mean_accuracy": fitted_model.score(train_data, train_labels),
+            "test_mean_accuracy": round(np.mean(predicted_test_labels == test_labels), 3),
+            "train_mean_accuracy": fitted_model.score(train_data, train_labels),
             "confusion_matrix": cm,
         }
 
@@ -56,23 +48,11 @@ class MultinomialNBModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, train_data, train_labels, model_params):
+    def get_fitted_model(self, train_data, train_labels, params):
         return Pipeline([
             ("tfidf_vectorizer", TfidfVectorizer(max_df=0.5, min_df=2)),
-            ("multinomial_nb", MultinomialNB(model_params["alpha"])),
+            ("multinomial_nb", MultinomialNB(params["alpha"])),
         ]).fit(train_data, train_labels)
-
-
-class MultinomialNBCleanModel(AbstractModel):
-
-    def __init__(self):
-        super().__init__()
-
-    def get_fitted_model(self, train_data, train_labels, model_params):
-        return Pipeline([
-            ("tfidf_vectorizer", TfidfVectorizer(max_df=0.5, min_df=2)),
-            ("multinomial_nb", MultinomialNB(model_params["alpha"])),
-        ]).fit(model_params["clean_train_data"], model_params["clean_train_labels"])
 
 
 class LinearSVCModel(AbstractModel):
@@ -80,37 +60,19 @@ class LinearSVCModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, train_data, train_labels, model_params):
+    def get_fitted_model(self, train_data, train_labels, params):
         return Pipeline([
             ("tfidf_vectorizer", TfidfVectorizer(max_df=0.5, min_df=2)),
-            ("linear_svc", LinearSVC(C=model_params["C"], random_state=self.random_state)),
+            ("linear_svc", LinearSVC(C=params["C"], random_state=self.random_state)),
         ]).fit(train_data, train_labels)
 
 
-class LinearSVCCleanModel(AbstractModel):
-
-    def __init__(self):
-        super().__init__()
-
-    def get_fitted_model(self, train_data, train_labels, model_params):
-        return Pipeline([
-            ("tfidf_vectorizer", TfidfVectorizer(max_df=0.5, min_df=2)),
-            ("linear_svc", LinearSVC(C=model_params["C"], random_state=self.random_state)),
-        ]).fit(model_params["clean_train_data"], model_params["clean_train_labels"])
-
-
-def load_newsgroups(categories=None):
-    newsgroups = fetch_20newsgroups(subset="test", categories=categories, remove=("headers", "footers", "quotes"),
-                                    random_state=np.random.RandomState(42))
-    return newsgroups["data"], np.array(newsgroups["target"].astype(int)), newsgroups["target_names"], "20newsgroups"
-
-
 class ErrGen:
-    def __init__(self, data):
-        self.data = data
+    def __init__(self):
+        self.random_state = np.random.RandomState(42)
 
-    def generate_error(self, params):
-        data = np.array(self.data)
+    def generate_error(self, data, params):
+        data = np.array(data)
 
         data_node = array.Array(data.shape)
         root_node = copy.Copy(data_node)
@@ -118,92 +80,45 @@ class ErrGen:
         f = filters.MissingArea(params["p"], params["radius_generator"], params["missing_value"])
         data_node.addfilter(f)
 
-        # return root_node.process(data, np.random.RandomState(42))
-        err_data = root_node.process(data, np.random.RandomState(42))
-        return err_data
+        return root_node.process(data, self.random_state)
 
 
-def visualize_confusion_matrix(cm, label_names, title):
-    # Draw image of confusion matrix
-    color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
-    n = cm.shape[0]
-    fig, ax = plt.subplots(figsize=(10, 8))
-    im = ax.imshow(cm, color_map)
+def visualize(df, dataset_name, label_names):
+    dfs = split_df_by_model(df)
 
-    ax.set_xticks(np.arange(n))
-    ax.set_yticks(np.arange(n))
-    ax.set_xticklabels(label_names)
-    ax.set_yticklabels(label_names)
+    print_dfs(dfs, ["train_labels", "test_labels", "confusion_matrix", "radius_generator", "missing_value"])
 
-    # Rotate the tick labels and set their alignment.
-    plt.setp(ax.get_xticklabels(), rotation=40, ha="right", rotation_mode="anchor")
-
-    min_val = np.amin(cm)
-    max_val = np.amax(cm)
-    break_point = (max_val + min_val) / 2
-
-    plt.ylabel("true label")
-    plt.xlabel("predicted label")
-
-    # Loop over data dimensions and create text annotations.
-    for i in range(n):
-        for j in range(n):
-            col = (1, 1, 1)
-            if cm[i, j] <= break_point:
-                col = (0, 0, 0)
-            ax.text(j, i, cm[i, j], ha="center", va="center", color=col, fontsize=12)
-
-    fig.colorbar(im, ax=ax)
-
-    ax.set_title(title)
-    fig.tight_layout()
-    path_to_plot = generate_unique_path("out", "png")
-    plt.savefig(path_to_plot, bbox_inches="tight")
-
-
-def visualize_confusion_matrices(dfs, label_names, score_name, err_param_name):
-    for df in dfs:
-        df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmax()].reset_index(drop=True)
-        for i in range(df_.shape[0]):
-            visualize_confusion_matrix(
-                df_["confusion_matrix"][i],
-                label_names,
-                f"{df.name} confusion matrix ({err_param_name}={df_[err_param_name][i]})",
-            )
-
-
-def visualize(dfs, dataset_name, label_names):
     visualize_scores(
         dfs,
-        ["test_data_mean_accuracy", "train_data_mean_accuracy"],
+        ["test_mean_accuracy", "train_mean_accuracy"],
         "p",
         f"{dataset_name} classification scores with added missing areas"
     )
-    # visualize_confusion_matrices(
-    #     dfs,
-    #     label_names,
-    #     "test_data_mean_accuracy",
-    #     "p",
-    # )
+    visualize_confusion_matrices(
+        dfs,
+        label_names,
+        "test_mean_accuracy",
+        "p",
+    )
     plt.show()
 
 
-def main():
-    categories = [
-        "alt.atheism",
-        "talk.religion.misc",
-        "comp.graphics",
-        "sci.space",
-    ]
-    data, labels, label_names, dataset_name = load_newsgroups(categories)
-    clean_train_data, _, clean_train_labels, _ = train_test_split(
-        np.array(data),
+def main(argv):
+    if len(argv) == 1:
+        data, labels, label_names, dataset_name = load_newsgroups()
+    if len(argv) == 2:
+        data, labels, label_names, dataset_name = load_newsgroups(int(argv[1]))
+    else:
+        exit(0)
+
+    train_data, test_data, train_labels, test_labels = train_test_split(
+        data,
         labels,
         test_size=.2,
         random_state=np.random.RandomState(42)
     )
 
-    p_steps = np.linspace(0, .3, num=5)
+    p_steps = np.linspace(0, .4, num=6)
     err_params_list = [{
         "p": p,
         "radius_generator": GaussianRadiusGenerator(0, 1),
@@ -211,34 +126,22 @@ def main():
     } for p in p_steps]
 
     alpha_steps = [10 ** i for i in range(-3, 1)]
-    C_steps = [10 ** k for k in range(-3, 4)]
+    # C_steps = [10 ** k for k in range(-3, 4)]
     model_params_base = {
-        "labels": labels,
-        "clean_train_data": clean_train_data,
-        "clean_train_labels": clean_train_labels,
+        "train_labels": train_labels,
+        "test_labels": test_labels,
     }
-    model_param_pairs = [
+    model_params_tuple_list = [
         (MultinomialNBModel, [{"alpha": alpha, **model_params_base} for alpha in alpha_steps]),
-        (MultinomialNBCleanModel, [{"alpha": alpha, **model_params_base} for alpha in alpha_steps]),
-        (LinearSVCModel, [{"C": C, **model_params_base} for C in C_steps]),
-        (LinearSVCCleanModel, [{"C": C, "data": data, **model_params_base} for C in C_steps]),
+        (MultinomialNBModel, [{"alpha": alpha, **model_params_base} for alpha in alpha_steps], True),
+        # (LinearSVCModel, [{"C": C, **model_params_base} for C in C_steps]),
+        # (LinearSVCModel, [{"C": C, **model_params_base} for C in C_steps], True),
     ]
 
-    df = runner_.run(ErrGen(data), err_params_list, model_param_pairs)
-    dfs = split_df_by_model(df)
+    df = runner_.run(train_data, test_data, ErrGen, err_params_list, model_params_tuple_list)
 
-    for df in dfs:
-        print(df.name)
-        print(df.drop(columns=[
-            "labels",
-            "clean_train_data",
-            "clean_train_labels",
-            "confusion_matrix",
-            "radius_generator"
-        ]))
-
-    visualize(dfs, dataset_name, label_names)
+    visualize(df, dataset_name, label_names)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

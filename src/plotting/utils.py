@@ -1,7 +1,7 @@
 import math
-
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
 
 from src.utils import generate_unique_path
 
@@ -16,8 +16,7 @@ def visualize_scores(dfs, score_names, err_param_name, title):
             ax.set_xlabel(err_param_name)
             ax.set_ylabel(score_names[i])
             ax.set_xlim([0, df_.index.max()])
-            ax.set_ylim([0, 1])
-            ax.legend()
+            ax.legend(fontsize="small")
 
     fig.subplots_adjust(wspace=.25)
     fig.suptitle(title)
@@ -129,7 +128,7 @@ def visualize_interactive(dfs, err_param_name, data, scatter_cmap, image_cmap, s
 
                 # get original and modified data points
                 elem = data[closest].reshape(shape)
-                modified = df['err_data'][self.i][closest].reshape(shape)
+                modified = df['err_test_data'][self.i][closest].reshape(shape)
 
                 # create a figure and draw the images
                 fg, axs = plt.subplots(1, 2)
@@ -140,3 +139,58 @@ def visualize_interactive(dfs, err_param_name, data, scatter_cmap, image_cmap, s
                 fg.show()
 
         Plot(i, fig, reduced_T)
+
+
+def visualize_confusion_matrix(cm, label_names, title):
+    # Draw image of confusion matrix
+    color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
+    n = cm.shape[0]
+    fig, ax = plt.subplots(figsize=(10, 8))
+    im = ax.imshow(cm, color_map)
+
+    ax.set_xticks(np.arange(n))
+    ax.set_yticks(np.arange(n))
+    ax.set_xticklabels(label_names)
+    ax.set_yticklabels(label_names)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=40, ha="right", rotation_mode="anchor")
+
+    min_val = np.amin(cm)
+    max_val = np.amax(cm)
+    break_point = (max_val + min_val) / 2
+
+    plt.ylabel("true label")
+    plt.xlabel("predicted label")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(n):
+        for j in range(n):
+            col = (1, 1, 1)
+            if cm[i, j] <= break_point:
+                col = (0, 0, 0)
+            ax.text(j, i, cm[i, j], ha="center", va="center", color=col, fontsize=12)
+
+    fig.colorbar(im, ax=ax)
+
+    ax.set_title(title)
+    fig.tight_layout()
+    path_to_plot = generate_unique_path("out", "png")
+    plt.savefig(path_to_plot, bbox_inches="tight")
+
+
+def visualize_confusion_matrices(dfs, label_names, score_name, err_param_name):
+    for df in dfs:
+        df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmax()].reset_index(drop=True)
+        for i in range(df_.shape[0]):
+            visualize_confusion_matrix(
+                df_["confusion_matrix"][i],
+                label_names,
+                f"{df.name} confusion matrix ({err_param_name}={df_[err_param_name][i]})",
+            )
+
+
+def print_dfs(dfs, dropped_columns=[]):
+    for df in dfs:
+        print(df.name)
+        print(df.drop(columns=dropped_columns))

@@ -108,16 +108,16 @@ def main():
         return a
 
     # y_node.addfilter(filters.StrangeBehaviour(strange))
-    # y_node.addfilter(filters.SensorDrift(2))
+    y_node.addfilter(filters.SensorDrift(2))
     # y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
-    y_node.addfilter(filters.GaussianNoise(5, 15))
+    # y_node.addfilter(filters.GaussianNoise(5, 15))
 
     output = root_node.process(y, np.random.RandomState(seed=42))
-    print("Changed\n", output)
+    # print("Changed\n", output)
     model = Model(output)
     out = model.run()
     out["prediction_img"].show()
-    print("RMSE: {}".format(out["rmse"]))
+    # print("RMSE: {}".format(out["rmse"]))
 
 
 if __name__ == "__main__":

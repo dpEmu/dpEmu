@@ -137,7 +137,7 @@ def test_seed_determines_result_for_stain_filter():
 
 
 def test_sensor_drift():
-    drift = filters.SensorDrift(1)
+    drift = filters.SensorDrift(2)
     y = np.full((100), 1)
     drift.apply(y, np.random.RandomState(), (), named_dims={})
 
@@ -145,7 +145,7 @@ def test_sensor_drift():
 
     assert len(y) == len(increases)
     for i, val in enumerate(y):
-        assert val == increases[i] + 1
+        assert val == increases[i]*2 + 1
 
 
 def test_strange_behaviour():

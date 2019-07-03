@@ -118,7 +118,7 @@ def main(argv):
         data,
         labels,
         test_size=.2,
-        random_state=np.random.RandomState(42)
+        random_state=RandomState(42)
     )
 
     p_steps = np.linspace(0, .3, num=4)

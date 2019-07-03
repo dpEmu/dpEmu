@@ -1,9 +1,10 @@
 import numpy as np
+from numpy.random import RandomState
 
 from sklearn.datasets import fetch_20newsgroups, fetch_openml, load_digits
 from sklearn.model_selection import train_test_split
 
-random_state = np.random.RandomState(42)
+random_state = RandomState(42)
 # data_home = "/wrk/users/thalvari/"
 data_home = None
 

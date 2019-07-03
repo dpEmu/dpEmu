@@ -141,7 +141,7 @@ def main(argv):
 
     n_data = data.shape[0]
     divs = [12, 15, 20, 30, 55, 80, 140]
-    mcs_steps = map(int, np.rint(n_data / np.array(divs)))
+    mcs_steps = [round(n_data / div) for div in divs]
     model_params_dict_list = [
         {"model": KMeansModel, "params_list": [{"labels": labels}]},
         {"model": AgglomerativeModel, "params_list": [{"labels": labels}]},

@@ -109,7 +109,7 @@ def visualize(df, dataset_name, label_names):
 def main(argv):
     if len(argv) == 1:
         data, labels, label_names, dataset_name = load_newsgroups()
-    if len(argv) == 2:
+    elif len(argv) == 2:
         data, labels, label_names, dataset_name = load_newsgroups(int(argv[1]))
     else:
         exit(0)

@@ -121,7 +121,7 @@ def main(argv):
         random_state=np.random.RandomState(42)
     )
 
-    p_steps = np.linspace(0, .35, num=8)
+    p_steps = np.linspace(0, .3, num=4)
     err_params_list = [{
         "p": p,
         "radius_generator": GaussianRadiusGenerator(0, 1),

@@ -188,7 +188,7 @@ def visualize_confusion_matrices(dfs, label_names, score_name, err_param_name):
             visualize_confusion_matrix(
                 df_["confusion_matrix"][i],
                 label_names,
-                f"{df.name} confusion matrix ({err_param_name}={df_[err_param_name][i]})",
+                f"{df.name} confusion matrix ({err_param_name}={round(df_[err_param_name][i], 3)})",
             )
 
 

@@ -28,17 +28,17 @@ def visualize_scores(df, score_names, err_param_name, title):
     fig.savefig(path_to_plot)
 
 
-def visualize_classes(df, label_names, err_param_name, title):
+def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels_name, title):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
     df = df.groupby(err_param_name).first().reset_index()
-    labels = df["labels"][0]
+    labels = df[labels_name][0]
 
     n_col = math.ceil(df.shape[0] / 2)
     fig, axs = plt.subplots(2, n_col, figsize=(2.5 * n_col + 1, 5))
     for i, ax in enumerate(axs.ravel()):
-        reduced_data = df["reduced_data"][i]
+        reduced_data = df[reduced_data_name][i]
         x_min, x_max, y_min, y_max = get_lims(reduced_data)
         sc = ax.scatter(*reduced_data.T, c=labels, cmap="tab10", marker=".", s=40)
         ax.set_xlim(x_min, x_max)
@@ -49,7 +49,9 @@ def visualize_classes(df, label_names, err_param_name, title):
         ax.set_yticks([])
     fig.suptitle(title)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
-    cbar = fig.colorbar(sc, ax=axs, boundaries=np.arange(11) - 0.5, ticks=np.arange(10), use_gridspec=True)
+    n_unique = np.unique(labels).shape[0]
+    cbar = fig.colorbar(sc, ax=axs, boundaries=np.arange(n_unique + 1) - 0.5, ticks=np.arange(n_unique),
+                        use_gridspec=True)
     if label_names:
         cbar.ax.yaxis.set_ticklabels(label_names)
 
@@ -199,6 +201,7 @@ def visualize_confusion_matrices(df, label_names, score_name, err_param_name):
 def print_results(df, dropped_columns=[]):
     dfs = split_df_by_model(df)
 
+    dropped_columns = [dropped_column for dropped_column in dropped_columns if dropped_column in df]
     for df_ in dfs:
         print(df_.name)
         print(df_.drop(columns=dropped_columns))

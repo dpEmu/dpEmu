@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from hdbscan import HDBSCAN
 from numba.errors import NumbaDeprecationWarning, NumbaWarning
+from numpy.random import RandomState
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
@@ -13,7 +14,9 @@ from src import runner_
 from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
 from src.plotting.utils import visualize_scores, visualize_classes, visualize_interactive, print_dfs
-from src.problemgenerator import array, copy, filters
+from src.problemgenerator.array import Array
+from src.problemgenerator.copy import Copy
+from src.problemgenerator.filters import GaussianNoise, Min, Max, Constant
 from src.utils import split_df_by_model
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
@@ -23,7 +26,7 @@ warnings.simplefilter("ignore", category=NumbaWarning)
 class AbstractModel(ABC):
 
     def __init__(self):
-        self.random_state = np.random.RandomState(1)
+        self.random_state = RandomState(42)
 
     @abstractmethod
     def get_fitted_model(self, reduced_data, model_params, n_classes):
@@ -77,19 +80,19 @@ class HDBSCANModel(AbstractModel):
 
 class ErrGen:
     def __init__(self):
-        self.random_state = np.random.RandomState(42)
+        self.random_state = RandomState(42)
 
     def generate_error(self, data, params):
         data = np.array(data)
 
-        data_node = array.Array(data.shape)
-        root_node = copy.Copy(data_node)
+        data_node = Array(data.shape)
+        root_node = Copy(data_node)
 
-        f = filters.GaussianNoise(params["mean"], params["std"])
+        f = GaussianNoise(params["mean"], params["std"])
 
         min_val = np.amin(data)
         max_val = np.amax(data)
-        data_node.addfilter(filters.Min(filters.Max(f, filters.Constant(min_val)), filters.Constant(max_val)))
+        data_node.addfilter(Min(Max(f, Constant(min_val)), Constant(max_val)))
 
         return root_node.process(data, self.random_state)
 
@@ -125,20 +128,20 @@ def visualize(df, label_names, dataset_name, data):
 def main(argv):
     if len(argv) == 3 and argv[1] == "digits":
         data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
-        std_steps = [0, 3, 6, 9, 12, 15]
     elif len(argv) == 3 and argv[1] == "mnist":
         data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
-        std_steps = [0, 51, 102, 153, 204, 255]
     elif len(argv) == 3 and argv[1] == "fashion":
         data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
-        std_steps = [0, 51, 102, 153, 204, 255]
     else:
         exit(0)
 
+    max_val = np.amax(data)
+    std_steps = np.linspace(0, max_val, num=8)
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
     n_data = data.shape[0]
-    mcs_steps = map(int, n_data / np.array([12, 15, 20, 30, 55, 80, 140]))
+    divs = [12, 15, 20, 30, 55, 80, 140]
+    mcs_steps = map(int, np.rint(n_data / np.array(divs)))
     model_params_dict_list = [
         {"model": KMeansModel, "params_list": [{"labels": labels}]},
         {"model": AgglomerativeModel, "params_list": [{"labels": labels}]},

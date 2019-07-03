@@ -41,7 +41,8 @@ def visualize_classes(dfs, label_names, err_param_name, title):
         sc = ax.scatter(*reduced_data.T, c=labels, cmap="tab10", marker=".", s=40)
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
-        ax.set_title(err_param_name + "=" + str(df[err_param_name][i]))
+        err_param_val = round(df[err_param_name][i], 3)
+        ax.set_title(err_param_name + "=" + str(err_param_val))
         ax.set_xticks([])
         ax.set_yticks([])
     fig.suptitle(title)
@@ -96,7 +97,8 @@ def visualize_interactive(dfs, err_param_name, data, scatter_cmap, image_cmap, s
         ax.scatter(reduced_data.T[0], reduced_data.T[1], c=labels, cmap=scatter_cmap, marker=".", s=40, picker=True)
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
-        ax.set_title(err_param_name + "=" + str(df[err_param_name][i]))
+        err_param_val = round(df[err_param_name][i], 3)
+        ax.set_title(err_param_name + "=" + str(err_param_val))
         ax.set_xticks([])
         ax.set_yticks([])
 
@@ -186,7 +188,7 @@ def visualize_confusion_matrices(dfs, label_names, score_name, err_param_name):
             visualize_confusion_matrix(
                 df_["confusion_matrix"][i],
                 label_names,
-                f"{df.name} confusion matrix ({err_param_name}={df_[err_param_name][i]})",
+                f"{df.name} confusion matrix ({err_param_name}={round(df_[err_param_name][i], 3)})",
             )
 
 

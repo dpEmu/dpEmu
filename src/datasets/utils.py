@@ -31,7 +31,7 @@ def load_newsgroups(n_categories=20):
         "talk.politics.mideast",
         "talk.politics.misc",
     ]
-    newsgroups = fetch_20newsgroups(subset="all", categories=categories[:n_categories],
+    newsgroups = fetch_20newsgroups(subset="test", categories=categories[:n_categories],
                                     remove=("headers", "footers", "quotes"), random_state=random_state,
                                     data_home=data_home)
     return newsgroups["data"], np.array(newsgroups["target"].astype(int)), newsgroups["target_names"], "20newsgroups"

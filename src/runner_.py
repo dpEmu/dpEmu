@@ -1,7 +1,8 @@
-import multiprocessing
 import time
+from multiprocessing.pool import Pool
 
 import pandas as pd
+from tqdm import tqdm
 
 
 def worker(inputs):
@@ -51,7 +52,8 @@ def run(train_data, test_data, err_gen, err_params_list, model_params_dict_list,
     pool_inputs = []
     for err_params in err_params_list:
         pool_inputs.append((train_data, test_data, err_gen, err_params, model_params_dict_list, use_interactive_mode))
-    with multiprocessing.Pool() as pool:
-        outputs = pool.map(worker, pool_inputs)
-    rows = [result for results in outputs for result in results]
-    return pd.DataFrame(rows)
+    total_results = []
+    with Pool() as pool:
+        for results in tqdm(pool.imap_unordered(worker, pool_inputs), total=len(err_params_list)):
+            total_results.extend(results)
+    return pd.DataFrame(total_results)

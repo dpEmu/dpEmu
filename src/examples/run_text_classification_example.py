@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.random import RandomState
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
@@ -13,7 +14,9 @@ from sklearn.svm import LinearSVC
 from src import runner_
 from src.datasets.utils import load_newsgroups
 from src.plotting.utils import visualize_scores, print_dfs, visualize_confusion_matrices
-from src.problemgenerator import array, copy, filters
+from src.problemgenerator.array import Array
+from src.problemgenerator.copy import Copy
+from src.problemgenerator.filters import MissingArea
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator
 from src.utils import split_df_by_model
 
@@ -21,7 +24,7 @@ from src.utils import split_df_by_model
 class AbstractModel(ABC):
 
     def __init__(self):
-        self.random_state = np.random.RandomState(42)
+        self.random_state = RandomState(42)
 
     @abstractmethod
     def get_fitted_model(self, train_data, train_labels, params):
@@ -69,15 +72,15 @@ class LinearSVCModel(AbstractModel):
 
 class ErrGen:
     def __init__(self):
-        self.random_state = np.random.RandomState(42)
+        self.random_state = RandomState(42)
 
     def generate_error(self, data, params):
         data = np.array(data)
 
-        data_node = array.Array(data.shape)
-        root_node = copy.Copy(data_node)
+        data_node = Array(data.shape)
+        root_node = Copy(data_node)
 
-        f = filters.MissingArea(params["p"], params["radius_generator"], params["missing_value"])
+        f = MissingArea(params["p"], params["radius_generator"], params["missing_value"])
         data_node.addfilter(f)
 
         return root_node.process(data, self.random_state)

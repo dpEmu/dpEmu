@@ -1,21 +1,20 @@
 import sys
 import warnings
 from abc import ABC, abstractmethod
-from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
 from hdbscan import HDBSCAN
 from numba.errors import NumbaDeprecationWarning, NumbaWarning
 from sklearn.cluster import KMeans, AgglomerativeClustering
-from sklearn.datasets import fetch_openml, load_digits
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 from src import runner_
+from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
-from src.plotting.utils import visualize_scores, visualize_classes, visualize_interactive
+from src.plotting.utils import visualize_scores, visualize_classes, visualize_interactive, print_dfs
 from src.problemgenerator import array, copy, filters
-from src.utils import split_data, split_df_by_model
+from src.utils import split_df_by_model
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
@@ -30,7 +29,7 @@ class AbstractModel(ABC):
     def get_fitted_model(self, reduced_data, model_params, n_classes):
         pass
 
-    def run(self, data, model_params):
+    def run(self, _, data, model_params):
         labels = model_params["labels"]
         n_classes = len(np.unique(labels))
 
@@ -76,57 +75,30 @@ class HDBSCANModel(AbstractModel):
         ).fit(reduced_data)
 
 
-def load_digits_(n_data=1797):
-    mnist = load_digits()
-    data, labels = split_data(mnist["data"], mnist["target"], n_data)
-    return data, labels, None, "Digits"
-
-
-def load_mnist(n_data=70000):
-    mnist = fetch_openml("mnist_784")
-    # mnist = fetch_openml("mnist_784", data_home="/wrk/users/thalvari/")
-    data, labels = split_data(mnist["data"], mnist["target"].astype(int), n_data)
-    return data, labels, None, "MNIST"
-
-
-def load_fashion(n_data=70000):
-    mnist = fetch_openml("Fashion-MNIST")
-    # mnist = fetch_openml("Fashion-MNIST", data_home="/wrk/users/thalvari/")
-    data, labels = split_data(mnist["data"], mnist["target"].astype(int), n_data)
-    label_names = [
-        "T-shirt",
-        "Trouser",
-        "Pullover",
-        "Dress",
-        "Coat",
-        "Sandal",
-        "Shirt",
-        "Sneaker",
-        "Bag",
-        "Ankle boot",
-    ]
-    return data, labels, label_names, "Fashion MNIST"
-
-
 class ErrGen:
-    def __init__(self, data):
-        self.data = data
+    def __init__(self):
+        self.random_state = np.random.RandomState(42)
 
-    def generate_error(self, params):
-        data = deepcopy(self.data)
+    def generate_error(self, data, params):
+        data = np.array(data)
+
         data_node = array.Array(data.shape)
         root_node = copy.Copy(data_node)
 
         f = filters.GaussianNoise(params["mean"], params["std"])
 
-        min_val = np.amin(self.data)
-        max_val = np.amax(self.data)
+        min_val = np.amin(data)
+        max_val = np.amax(data)
         data_node.addfilter(filters.Min(filters.Max(f, filters.Constant(min_val)), filters.Constant(max_val)))
 
-        return root_node.process(data, np.random.RandomState(42))
+        return root_node.process(data, self.random_state)
 
 
-def visualize(dfs, label_names, dataset_name, data):
+def visualize(df, label_names, dataset_name, data):
+    dfs = split_df_by_model(df)
+
+    print_dfs(dfs, ["labels", "reduced_data", "err_test_data"])
+
     visualize_interactive(
         dfs,
         "std",
@@ -146,6 +118,7 @@ def visualize(dfs, label_names, dataset_name, data):
         "std",
         f"{dataset_name} clustering scores with added gaussian noise"
     )
+
     plt.show()
 
 
@@ -162,24 +135,19 @@ def main(argv):
     else:
         exit(0)
 
-    n_data = data.shape[0]
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
+    n_data = data.shape[0]
     mcs_steps = map(int, n_data / np.array([12, 15, 20, 30, 55, 80, 140]))
-    model_param_pairs = [
-        (KMeansModel, [{"labels": labels}]),
-        (AgglomerativeModel, [{"labels": labels}]),
-        (HDBSCANModel, [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]),
+    model_params_dict_list = [
+        {"model": KMeansModel, "params_list": [{"labels": labels}]},
+        {"model": AgglomerativeModel, "params_list": [{"labels": labels}]},
+        {"model": HDBSCANModel, "params_list": [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]},
     ]
 
-    df = runner_.run(ErrGen(data), err_params_list, model_param_pairs, True)
-    dfs = split_df_by_model(df)
+    df = runner_.run(None, data, ErrGen, err_params_list, model_params_dict_list, True)
 
-    for df in dfs:
-        print(df.name)
-        print(df.drop(columns=["labels", "reduced_data"]))
-
-    visualize(dfs, label_names, dataset_name, data)
+    visualize(df, label_names, dataset_name, data)
 
 
 if __name__ == "__main__":

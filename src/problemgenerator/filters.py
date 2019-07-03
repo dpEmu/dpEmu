@@ -145,7 +145,10 @@ class MissingArea(Filter):
             height = len(row_starts) - 1
 
             widths = np.array([row_starts[i+1] - row_starts[i] - 1 for i in range(height)])
-            width = np.max(widths)
+            if len(widths) > 0:
+                width = np.max(widths)
+            else:
+                width = 0
 
             # 2. Generate error
             errs = np.zeros(shape=(height+1, width+1))

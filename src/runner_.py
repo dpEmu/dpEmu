@@ -2,37 +2,55 @@ import multiprocessing
 import time
 
 import pandas as pd
-from tqdm import tqdm
 
 
 def worker(inputs):
-    model_param_pairs, err_gen, err_params, enable_interactive_mode = inputs
+    train_data, test_data, err_gen, err_params, model_params_dict_list, use_interactive_mode = inputs
+
     time_start = time.time()
-    err_data = err_gen.generate_error(err_params)
+    if train_data:
+        err_train_data = err_gen().generate_error(train_data, err_params)
+    err_test_data = err_gen().generate_error(test_data, err_params)
     time_used_err = time.time() - time_start
+
     results = []
-    for model_param_pair in tqdm(model_param_pairs):
-        model, model_params_list = model_param_pair
-        model_name = model.__name__.replace("Model", "")
+    for model_params_dict in model_params_dict_list:
+        model = model_params_dict["model"]
+        model_params_list = model_params_dict["params_list"]
+        if "use_clean_train_data" in model_params_dict:
+            use_clean_train_data = model_params_dict["use_clean_train_data"]
+        else:
+            use_clean_train_data = False
+
+        if use_clean_train_data:
+            model_name = model.__name__.replace("Model", "Clean")
+        else:
+            model_name = model.__name__.replace("Model", "")
+
         for model_params in model_params_list:
             time_start = time.time()
-            result = model().run(err_data, model_params)
+            if use_clean_train_data or not train_data:
+                result = model().run(train_data, err_test_data, model_params)
+            else:
+                result = model().run(err_train_data, err_test_data, model_params)
             time_used_mod = time.time() - time_start
-            if enable_interactive_mode:
-                result["err_data"] = err_data
+
+            if use_interactive_mode:
+                result["err_test_data"] = err_test_data
             result["model_name"] = model_name
             result["time_used_err"] = time_used_err
             result["time_used_mod"] = time_used_mod
             result.update({k: v for k, v in err_params.items()})
             result.update({k: v for k, v in model_params.items()})
+
             results.append(result)
     return results
 
 
-def run(err_gen, err_params_list, model_param_pairs, enable_interactive_mode=False):
+def run(train_data, test_data, err_gen, err_params_list, model_params_dict_list, use_interactive_mode=False):
     pool_inputs = []
     for err_params in err_params_list:
-        pool_inputs.append((model_param_pairs, err_gen, err_params, enable_interactive_mode))
+        pool_inputs.append((train_data, test_data, err_gen, err_params, model_params_dict_list, use_interactive_mode))
     with multiprocessing.Pool() as pool:
         outputs = pool.map(worker, pool_inputs)
     rows = [result for results in outputs for result in results]

@@ -1,41 +1,44 @@
-import numpy as np
+import pandas as pd
 from numpy.random import RandomState
 
 from sklearn.datasets import fetch_20newsgroups, fetch_openml, load_digits
 from sklearn.model_selection import train_test_split
 
-random_state = RandomState(42)
-# data_home = "/wrk/users/thalvari/"
 data_home = None
+# data_home = "/wrk/users/thalvari/"
+pd.set_option("display.expand_frame_repr", False)
+random_state = RandomState(42)
 
 
-def load_newsgroups(n_categories=20):
+def load_newsgroups(subset="all", n_categories=20):
     categories = [
         "alt.atheism",
         "talk.religion.misc",
         "comp.graphics",
         "sci.space",
+        "rec.autos",
+        "talk.politics.guns",
+        "rec.sport.hockey",
         "comp.os.ms-windows.misc",
+        "sci.med",
+        "talk.politics.mideast",
         "comp.sys.ibm.pc.hardware",
         "comp.sys.mac.hardware",
         "comp.windows.x",
         "misc.forsale",
-        "rec.autos",
         "rec.motorcycles",
         "rec.sport.baseball",
-        "rec.sport.hockey",
         "sci.crypt",
         "sci.electronics",
-        "sci.med",
         "soc.religion.christian",
-        "talk.politics.guns",
-        "talk.politics.mideast",
         "talk.politics.misc",
     ]
-    newsgroups = fetch_20newsgroups(subset="test", categories=categories[:n_categories],
+    if not 0 < n_categories < 21:
+        n_categories = 20
+    newsgroups = fetch_20newsgroups(subset=subset, categories=categories[:n_categories],
                                     remove=("headers", "footers", "quotes"), random_state=random_state,
                                     data_home=data_home)
-    return newsgroups["data"], np.array(newsgroups["target"].astype(int)), newsgroups["target_names"], "20newsgroups"
+    return newsgroups["data"], newsgroups["target"].astype(int), newsgroups["target_names"], "20newsgroups"
 
 
 def split_data(data, labels, n_data):

@@ -3,19 +3,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
-from src.utils import generate_unique_path
+from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
 
-def visualize_scores(dfs, score_names, err_param_name, title):
+def visualize_scores(df, score_names, err_param_name, title):
+    dfs = split_df_by_model(df)
+
     n_scores = len(score_names)
     fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 4, 4))
     for i, ax in enumerate(axs.ravel()):
-        for df in dfs:
-            df_ = df.groupby(err_param_name, sort=False)[score_names[i]].max()
-            ax.plot(df_.index, df_, label=df.name)
+        for df_ in dfs:
+            df_ = filter_optimized_results(df_, err_param_name, score_names[i])
+            ax.plot(df_[err_param_name], df_[score_names[i]], label=df_.name)
             ax.set_xlabel(err_param_name)
             ax.set_ylabel(score_names[i])
-            ax.set_xlim([0, df_.index.max()])
+            ax.set_xlim([0, df_[err_param_name].max()])
             ax.legend(fontsize="small")
 
     fig.subplots_adjust(wspace=.25)
@@ -26,11 +28,11 @@ def visualize_scores(dfs, score_names, err_param_name, title):
     fig.savefig(path_to_plot)
 
 
-def visualize_classes(dfs, label_names, err_param_name, title):
+def visualize_classes(df, label_names, err_param_name, title):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
-    df = dfs[0].groupby(err_param_name).first().reset_index()
+    df = df.groupby(err_param_name).first().reset_index()
     labels = df["labels"][0]
 
     n_col = math.ceil(df.shape[0] / 2)
@@ -55,7 +57,7 @@ def visualize_classes(dfs, label_names, err_param_name, title):
     fig.savefig(path_to_plot)
 
 
-def visualize_interactive(dfs, err_param_name, data, scatter_cmap, image_cmap, shape=None):
+def visualize_interactive(df, err_param_name, data, scatter_cmap, image_cmap, shape=None):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
@@ -85,7 +87,7 @@ def visualize_interactive(dfs, err_param_name, data, scatter_cmap, image_cmap, s
         print("The program assumes that the shape of the data is", shape)
         print("If this is incorrect, please specify the shape in visualize_interactive()'s parameters.")
 
-    df = dfs[0].groupby(err_param_name).first().reset_index()
+    df = df.groupby(err_param_name).first().reset_index()
     labels = df["labels"][0]
 
     # plot the data of each error parameter combination
@@ -181,18 +183,22 @@ def visualize_confusion_matrix(cm, label_names, title):
     plt.savefig(path_to_plot, bbox_inches="tight")
 
 
-def visualize_confusion_matrices(dfs, label_names, score_name, err_param_name):
-    for df in dfs:
-        df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmax()].reset_index(drop=True)
+def visualize_confusion_matrices(df, label_names, score_name, err_param_name):
+    dfs = split_df_by_model(df)
+
+    for df_ in dfs:
+        df_ = filter_optimized_results(df_, err_param_name, score_name)
         for i in range(df_.shape[0]):
             visualize_confusion_matrix(
                 df_["confusion_matrix"][i],
                 label_names,
-                f"{df.name} confusion matrix ({err_param_name}={round(df_[err_param_name][i], 3)})",
+                f"{df_.name} confusion matrix ({err_param_name}={round(df_[err_param_name][i], 3)})",
             )
 
 
-def print_dfs(dfs, dropped_columns=[]):
-    for df in dfs:
-        print(df.name)
-        print(df.drop(columns=dropped_columns))
+def print_results(df, dropped_columns=[]):
+    dfs = split_df_by_model(df)
+
+    for df_ in dfs:
+        print(df_.name)
+        print(df_.drop(columns=dropped_columns))

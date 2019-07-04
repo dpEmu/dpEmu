@@ -1,6 +1,7 @@
 import time
 from multiprocessing.pool import Pool
 
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
@@ -9,8 +10,10 @@ def worker(inputs):
     train_data, test_data, err_gen, err_params, model_params_dict_list, use_interactive_mode = inputs
 
     time_start = time.time()
-    if train_data:
+    if train_data is not None:
+        train_data = np.array(train_data)
         err_train_data = err_gen().generate_error(train_data, err_params)
+    test_data = np.array(test_data)
     err_test_data = err_gen().generate_error(test_data, err_params)
     time_used_err = time.time() - time_start
 
@@ -30,7 +33,7 @@ def worker(inputs):
 
         for model_params in model_params_list:
             time_start = time.time()
-            if use_clean_train_data or not train_data:
+            if use_clean_train_data or train_data is None:
                 result = model().run(train_data, err_test_data, model_params)
             else:
                 result = model().run(err_train_data, err_test_data, model_params)

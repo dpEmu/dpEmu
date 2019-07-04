@@ -13,7 +13,6 @@ from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from src import runner_
 from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
-
 from src.plotting.utils import visualize_scores, visualize_classes, visualize_interactive_plot, print_results
 from src.problemgenerator.array import Array
 from src.problemgenerator.copy import Copy
@@ -83,8 +82,6 @@ class ErrGen:
         self.random_state = RandomState(42)
 
     def generate_error(self, data, params):
-        data = np.array(data)
-
         data_node = Array(data.shape)
         root_node = Copy(data_node)
 

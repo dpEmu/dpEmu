@@ -84,8 +84,6 @@ class ErrGen:
         self.random_state = RandomState(42)
 
     def generate_error(self, data, params):
-        data = np.array(data)
-
         data_node = Array(data.shape)
         root_node = Copy(data_node)
 
@@ -104,6 +102,7 @@ def visualize(df, dataset_name, label_names, test_data):
     def on_click(element, label, predicted_label):
         print(label, " predicted as ", predicted_label, ":", sep="")
         print(element, end="\n\n")
+
     visualize_confusion_matrices(df, label_names, "test_mean_accuracy", "p", on_click)
 
     plt.show()
@@ -151,10 +150,10 @@ def main(argv):
         },
     ]
 
-    df = runner_.run(train_data, test_data, ErrGen, err_params_list, model_params_dict_list, use_interactive_mode=True)
+    df = runner_.run(train_data, test_data, ErrGen, err_params_list, model_params_dict_list, True)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
-                       "radius_generator", "missing_value"])
+                       "radius_generator", "missing_value", "err_test_data"])
     visualize(df, dataset_name, label_names, test_data)
 
 

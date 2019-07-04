@@ -40,7 +40,7 @@ class AbstractModel(ABC):
         train_labels = params["train_labels"]
         test_labels = params["test_labels"]
 
-        vectorizer = TfidfVectorizer(max_df=0.5, min_df=2)
+        vectorizer = TfidfVectorizer(max_df=0.5, min_df=2, stop_words="english")
         vectorized_train_data = vectorizer.fit_transform(train_data)
         vectorized_test_data = vectorizer.transform(test_data)
 

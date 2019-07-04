@@ -39,4 +39,4 @@ def reduce_dimensions_sparse(data, random_state, target_dim=2):
         data = TruncatedSVD(n_components=svd_limit, random_state=random_state).fit_transform(data)
         data = Normalizer(copy=False).fit_transform(data)
 
-    return UMAP(n_components=target_dim, n_neighbors=30, min_dist=0.0, random_state=random_state).fit_transform(data)
+    return UMAP(n_components=target_dim, random_state=random_state).fit_transform(data)

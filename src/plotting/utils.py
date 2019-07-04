@@ -40,7 +40,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
     for i, ax in enumerate(axs.ravel()):
         reduced_data = df[reduced_data_name][i]
         x_min, x_max, y_min, y_max = get_lims(reduced_data)
-        sc = ax.scatter(*reduced_data.T, c=labels, cmap="tab10", marker=".", s=40)
+        sc = ax.scatter(*reduced_data.T, c=labels, cmap="tab20", marker=".", s=40)
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
         err_param_val = round(df[err_param_name][i], 3)

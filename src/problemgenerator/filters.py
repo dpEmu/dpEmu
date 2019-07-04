@@ -17,15 +17,21 @@ class Filter:
         random.seed(42)
         self.shape = ()
 
+    def set_params(self, params_dict):
+        pass
+
 
 class Missing(Filter):
     """For each element in the array, change the value of the element to nan
     with the provided probability.
     """
 
-    def __init__(self, probability):
-        self.probability = probability
+    def __init__(self, probability_ident):
+        self.probability_ident = probability_ident
         super().__init__()
+
+    def set_params(self, params_dict):
+        self.probability = params_dict[self.probability_ident]
 
     def apply(self, data, random_state, index_tuple, named_dims):
         mask = random_state.rand(*(data[index_tuple].shape)) <= self.probability
@@ -122,16 +128,23 @@ def replace_inds(mask, str1, str2):
 class MissingArea(Filter):
     """ TODO: radius_generator is a struct, not a function. It should be a function for repeatability
     """
-    def __init__(self, probability, radius_generator, missing_value):
-        self.probability = probability
-        self.radius_generator = radius_generator
-        self.missing_value = missing_value
+    def __init__(self, probability_ident, radius_generator_ident, missing_value_ident):
+        self.probability_ident = probability_ident
+        self.radius_generator_ident = radius_generator_ident
+        self.missing_value_ident = missing_value_ident
         super().__init__()
+
+    def set_params(self, params_dict):
+        self.probability = params_dict[self.probability_ident]
+        self.radius_generator = params_dict[self.radius_generator_ident]
+        self.missing_value = params_dict[self.missing_value_ident]
 
     def apply(self, data, random_state, index_tuple, named_dims):
         if self.probability == 0:
             return
 
+        print(f"data length is {len(data)}")
+        print(f"index tuple is {index_tuple}")
         for index, _ in np.ndenumerate(data[index_tuple]):
             # 1. Get indexes of newline characters. We will not touch those
             string = data[index_tuple][index]

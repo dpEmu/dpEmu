@@ -18,9 +18,10 @@ from src.datasets.utils import load_newsgroups
 from src.ml.utils import reduce_dimensions_sparse
 from src.plotting.utils import visualize_scores, print_results, visualize_classes
 from src.problemgenerator.array import Array
-from src.problemgenerator.copy import Copy
+from src.problemgenerator.root import Root
 from src.problemgenerator.filters import MissingArea
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator
+# from src.problemgenerator.error_generator import ErrGen
 
 warnings.simplefilter("ignore", category=ConvergenceWarning)
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
@@ -78,20 +79,20 @@ class LinearSVCModel(AbstractModel):
         return LinearSVC(C=params["C"], random_state=self.random_state).fit(train_data, train_labels)
 
 
-class ErrGen:
-    def __init__(self):
-        self.random_state = RandomState(42)
+# class ErrGen:
+#     def __init__(self):
+#         self.random_state = RandomState(42)
 
-    def generate_error(self, data, params):
-        data = np.array(data)
+#     def generate_error(self, data, params):
+#         data = np.array(data)
 
-        data_node = Array(data.shape)
-        root_node = Copy(data_node)
+#         data_node = Array(data.shape)
+#         root_node = Copy(data_node)
 
-        f = MissingArea(params["p"], params["radius_generator"], params["missing_value"])
-        data_node.addfilter(f)
+#         f = MissingArea(params["p"], params["radius_generator"], params["missing_value"])
+#         data_node.addfilter(f)
 
-        return root_node.process(data, self.random_state)
+#         return root_node.process(data, self.random_state)
 
 
 def visualize(df, dataset_name, label_names, test_data):
@@ -144,8 +145,11 @@ def main(argv):
             "use_clean_train_data": True
         },
     ]
+    data_node = Array()
+    data_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
+    root_node = Root(data_node)
 
-    df = runner_.run(train_data, test_data, ErrGen, err_params_list, model_params_dict_list)
+    df = runner_.run(train_data, test_data, root_node, err_params_list, model_params_dict_list)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
                        "radius_generator", "missing_value"])

@@ -1,7 +1,8 @@
-class Series:
+from src.problemgenerator.node import Node
+class Series(Node):
 
     def __init__(self, child, dim_name=None):
-        self.child = child
+        super.__init__([child])
         self.dim_name = dim_name
         self.filters = []
 
@@ -13,7 +14,7 @@ class Series:
         for i in range(data_length):
             if self.dim_name:
                 named_dims[self.dim_name] = i
-            self.child.process(data, random_state, (i, *index_tuple), named_dims)
+            self.children[0].process(data, random_state, (i, *index_tuple), named_dims)
 
 
 class TupleSeries:

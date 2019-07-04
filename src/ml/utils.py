@@ -1,7 +1,6 @@
 import subprocess
 
 from sklearn.decomposition import PCA, TruncatedSVD
-from sklearn.preprocessing import Normalizer
 from sklearn.random_projection import johnson_lindenstrauss_min_dim, SparseRandomProjection
 from umap import UMAP
 
@@ -37,6 +36,5 @@ def reduce_dimensions_sparse(data, random_state, target_dim=2):
 
     if data.shape[1] > svd_limit:
         data = TruncatedSVD(n_components=svd_limit, random_state=random_state).fit_transform(data)
-        data = Normalizer(copy=False).fit_transform(data)
 
     return UMAP(n_components=target_dim, random_state=random_state).fit_transform(data)

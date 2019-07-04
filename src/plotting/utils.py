@@ -1,6 +1,8 @@
 import math
+import random
 import matplotlib.pyplot as plt
 import numpy as np
+
 from matplotlib.colors import LinearSegmentedColormap
 
 from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
@@ -59,7 +61,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
     fig.savefig(path_to_plot)
 
 
-def visualize_interactive(df, err_param_name, data, scatter_cmap, image_cmap, shape=None):
+def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, image_cmap, shape=None):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
@@ -147,7 +149,7 @@ def visualize_interactive(df, err_param_name, data, scatter_cmap, image_cmap, sh
         Plot(i, fig, reduced_T)
 
 
-def visualize_confusion_matrix(cm, label_names, title):
+def visualize_confusion_matrix(df_, cm, row, label_names, title, on_click=None):
     # Draw image of confusion matrix
     color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
     n = cm.shape[0]
@@ -158,6 +160,37 @@ def visualize_confusion_matrix(cm, label_names, title):
     ax.set_yticks(np.arange(n))
     ax.set_xticklabels(label_names)
     ax.set_yticklabels(label_names)
+
+    cm_values = {}
+    if on_click:
+        for label in label_names:
+            cm_values[label] = {}
+            for label_prediction in label_names:
+                cm_values[label][label_prediction] = []
+        for index, _ in enumerate(df_["err_test_data"][row]):
+            label = label_names[df_["test_labels"][row][index]]
+            predicted_label = label_names[df_["predicted_test_labels"][row][index]]
+            cm_values[label][predicted_label].append(index)
+
+    class Plot:
+        def __init__(self, row, fig, df_, cm_values, on_click):
+            self.row = row
+            self.fig = fig
+            self.cid = None
+            self.df_ = df_
+            self.cm_values = cm_values
+            if on_click:
+                self.on_click = on_click
+                self.cid = fig.canvas.mpl_connect('button_press_event', self)
+
+        def __call__(self, event):
+            if event.xdata and event.ydata:
+                x, y = int(round(event.xdata)), int(round(event.ydata))
+                label = label_names[y]
+                predicted = label_names[x]
+                if self.cm_values[label][predicted]:
+                    index = random.choice(self.cm_values[label][predicted])
+                    self.on_click(self.df_["err_test_data"][self.row][index], label, predicted)
 
     # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=40, ha="right", rotation_mode="anchor")
@@ -177,6 +210,8 @@ def visualize_confusion_matrix(cm, label_names, title):
                 col = (0, 0, 0)
             ax.text(j, i, cm[i, j], ha="center", va="center", color=col, fontsize=12)
 
+    Plot(row, fig, df_, cm_values, on_click)
+
     fig.colorbar(im, ax=ax)
 
     ax.set_title(title)
@@ -185,16 +220,18 @@ def visualize_confusion_matrix(cm, label_names, title):
     plt.savefig(path_to_plot, bbox_inches="tight")
 
 
-def visualize_confusion_matrices(df, label_names, score_name, err_param_name):
+def visualize_confusion_matrices(df, label_names, score_name, err_param_name, interactive):
     dfs = split_df_by_model(df)
-
     for df_ in dfs:
         df_ = filter_optimized_results(df_, err_param_name, score_name)
         for i in range(df_.shape[0]):
             visualize_confusion_matrix(
+                df_,
                 df_["confusion_matrix"][i],
+                i,
                 label_names,
                 f"{df_.name} confusion matrix ({err_param_name}={round(df_[err_param_name][i], 3)})",
+                interactive
             )
 
 

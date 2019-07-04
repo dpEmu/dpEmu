@@ -1,7 +1,9 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+
 from matplotlib.colors import LinearSegmentedColormap
+from sklearn.metrics import confusion_matrix
 
 from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
@@ -59,7 +61,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
     fig.savefig(path_to_plot)
 
 
-def visualize_interactive(df, err_param_name, data, scatter_cmap, image_cmap, shape=None):
+def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, image_cmap, shape=None):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
@@ -147,7 +149,7 @@ def visualize_interactive(df, err_param_name, data, scatter_cmap, image_cmap, sh
         Plot(i, fig, reduced_T)
 
 
-def visualize_confusion_matrix(cm, label_names, title):
+def visualize_confusion_matrix(cm, label_names, title, interactive):
     # Draw image of confusion matrix
     color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
     n = cm.shape[0]
@@ -158,6 +160,10 @@ def visualize_confusion_matrix(cm, label_names, title):
     ax.set_yticks(np.arange(n))
     ax.set_xticklabels(label_names)
     ax.set_yticklabels(label_names)
+
+    def pick(event):
+        if event.xdata and event.ydata:
+            print("Clicked element", int(round(event.xdata)), int(round(event.ydata)))
 
     # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=40, ha="right", rotation_mode="anchor")
@@ -177,15 +183,19 @@ def visualize_confusion_matrix(cm, label_names, title):
                 col = (0, 0, 0)
             ax.text(j, i, cm[i, j], ha="center", va="center", color=col, fontsize=12)
 
-    fig.colorbar(im, ax=ax)
+    cid = None
+    if interactive:
+        cid = fig.canvas.mpl_connect('button_press_event', pick)
 
+    fig.colorbar(im, ax=ax)
+    
     ax.set_title(title)
     fig.tight_layout()
     path_to_plot = generate_unique_path("out", "png")
     plt.savefig(path_to_plot, bbox_inches="tight")
 
 
-def visualize_confusion_matrices(df, label_names, score_name, err_param_name):
+def visualize_confusion_matrices(df, label_names, score_name, err_param_name, interactive):
     dfs = split_df_by_model(df)
 
     for df_ in dfs:
@@ -195,6 +205,7 @@ def visualize_confusion_matrices(df, label_names, score_name, err_param_name):
                 df_["confusion_matrix"][i],
                 label_names,
                 f"{df_.name} confusion matrix ({err_param_name}={round(df_[err_param_name][i], 3)})",
+                interactive
             )
 
 

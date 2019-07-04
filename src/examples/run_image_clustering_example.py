@@ -13,7 +13,8 @@ from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from src import runner_
 from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
-from src.plotting.utils import visualize_scores, visualize_classes, print_results
+
+from src.plotting.utils import visualize_scores, visualize_classes, visualize_interactive_plot, print_results
 from src.problemgenerator.array import Array
 from src.problemgenerator.copy import Copy
 from src.problemgenerator.filters import GaussianNoise, Min, Max, Constant
@@ -100,7 +101,7 @@ def visualize(df, label_names, dataset_name, data):
     visualize_scores(df, ["AMI", "ARI"], "std", f"{dataset_name} clustering scores with added gaussian noise")
     visualize_classes(df, label_names, "std", "reduced_data", "labels",
                       f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
-    # visualize_interactive(df, "std", data, "tab10", "gray_r") # Remember to enable runner's interactive mode
+    visualize_interactive_plot(df, "std", data, "tab10", "gray_r") # Remember to enable runner's interactive mode
     plt.show()
 
 
@@ -127,7 +128,7 @@ def main(argv):
         {"model": HDBSCANModel, "params_list": [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]},
     ]
 
-    df = runner_.run(None, data, ErrGen, err_params_list, model_params_dict_list, False)
+    df = runner_.run(None, data, ErrGen, err_params_list, model_params_dict_list, True)
 
     print_results(df, ["labels", "reduced_data", "err_test_data"])
     visualize(df, label_names, dataset_name, data)

@@ -13,11 +13,10 @@ from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from src import runner_
 from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
-from src.plotting.utils import visualize_scores, visualize_classes, visualize_interactive, print_dfs
+from src.plotting.utils import visualize_scores, visualize_classes, print_results
 from src.problemgenerator.array import Array
 from src.problemgenerator.copy import Copy
 from src.problemgenerator.filters import GaussianNoise, Min, Max, Constant
-from src.utils import split_df_by_model
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
@@ -41,9 +40,9 @@ class AbstractModel(ABC):
         fitted_model = self.get_fitted_model(reduced_data, model_params, n_classes)
 
         return {
-            "reduced_data": reduced_data,
-            "ARI": round(adjusted_rand_score(labels, fitted_model.labels_), 3),
             "AMI": round(adjusted_mutual_info_score(labels, fitted_model.labels_, average_method="arithmetic"), 3),
+            "ARI": round(adjusted_rand_score(labels, fitted_model.labels_), 3),
+            "reduced_data": reduced_data,
         }
 
 
@@ -98,30 +97,10 @@ class ErrGen:
 
 
 def visualize(df, label_names, dataset_name, data):
-    dfs = split_df_by_model(df)
-
-    print_dfs(dfs, ["labels", "reduced_data", "err_test_data"])
-
-    visualize_interactive(
-        dfs,
-        "std",
-        data,
-        "tab10",
-        "gray_r"
-    )
-    visualize_classes(
-        dfs,
-        label_names,
-        "std",
-        f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise"
-    )
-    visualize_scores(
-        dfs,
-        ["AMI", "ARI"],
-        "std",
-        f"{dataset_name} clustering scores with added gaussian noise"
-    )
-
+    visualize_scores(df, ["AMI", "ARI"], "std", f"{dataset_name} clustering scores with added gaussian noise")
+    visualize_classes(df, label_names, "std", "reduced_data", "labels",
+                      f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
+    # visualize_interactive(df, "std", data, "tab10", "gray_r") # Remember to enable runner's interactive mode
     plt.show()
 
 
@@ -148,8 +127,9 @@ def main(argv):
         {"model": HDBSCANModel, "params_list": [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]},
     ]
 
-    df = runner_.run(None, data, ErrGen, err_params_list, model_params_dict_list, True)
+    df = runner_.run(None, data, ErrGen, err_params_list, model_params_dict_list, False)
 
+    print_results(df, ["labels", "reduced_data", "err_test_data"])
     visualize(df, label_names, dataset_name, data)
 
 

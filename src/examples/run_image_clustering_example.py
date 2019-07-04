@@ -101,7 +101,7 @@ def visualize(df, label_names, dataset_name, data):
     visualize_scores(df, ["AMI", "ARI"], "std", f"{dataset_name} clustering scores with added gaussian noise")
     visualize_classes(df, label_names, "std", "reduced_data", "labels",
                       f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
-    visualize_interactive_plot(df, "std", data, "tab10", "gray_r") # Remember to enable runner's interactive mode
+    visualize_interactive_plot(df, "std", data, "tab10", "gray_r")  # Remember to enable runner's interactive mode
     plt.show()
 
 

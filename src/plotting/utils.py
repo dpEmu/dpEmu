@@ -1,8 +1,8 @@
-import math
 import random
+
+import math
 import matplotlib.pyplot as plt
 import numpy as np
-
 from matplotlib.colors import LinearSegmentedColormap
 
 from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
@@ -30,7 +30,7 @@ def visualize_scores(df, score_names, err_param_name, title):
     fig.savefig(path_to_plot)
 
 
-def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels_name, title):
+def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels_name, cmap, title):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
@@ -42,7 +42,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
     for i, ax in enumerate(axs.ravel()):
         reduced_data = df[reduced_data_name][i]
         x_min, x_max, y_min, y_max = get_lims(reduced_data)
-        sc = ax.scatter(*reduced_data.T, c=labels, cmap="tab20", marker=".", s=40)
+        sc = ax.scatter(*reduced_data.T, c=labels, cmap=cmap, marker=".", s=40)
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
         err_param_val = round(df[err_param_name][i], 3)
@@ -136,7 +136,7 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, image_cma
 
                 # get original and modified data points
                 elem = data[closest].reshape(shape)
-                modified = df['err_test_data'][self.i][closest].reshape(shape)
+                modified = df["interactive_err_data"][self.i][closest].reshape(shape)
 
                 # create a figure and draw the images
                 fg, axs = plt.subplots(1, 2)
@@ -167,7 +167,7 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, on_click=None):
             cm_values[label] = {}
             for label_prediction in label_names:
                 cm_values[label][label_prediction] = []
-        for index, _ in enumerate(df_["err_test_data"][row]):
+        for index, _ in enumerate(df_["interactive_err_data"][row]):
             label = label_names[df_["test_labels"][row][index]]
             predicted_label = label_names[df_["predicted_test_labels"][row][index]]
             cm_values[label][predicted_label].append(index)
@@ -190,7 +190,7 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, on_click=None):
                 predicted = label_names[x]
                 if self.cm_values[label][predicted]:
                     index = random.choice(self.cm_values[label][predicted])
-                    self.on_click(self.df_["err_test_data"][self.row][index], label, predicted)
+                    self.on_click(self.df_["interactive_err_data"][self.row][index], label, predicted)
 
     # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=40, ha="right", rotation_mode="anchor")
@@ -238,7 +238,9 @@ def visualize_confusion_matrices(df, label_names, score_name, err_param_name, in
 def print_results(df, dropped_columns=[]):
     dfs = split_df_by_model(df)
 
+    dropped_columns.extend(["interactive_err_data"])
     dropped_columns = [dropped_column for dropped_column in dropped_columns if dropped_column in df]
+
     for df_ in dfs:
         print(df_.name)
         print(df_.drop(columns=dropped_columns))

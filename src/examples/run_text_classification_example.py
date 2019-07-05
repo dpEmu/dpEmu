@@ -27,6 +27,34 @@ warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
 
 
+class ErrGen:
+    def __init__(self):
+        self.random_state = RandomState(42)
+
+    def generate_error(self, data, params):
+        data_node = Array(data.shape)
+        root_node = Copy(data_node)
+
+        f = MissingArea(params["p"], params["radius_generator"], params["missing_value"])
+        data_node.addfilter(f)
+
+        return root_node.process(data, self.random_state)
+
+
+class Preprocessor:
+    def __init__(self):
+        self.random_state = RandomState(42)
+
+    def run(self, train_data, test_data):
+        vectorizer = TfidfVectorizer(max_df=0.5, min_df=2, stop_words="english")
+        vectorized_train_data = vectorizer.fit_transform(train_data)
+        vectorized_test_data = vectorizer.transform(test_data)
+
+        reduced_test_data = reduce_dimensions_sparse(vectorized_test_data, self.random_state)
+
+        return vectorized_train_data, vectorized_test_data, {"reduced_test_data": reduced_test_data}
+
+
 class AbstractModel(ABC):
 
     def __init__(self):
@@ -40,24 +68,16 @@ class AbstractModel(ABC):
         train_labels = params["train_labels"]
         test_labels = params["test_labels"]
 
-        vectorizer = TfidfVectorizer(max_df=0.5, min_df=2, stop_words="english")
-        vectorized_train_data = vectorizer.fit_transform(train_data)
-        vectorized_test_data = vectorizer.transform(test_data)
+        fitted_model = self.get_fitted_model(train_data, train_labels, params)
 
-        reduced_test_data = reduce_dimensions_sparse(vectorized_test_data, self.random_state)
-
-        fitted_model = self.get_fitted_model(vectorized_train_data, train_labels, params)
-
-        predicted_test_labels = fitted_model.predict(vectorized_test_data)
+        predicted_test_labels = fitted_model.predict(test_data)
         cm = confusion_matrix(test_labels, predicted_test_labels)
 
         return {
             "confusion_matrix": cm,
-            "test_labels": test_labels,
             "predicted_test_labels": predicted_test_labels,
-            "reduced_test_data": reduced_test_data,
             "test_mean_accuracy": round(np.mean(predicted_test_labels == test_labels), 3),
-            "train_mean_accuracy": fitted_model.score(vectorized_train_data, train_labels),
+            "train_mean_accuracy": fitted_model.score(train_data, train_labels),
         }
 
 
@@ -79,24 +99,10 @@ class LinearSVCModel(AbstractModel):
         return LinearSVC(C=params["C"], random_state=self.random_state).fit(train_data, train_labels)
 
 
-class ErrGen:
-    def __init__(self):
-        self.random_state = RandomState(42)
-
-    def generate_error(self, data, params):
-        data_node = Array(data.shape)
-        root_node = Copy(data_node)
-
-        f = MissingArea(params["p"], params["radius_generator"], params["missing_value"])
-        data_node.addfilter(f)
-
-        return root_node.process(data, self.random_state)
-
-
 def visualize(df, dataset_name, label_names, test_data):
     visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], "p",
                      f"{dataset_name} classification scores with added missing areas")
-    visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels",
+    visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels", "tab20",
                       f"{dataset_name} (n={len(test_data)}) classes with added missing areas")
 
     def on_click(element, label, predicted_label):
@@ -150,10 +156,10 @@ def main(argv):
         },
     ]
 
-    df = runner_.run(train_data, test_data, ErrGen, err_params_list, model_params_dict_list, True)
+    df = runner_.run(train_data, test_data, Preprocessor, ErrGen, err_params_list, model_params_dict_list, True)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
-                       "radius_generator", "missing_value", "err_test_data"])
+                       "radius_generator", "missing_value"])
     visualize(df, dataset_name, label_names, test_data)
 
 

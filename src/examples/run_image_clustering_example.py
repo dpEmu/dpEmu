@@ -125,7 +125,7 @@ def main(argv):
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
     n_data = data.shape[0]
-    divs = [12, 30, 140]
+    divs = [12, 25, 50]
     min_cluster_size_steps = [round(n_data / div) for div in divs]
     min_samples_steps = [1, 10]
     model_params_dict_list = [

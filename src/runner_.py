@@ -18,27 +18,29 @@ def worker(inputs):
     err_test_data = err_gen().generate_error(test_data, err_params)
     time_used_err = time.time() - time_start
 
+    time_start = time.time()
     preproc_train_data, preproc_err_test_using_train, result_base_using_train = preproc().run(train_data, err_test_data)
     preproc_err_train_data, preproc_err_test_using_err_train, result_base_using_err_train = preproc().run(
         err_train_data, err_test_data)
+    time_used_preproc = time.time() - time_start
 
     results = []
     for model_params_dict in model_params_dict_list:
         model = model_params_dict["model"]
         model_params_list = model_params_dict["params_list"]
         if "use_clean_train_data" in model_params_dict:
-            use_clean_train = model_params_dict["use_clean_train_data"]
+            use_clean_train_data = model_params_dict["use_clean_train_data"]
         else:
-            use_clean_train = False
+            use_clean_train_data = False
 
-        if use_clean_train:
+        if use_clean_train_data:
             model_name = model.__name__.replace("Model", "Clean")
         else:
             model_name = model.__name__.replace("Model", "")
 
         for model_params in model_params_list:
             time_start = time.time()
-            if use_clean_train:
+            if use_clean_train_data:
                 result = model().run(preproc_train_data, preproc_err_test_using_train, model_params)
                 result.update(result_base_using_train)
             else:
@@ -50,6 +52,7 @@ def worker(inputs):
                 result["interactive_err_data"] = err_test_data
             result["model_name"] = model_name
             result["time_used_err"] = time_used_err
+            result["time_used_preproc"] = time_used_preproc
             result["time_used_mod"] = time_used_mod
             result.update({k: v for k, v in err_params.items()})
             result.update({k: v for k, v in model_params.items()})

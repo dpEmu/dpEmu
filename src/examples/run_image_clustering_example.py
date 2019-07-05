@@ -13,7 +13,7 @@ from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from src import runner_
 from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
-from src.plotting.utils import visualize_scores, visualize_classes, visualize_interactive_plot, print_results
+from src.plotting.utils import visualize_scores, visualize_classes, print_results
 from src.problemgenerator.array import Array
 from src.problemgenerator.copy import Copy
 from src.problemgenerator.filters import GaussianNoise, Min, Max, Constant
@@ -75,7 +75,7 @@ class KMeansModel(AbstractModel):
         super().__init__()
 
     def get_fitted_model(self, data, model_params, n_classes):
-        return KMeans(n_clusters=n_classes, random_state=self.random_state, n_jobs=1).fit(data)
+        return KMeans(n_clusters=n_classes, random_state=self.random_state).fit(data)
 
 
 class AgglomerativeModel(AbstractModel):
@@ -93,18 +93,14 @@ class HDBSCANModel(AbstractModel):
         super().__init__()
 
     def get_fitted_model(self, data, model_params, n_classes):
-        return HDBSCAN(
-            min_samples=1,
-            min_cluster_size=model_params["min_cluster_size"],
-            core_dist_n_jobs=1
-        ).fit(data)
+        return HDBSCAN(min_samples=10, min_cluster_size=model_params["min_cluster_size"]).fit(data)
 
 
 def visualize(df, label_names, dataset_name, data):
     visualize_scores(df, ["AMI", "ARI"], "std", f"{dataset_name} clustering scores with added gaussian noise")
     visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
                       f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
-    visualize_interactive_plot(df, "std", data, "tab10", "gray_r")
+    # visualize_interactive_plot(df, "std", data, "tab10", "gray_r")
 
     plt.show()
 
@@ -132,7 +128,7 @@ def main(argv):
         {"model": HDBSCANModel, "params_list": [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]},
     ]
 
-    df = runner_.run(None, data, Preprocessor, ErrGen, err_params_list, model_params_dict_list, True)
+    df = runner_.run(None, data, Preprocessor, ErrGen, err_params_list, model_params_dict_list, False)
 
     print_results(df, ["labels", "reduced_data"])
     visualize(df, label_names, dataset_name, data)

@@ -16,7 +16,7 @@ from sklearn.svm import LinearSVC
 from src import runner_
 from src.datasets.utils import load_newsgroups
 from src.ml.utils import reduce_dimensions_sparse
-from src.plotting.utils import visualize_scores, print_results, visualize_classes, visualize_confusion_matrices
+from src.plotting.utils import visualize_scores, print_results, visualize_classes
 from src.problemgenerator.array import Array
 from src.problemgenerator.copy import Copy
 from src.problemgenerator.filters import MissingArea
@@ -109,7 +109,7 @@ def visualize(df, dataset_name, label_names, test_data):
         print(label, " predicted as ", predicted_label, ":", sep="")
         print(element, end="\n\n")
 
-    visualize_confusion_matrices(df, label_names, "test_mean_accuracy", "p", on_click)
+    # visualize_confusion_matrices(df, label_names, "test_mean_accuracy", "p", on_click)
 
     plt.show()
 
@@ -156,7 +156,7 @@ def main(argv):
         },
     ]
 
-    df = runner_.run(train_data, test_data, Preprocessor, ErrGen, err_params_list, model_params_dict_list, True)
+    df = runner_.run(train_data, test_data, Preprocessor, ErrGen, err_params_list, model_params_dict_list, False)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
                        "radius_generator", "missing_value"])

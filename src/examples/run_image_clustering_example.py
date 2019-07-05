@@ -93,13 +93,18 @@ class HDBSCANModel(AbstractModel):
         super().__init__()
 
     def get_fitted_model(self, data, model_params, n_classes):
-        return HDBSCAN(min_samples=10, min_cluster_size=model_params["min_cluster_size"]).fit(data)
+        return HDBSCAN(
+            min_samples=model_params["min_samples"],
+            min_cluster_size=model_params["min_cluster_size"]
+        ).fit(data)
 
 
 def visualize(df, label_names, dataset_name, data):
     visualize_scores(df, ["AMI", "ARI"], "std", f"{dataset_name} clustering scores with added gaussian noise")
     visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
                       f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
+
+    # Remember to enable runner's interactive mode
     # visualize_interactive_plot(df, "std", data, "tab10", "gray_r")
 
     plt.show()
@@ -120,12 +125,17 @@ def main(argv):
     err_params_list = [{"mean": 0, "std": std} for std in std_steps]
 
     n_data = data.shape[0]
-    divs = [12, 15, 20, 30, 55, 80, 140]
-    mcs_steps = [round(n_data / div) for div in divs]
+    divs = [12, 30, 140]
+    min_cluster_size_steps = [round(n_data / div) for div in divs]
+    min_samples_steps = [1, 10]
     model_params_dict_list = [
         {"model": KMeansModel, "params_list": [{"labels": labels}]},
         {"model": AgglomerativeModel, "params_list": [{"labels": labels}]},
-        {"model": HDBSCANModel, "params_list": [{"min_cluster_size": mcs, "labels": labels} for mcs in mcs_steps]},
+        {"model": HDBSCANModel, "params_list": [{
+            "min_cluster_size": min_cluster_size,
+            "min_samples": min_samples,
+            "labels": labels
+        } for min_cluster_size in min_cluster_size_steps for min_samples in min_samples_steps]},
     ]
 
     df = runner_.run(None, data, Preprocessor, ErrGen, err_params_list, model_params_dict_list, False)

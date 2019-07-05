@@ -109,6 +109,7 @@ def visualize(df, dataset_name, label_names, test_data):
         print(label, " predicted as ", predicted_label, ":", sep="")
         print(element, end="\n\n")
 
+    # Remember to enable runner's interactive mode
     # visualize_confusion_matrices(df, label_names, "test_mean_accuracy", "p", on_click)
 
     plt.show()

@@ -19,7 +19,7 @@ x_node.addfilter(filters.Missing("prob"))
 y_node = array.Array(y[0].shape)
 series_node = series.TupleSeries([x_node, y_node])
 root_node = root.Root(series_node)
-error_params = {"mean": 0, "std": 0.5, "prob": 0.4}
+error_params = {"mean": 0, "std": std, "prob": prob}
 out_x, out_y = root_node.generate_error((x, y), error_params)
 
 print((y != out_y).sum(), "elements of y have been modified in (should be 0).")

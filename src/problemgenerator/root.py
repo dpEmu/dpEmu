@@ -8,7 +8,6 @@ class Root(Copy):
     generator object is needed.
     """
 
-
     def __init__(self, child):
         super().__init__(child)
 

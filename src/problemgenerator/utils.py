@@ -26,6 +26,8 @@ def to_time_series_x_y(data, x_length):
 
 
 def first_dimension_length(array):
+    """Returns the length of the first dimension of the provided array or list.
+    """
     if type(array) is list:
         return len(array)
     else:

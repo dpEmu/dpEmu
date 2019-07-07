@@ -10,7 +10,12 @@ from PIL import Image
 
 
 class Filter:
-    """A Filter is an error source which can be attached to an Array node."""
+    """A Filter is an error source which can be attached to an Array node.
+    The apply method applies the filter. A filter may always assume that
+    it is acting upon a Numpy array. (When the underlying data object is not
+    a Numpy array, the required conversions are performed by the Array node
+    to which the Filter is attached.)
+    """
 
     def __init__(self):
         np.random.seed(42)
@@ -52,9 +57,6 @@ class GaussianNoise(Filter):
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
-        print(f"""applying Gaussian noise filter with mean {self.mean} and std {self.std}
-                  to node data of shape {node_data.shape}
-                """)
         node_data += random_state.normal(loc=self.mean,
                                          scale=self.std,
                                          size=node_data.shape)

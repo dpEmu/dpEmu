@@ -1,5 +1,4 @@
 import json
-
 import numpy as np
 
 
@@ -24,3 +23,10 @@ def to_time_series_x_y(data, x_length):
     x = np.array([data[i - x_length:i] for i in range(x_length, data.shape[0])])
     y = np.array([data[i] for i in range(x_length, data.shape[0])])
     return x, y
+
+
+def first_dimension_length(array):
+    if type(array) is list:
+        return len(array)
+    else:
+        return array.shape[0]

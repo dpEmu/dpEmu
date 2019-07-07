@@ -21,7 +21,6 @@ from src.problemgenerator.array import Array
 from src.problemgenerator.root import Root
 from src.problemgenerator.filters import MissingArea
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator
-# from src.problemgenerator.error_generator import ErrGen
 
 warnings.simplefilter("ignore", category=ConvergenceWarning)
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
@@ -79,22 +78,6 @@ class LinearSVCModel(AbstractModel):
         return LinearSVC(C=params["C"], random_state=self.random_state).fit(train_data, train_labels)
 
 
-# class ErrGen:
-#     def __init__(self):
-#         self.random_state = RandomState(42)
-
-#     def generate_error(self, data, params):
-#         data = np.array(data)
-
-#         data_node = Array(data.shape)
-#         root_node = Copy(data_node)
-
-#         f = MissingArea(params["p"], params["radius_generator"], params["missing_value"])
-#         data_node.addfilter(f)
-
-#         return root_node.process(data, self.random_state)
-
-
 def visualize(df, dataset_name, label_names, test_data):
     visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], "p",
                      f"{dataset_name} classification scores with added missing areas")
@@ -145,9 +128,10 @@ def main(argv):
             "use_clean_train_data": True
         },
     ]
-    data_node = Array()
-    data_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
-    root_node = Root(data_node)
+
+    string_array_node = Array()
+    string_array_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
+    root_node = Root(string_array_node)
 
     df = runner_.run(train_data, test_data, root_node, err_params_list, model_params_dict_list)
 

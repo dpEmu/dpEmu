@@ -1,6 +1,7 @@
 from src.problemgenerator.copy import Copy
 from numpy.random import RandomState
 
+
 class Root(Copy):
 
     def __init__(self, child):

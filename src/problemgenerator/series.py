@@ -1,8 +1,11 @@
-from src.problemgenerator.node import Node
+from src.problemgenerator.node import Node, get_node_data
+from src.problemgenerator.utils import first_dimension_length
+
+
 class Series(Node):
 
     def __init__(self, child, dim_name=None):
-        super.__init__([child])
+        super().__init__([child])
         self.dim_name = dim_name
         self.filters = []
 
@@ -10,21 +13,23 @@ class Series(Node):
         self.filters.append(custom_filter)
 
     def process(self, data, random_state, index_tuple=(), named_dims={}):
-        data_length = data[index_tuple].shape[0]
+        node_data, _, _ = get_node_data(data, index_tuple, make_array=False)
+        data_length = first_dimension_length(node_data)
         for i in range(data_length):
             if self.dim_name:
                 named_dims[self.dim_name] = i
             self.children[0].process(data, random_state, (i, *index_tuple), named_dims)
 
 
-class TupleSeries:
+class TupleSeries(Node):
 
     def __init__(self, children, dim_name=None):
-        self.children = children
+        super().__init__(children)
         self.dim_name = dim_name
 
-    def process(self, data, random_state, named_dims={}):
-        data_length = data[0].shape[0]
+    def process(self, data, random_state, index_tuple=(), named_dims={}):
+        node_data = get_node_data(data, index_tuple, make_array=False)[0]
+        data_length = first_dimension_length(node_data[0])
         for i, child in enumerate(self.children):
             for j in range(data_length):
                 if self.dim_name:

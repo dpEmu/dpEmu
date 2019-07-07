@@ -7,7 +7,6 @@ from tqdm import tqdm
 
 def worker(inputs):
     train_data, test_data, err_gen, err_params, model_params_dict_list, use_interactive_mode = inputs
-
     time_start = time.time()
     if train_data:
         err_train_data = err_gen.generate_error(train_data, err_params)

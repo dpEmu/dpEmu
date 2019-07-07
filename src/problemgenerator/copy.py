@@ -1,6 +1,7 @@
 from src.problemgenerator.node import Node
 import copy
 
+
 class Copy(Node):
     def __init__(self, child):
         super().__init__([child])

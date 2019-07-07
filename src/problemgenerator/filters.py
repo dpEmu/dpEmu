@@ -26,29 +26,38 @@ class Missing(Filter):
     with the provided probability.
     """
 
-    def __init__(self, probability_ident):
-        self.probability_ident = probability_ident
+    def __init__(self, probability_id):
+        self.probability_id = probability_id
         super().__init__()
 
     def set_params(self, params_dict):
-        self.probability = params_dict[self.probability_ident]
+        self.probability = params_dict[self.probability_id]
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        mask = random_state.rand(*(data[index_tuple].shape)) <= self.probability
-        data[index_tuple][mask] = np.nan
+    def apply(self, node_data, random_state, named_dims):
+        mask = random_state.rand(*(node_data.shape)) <= self.probability
+        node_data[mask] = np.nan
 
 
 class GaussianNoise(Filter):
     """For each element in the array add noise drawn from a Gaussian distribution
     with the provided parameters mean and std (standard deviation).
     """
-    def __init__(self, mean, std):
-        self.mean = mean
-        self.std = std
+    def __init__(self, mean_id, std_id):
+        self.mean_id = mean_id
+        self.std_id = std_id
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        data[index_tuple] += random_state.normal(loc=self.mean, scale=self.std, size=data[index_tuple].shape)
+    def set_params(self, params_dict):
+        self.mean = params_dict[self.mean_id]
+        self.std = params_dict[self.std_id]
+
+    def apply(self, node_data, random_state, named_dims):
+        print(f"""applying Gaussian noise filter with mean {self.mean} and std {self.std}
+                  to node data of shape {node_data.shape}
+                """)
+        node_data += random_state.normal(loc=self.mean,
+                                         scale=self.std,
+                                         size=node_data.shape)
 
 
 class GaussianNoiseTimeDependent(Filter):
@@ -57,41 +66,49 @@ class GaussianNoiseTimeDependent(Filter):
     standard deviation increase with every unit of time by the amount specified
     in the last two parameters.
     """
-    def __init__(self, mean, std, mean_increase, std_increase):
-        self.mean = mean
-        self.std = std
-        self.mean_increase = mean_increase
-        self.std_increase = std_increase
-
+    def __init__(self, mean_id, std_id, mean_increase_id, std_increase_id):
+        self.mean_id = mean_id
+        self.std_id = std_id
+        self.mean_increase_id = mean_increase_id
+        self.std_increase_id = std_increase_id
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple, named_dims):
+    def set_params(self, params_dict):
+        self.mean = params_dict[self.mean_id]
+        self.mean_increase = params_dict[self.mean_increase_id]
+        self.std = params_dict[self.std_id]
+        self.std_increase = params_dict[self.std_increase_id]
+
+    def apply(self, node_data, random_state, named_dims):
         time = named_dims["time"]
-        data[index_tuple] += random_state.normal(loc=self.mean + self.mean_increase * time,
-                                                 scale=self.std + self.std_increase * time,
-                                                 size=data[index_tuple].shape)
+        node_data += random_state.normal(loc=self.mean + self.mean_increase * time,
+                                         scale=self.std + self.std_increase * time,
+                                         size=node_data.shape)
 
 
 class Uppercase(Filter):
     """For each character in the string, convert the character
     to uppercase with the provided probability.
     """
-    def __init__(self, probability):
-        self.prob = probability
+    def __init__(self, probability_id):
+        self.prob_id = probability_id
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple, named_dims):
+    def set_params(self, params_dict):
+        self.prob = params_dict[self.prob_id]
+
+    def apply(self, node_data, random_state, named_dims):
 
         def stochastic_upper(char, probability):
             if random_state.rand() <= probability:
                 return char.upper()
             return char
 
-        for index, element in np.ndenumerate(data[index_tuple]):
+        for index, element in np.ndenumerate(node_data):
             original_string = element
             modified_string = "".join(
                 [stochastic_upper(c, self.prob) for c in original_string])
-            data[index_tuple][index] = modified_string
+            node_data[index] = modified_string
 
 
 class OCRError(Filter):
@@ -106,9 +123,9 @@ class OCRError(Filter):
         self.p = p
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        for index, string_ in np.ndenumerate(data[index_tuple]):
-            data[index_tuple][index] = (self.generate_ocr_errors(string_, random_state))
+    def apply(self, node_data, random_state, named_dims):
+        for index, string_ in np.ndenumerate(node_data):
+            node_data[index] = (self.generate_ocr_errors(string_, random_state))
 
     def generate_ocr_errors(self, string_, random_state):
         return "".join([self.replace_char(c, random_state) for c in string_])
@@ -139,15 +156,13 @@ class MissingArea(Filter):
         self.radius_generator = params_dict[self.radius_generator_ident]
         self.missing_value = params_dict[self.missing_value_ident]
 
-    def apply(self, data, random_state, index_tuple, named_dims):
+    def apply(self, node_data, random_state, named_dims):
         if self.probability == 0:
             return
 
-        print(f"data length is {len(data)}")
-        print(f"index tuple is {index_tuple}")
-        for index, _ in np.ndenumerate(data[index_tuple]):
+        for index, _ in np.ndenumerate(node_data):
             # 1. Get indexes of newline characters. We will not touch those
-            string = data[index_tuple][index]
+            string = node_data[index]
 
             row_starts = [0]
             for i, c in enumerate(string):
@@ -195,7 +210,7 @@ class MissingArea(Filter):
 
             # 4. Apply error to string
             res_str = "".join([' ' if mask[i] else string[i] for i in range(len(mask))])
-            data[index_tuple][index] = res_str
+            node_data[index] = res_str
 
 
 class StainArea(Filter):
@@ -212,9 +227,9 @@ class StainArea(Filter):
         self.transparency_percentage = transparency_percentage
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        height = data[index_tuple].shape[0]
-        width = data[index_tuple].shape[1]
+    def apply(self, node_data, random_state, named_dims):
+        height = node_data.shape[0]
+        width = node_data.shape[1]
 
         # 1. Generate error
         errs = np.zeros(shape=(height+1, width+1))
@@ -241,7 +256,7 @@ class StainArea(Filter):
         errs = np.cumsum(errs, axis=1)
         errs = np.power(self.transparency_percentage, errs)
         for j in range(3):
-            data[index_tuple][:, :, j] = np.multiply(data[index_tuple][:, :, j], errs[0:height, 0:width])
+            node_data[:, :, j] = np.multiply(node_data[:, :, j], errs[0:height, 0:width])
 
 
 class Gap(Filter):
@@ -252,7 +267,7 @@ class Gap(Filter):
         self.prob_recover = prob_recover
         self.working = True
 
-    def apply(self, data, random_state, index_tuple, named_dims):
+    def apply(self, node_data, random_state, named_dims):
         def update_working_state():
             if self.working:
                 if random_state.rand() < self.prob_break:
@@ -261,11 +276,11 @@ class Gap(Filter):
                 if random_state.rand() < self.prob_recover:
                     self.working = True
 
-        # random_state.rand(data[index_tuple].shape[0], data[index_tuple].shape[1])
-        for index, _ in np.ndenumerate(data[index_tuple]):
+        # random_state.rand(node_data.shape[0], node_data.shape[1])
+        for index, _ in np.ndenumerate(node_data):
             update_working_state()
             if not self.working:
-                data[index_tuple][index] = self.missing_value
+                node_data[index] = self.missing_value
 
 
 class SensorDrift(Filter):
@@ -274,9 +289,9 @@ class SensorDrift(Filter):
         super().__init__()
         self.magnitude = magnitude
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        increases = np.arange(1, data[index_tuple].shape[0] + 1) * self.magnitude
-        data[index_tuple] += increases.reshape(data[index_tuple].shape)
+    def apply(self, node_data, random_state, named_dims):
+        increases = np.arange(1, node_data.shape[0] + 1) * self.magnitude
+        node_data += increases.reshape(node_data.shape)
 
 
 class StrangeBehaviour(Filter):
@@ -285,9 +300,9 @@ class StrangeBehaviour(Filter):
         super().__init__()
         self.do_strange_behaviour = do_strange_behaviour
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        for index, _ in np.ndenumerate(data[index_tuple]):
-            data[index_tuple][index] = self.do_strange_behaviour(data[index_tuple][index], random_state)
+    def apply(self, node_data, random_state, named_dims):
+        for index, _ in np.ndenumerate(node_data):
+            node_data[index] = self.do_strange_behaviour(node_data[index], random_state)
 
 
 class Rain(Filter):
@@ -295,9 +310,9 @@ class Rain(Filter):
         super().__init__()
         self.probability = probability
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
+    def apply(self, node_data, random_state, named_dims):
+        width = node_data.shape[1]
+        height = node_data.shape[0]
 
         direction = random_state.normal(0, 0.1) * pi + pi / 2
 
@@ -314,14 +329,14 @@ class Rain(Filter):
                                 tx += cos(direction)
                                 continue
                             brightness = random_state.rand() * 10
-                            r = data[round(ty)][round(tx)][0]
-                            g = data[round(ty)][round(tx)][1]
-                            b = data[round(ty)][round(tx)][2]
+                            r = node_data[round(ty)][round(tx)][0]
+                            g = node_data[round(ty)][round(tx)][1]
+                            b = node_data[round(ty)][round(tx)][2]
                             b = min(b + 30, 255)
                             r = min(r + random_state.normal(brightness, 4), 255)
                             g = min(g + random_state.normal(brightness, 4), 255)
                             b = min(b + random_state.normal(brightness, 4), 255)
-                            data[round(ty)][round(tx)] = (round(r), round(g), round(b))
+                            node_data[round(ty)][round(tx)] = (round(r), round(g), round(b))
                             ty += sin(direction)
                             tx += cos(direction)
 
@@ -333,7 +348,7 @@ class Snow(Filter):
         self.snowflake_alpha = snowflake_alpha
         self.snowstorm_alpha = snowstorm_alpha
 
-    def apply(self, data, random_state, index_tuple, named_dims):
+    def apply(self, node_data, random_state, named_dims):
         def generate_perlin_noise(height, width, random_state):
             # Pierre Vigier's implementation of 2d perlin noise with slight changes.
             # https://github.com/pvigier/perlin-numpy
@@ -402,8 +417,8 @@ class Snow(Filter):
                         res[y, x] = max(0, 1 - d / r)
             return res * self.snowflake_alpha
 
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
+        width = node_data.shape[1]
+        height = node_data.shape[0]
 
         # generate snowflakes
         flakes = []
@@ -428,13 +443,14 @@ class Snow(Filter):
             fy1 = y1-(y-r)
             fx1 = x1-(x-r)
             for j in range(3):
-                data[y0:y1, x0:x1, j] += ((255 - data[y0:y1, x0:x1, j]) * flakes[r][fy0:fy1, fx0:fx1]).astype(int)
+                node_data[y0:y1, x0:x1, j] += ((255 - node_data[y0:y1, x0:x1, j]) *
+                                               flakes[r][fy0:fy1, fx0:fx1]).astype(int)
 
         # add noise
         noise = generate_perlin_noise(height, width, random_state)
         noise = (noise + 1) / 2  # transform the noise to be in range [0, 1]
         for j in range(3):
-            data[:, :, j] += (self.snowstorm_alpha * (255 - data[:, :, j]) * noise[:, :]).astype(int)
+            node_data[:, :, j] += (self.snowstorm_alpha * (255 - node_data[:, :, j]) * noise[:, :]).astype(int)
 
 
 class JPEG_Compression(Filter):
@@ -445,16 +461,16 @@ class JPEG_Compression(Filter):
         super().__init__()
         self.quality = quality
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        iml = Image.fromarray(data)
+    def apply(self, node_data, random_state, named_dims):
+        iml = Image.fromarray(node_data)
         buf = BytesIO()
         iml.save(buf, "JPEG", quality=self.quality)
         iml = Image.open(buf)
         res_data = np.array(iml)
 
-        # width = data[index_tuple].shape[1]
-        # height = data[index_tuple].shape[0]
-        data[:, :] = res_data
+        # width = node_data.shape[1]
+        # height = node_data.shape[0]
+        node_data[:, :] = res_data
 
 
 class Blur_Gaussian(Filter):
@@ -466,8 +482,8 @@ class Blur_Gaussian(Filter):
         super().__init__()
         self.std = standard_dev
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        data[index_tuple] = gaussian_filter(data[index_tuple], self.std)
+    def apply(self, node_data, random_state, named_dims):
+        node_data = gaussian_filter(node_data, self.std)
 
 
 class Blur(Filter):
@@ -476,11 +492,11 @@ class Blur(Filter):
         super().__init__()
         self.repeats = repeats
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
+    def apply(self, node_data, random_state, named_dims):
+        width = node_data.shape[1]
+        height = node_data.shape[0]
         for _ in range(self.repeats):
-            original = np.copy(data)
+            original = np.copy(node_data)
             for y0 in range(height):
                 for x0 in range(width):
                     pixel_sum = np.array([0, 0, 0])
@@ -491,7 +507,7 @@ class Blur(Filter):
                                 continue
                             pixel_sum += original[y][x]
                             pixel_count += 1
-                    data[y0][x0] = pixel_sum // pixel_count
+                    node_data[y0][x0] = pixel_sum // pixel_count
 
 
 class Resolution(Filter):
@@ -502,14 +518,14 @@ class Resolution(Filter):
         super().__init__()
         self.k = k
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
+    def apply(self, node_data, random_state, named_dims):
+        width = node_data.shape[1]
+        height = node_data.shape[0]
         for y0 in range(height):
             y = (y0 // self.k) * self.k
             for x0 in range(width):
                 x = (x0 // self.k) * self.k
-                data[y0, x0] = data[y, x]
+                node_data[y0, x0] = node_data[y, x]
 
 
 class Rotation(Filter):
@@ -517,20 +533,20 @@ class Rotation(Filter):
         super().__init__()
         self.angle = angle
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        data[index_tuple] = imutils.rotate(data[index_tuple], self.angle)
+    def apply(self, node_data, random_state, named_dims):
+        node_data = imutils.rotate(node_data, self.angle)
 
         # Guesstimation for a large enough resize to avoid black areas in cropped picture
         factor = 1.8
-        resized = cv2.resize(data[index_tuple], None, fx=factor, fy=factor)
+        resized = cv2.resize(node_data, None, fx=factor, fy=factor)
         resized_width = resized.shape[1]
         resized_height = resized.shape[0]
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
+        width = node_data.shape[1]
+        height = node_data.shape[0]
 
         x0 = round((resized_width - width)/2)
         y0 = round((resized_height - height)/2)
-        data[index_tuple] = resized[y0:y0+height, x0:x0+width]
+        node_data = resized[y0:y0+height, x0:x0+width]
 
 
 class Brightness(Filter):
@@ -544,23 +560,23 @@ class Brightness(Filter):
         self.tar = tar
         self.rat = rat
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
+    def apply(self, node_data, random_state, named_dims):
+        width = node_data.shape[1]
+        height = node_data.shape[0]
         for y0 in range(height):
             for x0 in range(width):
-                r = float(data[y0, x0, 0]) * (1 / 255)
-                g = float(data[y0, x0, 1]) * (1 / 255)
-                b = float(data[y0, x0, 2]) * (1 / 255)
+                r = float(node_data[y0, x0, 0]) * (1 / 255)
+                g = float(node_data[y0, x0, 1]) * (1 / 255)
+                b = float(node_data[y0, x0, 2]) * (1 / 255)
                 (hu, li, sa) = rgb_to_hls(r, g, b)
 
                 mult = 1 - exp(-2 * self.rat)
                 li = li * (1 - mult) + self.tar * mult
 
                 (r, g, b) = hls_to_rgb(hu, li, sa)
-                data[y0, x0, 0] = 255 * r
-                data[y0, x0, 1] = 255 * g
-                data[y0, x0, 2] = 255 * b
+                node_data[y0, x0, 0] = 255 * r
+                node_data[y0, x0, 1] = 255 * g
+                node_data[y0, x0, 2] = 255 * b
 
 
 class Saturation(Filter):
@@ -574,30 +590,30 @@ class Saturation(Filter):
         self.tar = tar
         self.rat = rat
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
+    def apply(self, node_data, random_state, named_dims):
+        width = node_data.shape[1]
+        height = node_data.shape[0]
         for y0 in range(height):
             for x0 in range(width):
-                r = float(data[y0, x0, 0]) * (1 / 255)
-                g = float(data[y0, x0, 1]) * (1 / 255)
-                b = float(data[y0, x0, 2]) * (1 / 255)
+                r = float(node_data[y0, x0, 0]) * (1 / 255)
+                g = float(node_data[y0, x0, 1]) * (1 / 255)
+                b = float(node_data[y0, x0, 2]) * (1 / 255)
                 (hu, li, sa) = rgb_to_hls(r, g, b)
 
                 mult = 1 - exp(-2 * self.rat * sa)
                 sa = sa * (1 - mult) + self.tar * mult
 
                 (r, g, b) = hls_to_rgb(hu, li, sa)
-                data[y0, x0, 0] = 255 * r
-                data[y0, x0, 1] = 255 * g
-                data[y0, x0, 2] = 255 * b
+                node_data[y0, x0, 0] = 255 * r
+                node_data[y0, x0, 1] = 255 * g
+                node_data[y0, x0, 2] = 255 * b
 
 
 class LensFlare(Filter):
     def __init__(self):
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple, named_dims):
+    def apply(self, node_data, random_state, named_dims):
         def flare(x0, y0, radius):
             gt = random_state.randint(130, 180)
             rt = random_state.randint(220, 255)
@@ -612,19 +628,19 @@ class LensFlare(Filter):
                     if dist > radius:
                         continue
                     offset_dist = sqrt((x - x0 + x_offset)**2 + (y - y0 + y_offset)**2)
-                    r = data[y][x][0]
-                    g = data[y][x][1]
-                    b = data[y][x][2]
+                    r = node_data[y][x][0]
+                    g = node_data[y][x][1]
+                    b = node_data[y][x][2]
                     a = 3
                     t = max(0, min(1, (1 - (radius - offset_dist) / radius)))
                     visibility = max(0, a * t * t + (1 - a) * t) * 0.8
                     r = round(r + (rt - r) * visibility)
                     g = round(g + (gt - g) * visibility)
                     b = round(b + (bt - b) * visibility)
-                    data[y][x] = (r, g, b)
+                    node_data[y][x] = (r, g, b)
 
-        width = data[index_tuple].shape[1]
-        height = data[index_tuple].shape[0]
+        width = node_data.shape[1]
+        height = node_data.shape[0]
 
         # estimate the brightest spot in the image
         pixel_sum_x = [0, 0, 0]
@@ -633,12 +649,12 @@ class LensFlare(Filter):
         expected_y = [0, 0, 0]
         for y0 in range(height):
             for x0 in range(width):
-                pixel_sum_x += data[y0][x0]
-                pixel_sum_y += data[y0][x0]
+                pixel_sum_x += node_data[y0][x0]
+                pixel_sum_y += node_data[y0][x0]
         for y0 in range(height):
             for x0 in range(width):
-                expected_x += x0 * data[y0][x0] / pixel_sum_x
-                expected_y += y0 * data[y0][x0] / pixel_sum_y
+                expected_x += x0 * node_data[y0][x0] / pixel_sum_x
+                expected_y += y0 * node_data[y0][x0] / pixel_sum_y
         best_y = int((expected_y[0] + expected_y[1] + expected_y[2]) / 3)
         best_x = int((expected_x[0] + expected_x[1] + expected_x[2]) / 3)
 
@@ -667,9 +683,9 @@ class ApplyWithProbability(Filter):
         self.ftr = ftr
         self.probability = probability
 
-    def apply(self, data, random_state, index_tuple, named_dims):
+    def apply(self, node_data, random_state, named_dims):
         if random_state.rand() < self.probability:
-            self.ftr.apply(data, random_state, index_tuple, named_dims)
+            self.ftr.apply(node_data, random_state, named_dims)
 
 
 class Constant(Filter):
@@ -677,15 +693,15 @@ class Constant(Filter):
         super().__init__()
         self.value = value
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        data[index_tuple].fill(self.value)
+    def apply(self, node_data, random_state, named_dims):
+        node_data.fill(self.value)
 
 
 class Identity(Filter):
     def __init__(self):
         super().__init__()
 
-    def apply(self, data, random_state, index_tuple, named_dims):
+    def apply(self, node_data, random_state, named_dims):
         pass
 
 
@@ -695,13 +711,13 @@ class BinaryFilter(Filter):
         self.filter_a = filter_a
         self.filter_b = filter_b
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        data_a = data.copy()
-        data_b = data.copy()
-        self.filter_a.apply(data_a, random_state, index_tuple, named_dims)
-        self.filter_b.apply(data_b, random_state, index_tuple, named_dims)
-        for index, _ in np.ndenumerate(data[index_tuple]):
-            data[index] = self.operation(data_a[index], data_b[index])
+    def apply(self, node_data, random_state, named_dims):
+        data_a = node_data.copy()
+        data_b = node_data.copy()
+        self.filter_a.apply(data_a, random_state, named_dims)
+        self.filter_b.apply(data_b, random_state, named_dims)
+        for index, _ in np.ndenumerate(node_data):
+            node_data[index] = self.operation(data_a[index], data_b[index])
 
     def operation(self, element_a, element_b):
         raise NotImplementedError()
@@ -761,8 +777,8 @@ class Difference(Filter):
         super().__init__()
         self.ftr = Subtraction(ftr, Identity())
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        self.ftr.apply(data, random_state, index_tuple, named_dims)
+    def apply(self, node_data, random_state, named_dims):
+        self.ftr.apply(node_data, random_state, named_dims)
 
 
 class Max(BinaryFilter):
@@ -781,9 +797,9 @@ class ModifyAsDataType(Filter):
         self.dtype = dtype
         self.ftr = ftr
 
-    def apply(self, data, random_state, index_tuple, named_dims):
-        copy = data.copy().astype(self.dtype)
-        self.ftr.apply(copy, random_state, index_tuple, named_dims)
-        copy = copy.astype(data.dtype)
-        for index, _ in np.ndenumerate(data[index_tuple]):
-            data[index] = copy[index]
+    def apply(self, node_data, random_state, named_dims):
+        copy = node_data.copy().astype(self.dtype)
+        self.ftr.apply(copy, random_state, named_dims)
+        copy = copy.astype(node_data.dtype)
+        for index, _ in np.ndenumerate(node_data):
+            node_data[index] = copy[index]

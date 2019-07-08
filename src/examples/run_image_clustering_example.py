@@ -104,8 +104,21 @@ def visualize(df, label_names, dataset_name, data):
     visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
                       f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
 
+    def on_click(original, modified):
+        # reshape data
+        original = original.reshape((28, 28))
+        modified = modified.reshape((28, 28))
+
+        # create a figure and draw the images
+        fg, axs = plt.subplots(1, 2)
+        axs[0].matshow(original, cmap='gray_r')
+        axs[0].axis('off')
+        axs[1].matshow(modified, cmap='gray_r')
+        axs[1].axis('off')
+        fg.show()
+
     # Remember to enable runner's interactive mode
-    # visualize_interactive_plot(df, "std", data, "tab10", "gray_r")
+    # visualize_interactive_plot(df, "std", data, "tab10", "reduced_data", on_click)
 
     plt.show()
 

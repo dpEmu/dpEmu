@@ -40,6 +40,11 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
     n_col = math.ceil(df.shape[0] / 2)
     fig, axs = plt.subplots(2, n_col, figsize=(2.5 * n_col + 1, 5))
     for i, ax in enumerate(axs.ravel()):
+        if i >= df.shape[0]:
+            ax.set_xticks([])
+            ax.set_yticks([])
+            plt.box(False)
+            continue
         reduced_data = df[reduced_data_name][i]
         x_min, x_max, y_min, y_max = get_lims(reduced_data)
         sc = ax.scatter(*reduced_data.T, c=labels, cmap=cmap, marker=".", s=40)

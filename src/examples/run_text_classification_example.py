@@ -13,13 +13,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 
+import src.problemgenerator.utils as utils
 from src import runner_
 from src.datasets.utils import load_newsgroups
 from src.ml.utils import reduce_dimensions_sparse
-from src.plotting.utils import visualize_scores, print_results, visualize_classes
+from src.plotting.utils import visualize_scores, visualize_classes, print_results
 from src.problemgenerator.array import Array
-from src.problemgenerator.filters import MissingArea
-from src.problemgenerator.radius_generators import GaussianRadiusGenerator
+from src.problemgenerator.filters import OCRError
 
 warnings.simplefilter("ignore", category=ConvergenceWarning)
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
@@ -110,12 +110,20 @@ def main(argv):
     train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=.2,
                                                                         random_state=RandomState(42))
 
-    p_steps = np.linspace(0, .28, num=8)
+    p_steps = np.linspace(0, 1, num=11)
+    params = utils.load_ocr_error_params("config/example_text_error_params.json")
+    normalized_params = utils.normalize_ocr_error_params(params)
     err_params_list = [{
         "p": p,
-        "radius_generator": GaussianRadiusGenerator(0, 1),
-        "missing_value": " "
+        "normalized_params": normalized_params
     } for p in p_steps]
+
+    # p_steps = np.linspace(0, .28, num=8)
+    # err_params_list = [{
+    #     "p": p,
+    #     "radius_generator": GaussianRadiusGenerator(0, 1),
+    #     "missing_value": " "
+    # } for p in p_steps]
 
     alpha_steps = [10 ** i for i in range(-2, 1)]
     C_steps = [10 ** k for k in range(-2, 1)]
@@ -144,13 +152,15 @@ def main(argv):
     ]
 
     err_root_node = Array()
-    err_root_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
+    # err_root_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
+    err_root_node.addfilter(OCRError("normalized_params", "p"))
 
     df = runner_.run(train_data, test_data, Preprocessor, err_root_node, err_params_list, model_params_dict_list,
                      use_interactive_mode=False)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
                        "radius_generator", "missing_value"])
+
     visualize(df, dataset_name, label_names, test_data)
 
 

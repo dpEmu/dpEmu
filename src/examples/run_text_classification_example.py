@@ -114,6 +114,12 @@ def main(argv):
     params = utils.load_ocr_error_params("config/example_text_error_params.json")
     normalized_params = utils.normalize_ocr_error_params(params)
     # print(normalized_params)
+    # p_steps = np.linspace(0, .28, num=8)
+    # err_params_list = [{
+    #     "p": p,
+    #     "radius_generator": GaussianRadiusGenerator(0, 1),
+    #     "missing_value": " "
+    # } for p in p_steps]
     err_params_list = [{
         "p": p,
         "normalized_params": normalized_params

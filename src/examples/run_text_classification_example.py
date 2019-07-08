@@ -86,9 +86,9 @@ class LinearSVCModel(AbstractModel):
 
 def visualize(df, dataset_name, label_names, test_data):
     visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], "p",
-                     f"{dataset_name} classification scores with added missing areas")
+                     f"{dataset_name} classification scores with added error")
     visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels", "tab20",
-                      f"{dataset_name} (n={len(test_data)}) classes with added missing areas")
+                      f"{dataset_name} (n={len(test_data)}) classes with added error")
 
     def on_click(element, label, predicted_label):
         print(label, " predicted as ", predicted_label, ":", sep="")
@@ -159,7 +159,7 @@ def main(argv):
                      use_interactive_mode=False)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
-                       "radius_generator", "missing_value"])
+                       "radius_generator", "missing_value", "normalized_params"])
 
     visualize(df, dataset_name, label_names, test_data)
 

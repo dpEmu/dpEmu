@@ -15,7 +15,7 @@ from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
 from src.plotting.utils import visualize_scores, visualize_classes, print_results
 from src.problemgenerator.array import Array
-from src.problemgenerator.filters import GaussianNoise, Min, Max, Constant
+from src.problemgenerator.filters import GaussianNoise, Min, Max, Constant, Clip
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
@@ -102,9 +102,10 @@ def main(argv):
     else:
         exit(0)
 
+    min_val = np.amin(data)
     max_val = np.amax(data)
     std_steps = np.linspace(0, max_val, num=8)
-    err_params_list = [{"mean": 0, "std": std} for std in std_steps]
+    err_params_list = [{"mean": 0, "std": std, "min_val": min_val, "max_val": max_val} for std in std_steps]
 
     n_data = data.shape[0]
     divs = [12, 25, 50]
@@ -122,10 +123,11 @@ def main(argv):
 
     err_root_node = Array()
     f = GaussianNoise("mean", "std")
-    min_val = np.amin(data)
-    max_val = np.amax(data)
+    # min_val = np.amin(data)
+    # max_val = np.amax(data)
     # err_root_node.addfilter(Min(Max(f, Constant(min_val)), Constant(max_val)))
     err_root_node.addfilter(GaussianNoise("mean", "std"))
+    err_root_node.addfilter(Clip("min_val", "max_val"))
 
     df = runner_.run(None, data, Preprocessor, err_root_node, err_params_list, model_params_dict_list,
                      use_interactive_mode=False)

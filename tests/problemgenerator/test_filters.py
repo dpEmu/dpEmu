@@ -1,7 +1,6 @@
 import numpy as np
 
 import src.problemgenerator.array as array
-import src.problemgenerator.copy as copy
 import src.problemgenerator.filters as filters
 import src.problemgenerator.series as series
 import src.problemgenerator.radius_generators as radius_generators
@@ -189,7 +188,8 @@ def test_apply_with_probability():
     x_node = array.Array(data.shape)
     x_node.addfilter(filters.ApplyWithProbability(ocr, 0.5))
     series_node = series.Series(x_node)
-    out = root_node.process(data, np.random.RandomState(seed=42))
+    params = {"prob": .5}
+    out = series_node.generate_error(data, params, np.random.RandomState(seed=42))
 
     contains_distinct_elements = False
     for a in out:

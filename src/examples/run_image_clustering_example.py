@@ -15,28 +15,10 @@ from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
 from src.plotting.utils import visualize_scores, visualize_classes, print_results
 from src.problemgenerator.array import Array
-from src.problemgenerator.copy import Copy
 from src.problemgenerator.filters import GaussianNoise, Min, Max, Constant
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
-
-
-class ErrGen:
-    def __init__(self):
-        self.random_state = RandomState(42)
-
-    def generate_error(self, data, params):
-        data_node = Array(data.shape)
-        root_node = Copy(data_node)
-
-        f = GaussianNoise(params["mean"], params["std"])
-
-        min_val = np.amin(data)
-        max_val = np.amax(data)
-        data_node.addfilter(Min(Max(f, Constant(min_val)), Constant(max_val)))
-
-        return root_node.process(data, self.random_state)
 
 
 class Preprocessor:
@@ -138,7 +120,14 @@ def main(argv):
         } for min_cluster_size in min_cluster_size_steps for min_samples in min_samples_steps]},
     ]
 
-    df = runner_.run(None, data, Preprocessor, ErrGen, err_params_list, model_params_dict_list, False)
+    err_root_node = Array()
+    f = GaussianNoise("mean", "std")
+    min_val = np.amin(data)
+    max_val = np.amax(data)
+    err_root_node.addfilter(Min(Max(f, Constant(min_val)), Constant(max_val)))
+
+    df = runner_.run(None, data, Preprocessor, err_root_node, err_params_list, model_params_dict_list,
+                     use_interactive_mode=False)
 
     print_results(df, ["labels", "reduced_data"])
     visualize(df, label_names, dataset_name, data)

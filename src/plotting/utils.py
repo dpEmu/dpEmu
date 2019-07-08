@@ -149,7 +149,7 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, image_cma
         Plot(i, fig, reduced_T)
 
 
-def visualize_confusion_matrix(df_, cm, row, label_names, title, on_click=None):
+def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, predicted_labels_column, on_click=None):
     # Draw image of confusion matrix
     color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
     n = cm.shape[0]
@@ -168,8 +168,8 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, on_click=None):
             for label_prediction in label_names:
                 cm_values[label][label_prediction] = []
         for index, _ in enumerate(df_["interactive_err_data"][row]):
-            label = label_names[df_["test_labels"][row][index]]
-            predicted_label = label_names[df_["predicted_test_labels"][row][index]]
+            label = label_names[df_[labels_column][row][index]]
+            predicted_label = label_names[df_[predicted_labels_column][row][index]]
             cm_values[label][predicted_label].append(index)
 
     class Plot:
@@ -220,7 +220,7 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, on_click=None):
     plt.savefig(path_to_plot, bbox_inches="tight")
 
 
-def visualize_confusion_matrices(df, label_names, score_name, err_param_name, interactive):
+def visualize_confusion_matrices(df, label_names, score_name, err_param_name, labels_col, predictions_col, interactive):
     dfs = split_df_by_model(df)
     for df_ in dfs:
         df_ = filter_optimized_results(df_, err_param_name, score_name)
@@ -231,6 +231,8 @@ def visualize_confusion_matrices(df, label_names, score_name, err_param_name, in
                 i,
                 label_names,
                 f"{df_.name} confusion matrix ({err_param_name}={round(df_[err_param_name][i], 3)})",
+                labels_col,
+                predictions_col,
                 interactive
             )
 

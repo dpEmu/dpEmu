@@ -13,25 +13,24 @@ random_state = RandomState(42)
 def load_newsgroups(subset="all", n_categories=20):
     categories = [
         "alt.atheism",
-        "talk.religion.misc",
         "comp.graphics",
         "sci.space",
         "rec.autos",
         "talk.politics.guns",
         "rec.sport.hockey",
-        "comp.os.ms-windows.misc",
-        "sci.med",
-        "talk.politics.mideast",
         "comp.sys.ibm.pc.hardware",
+        "sci.med",
+        "rec.sport.baseball",
+        "sci.electronics",
+        "misc.forsale",
+        "sci.crypt",
+        "talk.politics.mideast",
         "comp.sys.mac.hardware",
         "comp.windows.x",
-        "misc.forsale",
         "rec.motorcycles",
-        "rec.sport.baseball",
-        "sci.crypt",
-        "sci.electronics",
         "soc.religion.christian",
         "talk.politics.misc",
+        "talk.religion.misc",
     ]
     if not 0 < n_categories < 21:
         n_categories = 20

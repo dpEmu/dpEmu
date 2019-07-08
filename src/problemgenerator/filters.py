@@ -220,7 +220,7 @@ class MissingArea(Filter):
 
 
 class StainArea(Filter):
-    def __init__(self, probability, radius_generator, transparency_percentage):
+    def __init__(self, probability_id, radius_generator_id, transparency_percentage_id):
         """This filter adds stains to the images.
             probability: probability of adding a stain at each pixel.
             radius_generator: object implementing a generate(random_state) function
@@ -228,10 +228,15 @@ class StainArea(Filter):
             transparency_percentage: 1 means that the stain is invisible and 0 means
                 that the part of the image where the stain is is completely black.
         """
-        self.probability = probability
-        self.radius_generator = radius_generator
-        self.transparency_percentage = transparency_percentage
+        self.probability_id = probability_id
+        self.radius_generator_id = radius_generator_id
+        self.transparency_percentage_id = transparency_percentage_id
         super().__init__()
+
+    def set_params(self, params_dict):
+        self.probability = params_dict[self.probability_id]
+        self.radius_generator = params_dict[self.radius_generator_id]
+        self.transparency_percentage = params_dict[self.transparency_percentage_id]
 
     def apply(self, node_data, random_state, named_dims):
         height = node_data.shape[0]
@@ -266,11 +271,17 @@ class StainArea(Filter):
 
 
 class Gap(Filter):
-    def __init__(self, prob_break, prob_recover, missing_value=np.nan):
+    def __init__(self, prob_break_id, prob_recover_id, missing_value_id):
         super().__init__()
-        self.missing_value = missing_value
-        self.prob_break = prob_break
-        self.prob_recover = prob_recover
+        self.prob_break_id = prob_break_id
+        self.prob_recover_id = prob_recover_id
+        self.missing_value_id = missing_value_id
+        self.working = True
+
+    def set_params(self, params_dict):
+        self.prob_break = params_dict[self.prob_break_id]
+        self.prob_recover = params_dict[self.prob_recover_id]
+        self.missing_value = params_dict[self.missing_value_id]
         self.working = True
 
     def apply(self, node_data, random_state, named_dims):
@@ -290,10 +301,13 @@ class Gap(Filter):
 
 
 class SensorDrift(Filter):
-    def __init__(self, magnitude):
+    def __init__(self, magnitude_id):
         """Magnitude is the linear increase in drift during time period t_i -> t_i+1."""
         super().__init__()
-        self.magnitude = magnitude
+        self.magnitude_id = magnitude_id
+
+    def set_params(self, params_dict):
+        self.magnitude = params_dict[self.magnitude_id]
 
     def apply(self, node_data, random_state, named_dims):
         increases = np.arange(1, node_data.shape[0] + 1) * self.magnitude
@@ -301,10 +315,13 @@ class SensorDrift(Filter):
 
 
 class StrangeBehaviour(Filter):
-    def __init__(self, do_strange_behaviour):
+    def __init__(self, do_strange_behaviour_id):
         """The function do_strange_behaviour outputs strange sensor values into the data."""
         super().__init__()
-        self.do_strange_behaviour = do_strange_behaviour
+        self.do_strange_behaviour_id = do_strange_behaviour_id
+
+    def set_params(self, params_dict):
+        self.do_strange_behaviour = params_dict[self.do_strange_behaviour_id]
 
     def apply(self, node_data, random_state, named_dims):
         for index, _ in np.ndenumerate(node_data):
@@ -312,9 +329,12 @@ class StrangeBehaviour(Filter):
 
 
 class Rain(Filter):
-    def __init__(self, probability):
+    def __init__(self, probability_id):
         super().__init__()
-        self.probability = probability
+        self.probability_id = probability_id
+
+    def set_params(self, params_dict):
+        self.probability = params_dict[self.probability_id]
 
     def apply(self, node_data, random_state, named_dims):
         width = node_data.shape[1]
@@ -348,11 +368,16 @@ class Rain(Filter):
 
 
 class Snow(Filter):
-    def __init__(self, snowflake_probability, snowflake_alpha, snowstorm_alpha):
+    def __init__(self, snowflake_probability_id, snowflake_alpha_id, snowstorm_alpha_id):
         super().__init__()
-        self.snowflake_probability = snowflake_probability
-        self.snowflake_alpha = snowflake_alpha
-        self.snowstorm_alpha = snowstorm_alpha
+        self.snowflake_probability_id = snowflake_probability_id
+        self.snowflake_alpha_id = snowflake_alpha_id
+        self.snowstorm_alpha_id = snowstorm_alpha_id
+
+    def set_params(self, params_dict):
+        self.snowflake_probability = params_dict[self.snowflake_probability_id]
+        self.snowflake_alpha = params_dict[self.snowflake_alpha_id]
+        self.snowstorm_alpha = params_dict[self.snowstorm_alpha_id]
 
     def apply(self, node_data, random_state, named_dims):
         def generate_perlin_noise(height, width, random_state):
@@ -463,9 +488,12 @@ class JPEG_Compression(Filter):
     """
     Compress the image as JPEG and uncompress. Quality should be in range [1, 100], the bigger the less loss
     """
-    def __init__(self, quality):
+    def __init__(self, quality_id):
         super().__init__()
-        self.quality = quality
+        self.quality_id = quality_id
+
+    def set_params(self, params_dict):
+        self.quality = params_dict[self.quality_id]
 
     def apply(self, node_data, random_state, named_dims):
         iml = Image.fromarray(node_data)
@@ -484,9 +512,12 @@ class Blur_Gaussian(Filter):
     Create blur in images by applying a Gaussian filter.
     The standard deviation of the Gaussian is taken as a parameter.
     """
-    def __init__(self, standard_dev):
+    def __init__(self, standard_dev_id):
         super().__init__()
-        self.std = standard_dev
+        self.std_id = standard_dev_id
+
+    def set_params(self, params_dict):
+        self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
         node_data = gaussian_filter(node_data, self.std)
@@ -494,9 +525,12 @@ class Blur_Gaussian(Filter):
 
 class Blur(Filter):
 
-    def __init__(self, repeats):
+    def __init__(self, repeats_id):
         super().__init__()
-        self.repeats = repeats
+        self.repeats_id = repeats_id
+
+    def set_params(self, params_dict):
+        self.repeats = params_dict[self.repeats_id]
 
     def apply(self, node_data, random_state, named_dims):
         width = node_data.shape[1]
@@ -520,9 +554,12 @@ class Resolution(Filter):
     """
     Makes resolution k times smaller. K must be an integer
     """
-    def __init__(self, k):
+    def __init__(self, k_id):
         super().__init__()
-        self.k = k
+        self.k_id = k_id
+
+    def set_params(self, params_dict):
+        self.k = params_dict[self.k_id]
 
     def apply(self, node_data, random_state, named_dims):
         width = node_data.shape[1]
@@ -535,9 +572,12 @@ class Resolution(Filter):
 
 
 class Rotation(Filter):
-    def __init__(self, angle):
+    def __init__(self, angle_id):
         super().__init__()
-        self.angle = angle
+        self.angle_id = angle_id
+
+    def set_params(self, params_dict):
+        self.angle = params_dict[self.angle_id]
 
     def apply(self, node_data, random_state, named_dims):
         node_data = imutils.rotate(node_data, self.angle)
@@ -561,10 +601,14 @@ class Brightness(Filter):
     tar: 0 if you want to decrease brightness, 1 if you want to increase it
     rat: scales the brightness change
     """
-    def __init__(self, tar, rat):
+    def __init__(self, tar_id, rat_id):
         super().__init__()
-        self.tar = tar
-        self.rat = rat
+        self.tar_id = tar_id
+        self.rat_id = rat_id
+
+    def set_params(self, params_dict):
+        self.tar = params_dict[self.tar_id]
+        self.rat = params_dict[self.rat_id]
 
     def apply(self, node_data, random_state, named_dims):
         width = node_data.shape[1]
@@ -591,10 +635,14 @@ class Saturation(Filter):
     tar: 0 if you want to decrease saturation, 1 if you want to increase it
     rat: scales the saturation change
     """
-    def __init__(self, tar, rat):
+    def __init__(self, tar_id, rat_id):
         super().__init__()
-        self.tar = tar
-        self.rat = rat
+        self.tar_id = tar_id
+        self.rat_id = rat_id
+
+    def set_params(self, params_dict):
+        self.tar = params_dict[self.tar_id]
+        self.rat = params_dict[self.rat_id]
 
     def apply(self, node_data, random_state, named_dims):
         width = node_data.shape[1]
@@ -684,10 +732,14 @@ class LensFlare(Filter):
 
 
 class ApplyWithProbability(Filter):
-    def __init__(self, ftr, probability):
+    def __init__(self, ftr_id, probability_id):
         super().__init__()
-        self.ftr = ftr
-        self.probability = probability
+        self.ftr_id = ftr_id
+        self.probability_id = probability_id
+
+    def set_params(self, params_dict):
+        self.ftr = params_dict[self.ftr_id]
+        self.probability = params_dict[self.probability_id]
 
     def apply(self, node_data, random_state, named_dims):
         if random_state.rand() < self.probability:

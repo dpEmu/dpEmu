@@ -1,21 +1,16 @@
 import time
 from multiprocessing.pool import Pool
 
-import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
 
 def worker(inputs):
-    train_data, test_data, preproc, err_gen, err_params, model_params_dict_list, use_interactive_mode = inputs
-
+    train_data, test_data, preproc, err_root_node, err_params, model_params_dict_list, use_interactive_mode = inputs
     time_start = time.time()
-    err_train_data = None
-    if train_data is not None:
-        train_data = np.array(train_data)
-        err_train_data = err_gen().generate_error(train_data, err_params)
-    test_data = np.array(test_data)
-    err_test_data = err_gen().generate_error(test_data, err_params)
+    if train_data:
+        err_train_data = err_root_node.generate_error(train_data, err_params)
+    err_test_data = err_root_node.generate_error(test_data, err_params)
     time_used_err = time.time() - time_start
 
     time_start = time.time()
@@ -61,11 +56,17 @@ def worker(inputs):
     return results
 
 
-def run(train_data, test_data, preproc, err_gen, err_params_list, model_params_dict_list, use_interactive_mode=False):
-    pool_inputs = []
-    for err_params in err_params_list:
-        pool_inputs.append(
-            (train_data, test_data, preproc, err_gen, err_params, model_params_dict_list, use_interactive_mode))
+def run(train_data, test_data, preproc, err_root_node, err_params_list, model_params_dict_list,
+        use_interactive_mode=False):
+    pool_inputs = [(
+        train_data,
+        test_data,
+        preproc,
+        err_root_node,
+        err_params,
+        model_params_dict_list,
+        use_interactive_mode
+    ) for err_params in err_params_list]
     total_results = []
     with Pool() as pool:
         for results in tqdm(pool.imap(worker, pool_inputs), total=len(err_params_list)):

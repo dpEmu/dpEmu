@@ -17,7 +17,7 @@ import src.problemgenerator.utils as utils
 from src import runner_
 from src.datasets.utils import load_newsgroups
 from src.ml.utils import reduce_dimensions_sparse
-from src.plotting.utils import visualize_scores, visualize_classes, print_results
+from src.plotting.utils import visualize_scores, visualize_classes, print_results, visualize_confusion_matrices
 from src.problemgenerator.array import Array
 from src.problemgenerator.filters import OCRError
 
@@ -95,8 +95,8 @@ def visualize(df, dataset_name, label_names, test_data):
         print(element, end="\n\n")
 
     # Remember to enable runner's interactive mode
-    # visualize_confusion_matrices(df, label_names, "test_mean_accuracy", "p",
-    #                              "test_labels", "predicted_test_labels", on_click)
+    visualize_confusion_matrices(df, label_names, "test_mean_accuracy", "p",
+                                 "test_labels", "predicted_test_labels", on_click)
 
     plt.show()
 
@@ -111,7 +111,7 @@ def main(argv):
                                                                         random_state=RandomState(42))
 
     p_steps = np.linspace(0, 1, num=11)
-    params = utils.load_ocr_error_params("config/example_text_error_params.json")
+    params = utils.load_ocr_error_params("config/example_text_error_params_realistic_ocr.json")
     normalized_params = utils.normalize_ocr_error_params(params)
     err_params_list = [{
         "p": p,
@@ -156,7 +156,7 @@ def main(argv):
     err_root_node.addfilter(OCRError("normalized_params", "p"))
 
     df = runner_.run(train_data, test_data, Preprocessor, err_root_node, err_params_list, model_params_dict_list,
-                     use_interactive_mode=False)
+                     use_interactive_mode=True)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
                        "radius_generator", "missing_value", "normalized_params"])

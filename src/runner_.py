@@ -8,6 +8,7 @@ from tqdm import tqdm
 def worker(inputs):
     train_data, test_data, preproc, err_root_node, err_params, model_params_dict_list, use_interactive_mode = inputs
     time_start = time.time()
+    err_train_data = None
     if train_data:
         err_train_data = err_root_node.generate_error(train_data, err_params)
     err_test_data = err_root_node.generate_error(test_data, err_params)

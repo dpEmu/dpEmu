@@ -43,6 +43,22 @@ class Missing(Filter):
         node_data[mask] = np.nan
 
 
+class Clip(Filter):
+    """Clip values to minimum and maximum value provided by the user.
+    """
+    def __init__(self, min_id, max_id):
+        self.min_id = min_id
+        self.max_id = max_id
+        super().__init__()
+
+    def set_params(self, params_dict):
+        self.min = params_dict[self.min_id]
+        self.max = params_dict[self.max_id]
+
+    def apply(self, node_data, random_state, named_dims):
+        np.clip(node_data, self.min, self.max, out=node_data)
+
+
 class GaussianNoise(Filter):
     """For each element in the array add noise drawn from a Gaussian distribution
     with the provided parameters mean and std (standard deviation).

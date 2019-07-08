@@ -38,7 +38,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
     labels = df[labels_name][0]
 
     n_col = math.ceil(df.shape[0] / 2)
-    fig, axs = plt.subplots(2, n_col, figsize=(2.5 * n_col + 1, 5))
+    fig, axs = plt.subplots(2, n_col, figsize=(2.5 * n_col + 1, 5), constrained_layout=True)
     for i, ax in enumerate(axs.ravel()):
         if i >= df.shape[0]:
             ax.set_xticks([])
@@ -55,10 +55,9 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
         ax.set_xticks([])
         ax.set_yticks([])
     fig.suptitle(title)
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
     n_unique = np.unique(labels).shape[0]
     cbar = fig.colorbar(sc, ax=axs, boundaries=np.arange(n_unique + 1) - 0.5, ticks=np.arange(n_unique),
-                        use_gridspec=True)
+                        use_gridspec=True, aspect=50)
     if label_names:
         cbar.ax.yaxis.set_ticklabels(label_names)
 

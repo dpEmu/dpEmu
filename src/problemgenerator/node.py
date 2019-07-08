@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 
 class Node:
@@ -18,6 +19,21 @@ class Node:
             filter_.set_params(params_dict)
         for child in self.children:
             child.set_error_params(params_dict)
+
+    def process(self, data, random_state):
+        pass
+
+    def generate_error(self, data, error_params):
+        """Returns the data with the desired errors introduced. The original
+        data object is not modified. The error parameters must be provided as
+        a dictionary whose keys are the parameter identifiers (given as
+        parameters to the filters) and whose values are the desired parameter
+        values.
+        """
+        self.set_error_params(error_params)
+        copy_data = copy.deepcopy(data)
+        self.process(copy_data, np.random.RandomState(42))
+        return copy_data
 
 
 def get_node_data(data, index_tuple, make_array=True):

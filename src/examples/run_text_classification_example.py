@@ -131,9 +131,8 @@ def main(argv):
 
     string_array_node = Array()
     string_array_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
-    root_node = Root(string_array_node)
 
-    df = runner_.run(train_data, test_data, root_node, err_params_list, model_params_dict_list)
+    df = runner_.run(train_data, test_data, string_array_node, err_params_list, model_params_dict_list)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
                        "radius_generator", "missing_value"])

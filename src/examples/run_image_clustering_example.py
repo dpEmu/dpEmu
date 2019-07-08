@@ -124,7 +124,8 @@ def main(argv):
     f = GaussianNoise("mean", "std")
     min_val = np.amin(data)
     max_val = np.amax(data)
-    err_root_node.addfilter(Min(Max(f, Constant(min_val)), Constant(max_val)))
+    # err_root_node.addfilter(Min(Max(f, Constant(min_val)), Constant(max_val)))
+    err_root_node.addfilter(GaussianNoise("mean", "std"))
 
     df = runner_.run(None, data, Preprocessor, err_root_node, err_params_list, model_params_dict_list,
                      use_interactive_mode=False)

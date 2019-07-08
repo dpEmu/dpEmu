@@ -61,42 +61,16 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
     fig.savefig(path_to_plot)
 
 
-def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, image_cmap, shape=None):
+def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_data_column, on_click):
     def get_lims(data):
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
-
-    # Guess the shape of the data using the assumption that the shape of the images is a square
-    if not shape:
-        rgb = data[0].shape[-1] == 3
-        rgba = data[0].shape[-1] == 4
-        prod = 1
-        for x in data[0].shape:
-            prod *= x
-        if rgb:
-            prod //= 3
-        elif rgba:
-            prod //= 4
-        sqrt = 0
-        while (sqrt + 1) * (sqrt + 1) <= prod:
-            sqrt += 1
-        if sqrt * sqrt != prod:
-            print("Unable to guess the shape of the data. Please specify it in visualize_interactive()'s parameters.")
-            return
-        if rgb:
-            shape = (sqrt, sqrt, 3)
-        elif rgba:
-            shape = (sqrt, sqrt, 4)
-        else:
-            shape = (sqrt, sqrt)
-        print("The program assumes that the shape of the data is", shape)
-        print("If this is incorrect, please specify the shape in visualize_interactive()'s parameters.")
 
     df = df.groupby(err_param_name).first().reset_index()
     labels = df["labels"][0]
 
     # plot the data of each error parameter combination
-    for i, _ in enumerate(df["reduced_data"]):
-        reduced_data = df["reduced_data"][i]
+    for i, _ in enumerate(df[reduced_data_column]):
+        reduced_data = df[reduced_data_column][i]
         x_min, x_max, y_min, y_max = get_lims(reduced_data)
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -112,11 +86,12 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, image_cma
 
         # without creating a class the plots would use wrong values of i
         class Plot:
-            def __init__(self, i, fig, reduced_T):
+            def __init__(self, i, fig, reduced_T, on_click):
                 self.i = i
                 self.fig = fig
                 self.cid = self.fig.canvas.mpl_connect('pick_event', self)
                 self.reduced_T = reduced_T
+                self.on_click = on_click
 
             def __call__(self, event):
                 if len(event.ind) == 0:
@@ -135,18 +110,12 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, image_cma
                         closest = elem
 
                 # get original and modified data points
-                elem = data[closest].reshape(shape)
-                modified = df["interactive_err_data"][self.i][closest].reshape(shape)
+                original = data[closest]
+                modified = df["interactive_err_data"][self.i][closest]
 
-                # create a figure and draw the images
-                fg, axs = plt.subplots(1, 2)
-                axs[0].matshow(elem, cmap=image_cmap)
-                axs[0].axis('off')
-                axs[1].matshow(modified, cmap=image_cmap)
-                axs[1].axis('off')
-                fg.show()
+                self.on_click(original, modified)
 
-        Plot(i, fig, reduced_T)
+        Plot(i, fig, reduced_T, on_click)
 
 
 def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, predicted_labels_column, on_click=None):

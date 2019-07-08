@@ -18,27 +18,12 @@ from src.datasets.utils import load_newsgroups
 from src.ml.utils import reduce_dimensions_sparse
 from src.plotting.utils import visualize_scores, print_results, visualize_classes
 from src.problemgenerator.array import Array
-from src.problemgenerator.copy import Copy
 from src.problemgenerator.filters import MissingArea
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator
 
 warnings.simplefilter("ignore", category=ConvergenceWarning)
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
-
-
-class ErrGen:
-    def __init__(self):
-        self.random_state = RandomState(42)
-
-    def generate_error(self, data, params):
-        data_node = Array(data.shape)
-        root_node = Copy(data_node)
-
-        f = MissingArea(params["p"], params["radius_generator"], params["missing_value"])
-        data_node.addfilter(f)
-
-        return root_node.process(data, self.random_state)
 
 
 class Preprocessor:
@@ -157,7 +142,11 @@ def main(argv):
         },
     ]
 
-    df = runner_.run(train_data, test_data, Preprocessor, ErrGen, err_params_list, model_params_dict_list, False)
+    err_root_node = Array()
+    err_root_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
+
+    df = runner_.run(train_data, test_data, Preprocessor, err_root_node, err_params_list, model_params_dict_list,
+                     use_interactive_mode=False)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
                        "radius_generator", "missing_value"])

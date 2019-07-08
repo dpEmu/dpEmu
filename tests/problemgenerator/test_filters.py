@@ -2,6 +2,7 @@ import numpy as np
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
+from src.problemgenerator.radius_generators import GaussianRadiusGenerator, ProbabilityArrayRadiusGenerator
 
 
 def test_seed_determines_result_for_missing_filter():
@@ -44,31 +45,35 @@ def test_seed_determines_result_for_ocr_error_filter():
     assert np.array_equal(out1, out2)
 
 
-# def test_seed_determines_result_for_missing_area_filter_with_gaussian_radius_generator():
-#     a = np.array(["hello world\n" * 10])
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.MissingArea(0.05, radius_generators.GaussianRadiusGenerator(1, 1), "#"))
-#     params = {}
-#     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out1, out2)
+def test_seed_determines_result_for_missing_area_filter_with_gaussian_radius_generator():
+    a = np.array(["hello world\n" * 10])
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.MissingArea("probability", "radius_generator", "missing_value"))
+    params = {"probability": 0.05,
+              "radius_generator": GaussianRadiusGenerator(1, 1),
+              "missing_value": "#"}
+    out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out1, out2)
 
 
-# def test_seed_determines_result_for_missing_area_filter_with_probability_array_radius_generator():
-#     a = np.array(["hello world\n" * 10])
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.MissingArea(0.05, radius_generators.ProbabilityArrayRadiusGenerator([.6, .3, .1]), "#"))
-#     params = {}
-#     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out1, out2)
+def test_seed_determines_result_for_missing_area_filter_with_probability_array_radius_generator():
+    a = np.array(["hello world\n" * 10])
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.MissingArea("probability", "radius_generator", "missing_value"))
+    params = {"probability": 0.05,
+              "radius_generator": ProbabilityArrayRadiusGenerator([.6, .3, .1]),
+              "missing_value": "#"}
+    out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out1, out2)
 
 
 def test_seed_determines_result_for_gap_filter():
     a = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
     x_node = array.Array(a.shape)
-    x_node.addfilter(filters.Gap(0.1, 0.1, missing_value=1337))
-    params = {}
+    x_node.addfilter(filters.Gap("prob_break", "prob_recover", "missing_value"))
+    params = {"prob_break": 0.1, "prob_recover": 0.1, "missing_value": 1337}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
@@ -80,8 +85,8 @@ def test_seed_determines_result_for_strange_behaviour_filter():
 
     a = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
     x_node = array.Array(a.shape)
-    x_node.addfilter(filters.StrangeBehaviour(f))
-    params = {}
+    x_node.addfilter(filters.StrangeBehaviour("f"))
+    params = {"f": f}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
@@ -90,8 +95,8 @@ def test_seed_determines_result_for_strange_behaviour_filter():
 def test_seed_determines_result_for_rain_filter():
     a = np.zeros((10, 10, 3), dtype=int)
     x_node = array.Array(a.shape)
-    x_node.addfilter(filters.Rain(0.03))
-    params = {}
+    x_node.addfilter(filters.Rain("probability"))
+    params = {"probability": 0.03}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
@@ -100,8 +105,8 @@ def test_seed_determines_result_for_rain_filter():
 def test_seed_determines_result_for_snow_filter():
     a = np.zeros((10, 10, 3), dtype=int)
     x_node = array.Array(a.shape)
-    x_node.addfilter(filters.Snow(0.04, 0.4, 1))
-    params = {}
+    x_node.addfilter(filters.Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
+    params = {"snowflake_probability": 0.04, "snowflake_alpha": 0.4, "snowstorm_alpha": 1}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
@@ -113,81 +118,91 @@ def test_seed_determines_result_for_blur_filter():
 
     a = np.random.RandomState(seed=42).randint(0, 255, size=300).reshape((10, 10, 3))
     x_node = array.Array(a.shape)
-    x_node.addfilter(filters.Blur(5))
-    params = {}
+    x_node.addfilter(filters.Blur("repeats"))
+    params = {"repeats": 5}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
 
-# def test_seed_determines_result_for_stain_filter():
-#     def f(data, random_state):
-#         return data * random_state.randint(2, 4)
-#
-#     a = np.random.RandomState(seed=42).randint(0, 255, size=300).reshape((10, 10, 3))
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.StainArea(.002, radius_generators.GaussianRadiusGenerator(10, 5), 0.5))
-#     params = {}
-#     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out1, out2)
+
+def test_seed_determines_result_for_stain_filter():
+    def f(data, random_state):
+        return data * random_state.randint(2, 4)
+
+    a = np.random.RandomState(seed=42).randint(0, 255, size=300).reshape((10, 10, 3))
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.StainArea("probability", "radius_generator", "transparency_percentage"))
+    params = {"probability": .002,
+              "radius_generator": GaussianRadiusGenerator(10, 5),
+              "transparency_percentage": 0.5}
+    out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out1, out2)
 
 
-# def test_sensor_drift():
-#     drift = filters.SensorDrift(2)
-#     y = np.full((100), 1)
-#     drift.apply(y, np.random.RandomState(), (), named_dims={})
-#
-#     increases = np.arange(1, 101)
-#
-#     assert len(y) == len(increases)
-#     for i, val in enumerate(y):
-#         assert val == increases[i]*2 + 1
+def test_sensor_drift():
+    drift = filters.SensorDrift("magnitude")
+    params = {"magnitude": 2}
+    drift.set_params(params)
+    y = np.full((100), 1)
+    drift.apply(y, np.random.RandomState(), named_dims={})
+
+    increases = np.arange(1, 101)
+
+    assert len(y) == len(increases)
+    for i, val in enumerate(y):
+        assert val == increases[i]*2 + 1
 
 
-# def test_strange_behaviour():
-#     def strange(x, _):
-#         if 15 <= x <= 20:
-#             return -300
-#
-#         return x
-#
-#     weird = filters.StrangeBehaviour(strange)
-#     y = np.arange(0, 30)
-#     weird.apply(y, np.random.RandomState(), (), named_dims={})
-#
-#     for i in range(15, 21):
-#         assert y[i] == -300
+def test_strange_behaviour():
+    def strange(x, _):
+        if 15 <= x <= 20:
+            return -300
+
+        return x
+
+    weird = filters.StrangeBehaviour("strange")
+    params = {"strange": strange}
+    weird.set_params(params)
+    y = np.arange(0, 30)
+    weird.apply(y, np.random.RandomState(), named_dims={})
+
+    for i in range(15, 21):
+        assert y[i] == -300
 
 
-# def test_one_gap():
-#     gap = filters.Gap(0.0, 1)
-#     y = np.arange(10000.0)
-#     gap.apply(y, np.random.RandomState(), (), named_dims={})
-#
-#     for _, val in enumerate(y):
-#         assert not np.isnan(val)
+def test_one_gap():
+    gap = filters.Gap("prob_break", "prob_recover", "missing")
+    y = np.arange(10000.0)
+    params = {"prob_break": 0.0, "prob_recover": 1, "missing": np.nan}
+    gap.set_params(params)
+    gap.apply(y, np.random.RandomState(), named_dims={})
+
+    for _, val in enumerate(y):
+        assert not np.isnan(val)
 
 
-# def test_two_gap():
-#     gap = filters.Gap(1, 0)
-#     y = np.arange(10000.0)
-#     gap.apply(y, np.random.RandomState(), (), named_dims={})
-#
-#     for _, val in enumerate(y):
-#         assert np.isnan(val)
+def test_two_gap():
+    gap = filters.Gap("prob_break", "prob_recover", "missing")
+    params = {"prob_break": 1.0, "prob_recover": 0.0, "missing": np.nan}
+    y = np.arange(10000.0)
+    gap.set_params(params)
+    gap.apply(y, np.random.RandomState(), named_dims={})
+
+    for _, val in enumerate(y):
+        assert np.isnan(val)
 
 
 # def test_apply_with_probability():
 #     data = np.array([["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"]])
-#     params = {"a": [["e"], [1.0]]}
-#     ocr = filters.OCRError(params, p=1.0)
-#
+
+#     ocr = filters.OCRError("ps", "p")
 #     x_node = array.Array(data.shape)
-#     x_node.addfilter(filters.ApplyWithProbability(ocr, 0.5))
+#     x_node.addfilter(filters.ApplyWithProbability("ocr_node", "ocr_prob"))
 #     series_node = series.Series(x_node)
-#     params = {"prob": .5}
+#     params = {"ps": {"a": [["e"], [1.0]]}, "p": 1.0, "ocr_node": ocr, "ocr_prob": 0.5}
 #     out = series_node.generate_error(data, params, np.random.RandomState(seed=42))
-#
+
 #     contains_distinct_elements = False
 #     for a in out:
 #         for b in out:

@@ -26,20 +26,6 @@ warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
 
 
-class ErrGen:
-    def __init__(self):
-        self.random_state = RandomState(42)
-
-    def generate_error(self, data, params):
-        data_node = Array(data.shape)
-        root_node = Copy(data_node)
-
-        f = MissingArea(params["p"], params["radius_generator"], params["missing_value"])
-        data_node.addfilter(f)
-
-        return root_node.process(data, self.random_state)
-
-
 class Preprocessor:
     def __init__(self):
         self.random_state = RandomState(42)

@@ -18,7 +18,6 @@ from src.datasets.utils import load_newsgroups
 from src.ml.utils import reduce_dimensions_sparse
 from src.plotting.utils import visualize_scores, print_results, visualize_classes
 from src.problemgenerator.array import Array
-from src.problemgenerator.root import Root
 from src.problemgenerator.filters import MissingArea
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator
 

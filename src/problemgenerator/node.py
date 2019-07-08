@@ -23,7 +23,7 @@ class Node:
     def process(self, data, random_state):
         pass
 
-    def generate_error(self, data, error_params):
+    def generate_error(self, data, error_params, random_state=np.random.RandomState(42)):
         """Returns the data with the desired errors introduced. The original
         data object is not modified. The error parameters must be provided as
         a dictionary whose keys are the parameter identifiers (given as
@@ -32,7 +32,7 @@ class Node:
         """
         self.set_error_params(error_params)
         copy_data = copy.deepcopy(data)
-        self.process(copy_data, np.random.RandomState(42))
+        self.process(copy_data, random_state)
         return copy_data
 
 

@@ -115,15 +115,19 @@ class Uppercase(Filter):
 
 class OCRError(Filter):
 
-    def __init__(self, normalized_params, p):
+    def __init__(self, normalized_params_id, p_id):
         """ Pass normalized_params as a dict.
 
         For example {"e": (["E", "i"], [.5, .5]), "g": (["q", "9"], [.2, .8])}
         where the latter list consists of probabilities which should sum to 1."""
 
-        self.normalized_params = normalized_params
-        self.p = p
+        self.normalized_params_id = normalized_params_id
+        self.p_id = p_id
         super().__init__()
+
+    def set_params(self, params_dict):
+        self.normalized_params = params_dict[self.normalized_params_id]
+        self.p = params_dict[self.p_id]
 
     def apply(self, node_data, random_state, named_dims):
         for index, string_ in np.ndenumerate(node_data):
@@ -147,16 +151,16 @@ def replace_inds(mask, str1, str2):
 class MissingArea(Filter):
     """ TODO: radius_generator is a struct, not a function. It should be a function for repeatability
     """
-    def __init__(self, probability_ident, radius_generator_ident, missing_value_ident):
-        self.probability_ident = probability_ident
-        self.radius_generator_ident = radius_generator_ident
-        self.missing_value_ident = missing_value_ident
+    def __init__(self, probability_id, radius_generator_id, missing_value_id):
+        self.probability_id = probability_id
+        self.radius_generator_id = radius_generator_id
+        self.missing_value_id = missing_value_id
         super().__init__()
 
     def set_params(self, params_dict):
-        self.probability = params_dict[self.probability_ident]
-        self.radius_generator = params_dict[self.radius_generator_ident]
-        self.missing_value = params_dict[self.missing_value_ident]
+        self.probability = params_dict[self.probability_id]
+        self.radius_generator = params_dict[self.radius_generator_id]
+        self.missing_value = params_dict[self.missing_value_id]
 
     def apply(self, node_data, random_state, named_dims):
         if self.probability == 0:

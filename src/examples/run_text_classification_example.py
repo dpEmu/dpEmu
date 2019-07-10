@@ -111,7 +111,7 @@ def main(argv):
                                                                         random_state=RandomState(42))
 
     p_steps = np.linspace(0, 1, num=11)
-    params = utils.load_ocr_error_params("config/example_text_error_params_realistic_ocr.json")
+    params = utils.load_ocr_error_params("config/example_text_error_params.json")
     normalized_params = utils.normalize_ocr_error_params(params)
     err_params_list = [{
         "p": p,

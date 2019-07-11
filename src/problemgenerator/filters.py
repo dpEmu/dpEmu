@@ -627,38 +627,10 @@ class Brightness(Filter):
         self.rat = params_dict[self.rat_id]
 
     def apply(self, node_data, random_state, named_dims):
-        # node_data = node_data.astype(float) / 255
-        # width = node_data.shape[1]
-        # height = node_data.shape[0]
-        # for y0 in range(height):
-        #     for x0 in range(width):
-        #         r = node_data[y0, x0, 0]
-        #         g = node_data[y0, x0, 1]
-        #         b = node_data[y0, x0, 2]
-        #         (hu, li, sa) = rgb_to_hls(r, g, b)
-
-        #         mult = 1 - exp(-2 * self.rat)
-        #         li = li * (1 - mult) + self.tar * mult
-
-        #         (r, g, b) = hls_to_rgb(hu, li, sa)
-        #         node_data[y0, x0, 0] = r
-        #         node_data[y0, x0, 1] = g
-        #         node_data[y0, x0, 2] = b
-
-        # node_data = node_data * 255
-
-        # print(node_data)
-        # print("rgb", node_data.shape)
-        # node_data = (node_data / 255).astype(np.float32)
-        print(node_data)
         hls = cv2.cvtColor(node_data, cv2.COLOR_RGB2HLS)
-
         mult = 1 - exp(-2 * self.rat)
         hls[:, :, 1] = hls[:, :, 1] * (1 - mult) + self.tar * mult
-
-        node_data = cv2.cvtColor(hls.astype(np.float32), cv2.COLOR_HLS2RGB)
-        # node_data = (node_data * 255).astype(int)
-        # print(node_data)
+        node_data[...] = cv2.cvtColor(hls.astype(np.float32), cv2.COLOR_HLS2RGB)
 
 
 class Saturation(Filter):
@@ -677,22 +649,27 @@ class Saturation(Filter):
         self.rat = params_dict[self.rat_id]
 
     def apply(self, node_data, random_state, named_dims):
-        width = node_data.shape[1]
-        height = node_data.shape[0]
-        for y0 in range(height):
-            for x0 in range(width):
-                r = float(node_data[y0, x0, 0]) * (1 / 255)
-                g = float(node_data[y0, x0, 1]) * (1 / 255)
-                b = float(node_data[y0, x0, 2]) * (1 / 255)
-                (hu, li, sa) = rgb_to_hls(r, g, b)
+        hls = cv2.cvtColor(node_data, cv2.COLOR_RGB2HLS)
+        mult = 1 - np.exp(-2 * self.rat * hls[:, :, 2])
+        hls[:, :, 2] = hls[:, :, 2] * (1 - mult) + self.tar * mult
+        node_data[...] = cv2.cvtColor(hls.astype(np.float32), cv2.COLOR_HLS2RGB)
 
-                mult = 1 - exp(-2 * self.rat * sa)
-                sa = sa * (1 - mult) + self.tar * mult
+        # width = node_data.shape[1]
+        # height = node_data.shape[0]
+        # for y0 in range(height):
+        #     for x0 in range(width):
+        #         r = float(node_data[y0, x0, 0]) * (1 / 255)
+        #         g = float(node_data[y0, x0, 1]) * (1 / 255)
+        #         b = float(node_data[y0, x0, 2]) * (1 / 255)
+        #         (hu, li, sa) = rgb_to_hls(r, g, b)
 
-                (r, g, b) = hls_to_rgb(hu, li, sa)
-                node_data[y0, x0, 0] = 255 * r
-                node_data[y0, x0, 1] = 255 * g
-                node_data[y0, x0, 2] = 255 * b
+        #         mult = 1 - exp(-2 * self.rat * sa)
+        #         sa = sa * (1 - mult) + self.tar * mult
+
+        #         (r, g, b) = hls_to_rgb(hu, li, sa)
+        #         node_data[y0, x0, 0] = 255 * r
+        #         node_data[y0, x0, 1] = 255 * g
+        #         node_data[y0, x0, 2] = 255 * b
 
 
 class LensFlare(Filter):

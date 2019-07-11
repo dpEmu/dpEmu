@@ -1,5 +1,5 @@
 import random
-from colorsys import rgb_to_hls, hls_to_rgb
+# from colorsys import rgb_to_hls, hls_to_rgb
 from math import pi, sin, cos, sqrt, exp
 import numpy as np
 from scipy.ndimage import gaussian_filter

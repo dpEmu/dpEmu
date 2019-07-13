@@ -4,8 +4,10 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
+from graphviz import Digraph
 
 from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
+from src.problemgenerator.filters import Filter
 
 
 def visualize_scores(df, score_names, err_param_name, title):
@@ -208,6 +210,63 @@ def visualize_confusion_matrices(df, label_names, score_name, err_param_name, la
                 predictions_col,
                 interactive
             )
+
+
+def visualize_error_generator(root_node):
+    """Generates a directed graph describing the error generation tree and filters.
+
+    root_node.generate_error() needs to be called before calling this function,
+    because otherwise Filters may have incorrect or missing parameter values
+    in the graph
+    """
+
+    dot = Digraph()
+    index = 0
+
+    def describe_filter(ftr, parent_index, edge_label):
+        nonlocal index
+        index += 1
+        my_index = index
+
+        # construct the label of the node
+        label = "< " + str(ftr.__class__.__name__)
+        for key in vars(ftr):
+            if key[-3:] == "_id" or key == "shape":
+                continue
+            value = ftr.__dict__[key]
+            if isinstance(value, Filter):
+                continue
+            label += "<BR /><FONT POINT-SIZE='8'>" + str(key) + ": " + str(value) + "</FONT>"
+        label += " >"
+
+        # add a node and an edge to the digraph
+        dot.node(str(my_index),
+                 label=label,
+                 _attributes={'shape': 'box'})
+        dot.edge(str(parent_index), str(my_index), label=edge_label, _attributes={"fontsize": "8"})
+
+        # describe all child filters
+        for key in vars(ftr):
+            value = ftr.__dict__[key]
+            if isinstance(value, Filter):
+                describe_filter(value, my_index, key)
+
+    def describe(node, parent_index):
+        nonlocal index
+        index += 1
+        my_index = index
+        dot.node(str(my_index), label="< " + str(node.__class__.__name__) + " >")
+        if parent_index:
+            dot.edge(str(parent_index), str(my_index))
+        for child in node.children:
+            describe(child, my_index)
+        for ftr in node.filters:
+            describe_filter(ftr, my_index, "")
+
+    describe(root_node, None)
+
+    print(dot.source)
+    dot.render('out/graph.gv', view=True)
 
 
 def print_results(df, dropped_columns=[]):

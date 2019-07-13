@@ -793,6 +793,10 @@ class BinaryFilter(Filter):
         for index, _ in np.ndenumerate(node_data):
             node_data[index] = self.operation(data_a[index], data_b[index])
 
+    def set_params(self, params_dict):
+        self.filter_a.set_params(params_dict)
+        self.filter_b.set_params(params_dict)
+
     def operation(self, element_a, element_b):
         raise NotImplementedError()
 

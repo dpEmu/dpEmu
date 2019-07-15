@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.series as series
-import src.problemgenerator.root as root
 
 std = float(sys.argv[1])
 prob = float(sys.argv[2])
@@ -17,8 +16,7 @@ x_node = array.Array(x[0].shape)
 x_node.addfilter(filters.GaussianNoise("mean", "std"))
 x_node.addfilter(filters.Missing("prob"))
 y_node = array.Array(y[0].shape)
-series_node = series.TupleSeries([x_node, y_node])
-root_node = root.Root(series_node)
+root_node = series.TupleSeries([x_node, y_node])
 error_params = {"mean": 0, "std": std, "prob": prob}
 out_x, out_y = root_node.generate_error((x, y), error_params)
 

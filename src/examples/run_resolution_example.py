@@ -10,10 +10,9 @@ import src.problemgenerator.copy as copy
 def main():
     img = Image.open("demo/landscape.png")
     data = np.array(img)
-    x_node = array.Array(data.shape)
-    x_node.addfilter(filters.Resolution(10))
-    root_node = copy.Copy(x_node)
-    result = root_node.process(data, np.random.RandomState(seed=42))
+    root_node = array.Array(data.shape)
+    root_node.addfilter(filters.Resolution("k"))
+    result = root_node.generate_error(data, {'k': 10})
     filtered_img = Image.fromarray(result.astype('uint8'), 'RGB')
     filtered_img.show()
 

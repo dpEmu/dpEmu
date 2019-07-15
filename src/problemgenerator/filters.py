@@ -536,7 +536,11 @@ class Blur_Gaussian(Filter):
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
-        node_data = gaussian_filter(node_data, self.std)
+        if len(node_data.shape) == 2:
+            node_data[...] = gaussian_filter(node_data, self.std)
+        else:
+            for i in range(node_data.shape[-1]):
+                node_data[:, :, i] = gaussian_filter(node_data[:, :, i], self.std)
 
 
 class Blur(Filter):

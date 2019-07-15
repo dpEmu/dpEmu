@@ -16,7 +16,6 @@ from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
 import src.problemgenerator.array as array
-import src.problemgenerator.copy as copy
 import src.problemgenerator.filters as filters
 from src.problemgenerator.utils import to_time_series_x_y
 
@@ -115,10 +114,10 @@ def main():
     params["p_recover"] = .5
     params["missing_value"] = np.nan
 
-    #root_node.addfilter(filters.StrangeBehaviour("strange"))
+    # root_node.addfilter(filters.StrangeBehaviour("strange"))
     root_node.addfilter(filters.SensorDrift("magnitude"))
-    #root_node.addfilter(filters.Gap("p_break", "p_recover", "missing_value"))
-    #root_node.addfilter(filters.GaussianNoise("mean", "std"))
+    # root_node.addfilter(filters.Gap("p_break", "p_recover", "missing_value"))
+    # root_node.addfilter(filters.GaussianNoise("mean", "std"))
 
     output = root_node.generate_error(y, params)
     # print("Changed\n", output)

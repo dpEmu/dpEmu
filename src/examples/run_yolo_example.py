@@ -11,7 +11,7 @@ from pycocotools.cocoeval import COCOeval
 from tqdm import tqdm, trange
 
 from src import runner
-from src.problemgenerator import array, copy, filters, radius_generators
+from src.problemgenerator import array, filters, radius_generators
 from src.utils import generate_unique_path
 
 
@@ -125,7 +125,7 @@ class ErrGen:
         results = []
         for img in tqdm(imgs):
             root_node = array.Array(img.shape)
-            
+
             # root_node.addfilter(filters.GaussianNoise("mean", "std"))
             # root_node.addfilter(filters.Blur_Gaussian("std"))
             # root_node.addfilter(filters.Snow(

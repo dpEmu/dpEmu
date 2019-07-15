@@ -16,7 +16,6 @@ from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
 import src.problemgenerator.array as array
-import src.problemgenerator.copy as copy
 import src.problemgenerator.filters as filters
 from src import runner
 from src.problemgenerator.utils import to_time_series_x_y
@@ -140,7 +139,8 @@ def main():
     # param_selector = ParamSelector([({"mean": a, "std": b, "seed": d}, {"seed": c}) for (a, b, c, d) in
     #                                 [(0, 0, 0, 0), (0, 15, 0, 0), (0, 20, 0, 0)]])
     param_selector = ParamSelector([({"magnitude": a, "seed": 42}, {"seed": 42}) for a in [0, 2, 10]])
-    # param_selector = ParamSelector([({"prob_break": a, "prob_recover": b, "value": np.nan, "seed": d}, {"seed": c}) for (a, b, c, d) in
+    # param_selector = ParamSelector([({"prob_break": a, "prob_recover": b, "value": np.nan, "seed": d},
+    #                                 {"seed": c}) for (a, b, c, d) in
     #                                 [(.1, .5, 0, 0), (.1, .5, 0, 0), (.1, .5, 0, 0)]])
 
     res = runner.run(model, err_gen, param_selector)

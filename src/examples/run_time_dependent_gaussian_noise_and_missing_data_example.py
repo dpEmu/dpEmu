@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.series as series
-import src.problemgenerator.copy as copy
 
 """
 Generate time dependent Gaussian noise and (non time dependent) missing values to MNIST data.

@@ -2,7 +2,6 @@ import numpy as np
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.series as series
-import src.problemgenerator.copy as copy
 
 # Assume our data is a tuple of the form (x, y) where x has
 # shape (100, 10) and y has shape (100,). We can think of each

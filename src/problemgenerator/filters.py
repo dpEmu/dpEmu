@@ -600,7 +600,7 @@ class Rotation(Filter):
         self.angle = params_dict[self.angle_id]
 
     def apply(self, node_data, random_state, named_dims):
-        node_data = imutils.rotate(node_data, self.angle)
+        node_data[...] = imutils.rotate(node_data, self.angle)
 
         # Guesstimation for a large enough resize to avoid black areas in cropped picture
         factor = 1.8
@@ -612,7 +612,7 @@ class Rotation(Filter):
 
         x0 = round((resized_width - width)/2)
         y0 = round((resized_height - height)/2)
-        node_data = resized[y0:y0+height, x0:x0+width]
+        node_data[...] = resized[y0:y0+height, x0:x0+width]
 
 
 class Brightness(Filter):

@@ -947,6 +947,9 @@ class Difference(Filter):
         super().__init__()
         self.ftr = Subtraction(ftr, Identity())
 
+    def set_params(self, params_dict):
+        self.ftr.set_params(params_dict)
+
     def apply(self, node_data, random_state, named_dims):
         self.ftr.apply(node_data, random_state, named_dims)
 
@@ -966,6 +969,9 @@ class ModifyAsDataType(Filter):
         super().__init__()
         self.dtype = dtype
         self.ftr = ftr
+
+    def set_params(self, params_dict):
+        self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):
         copy = node_data.copy().astype(self.dtype)

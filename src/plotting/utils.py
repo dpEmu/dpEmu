@@ -222,6 +222,7 @@ def visualize_error_generator(root_node):
 
     dot = Digraph()
     index = 0
+    max_param_value_length = 40
 
     def describe_filter(ftr, parent_index, edge_label):
         nonlocal index
@@ -236,6 +237,9 @@ def visualize_error_generator(root_node):
             value = ftr.__dict__[key]
             if isinstance(value, Filter):
                 continue
+            value = str(value)
+            if len(value) > max_param_value_length:
+                value = value[:max_param_value_length] + "..."
             label += "<BR /><FONT POINT-SIZE='8'>" + str(key) + ": " + str(value) + "</FONT>"
         label += " >"
 

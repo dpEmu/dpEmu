@@ -124,27 +124,26 @@ class ErrGen:
         imgs = deepcopy(self.imgs)
         results = []
         for img in tqdm(imgs):
-            img_node = array.Array(img.shape)
-            root_node = copy.Copy(img_node)
-
-            # img_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
-            # img_node.addfilter(filters.Blur_Gaussian(params["std"]))
-            # img_node.addfilter(filters.Snow(
-            #     params["snowflake_probability"],
-            #     params["snowflake_alpha"],
-            #     params["snowstorm_alpha"]
+            root_node = array.Array(img.shape)
+            
+            # root_node.addfilter(filters.GaussianNoise("mean", "std"))
+            # root_node.addfilter(filters.Blur_Gaussian("std"))
+            # root_node.addfilter(filters.Snow(
+            #     "snowflake_probability",
+            #     "snowflake_alpha",
+            #     "snowstorm_alpha"
             # ))
-            # img_node.addfilter(filters.Rain(params["probability"]))
-            img_node.addfilter(filters.StainArea(
-                params["probability"],
-                params["radius_generator"],
-                params["transparency_percentage"]
+            # root_node.addfilter(filters.Rain("probability"))
+            root_node.addfilter(filters.StainArea(
+                "probability",
+                "radius_generator",
+                "transparency_percentage"
             ))
-            # img_node.addfilter(filters.LensFlare())
-            # img_node.addfilter(filters.JPEG_Compression(params["quality"]))
+            # root_node.addfilter(filters.LensFlare())
+            # root_node.addfilter(filters.JPEG_Compression("quality"))
 
-            result = root_node.process(img.astype(float), np.random.RandomState(seed=42))
-            # result = root_node.process(img, np.random.RandomState(seed=42))
+            result = root_node.generate_error(img.astype(float), params)
+            # result = root_node.generate_error(img, params)
             result = np.uint8(result)
             results.append(result)
 

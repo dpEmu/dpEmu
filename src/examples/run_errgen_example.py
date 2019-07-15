@@ -22,13 +22,14 @@ sensor_array = array.Array(sensors)
 
 # Add a Missing filters to randomly transform elements to Nan
 # (NaN = "not a number", i.e. missing or invalid data)
-sensor_array.addfilter(filters.Missing(probability=.3))
+sensor_array.addfilter(filters.Missing("prob"))
 
 # Create a series to represent the 100 data points
 observation_series = series.Series(sensor_array)
 
 # Add copy node
 root_node = copy.Copy(observation_series)
+root_node.set_error_params({'prob': .3})
 
 # The data model tree is now complete.
 # Process the data to introduce errors

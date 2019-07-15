@@ -1,6 +1,6 @@
 import random
 from colorsys import rgb_to_hls, hls_to_rgb
-from math import pi, sin, cos, sqrt, exp
+from math import pi, sin, cos, sqrt
 import numpy as np
 from scipy.ndimage import gaussian_filter
 import cv2
@@ -616,67 +616,159 @@ class Brightness(Filter):
     Increases or decreases brightness in the image.
     tar: 0 if you want to decrease brightness, 1 if you want to increase it
     rat: scales the brightness change
+    range_id: RGB values are presented either in the range [0,1]
+            or in the set {0,...,255}
     """
-    def __init__(self, tar_id, rat_id):
+
+    def __init__(self, tar_id, rat_id, range_id):
         super().__init__()
         self.tar_id = tar_id
         self.rat_id = rat_id
+        self.range_id = range_id
 
     def set_params(self, params_dict):
         self.tar = params_dict[self.tar_id]
         self.rat = params_dict[self.rat_id]
+        # self.range should have value 1 or 255
+        self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
         width = node_data.shape[1]
         height = node_data.shape[0]
         for y0 in range(height):
             for x0 in range(width):
-                r = float(node_data[y0, x0, 0]) * (1 / 255)
-                g = float(node_data[y0, x0, 1]) * (1 / 255)
-                b = float(node_data[y0, x0, 2]) * (1 / 255)
+                r = float(node_data[y0, x0, 0]) * (1 / self.range)
+                g = float(node_data[y0, x0, 1]) * (1 / self.range)
+                b = float(node_data[y0, x0, 2]) * (1 / self.range)
                 (hu, li, sa) = rgb_to_hls(r, g, b)
 
-                mult = 1 - exp(-2 * self.rat)
+                mult = 1 - np.exp(-2 * self.rat)
                 li = li * (1 - mult) + self.tar * mult
 
                 (r, g, b) = hls_to_rgb(hu, li, sa)
-                node_data[y0, x0, 0] = 255 * r
-                node_data[y0, x0, 1] = 255 * g
-                node_data[y0, x0, 2] = 255 * b
+                node_data[y0, x0, 0] = self.range * r
+                node_data[y0, x0, 1] = self.range * g
+                node_data[y0, x0, 2] = self.range * b
+
+
+class BrightnessVectorized(Filter):
+    """
+    Increases or decreases brightness in the image.
+    tar: 0 if you want to decrease brightness, 1 if you want to increase it
+    rat: scales the brightness change
+    range_id: RGB values are presented either in the range [0,1]
+            or in the set {0,...,255}
+    """
+
+    def __init__(self, tar_id, rat_id, range_id):
+        super().__init__()
+        self.tar_id = tar_id
+        self.rat_id = rat_id
+        self.range_id = range_id
+
+    def set_params(self, params_dict):
+        self.tar = params_dict[self.tar_id]
+        self.rat = params_dict[self.rat_id]
+        # self.range should have value 1 or 255
+        self.range = params_dict[self.range_id]
+
+    def apply(self, node_data, random_state, named_dims):
+        nd = node_data.astype("float32")
+        if self.range == 255:
+            nd[...] = node_data * (1 / self.range)
+
+        hls = cv2.cvtColor(nd, cv2.COLOR_RGB2HLS)
+        mult = 1 - np.exp(-2 * self.rat)
+        hls[:, :, 1] = hls[:, :, 1] * (1 - mult) + self.tar * mult
+        nd[...] = cv2.cvtColor(hls, cv2.COLOR_HLS2RGB)
+
+        if self.range == 255:
+            nd[...] = nd * self.range
+            nd = nd.astype(np.int8)
+        else:
+            nd = np.clip(nd, 0.0, 1.0)
+
+        node_data[...] = nd
 
 
 class Saturation(Filter):
     """
-    Increases or decreases saturation in the image.
-    tar: 0 if you want to decrease saturation, 1 if you want to increase it
-    rat: scales the saturation change
+    Increases or decreases brightness in the image.
+    tar: 0 if you want to decrease brightness, 1 if you want to increase it
+    rat: scales the brightness change
+    range_id: RGB values are presented either in the range [0,1]
+            or in the discrete set {0,...,255}
     """
-    def __init__(self, tar_id, rat_id):
+
+    def __init__(self, tar_id, rat_id, range_id):
         super().__init__()
         self.tar_id = tar_id
         self.rat_id = rat_id
+        self.range_id = range_id
 
     def set_params(self, params_dict):
         self.tar = params_dict[self.tar_id]
         self.rat = params_dict[self.rat_id]
+        # self.range should have value 1 or 255
+        self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
         width = node_data.shape[1]
         height = node_data.shape[0]
         for y0 in range(height):
             for x0 in range(width):
-                r = float(node_data[y0, x0, 0]) * (1 / 255)
-                g = float(node_data[y0, x0, 1]) * (1 / 255)
-                b = float(node_data[y0, x0, 2]) * (1 / 255)
+                r = float(node_data[y0, x0, 0]) * (1 / self.range)
+                g = float(node_data[y0, x0, 1]) * (1 / self.range)
+                b = float(node_data[y0, x0, 2]) * (1 / self.range)
                 (hu, li, sa) = rgb_to_hls(r, g, b)
 
-                mult = 1 - exp(-2 * self.rat * sa)
+                mult = 1 - np.exp(-2 * self.rat * sa)
                 sa = sa * (1 - mult) + self.tar * mult
 
                 (r, g, b) = hls_to_rgb(hu, li, sa)
-                node_data[y0, x0, 0] = 255 * r
-                node_data[y0, x0, 1] = 255 * g
-                node_data[y0, x0, 2] = 255 * b
+                node_data[y0, x0, 0] = self.range * r
+                node_data[y0, x0, 1] = self.range * g
+                node_data[y0, x0, 2] = self.range * b
+
+
+class SaturationVectorized(Filter):
+    """
+    Increases or decreases brightness in the image.
+    tar: 0 if you want to decrease brightness, 1 if you want to increase it
+    rat: scales the brightness change
+    range_id: RGB values are presented either in the range [0,1]
+            or in the discrete set {0,...,255}
+    """
+
+    def __init__(self, tar_id, rat_id, range_id):
+        super().__init__()
+        self.tar_id = tar_id
+        self.rat_id = rat_id
+        self.range_id = range_id
+
+    def set_params(self, params_dict):
+        self.tar = params_dict[self.tar_id]
+        self.rat = params_dict[self.rat_id]
+        # self.range should have value 1 or 255
+        self.range = params_dict[self.range_id]
+
+    def apply(self, node_data, random_state, named_dims):
+        nd = node_data.astype("float32")
+        if self.range == 255:
+            nd[...] = node_data * (1 / self.range)
+
+        hls = cv2.cvtColor(nd, cv2.COLOR_RGB2HLS)
+        mult = 1 - np.exp(-2 * self.rat * hls[:, :, 2])
+        hls[:, :, 2] = hls[:, :, 2] * (1 - mult) + self.tar * mult
+        nd[...] = cv2.cvtColor(hls, cv2.COLOR_HLS2RGB)
+
+        if self.range == 255:
+            nd[...] = nd * self.range
+            nd = nd.astype(np.int8)
+        else:
+            nd = np.clip(nd, 0.0, 1.0)
+
+        node_data[...] = nd
 
 
 class LensFlare(Filter):

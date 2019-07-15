@@ -13,6 +13,7 @@ def main():
 
     # Use the looped version
     data1 = plt.imread(img_path)
+    print(data1)
     x_node1 = array.Array(data1.shape)
     s1 = filters.Brightness("tar", "rat", "range")
     s1.set_params(d)

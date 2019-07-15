@@ -587,6 +587,24 @@ class Resolution(Filter):
                 node_data[y0, x0] = node_data[y, x]
 
 
+class ResolutionVectorized(Filter):
+    """
+    Makes resolution k times smaller. K must be an integer
+    """
+    def __init__(self, k_id):
+        super().__init__()
+        self.k_id = k_id
+
+    def set_params(self, params_dict):
+        self.k = params_dict[self.k_id]
+
+    def apply(self, node_data, random_state, named_dims):
+        w = node_data.shape[1]
+        h = node_data.shape[0]
+        row, col = (np.indices((h, w)) // self.k) * self.k
+        node_data[...] = node_data[row, col]
+
+
 class Rotation(Filter):
     def __init__(self, angle_id):
         super().__init__()
@@ -884,10 +902,6 @@ class BinaryFilter(Filter):
         self.filter_b.apply(data_b, random_state, named_dims)
         for index, _ in np.ndenumerate(node_data):
             node_data[index] = self.operation(data_a[index], data_b[index])
-
-    def set_params(self, params_dict):
-        self.filter_a.set_params(params_dict)
-        self.filter_b.set_params(params_dict)
 
     def operation(self, element_a, element_b):
         raise NotImplementedError()

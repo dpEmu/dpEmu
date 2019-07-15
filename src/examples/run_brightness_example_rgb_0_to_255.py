@@ -10,7 +10,7 @@ import src.problemgenerator.copy as copy
 
 def main():
     img_path = "demo/landscape.png"
-    d = {"tar": 0, "rat": 0.55, "range": 255}
+    d = {"tar": 1, "rat": 0.55, "range": 255}
 
     # Use the looped version
     img1 = Image.open(img_path)

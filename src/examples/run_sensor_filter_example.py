@@ -1,20 +1,18 @@
 import numpy as np
 
 import src.problemgenerator.array as array
-import src.problemgenerator.copy as copy
 import src.problemgenerator.filters as filters
 
 y = np.arange(100.0, 200.0)
 print("Original y:\n", y)
 
 data = y
-y_node = array.Array(y.shape)
+root_node = array.Array(y.shape)
 print(f"input shape: {data.shape}")
-root_node = copy.Copy(y_node)
 
 """
 Every increase in time results in drift increasing by 0.1
-y_node.addfilter(filters.SensorDrift(magnitude=0.1))
+root_node.addfilter(filters.SensorDrift(magnitude=0.1))
 """
 
 """
@@ -25,8 +23,8 @@ def strange(a):
     return a
 """
 # y_node.addfilter(filters.StrangeBehaviour(strange))
-y_node.addfilter(filters.Gap(prob_break=.3, prob_recover=.3, missing_value=np.nan))
+root_node.addfilter(filters.Gap("prob_break", "prob_recover", "missing_value"))
 
-output = root_node.process(data, np.random.RandomState(seed=42))
+output = root_node.generate_error(data, {'prob_break': .3, 'prob_recover': .3, 'missing_value': np.nan})
 print("output:\n", output)
 print(f"output dtype: {output.dtype}")

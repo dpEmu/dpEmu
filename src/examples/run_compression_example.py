@@ -4,7 +4,6 @@ from PIL import Image
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-import src.problemgenerator.copy as copy
 
 
 def main():

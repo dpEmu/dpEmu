@@ -4,7 +4,6 @@ from PIL import Image
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-import src.problemgenerator.copy as copy
 
 
 def img_to_pixel_data(img):
@@ -19,11 +18,10 @@ def img_to_pixel_data(img):
 def main():
     img = Image.open("data/val2017/000000000776.jpg")
     data = img_to_pixel_data(img)
-    x_node = array.Array(data.shape)
-    x_node.addfilter(filters.Snow(0.01, 0.4, 1))
-    # x_node.addfilter(filters.Rain(0.01))
-    root_node = copy.Copy(x_node)
-    result = root_node.process(data, np.random.RandomState(seed=42))
+    root_node = array.Array(data.shape)
+    root_node.addfilter(filters.Snow("p", "flake_alpha", "storm_alpha"))
+    # root_node.addfilter(filters.Rain("p"))
+    result = root_node.generate_error(data, {'p': .01, 'flake_alpha': .4, 'storm_alpha': 1.})
     filtered_img = Image.fromarray(result.astype('uint8'), 'RGB')
     filtered_img.show()
 

@@ -22,17 +22,14 @@ sensor_array = array.Array(sensors)
 
 # Add a Missing filters to randomly transform elements to Nan
 # (NaN = "not a number", i.e. missing or invalid data)
-sensor_array.addfilter(filters.Missing(probability=.3))
+sensor_array.addfilter(filters.Missing("prob"))
 
 # Create a series to represent the 100 data points
-observation_series = series.Series(sensor_array)
-
-# Add copy node
-root_node = copy.Copy(observation_series)
+root_node = series.Series(sensor_array)
 
 # The data model tree is now complete.
 # Process the data to introduce errors
-output = root_node.process(data, np.random.RandomState(seed=42))
+output = root_node.generate_error(data, {'prob': .3})
 
 # Sanity check: does the shape of the output equal that of the input?
 print("input data has shape", data.shape)

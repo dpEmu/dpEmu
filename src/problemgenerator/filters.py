@@ -536,7 +536,11 @@ class Blur_Gaussian(Filter):
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
-        node_data = gaussian_filter(node_data, self.std)
+        if len(node_data.shape) == 2:
+            node_data[...] = gaussian_filter(node_data, self.std)
+        else:
+            for i in range(node_data.shape[-1]):
+                node_data[:, :, i] = gaussian_filter(node_data[:, :, i], self.std)
 
 
 class Blur(Filter):
@@ -848,6 +852,7 @@ class ApplyWithProbability(Filter):
     def set_params(self, params_dict):
         self.ftr = params_dict[self.ftr_id]
         self.probability = params_dict[self.probability_id]
+        self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):
         if random_state.rand() < self.probability:

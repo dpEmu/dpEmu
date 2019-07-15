@@ -1,7 +1,6 @@
 import numpy as np
 
 import src.problemgenerator.array as array
-import src.problemgenerator.copy as copy
 import src.problemgenerator.filters as filters
 import src.problemgenerator.radius_generators as radius_generators
 
@@ -23,21 +22,23 @@ data = np.array(["Lorem ipsum dolor sit amet,\n" +
                  "Hello\n" +
                  "Hello"])
 
-y_node = array.Array(data.shape)
-y_node.addfilter(filters.MissingArea(.02, radius_generators.GaussianRadiusGenerator(1, 1), " "))
+root_node = array.Array(data.shape)
+root_node.addfilter(filters.MissingArea("p", "radius_gen", "value"))
 
-root_node = copy.Copy(y_node)
+params = {}
+params['value'] = " "
 
-out = root_node.process(data, np.random.RandomState(seed=42))
-for index, elem in enumerate(out):
+params['p'] = .03
+params['radius_gen'] = radius_generators.GaussianRadiusGenerator(1, 1)
+
+out = root_node.generate_error(data, params)
+
+for elem in out:
     print(elem, end="\n\n")
 
-y_node = array.Array(data.shape)
-# when a missing area is generated, its radius is 1 with probability of 0.6 and 2 with the probability of 0.4
-y_node.addfilter(filters.MissingArea(.02, radius_generators.ProbabilityArrayRadiusGenerator([0, 0.6, 0.4]), " "))
+params['p'] = .04
+params['radius_gen'] = radius_generators.ProbabilityArrayRadiusGenerator([0, 0.6, 0.4])
 
-root_node = copy.Copy(y_node)
-
-out = root_node.process(data, np.random.RandomState(seed=42))
-for index, elem in enumerate(out):
+out = root_node.generate_error(data, params)
+for elem in out:
     print(elem, end="\n\n")

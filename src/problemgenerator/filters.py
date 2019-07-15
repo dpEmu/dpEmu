@@ -848,6 +848,7 @@ class ApplyWithProbability(Filter):
     def set_params(self, params_dict):
         self.ftr = params_dict[self.ftr_id]
         self.probability = params_dict[self.probability_id]
+        self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):
         if random_state.rand() < self.probability:

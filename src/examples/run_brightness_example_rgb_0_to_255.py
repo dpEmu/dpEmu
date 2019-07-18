@@ -5,23 +5,20 @@ from PIL import Image
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-import src.problemgenerator.copy as copy
 
 
 def main():
     img_path = "demo/landscape.png"
-    d = {"tar": 0, "rat": 0.55, "range": 255}
+    d = {"tar": 1, "rat": 0.55, "range": 255}
 
     # Use the looped version
     img1 = Image.open(img_path)
     data1 = np.array(img1)
     x_node1 = array.Array(data1.shape)
     b1 = filters.Brightness("tar", "rat", "range")
-    b1.set_params(d)
     x_node1.addfilter(b1)
-    root_node1 = copy.Copy(x_node1)
     start1 = time.time()
-    result1 = root_node1.process(data1, np.random.RandomState(seed=42))
+    result1 = x_node1.generate_error(data1, d)
     end1 = time.time()
     print(f"Time traditional: {end1-start1}")
 
@@ -30,11 +27,9 @@ def main():
     data2 = np.array(img2)
     x_node2 = array.Array(data2.shape)
     b2 = filters.BrightnessVectorized("tar", "rat", "range")
-    b2.set_params(d)
     x_node2.addfilter(b2)
-    root_node2 = copy.Copy(x_node2)
     start2 = time.time()
-    result2 = root_node2.process(data2, np.random.RandomState(seed=42))
+    result2 = x_node2.generate_error(data2, d)
     end2 = time.time()
     print(f"Time vectorized: {end2-start2}")
 

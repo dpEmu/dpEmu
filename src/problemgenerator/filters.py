@@ -432,16 +432,20 @@ class Snow(Filter):
             OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
             SOFTWARE.
 
-            :param self: [description]
-            :type self: [type]
-            :param width: [description]
-            :type width: [type]
-            :param random_state: [description]
-            :type random_state: [type]
-            :return: [description]
-            :rtype: [type]
-            """
+            Parameters
+            ----------
+            self : [type]
+                [description]
+            width : [type]
+                [description]
+            random_state : [type]
+                [description]
 
+            Returns
+            -------
+            [type]
+                [description]
+            """
             def f(t):
                 return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
 
@@ -529,8 +533,10 @@ class JPEG_Compression(Filter):
 
         [extended_summary]
 
-        :param quality_id: [description]
-        :type quality_id: [type]
+        Parameters
+        ----------
+        quality_id : [type]
+            [description]
         """
         super().__init__()
         self.quality_id = quality_id
@@ -539,21 +545,26 @@ class JPEG_Compression(Filter):
         """[summary]
 
         [extended_summary]
-
-        :param params_dict: [description]
-        :type params_dict: [type]
+        Parameters
+        ----------
+        params_dict : [type]
+            [description]
         """
         self.quality = params_dict[self.quality_id]
 
     def apply(self, node_data, random_state, named_dims):
         """[summary]
 
-        :param node_data: [description]
-        :type node_data: [type]
-        :param random_state: [description]
-        :type random_state: [type]
-        :param named_dims: [description]
-        :type named_dims: [type]
+        [extended_summary]
+
+        Parameters
+        ----------
+        node_data : [type]
+            [description]
+        random_state : [type]
+            [description]
+        named_dims : [type]
+            [description]
         """
         iml = Image.fromarray(np.uint8(np.around(node_data)))
         buf = BytesIO()
@@ -575,8 +586,12 @@ class Blur_Gaussian(Filter):
     def __init__(self, standard_dev_id):
         """[summary]
 
-        :param standard_dev_id: [description]
-        :type standard_dev_id: [type]
+        [extended_summary]
+
+        Parameters
+        ----------
+        standard_dev_id : [type]
+            [description]
         """
         super().__init__()
         self.std_id = standard_dev_id
@@ -584,20 +599,28 @@ class Blur_Gaussian(Filter):
     def set_params(self, params_dict):
         """[summary]
 
-        :param params_dict: [description]
-        :type params_dict: [type]
+        [extended_summary]
+
+        Parameters
+        ----------
+        params_dict : [type]
+            [description]
         """
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
         """[summary]
 
-        :param node_data: [description]
-        :type node_data: [type]
-        :param random_state: [description]
-        :type random_state: [type]
-        :param named_dims: [description]
-        :type named_dims: [type]
+        [extended_summary]
+
+        Parameters
+        ----------
+        node_data : [type]
+            [description]
+        random_state : [type]
+            [description]
+        named_dims : [type]
+            [description]
         """
         if len(node_data.shape) == 2:
             node_data[...] = gaussian_filter(node_data, self.std)

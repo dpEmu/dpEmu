@@ -2,6 +2,7 @@ import numpy as np
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
+import src.problemgenerator.series as series
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator, ProbabilityArrayRadiusGenerator
 
 
@@ -193,22 +194,22 @@ def test_two_gap():
         assert np.isnan(val)
 
 
-# def test_apply_with_probability():
-#     data = np.array([["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"]])
+def test_apply_with_probability():
+    data = np.array([["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"]])
 
-#     ocr = filters.OCRError("ps", "p")
-#     x_node = array.Array(data.shape)
-#     x_node.addfilter(filters.ApplyWithProbability("ocr_node", "ocr_prob"))
-#     series_node = series.Series(x_node)
-#     params = {"ps": {"a": [["e"], [1.0]]}, "p": 1.0, "ocr_node": ocr, "ocr_prob": 0.5}
-#     out = series_node.generate_error(data, params, np.random.RandomState(seed=42))
+    ocr = filters.OCRError("ps", "p")
+    x_node = array.Array(data.shape)
+    x_node.addfilter(filters.ApplyWithProbability("ocr_node", "ocr_prob"))
+    series_node = series.Series(x_node)
+    params = {"ps": {"a": [["e"], [1.0]]}, "p": 1.0, "ocr_node": ocr, "ocr_prob": 0.5}
+    out = series_node.generate_error(data, params, np.random.RandomState(seed=42))
 
-#     contains_distinct_elements = False
-#     for a in out:
-#         for b in out:
-#             if a != b:
-#                 contains_distinct_elements = True
-#     assert contains_distinct_elements
+    contains_distinct_elements = False
+    for a in out:
+        for b in out:
+            if a != b:
+                contains_distinct_elements = True
+    assert contains_distinct_elements
 
 
 # def test_constant():

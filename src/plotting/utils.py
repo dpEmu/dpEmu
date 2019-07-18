@@ -212,7 +212,7 @@ def visualize_confusion_matrices(df, label_names, score_name, err_param_name, la
             )
 
 
-def visualize_error_generator(root_node):
+def visualize_error_generator(root_node, view=True):
     """Generates a directed graph describing the error generation tree and filters.
 
     root_node.generate_error() needs to be called before calling this function,
@@ -269,8 +269,9 @@ def visualize_error_generator(root_node):
 
     describe(root_node, None)
 
-    print(dot.source)
-    dot.render('out/graph.gv', view=True)
+    path_to_graph = generate_unique_path("out", "png")
+    dot.render(path_to_graph, view=view)
+    return path_to_graph
 
 
 def print_results(df, dropped_columns=[]):

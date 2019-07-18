@@ -860,9 +860,12 @@ class ApplyWithProbability(Filter):
 
 
 class Constant(Filter):
-    def __init__(self, value):
+    def __init__(self, value_id):
         super().__init__()
-        self.value = value
+        self.value_id = value_id
+
+    def set_params(self, params_dict):
+        self.value = params_dict[self.value_id]
 
     def apply(self, node_data, random_state, named_dims):
         node_data.fill(self.value)
@@ -877,10 +880,10 @@ class Identity(Filter):
 
 
 class BinaryFilter(Filter):
-    def __init__(self, filter_a, filter_b):
+    def __init__(self, filter_a_id, filter_b_id):
         super().__init__()
-        self.filter_a = filter_a
-        self.filter_b = filter_b
+        self.filter_a_id = filter_a_id
+        self.filter_b_id = filter_b_id
 
     def apply(self, node_data, random_state, named_dims):
         data_a = node_data.copy()
@@ -891,6 +894,8 @@ class BinaryFilter(Filter):
             node_data[index] = self.operation(data_a[index], data_b[index])
 
     def set_params(self, params_dict):
+        self.filter_a = params_dict[self.filter_a_id]
+        self.filter_b = params_dict[self.filter_b_id]
         self.filter_a.set_params(params_dict)
         self.filter_b.set_params(params_dict)
 
@@ -948,11 +953,12 @@ class Difference(Filter):
     Returns the difference between the original and the filtered data,
     i.e. it is shorthand for Subtraction(filter, Identity()).
     """
-    def __init__(self, ftr):
+    def __init__(self, ftr_id):
         super().__init__()
-        self.ftr = Subtraction(ftr, Identity())
+        self.ftr_id = ftr_id
 
     def set_params(self, params_dict):
+        self.ftr = Subtraction(params_dict[self.ftr_id], Identity())
         self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):
@@ -970,12 +976,14 @@ class Min(BinaryFilter):
 
 
 class ModifyAsDataType(Filter):
-    def __init__(self, dtype, ftr):
+    def __init__(self, dtype_id, ftr_id):
         super().__init__()
-        self.dtype = dtype
-        self.ftr = ftr
+        self.dtype_id = dtype_id
+        self.ftr_id = ftr_id
 
     def set_params(self, params_dict):
+        self.dtype = params_dict[self.dtype_id]
+        self.ftr = params_dict[self.ftr_id]
         self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):

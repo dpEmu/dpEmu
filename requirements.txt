@@ -24,3 +24,4 @@ jupyter-client==5.2.4
 jupyter-console==6.0.0
 jupyter-core==4.5.0
 graphviz==0.11.1
+Sphinx==2.1.2

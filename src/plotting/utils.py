@@ -269,7 +269,7 @@ def visualize_error_generator(root_node, view=True):
 
     describe(root_node, None)
 
-    path_to_graph = generate_unique_path("out", "png")
+    path_to_graph = generate_unique_path("out", "gv")
     dot.render(path_to_graph, view=view)
     return path_to_graph
 

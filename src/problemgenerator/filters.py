@@ -1,12 +1,14 @@
 import random
 from colorsys import rgb_to_hls, hls_to_rgb
-from math import pi, sin, cos, sqrt
-import numpy as np
-from scipy.ndimage import gaussian_filter
+from io import BytesIO
+
 import cv2
 import imutils
-from io import BytesIO
+import numpy as np
 from PIL import Image
+from math import pi, sin, cos, sqrt
+from scipy.ndimage import gaussian_filter
+
 from src.problemgenerator.utils import generate_random_dict_key
 
 
@@ -47,6 +49,7 @@ class Missing(Filter):
 class Clip(Filter):
     """Clip values to minimum and maximum value provided by the user.
     """
+
     def __init__(self, min_id, max_id):
         self.min_id = min_id
         self.max_id = max_id
@@ -64,6 +67,7 @@ class GaussianNoise(Filter):
     """For each element in the array add noise drawn from a Gaussian distribution
     with the provided parameters mean and std (standard deviation).
     """
+
     def __init__(self, mean_id, std_id):
         self.mean_id = mean_id
         self.std_id = std_id
@@ -74,9 +78,7 @@ class GaussianNoise(Filter):
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
-        node_data += random_state.normal(loc=self.mean,
-                                         scale=self.std,
-                                         size=node_data.shape)
+        node_data += random_state.normal(loc=self.mean, scale=self.std, size=node_data.shape).astype(node_data.dtype)
 
 
 class GaussianNoiseTimeDependent(Filter):
@@ -85,6 +87,7 @@ class GaussianNoiseTimeDependent(Filter):
     standard deviation increase with every unit of time by the amount specified
     in the last two parameters.
     """
+
     def __init__(self, mean_id, std_id, mean_increase_id, std_increase_id):
         self.mean_id = mean_id
         self.std_id = std_id
@@ -109,6 +112,7 @@ class Uppercase(Filter):
     """For each character in the string, convert the character
     to uppercase with the provided probability.
     """
+
     def __init__(self, probability_id):
         self.prob_id = probability_id
         super().__init__()
@@ -168,6 +172,7 @@ def replace_inds(mask, str1, str2):
 class MissingArea(Filter):
     """ TODO: radius_generator is a struct, not a function. It should be a function for repeatability
     """
+
     def __init__(self, probability_id, radius_generator_id, missing_value_id):
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
@@ -190,19 +195,19 @@ class MissingArea(Filter):
             row_starts = [0]
             for i, c in enumerate(string):
                 if c == '\n':
-                    row_starts.append(i+1)
+                    row_starts.append(i + 1)
             if not row_starts or row_starts[-1] != len(string):
                 row_starts.append(len(string))
             height = len(row_starts) - 1
 
-            widths = np.array([row_starts[i+1] - row_starts[i] - 1 for i in range(height)])
+            widths = np.array([row_starts[i + 1] - row_starts[i] - 1 for i in range(height)])
             if len(widths) > 0:
                 width = np.max(widths)
             else:
                 width = 0
 
             # 2. Generate error
-            errs = np.zeros(shape=(height+1, width+1))
+            errs = np.zeros(shape=(height + 1, width + 1))
             ind = -1
             while True:
                 ind += random_state.geometric(self.probability)
@@ -260,7 +265,7 @@ class StainArea(Filter):
         width = node_data.shape[1]
 
         # 1. Generate error
-        errs = np.zeros(shape=(height+1, width+1))
+        errs = np.zeros(shape=(height + 1, width + 1))
         ind = -1
         while True:
             ind += random_state.geometric(self.probability)
@@ -426,7 +431,7 @@ class Snow(Filter):
             # SOFTWARE.
 
             def f(t):
-                return 6*t**5 - 15*t**4 + 10*t**3
+                return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
 
             d = (height, width)
             grid = np.mgrid[0:d[0], 0:d[1]].astype(float)
@@ -448,17 +453,17 @@ class Snow(Filter):
             n11 = np.sum(np.dstack((grid[:, :, 0] - 1, grid[:, :, 1] - 1)) * g11, 2)
             # Interpolation
             t = f(grid)
-            n0 = n00*(1-t[:, :, 0]) + t[:, :, 0]*n10
-            n1 = n01*(1-t[:, :, 0]) + t[:, :, 0]*n11
-            return np.sqrt(2)*((1-t[:, :, 1])*n0 + t[:, :, 1]*n1)
+            n0 = n00 * (1 - t[:, :, 0]) + t[:, :, 0] * n10
+            n1 = n01 * (1 - t[:, :, 0]) + t[:, :, 0] * n11
+            return np.sqrt(2) * ((1 - t[:, :, 1]) * n0 + t[:, :, 1] * n1)
 
         def build_snowflake(r):
-            res = np.zeros(shape=(2*r+1, 2*r+1))
-            for y in range(0, 2*r+1):
-                for x in range(0, 2*r+1):
+            res = np.zeros(shape=(2 * r + 1, 2 * r + 1))
+            for y in range(0, 2 * r + 1):
+                for x in range(0, 2 * r + 1):
                     dy = y - r
                     dx = x - r
-                    d = sqrt(dx*dx + dy*dy)
+                    d = sqrt(dx * dx + dy * dy)
                     if r == 0:
                         res[y, x] = 1
                     else:
@@ -482,29 +487,31 @@ class Snow(Filter):
                 continue
             while len(flakes) <= r:
                 flakes.append(build_snowflake(len(flakes)))
-            y0 = max(0, y-r)
-            x0 = max(0, x-r)
-            y1 = min(height-1, y+r)+1
-            x1 = min(width-1, x+r)+1
-            fy0 = y0-(y-r)
-            fx0 = x0-(x-r)
-            fy1 = y1-(y-r)
-            fx1 = x1-(x-r)
+            y0 = max(0, y - r)
+            x0 = max(0, x - r)
+            y1 = min(height - 1, y + r) + 1
+            x1 = min(width - 1, x + r) + 1
+            fy0 = y0 - (y - r)
+            fx0 = x0 - (x - r)
+            fy1 = y1 - (y - r)
+            fx1 = x1 - (x - r)
             for j in range(3):
-                node_data[y0:y1, x0:x1, j] += ((255 - node_data[y0:y1, x0:x1, j]) *
-                                               flakes[r][fy0:fy1, fx0:fx1]).astype(int)
+                node_data[y0:y1, x0:x1, j] += ((255 - node_data[y0:y1, x0:x1, j]) * flakes[r][fy0:fy1, fx0:fx1]).astype(
+                    node_data.dtype)
 
         # add noise
         noise = generate_perlin_noise(height, width, random_state)
         noise = (noise + 1) / 2  # transform the noise to be in range [0, 1]
         for j in range(3):
-            node_data[:, :, j] += (self.snowstorm_alpha * (255 - node_data[:, :, j]) * noise[:, :]).astype(int)
+            node_data[:, :, j] += (self.snowstorm_alpha * (255 - node_data[:, :, j]) * noise[:, :]).astype(
+                node_data.dtype)
 
 
 class JPEG_Compression(Filter):
     """
     Compress the image as JPEG and uncompress. Quality should be in range [1, 100], the bigger the less loss
     """
+
     def __init__(self, quality_id):
         super().__init__()
         self.quality_id = quality_id
@@ -513,7 +520,7 @@ class JPEG_Compression(Filter):
         self.quality = params_dict[self.quality_id]
 
     def apply(self, node_data, random_state, named_dims):
-        iml = Image.fromarray(node_data)
+        iml = Image.fromarray(np.uint8(np.around(node_data)))
         buf = BytesIO()
         iml.save(buf, "JPEG", quality=self.quality)
         iml = Image.open(buf)
@@ -529,6 +536,7 @@ class Blur_Gaussian(Filter):
     Create blur in images by applying a Gaussian filter.
     The standard deviation of the Gaussian is taken as a parameter.
     """
+
     def __init__(self, standard_dev_id):
         super().__init__()
         self.std_id = standard_dev_id
@@ -575,6 +583,7 @@ class Resolution(Filter):
     """
     Makes resolution k times smaller. K must be an integer
     """
+
     def __init__(self, k_id):
         super().__init__()
         self.k_id = k_id
@@ -596,6 +605,7 @@ class ResolutionVectorized(Filter):
     """
     Makes resolution k times smaller. K must be an integer
     """
+
     def __init__(self, k_id):
         super().__init__()
         self.k_id = k_id
@@ -629,9 +639,9 @@ class Rotation(Filter):
         width = node_data.shape[1]
         height = node_data.shape[0]
 
-        x0 = round((resized_width - width)/2)
-        y0 = round((resized_height - height)/2)
-        node_data[...] = resized[y0:y0+height, x0:x0+width]
+        x0 = round((resized_width - width) / 2)
+        y0 = round((resized_height - height) / 2)
+        node_data[...] = resized[y0:y0 + height, x0:x0 + width]
 
 
 class Brightness(Filter):
@@ -812,7 +822,7 @@ class LensFlare(Filter):
                     dist = sqrt((x - x0) * (x - x0) + (y - y0) * (y - y0))
                     if dist > radius:
                         continue
-                    offset_dist = sqrt((x - x0 + x_offset)**2 + (y - y0 + y_offset)**2)
+                    offset_dist = sqrt((x - x0 + x_offset) ** 2 + (y - y0 + y_offset) ** 2)
                     r = node_data[y][x][0]
                     g = node_data[y][x][1]
                     b = node_data[y][x][2]
@@ -855,7 +865,8 @@ class LensFlare(Filter):
                 radius = round(max(40, random_state.normal(100, 100)))
                 flare(int(x), int(y), radius)
                 steps = random_state.normal(radius, 15)
-            if (best_x - width / 2)**2 + (best_y - height / 2)**2 + 1 <= (x - width / 2)**2 + (y - height / 2)**2:
+            if (best_x - width / 2) ** 2 + (best_y - height / 2) ** 2 + 1 <= (x - width / 2) ** 2 + (
+                    y - height / 2) ** 2:
                 break
             y += origo_vector[1]
             x += origo_vector[0]
@@ -972,6 +983,7 @@ class Difference(Filter):
     Returns the difference between the original and the filtered data,
     i.e. it is shorthand for Subtraction(filter, Identity()).
     """
+
     def __init__(self, ftr_id):
         super().__init__()
         self.ftr_id = ftr_id

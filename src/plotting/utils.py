@@ -3,25 +3,28 @@ import random
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.colors import LinearSegmentedColormap
 from graphviz import Digraph
+from matplotlib.colors import LinearSegmentedColormap
 
-from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
 from src.problemgenerator.filters import Filter
+from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
 
-def visualize_scores(df, score_names, err_param_name, title):
+def visualize_scores(df, score_names, err_param_name, title, log=False):
     dfs = split_df_by_model(df)
 
     n_scores = len(score_names)
-    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 4, 4))
+    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 4, 4), squeeze=False)
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
             df_ = filter_optimized_results(df_, err_param_name, score_names[i])
-            ax.plot(df_[err_param_name], df_[score_names[i]], label=df_.name)
+            if log:
+                ax.semilogx(df_[err_param_name], df_[score_names[i]], label=df_.name)
+            else:
+                ax.plot(df_[err_param_name], df_[score_names[i]], label=df_.name)
+                ax.set_xlim([0, df_[err_param_name].max()])
             ax.set_xlabel(err_param_name)
             ax.set_ylabel(score_names[i])
-            ax.set_xlim([0, df_[err_param_name].max()])
             ax.legend(fontsize="small")
 
     fig.subplots_adjust(wspace=.25)

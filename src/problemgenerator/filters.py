@@ -917,7 +917,7 @@ class BinaryFilter(Filter):
         self.filter_b = params_dict[self.filter_b_id]
         self.filter_a.set_params(params_dict)
         self.filter_b.set_params(params_dict)
-        
+
     def operation(self, element_a, element_b):
         raise NotImplementedError()
 

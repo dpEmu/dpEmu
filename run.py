@@ -10,7 +10,6 @@ import numpy as np
 from PIL import Image
 
 import src.problemgenerator.array as array
-import src.problemgenerator.copy as copy
 import src.problemgenerator.filters as filters
 import src.problemgenerator.series as series
 import src.problemgenerator.utils
@@ -137,8 +136,7 @@ def main():
             x_node.addfilter(filters.MissingArea(missing_area_prob, radius_generator, " "))
             y_node = array.Array(original_data[1][0].shape)
             z_node = array.Array(original_data[2][0].shape)
-            series_node = series.TupleSeries([x_node, y_node, z_node])
-            error_generator_root = copy.Copy(series_node)
+            error_generator_root = series.TupleSeries([x_node, y_node, z_node])
             x_out, y_out, z_out = error_generator_root.process(original_data, np.random.RandomState(seed=42))
             x_out = x_out.reshape((x_out.shape[0],))
             y_out = y_out.reshape((y_out.shape[0],))

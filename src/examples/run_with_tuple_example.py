@@ -2,7 +2,6 @@ import numpy as np
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.series as series
-import src.problemgenerator.copy as copy
 
 # Assume our data is a tuple of the form (x, y) where x has
 # shape (100, 10) and y has shape (100,). We can think of each
@@ -16,16 +15,15 @@ data = (x, y)
 # Build a data model tree.
 x_node = array.Array(x[0].shape)
 y_node = array.Array(y[0].shape)
-series_node = series.TupleSeries([x_node, y_node])
-root_node = copy.Copy(series_node)
+root_node = series.TupleSeries([x_node, y_node])
 
 # Suppose we want to introduce NaN values (i.e. missing data)
 # to y only (thus keeping x intact).
 probability = .3
-y_node.addfilter(filters.Missing(probability=probability))
+y_node.addfilter(filters.Missing("p"))
 
 # Feed the data to the root node.
-output = root_node.process(data, np.random.RandomState(seed=42))
+output = root_node.generate_error(data, {"p": probability})
 
 print("Output type (should be tuple):", type(output))
 print("Output length (should be 2):", len(output))

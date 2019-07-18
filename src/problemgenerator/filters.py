@@ -536,7 +536,11 @@ class Blur_Gaussian(Filter):
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
-        node_data = gaussian_filter(node_data, self.std)
+        if len(node_data.shape) == 2:
+            node_data[...] = gaussian_filter(node_data, self.std)
+        else:
+            for i in range(node_data.shape[-1]):
+                node_data[:, :, i] = gaussian_filter(node_data[:, :, i], self.std)
 
 
 class Blur(Filter):
@@ -614,7 +618,7 @@ class Rotation(Filter):
         self.angle = params_dict[self.angle_id]
 
     def apply(self, node_data, random_state, named_dims):
-        node_data = imutils.rotate(node_data, self.angle)
+        node_data[...] = imutils.rotate(node_data, self.angle)
 
         # Guesstimation for a large enough resize to avoid black areas in cropped picture
         factor = 1.8
@@ -626,7 +630,7 @@ class Rotation(Filter):
 
         x0 = round((resized_width - width)/2)
         y0 = round((resized_height - height)/2)
-        node_data = resized[y0:y0+height, x0:x0+width]
+        node_data[...] = resized[y0:y0+height, x0:x0+width]
 
 
 class Brightness(Filter):
@@ -866,6 +870,7 @@ class ApplyWithProbability(Filter):
     def set_params(self, params_dict):
         self.ftr = params_dict[self.ftr_id]
         self.probability = params_dict[self.probability_id]
+        self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):
         if random_state.rand() < self.probability:
@@ -961,6 +966,9 @@ class Difference(Filter):
         super().__init__()
         self.ftr = Subtraction(ftr, Identity())
 
+    def set_params(self, params_dict):
+        self.ftr.set_params(params_dict)
+
     def apply(self, node_data, random_state, named_dims):
         self.ftr.apply(node_data, random_state, named_dims)
 
@@ -980,6 +988,9 @@ class ModifyAsDataType(Filter):
         super().__init__()
         self.dtype = dtype
         self.ftr = ftr
+
+    def set_params(self, params_dict):
+        self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):
         copy = node_data.copy().astype(self.dtype)

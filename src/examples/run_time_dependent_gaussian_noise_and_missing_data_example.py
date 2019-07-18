@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.series as series
-import src.problemgenerator.copy as copy
 
 """
 Generate time dependent Gaussian noise and (non time dependent) missing values to MNIST data.
@@ -19,13 +18,20 @@ x_file, y_file = "data/mnist_subset/x.npy", "data/mnist_subset/y.npy"
 x = np.load(x_file)
 y = np.load(y_file)
 
+params = {}
+params["mean"] = 0
+params["std"] = std
+params["mean_inc"] = 0
+params["std_inc"] = std_increase
+params["p"] = prob
+
+
 x_node = array.Array(x[0].shape)
-x_node.addfilter(filters.GaussianNoiseTimeDependent(0, std, 0, std_increase))
-x_node.addfilter(filters.Missing(prob))
+x_node.addfilter(filters.GaussianNoiseTimeDependent("mean", "std", "mean_inc", "std_inc"))
+x_node.addfilter(filters.Missing("p"))
 y_node = array.Array(y[0].shape)
-series_node = series.TupleSeries([x_node, y_node], dim_name="time")
-root_node = copy.Copy(series_node)
-out_x, out_y = root_node.process((x, y), np.random.RandomState(seed=42))
+root_node = series.TupleSeries([x_node, y_node], dim_name="time")
+out_x, out_y = root_node.generate_error((x, y), params)
 
 print((y != out_y).sum(), "elements of y have been modified in (should be 0).")
 

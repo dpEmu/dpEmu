@@ -4,7 +4,6 @@ from PIL import Image
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-import src.problemgenerator.copy as copy
 import src.problemgenerator.radius_generators as radius_generators
 
 
@@ -20,10 +19,10 @@ def img_to_pixel_data(img):
 def main():
     img = Image.open("demo/landscape.png")
     data = img_to_pixel_data(img)
-    x_node = array.Array(data.shape)
-    x_node.addfilter(filters.StainArea(.00002, radius_generators.GaussianRadiusGenerator(50, 20), 0.9))
-    root_node = copy.Copy(x_node)
-    result = root_node.process(data, np.random.RandomState(seed=42))
+    root_node = array.Array(data.shape)
+    root_node.addfilter(filters.StainArea("p", "radius_gen", "alpha"))
+    params = {'p': .00002, "radius_gen": radius_generators.GaussianRadiusGenerator(50, 20), 'alpha': .9}
+    result = root_node.generate_error(data, params)
     filtered_img = Image.fromarray(result.astype('uint8'), 'RGB')
     filtered_img.show()
 

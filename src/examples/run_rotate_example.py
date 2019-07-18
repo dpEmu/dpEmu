@@ -1,12 +1,10 @@
 import sys
 import cv2
-import numpy as np
 # from PIL import Image
 
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-import src.problemgenerator.copy as copy
 
 
 def main():
@@ -14,10 +12,9 @@ def main():
     data = cv2.imread("demo/landscape.png")
     print(type(data))
     print(data.shape)
-    x_node = array.Array(data.shape)
-    x_node.addfilter(filters.Rotation(angle))
-    root_node = copy.Copy(x_node)
-    result = root_node.process(data, np.random.RandomState(seed=42))
+    root_node = array.Array(data.shape)
+    root_node.addfilter(filters.Rotation("angle"))
+    result = root_node.generate_error(data, {'angle': angle})
     # filtered_img = Image.fromarray(result)
     # filtered_img.show()
     cv2.imshow("Rotated", result)

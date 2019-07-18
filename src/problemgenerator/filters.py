@@ -446,6 +446,7 @@ class Snow(Filter):
             [type]
                 [description]
             """
+
             def f(t):
                 return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
 

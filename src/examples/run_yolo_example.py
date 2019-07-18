@@ -19,8 +19,8 @@ from src.utils import generate_unique_path
 
 
 class Preprocessor:
-    def run(self, train_data, test_data):
-        return train_data, test_data, {}
+    def run(self, _, imgs):
+        return None, imgs, {}
 
 
 class YOLOv3Model:
@@ -34,7 +34,7 @@ class YOLOv3Model:
         ]
         self.results = []
 
-    def __get_results_for_img(self, img, img_id):
+    def __get_results_for_img(self, img, img_id, net):
         conf_threshold = .25
         nms_threshold = .4
         img_h = img.shape[0]
@@ -42,7 +42,6 @@ class YOLOv3Model:
         inference_size = 416
         scale = 1 / 255
 
-        net = cv2.dnn.readNet("data/yolov3.weights", "data/yolov3.cfg")
         blob = cv2.dnn.blobFromImage(img, scale, (inference_size, inference_size), (0, 0, 0), True, crop=False)
         net.setInput(blob)
 
@@ -83,7 +82,8 @@ class YOLOv3Model:
     def run(self, _, imgs, model_params):
         img_ids = model_params["img_ids"]
 
-        [self.__get_results_for_img(imgs[i], img_ids[i]) for i in trange(len(imgs))]
+        net = cv2.dnn.readNet("data/yolov3.weights", "data/yolov3.cfg")
+        [self.__get_results_for_img(imgs[i], img_ids[i], net) for i in trange(len(imgs))]
         if not self.results:
             return {"mAP-50": 0}
 
@@ -115,15 +115,15 @@ def main(argv):
 
     imgs, img_ids, class_names = load_coco_val_2017(int(argv[1]))
 
-    err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 6)]]
-    # err_params_list = [{"std": std} for std in [i for i in range(0, 6)]]
+    err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
+    # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
     # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 1}
     #                    for p in [10 ** i for i in range(-4, 0)]]
     # err_params_list = [{"probability": p} for p in [10 ** i for i in range(-4, 0)]]
     # err_params_list = [
     #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
     #     for p in [10 ** i for i in range(-6, -2)]]
-    # err_params_list = [{"quality": q} for q in [10, 25, 50, 75, 100]]
+    # err_params_list = [{"quality": q} for q in [25, 50, 75, 100]]
 
     model_params_dict_list = [{"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names}]}]
 

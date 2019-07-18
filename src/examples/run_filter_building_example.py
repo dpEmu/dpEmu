@@ -2,7 +2,6 @@ import numpy as np
 from PIL import Image
 
 import src.problemgenerator.array as array
-import src.problemgenerator.copy as copy
 import src.problemgenerator.filters as filters
 
 # generate image with bitwise operations
@@ -18,11 +17,10 @@ img_original = Image.fromarray(data, "RGB")
 img_original.show()
 
 # generate error
-x_node = array.Array(data.shape)
+root_node = array.Array(data.shape)
 # add filter which subtracts each pixel value from 255
-x_node.addfilter(filters.Subtraction(filters.Constant(255), filters.Identity()))
-root_node = copy.Copy(x_node)
-out = root_node.process(data, np.random.RandomState(seed=42))
+root_node.addfilter(filters.Subtraction("const", "identity"))
+out = root_node.generate_error(data, {'c': 255, 'const': filters.Constant("c"), 'identity': filters.Identity()})
 
 # show modified image
 img_modified = Image.fromarray(out, "RGB")

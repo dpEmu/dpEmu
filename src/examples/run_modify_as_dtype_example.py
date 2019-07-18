@@ -4,11 +4,6 @@ import numpy as np
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-import src.problemgenerator.copy as copy
-
-
-def rotate(deg):
-    return filters.ModifyAsDataType(np.uint8, filters.Rotation(deg))
 
 
 def main():
@@ -22,12 +17,31 @@ def main():
     #
     # cv2's rotation requires data to be uint8, but summing them needs datatype with larger
     # precision, and thus type conversions are required.
-    const = filters.Constant(2)
-    avg = filters.Division(filters.Addition(rotate(0.0), rotate(180.0)), const)
-    x_node.addfilter(filters.ModifyAsDataType(np.int16, avg))
 
-    root_node = copy.Copy(x_node)
-    result = root_node.process(data, np.random.RandomState(seed=42))
+    const = filters.Constant("c")
+    rot1 = filters.Rotation("deg1")
+    mod1 = filters.ModifyAsDataType("rotation_dtype", "rot1")
+    rot2 = filters.Rotation("deg2")
+    mod2 = filters.ModifyAsDataType("rotation_dtype", "rot2")
+    add = filters.Addition("mod1", "mod2")
+    avg = filters.Division("add", "const")
+    x_node.addfilter(filters.ModifyAsDataType("avg_dtype", "avg"))
+
+    params = {}
+    params['c'] = 2
+    params['const'] = const
+    params['add'] = add
+    params['avg'] = avg
+    params['rotation_dtype'] = np.uint8
+    params['avg_dtype'] = np.uint16
+    params['deg1'] = 0
+    params['deg2'] = 180
+    params['rot1'] = rot1
+    params['rot2'] = rot2
+    params['mod1'] = mod1
+    params['mod2'] = mod2
+
+    result = x_node.generate_error(data, params)
     cv2.imshow("Rotated", result)
     cv2.waitKey(0)
 

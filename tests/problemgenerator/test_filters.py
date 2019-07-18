@@ -138,7 +138,6 @@ def test_seed_determines_result_for_stain_filter():
               "transparency_percentage": 0.5}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-    print(out1, out2)
     assert np.array_equal(out1, out2)
 
 

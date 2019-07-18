@@ -1,10 +1,8 @@
 import numpy as np
 
-from PIL import Image
-
+import matplotlib.pyplot as plt
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-import src.problemgenerator.copy as copy
 
 
 def img_to_pixel_data(img):
@@ -17,15 +15,19 @@ def img_to_pixel_data(img):
 
 
 def main():
-    img = Image.open("data/val2017/000000000776.jpg")
-    data = img_to_pixel_data(img)
-    x_node = array.Array(data.shape)
-    x_node.addfilter(filters.Snow(0.01, 0.4, 1))
-    # x_node.addfilter(filters.Rain(0.01))
-    root_node = copy.Copy(x_node)
-    result = root_node.process(data, np.random.RandomState(seed=42))
-    filtered_img = Image.fromarray(result.astype('uint8'), 'RGB')
-    filtered_img.show()
+    d = {"prob": 0.01}
+    # img = Image.open("data/val2017/000000000776.jpg")
+    # data = img_to_pixel_data(img)
+    # x_node.addfilter(filters.Snow(0.01, 0.4, 1))
+
+    data1 = plt.imread("data/val2017/000000000776.jpg")
+    print("Original", data1)
+    x_node1 = array.Array(data1.shape)
+    x_node1.addfilter(filters.Rain("prob"))
+    result1 = x_node1.generate_error(data1, d)
+
+    plt.imshow(result1)
+    plt.show()
 
 
 if __name__ == "__main__":

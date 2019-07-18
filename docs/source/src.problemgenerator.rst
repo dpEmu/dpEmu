@@ -12,14 +12,6 @@ src.problemgenerator.array module
    :undoc-members:
    :show-inheritance:
 
-src.problemgenerator.copy module
---------------------------------
-
-.. automodule:: src.problemgenerator.copy
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 src.problemgenerator.filters module
 -----------------------------------
 

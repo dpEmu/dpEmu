@@ -1,6 +1,10 @@
+import os
+import subprocess
+
+import cv2
 import pandas as pd
 from numpy.random import RandomState
-
+from pycocotools.coco import COCO
 from sklearn.datasets import fetch_20newsgroups, fetch_openml, load_digits
 from sklearn.model_selection import train_test_split
 
@@ -74,3 +78,24 @@ def load_fashion(n_data=70000):
         "Ankle boot",
     ]
     return data, labels, label_names, "Fashion MNIST"
+
+
+def load_coco_val_2017(n=5000):
+    if n not in range(1, 5000):
+        n = 5000
+    img_folder = "data/val2017"
+    if not os.path.isdir(img_folder):
+        subprocess.call(["./data/get_coco_dataset.sh"])
+    path_to_yolov3_weights = "data/yolov3.weights"
+    if not os.path.isfile(path_to_yolov3_weights):
+        subprocess.call(["./data/get_yolov3.sh"])
+
+    coco = COCO("data/annotations/instances_val2017.json")
+    img_ids = sorted(coco.getImgIds())[:n]
+    img_dicts = coco.loadImgs(img_ids)
+    imgs = [cv2.cvtColor(cv2.imread(os.path.join(img_folder, img_dict["file_name"])), cv2.COLOR_BGR2RGB) for img_dict in
+            img_dicts]
+    with open("data/coco.names", "r") as fp:
+        class_names = [line.strip() for line in fp.readlines()]
+
+    return imgs, img_ids, class_names

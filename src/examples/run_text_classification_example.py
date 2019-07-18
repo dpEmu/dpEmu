@@ -13,15 +13,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 
-# import src.problemgenerator.utils as utils
 from src import runner_
 from src.datasets.utils import load_newsgroups
 from src.ml.utils import reduce_dimensions_sparse
 from src.plotting.utils import visualize_scores, visualize_classes, print_results, visualize_confusion_matrices
 from src.problemgenerator.array import Array
-# from src.problemgenerator.filters import OCRError
 from src.problemgenerator.filters import MissingArea
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator
+
 warnings.simplefilter("ignore", category=ConvergenceWarning)
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
@@ -112,8 +111,8 @@ def main(argv):
                                                                         random_state=RandomState(42))
 
     # p_steps = np.linspace(0, 1, num=11)
-    # params = utils.load_ocr_error_params("config/example_text_error_params.json")
-    # normalized_params = utils.normalize_ocr_error_params(params)
+    # params = load_ocr_error_params("config/example_text_error_params.json")
+    # normalized_params = normalize_ocr_error_params(params)
     # err_params_list = [{
     #     "p": p,
     #     "normalized_params": normalized_params

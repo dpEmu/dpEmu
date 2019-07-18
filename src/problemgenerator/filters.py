@@ -403,32 +403,44 @@ class Snow(Filter):
 
     def apply(self, node_data, random_state, named_dims):
         def generate_perlin_noise(height, width, random_state):
-            # Pierre Vigier's implementation of 2d perlin noise with slight changes.
-            # https://github.com/pvigier/perlin-numpy
-            #
-            # The original code is licensed under MIT License:
-            #
-            # MIT License
-            #
-            # Copyright (c) 2019 Pierre Vigier
-            #
-            # Permission is hereby granted, free of charge, to any person obtaining a copy
-            # of this software and associated documentation files (the "Software"), to deal
-            # in the Software without restriction, including without limitation the rights
-            # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-            # copies of the Software, and to permit persons to whom the Software is
-            # furnished to do so, subject to the following conditions:
-            #
-            # The above copyright notice and this permission notice shall be included in all
-            # copies or substantial portions of the Software.
-            #
-            # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            # SOFTWARE.
+            """[summary]
+
+            Pierre Vigier's implementation of 2d perlin noise with slight changes.
+            https://github.com/pvigier/perlin-numpy
+
+            The original code is licensed under MIT License:
+
+            MIT License
+
+            Copyright (c) 2019 Pierre Vigier
+
+            Permission is hereby granted, free of charge, to any person obtaining a copy
+            of this software and associated documentation files (the "Software"), to deal
+            in the Software without restriction, including without limitation the rights
+            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+            copies of the Software, and to permit persons to whom the Software is
+            furnished to do so, subject to the following conditions:
+
+            The above copyright notice and this permission notice shall be included in all
+            copies or substantial portions of the Software.
+
+            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+            SOFTWARE.
+
+            :param self: [description]
+            :type self: [type]
+            :param width: [description]
+            :type width: [type]
+            :param random_state: [description]
+            :type random_state: [type]
+            :return: [description]
+            :rtype: [type]
+            """
 
             def f(t):
                 return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
@@ -513,13 +525,36 @@ class JPEG_Compression(Filter):
     """
 
     def __init__(self, quality_id):
+        """[summary]
+
+        [extended_summary]
+
+        :param quality_id: [description]
+        :type quality_id: [type]
+        """
         super().__init__()
         self.quality_id = quality_id
 
     def set_params(self, params_dict):
+        """[summary]
+
+        [extended_summary]
+
+        :param params_dict: [description]
+        :type params_dict: [type]
+        """
         self.quality = params_dict[self.quality_id]
 
     def apply(self, node_data, random_state, named_dims):
+        """[summary]
+
+        :param node_data: [description]
+        :type node_data: [type]
+        :param random_state: [description]
+        :type random_state: [type]
+        :param named_dims: [description]
+        :type named_dims: [type]
+        """
         iml = Image.fromarray(np.uint8(np.around(node_data)))
         buf = BytesIO()
         iml.save(buf, "JPEG", quality=self.quality)
@@ -538,13 +573,32 @@ class Blur_Gaussian(Filter):
     """
 
     def __init__(self, standard_dev_id):
+        """[summary]
+
+        :param standard_dev_id: [description]
+        :type standard_dev_id: [type]
+        """
         super().__init__()
         self.std_id = standard_dev_id
 
     def set_params(self, params_dict):
+        """[summary]
+
+        :param params_dict: [description]
+        :type params_dict: [type]
+        """
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
+        """[summary]
+
+        :param node_data: [description]
+        :type node_data: [type]
+        :param random_state: [description]
+        :type random_state: [type]
+        :param named_dims: [description]
+        :type named_dims: [type]
+        """
         if len(node_data.shape) == 2:
             node_data[...] = gaussian_filter(node_data, self.std)
         else:
@@ -607,13 +661,32 @@ class ResolutionVectorized(Filter):
     """
 
     def __init__(self, k_id):
+        """[summary]
+
+        :param k_id: [description]
+        :type k_id: [type]
+        """
         super().__init__()
         self.k_id = k_id
 
     def set_params(self, params_dict):
+        """[summary]
+
+        :param params_dict: [description]
+        :type params_dict: [type]
+        """
         self.k = params_dict[self.k_id]
 
     def apply(self, node_data, random_state, named_dims):
+        """[summary]
+
+        :param node_data: [description]
+        :type node_data: [type]
+        :param random_state: [description]
+        :type random_state: [type]
+        :param named_dims: [description]
+        :type named_dims: [type]
+        """
         w = node_data.shape[1]
         h = node_data.shape[0]
         row, col = (np.indices((h, w)) // self.k) * self.k
@@ -711,18 +784,48 @@ class BrightnessVectorized(Filter):
     """
 
     def __init__(self, tar_id, rat_id, range_id):
+        """[summary]
+
+        [extended_summary]
+
+        :param tar_id: 0 if you want to decrease brightness, 1 if you want to increase it
+        :type tar_id: [str]
+        :param rat_id: scales the brightness change
+        :type rat_id: [str]
+        :param range_id: RGB values are presented either in the range [0,1]
+            or in the set {0,...,255}
+        :type range_id: str
+        """
         super().__init__()
         self.tar_id = tar_id
         self.rat_id = rat_id
         self.range_id = range_id
 
     def set_params(self, params_dict):
+        """[summary]
+
+        [extended_summary]
+
+        :param params_dict: [description]
+        :type params_dict: dict
+        """
         self.tar = params_dict[self.tar_id]
         self.rat = params_dict[self.rat_id]
         # self.range should have value 1 or 255
         self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
+        """[summary]
+
+        [extended_summary]
+
+        :param node_data: [description]
+        :type node_data: numpy array
+        :param random_state: [description]
+        :type random_state: numpy.RandomState
+        :param named_dims: [description]
+        :type named_dims: [type]
+        """
         nd = node_data.astype("float32")
         if self.range == 255:
             nd[...] = node_data * (1 / self.range)

@@ -7,6 +7,7 @@ import cv2
 import imutils
 from io import BytesIO
 from PIL import Image
+from src.problemgenerator.utils import generate_random_dict_key
 
 
 class Filter:
@@ -958,7 +959,9 @@ class Difference(Filter):
         self.ftr_id = ftr_id
 
     def set_params(self, params_dict):
-        self.ftr = Subtraction(params_dict[self.ftr_id], Identity())
+        identity_key = generate_random_dict_key(params_dict, "identity")
+        params_dict[identity_key] = Identity()
+        self.ftr = Subtraction(self.ftr_id, identity_key)
         self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):

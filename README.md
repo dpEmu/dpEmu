@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/dpEmu/dpEmu/branch/master/graph/badge.svg)](https://codecov.io/gh/dpEmu/dpEmu)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/87b3b421702b4885a37f4025b59f5381)](https://www.codacy.com/app/thalvari/dpEmu?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dpEmu/dpEmu&amp;utm_campaign=Badge_Grade)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Documentation Status](https://readthedocs.org/projects/dpemu/badge/?version=latest)](https://dpemu.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/dpemu/badge/?version=latest)](https://dpemu.readthedocs.io/en/latest/?badge=read_the_docs)
 
 dpEmu is being built on the specifications and requirements provided by Professors Jukka Nurminen and Tommi Mikkonen for the course Software Engineering Lab at the University of Helsinki, department of Computer Science.
 

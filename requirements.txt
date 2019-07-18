@@ -23,3 +23,4 @@ jupyter==1.0.0
 graphviz==0.11.1
 Sphinx==2.1.2
 docutils==0.14
+recommonmark==0.5.0

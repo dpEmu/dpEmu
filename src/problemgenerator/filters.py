@@ -619,6 +619,23 @@ class Rotation(Filter):
         self.angle = params_dict[self.angle_id]
 
     def apply(self, node_data, random_state, named_dims):
+        """This is an example of rst docstring.
+
+        Extended description of function.
+
+        :param int arg1: Description of arg1.
+        :param str arg2: Description of arg2.
+        :raise: ValueError if arg1 is equal to arg2
+        :return: Description of return value
+        :rtype: bool
+
+        :example:
+
+        >>> a=1
+        >>> b=2
+        >>> func(a,b)
+        True
+        """
         node_data[...] = imutils.rotate(node_data, self.angle)
 
         # Guesstimation for a large enough resize to avoid black areas in cropped picture

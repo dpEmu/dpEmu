@@ -12,12 +12,12 @@ data = np.array(["shambler", "shub-niggurath", "ogre", "difficulty: nightmare",
 t0 = time()
 for i in range(20000):
     x_node = array.Array(data.shape)
-    params = utils.load_ocr_error_params("config/example_text_error_params.json")['ocr']['errors']
+    params = utils.load_ocr_error_params("config/example_text_error_params.json")
     normalized_params = utils.normalize_ocr_error_params(params)
 
-    x_node.addfilter(filters.OCRError(normalized_params, p=.5))
+    x_node.addfilter(filters.OCRError("params", "p"))
     root_node = copy.Copy(x_node)
-    out = root_node.process(data, np.random.RandomState(seed=42))
+    out = root_node.generate_error(data, {'params': normalized_params, 'p': .5})
 
 print("Time:", time() - t0)
 

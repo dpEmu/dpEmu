@@ -16,7 +16,6 @@ from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
 import src.problemgenerator.array as array
-import src.problemgenerator.copy as copy
 import src.problemgenerator.filters as filters
 from src.problemgenerator.utils import to_time_series_x_y
 
@@ -98,8 +97,7 @@ def main():
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
     y = data.values.astype(float)
-    y_node = array.Array(y.shape)
-    root_node = copy.Copy(y_node)
+    root_node = array.Array(y.shape)
 
     def strange(a, _):
         if a <= 500 and a >= 400:
@@ -107,12 +105,21 @@ def main():
 
         return a
 
-    # y_node.addfilter(filters.StrangeBehaviour(strange))
-    y_node.addfilter(filters.SensorDrift(2))
-    # y_node.addfilter(filters.Gap(prob_break=.1, prob_recover=.5, missing_value=np.nan))
-    # y_node.addfilter(filters.GaussianNoise(5, 15))
+    params = {}
+    params["magnitude"] = 2
+    params["strange"] = strange
+    params["mean"] = 5
+    params["std"] = 15
+    params["p_break"] = .1
+    params["p_recover"] = .5
+    params["missing_value"] = np.nan
 
-    output = root_node.process(y, np.random.RandomState(seed=42))
+    # root_node.addfilter(filters.StrangeBehaviour("strange"))
+    root_node.addfilter(filters.SensorDrift("magnitude"))
+    # root_node.addfilter(filters.Gap("p_break", "p_recover", "missing_value"))
+    # root_node.addfilter(filters.GaussianNoise("mean", "std"))
+
+    output = root_node.generate_error(y, params)
     # print("Changed\n", output)
     model = Model(output)
     out = model.run()

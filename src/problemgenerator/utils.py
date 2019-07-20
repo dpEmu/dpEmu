@@ -1,5 +1,7 @@
 import json
 
+from random import randint
+
 import numpy as np
 
 
@@ -24,3 +26,22 @@ def to_time_series_x_y(data, x_length):
     x = np.array([data[i - x_length:i] for i in range(x_length, data.shape[0])])
     y = np.array([data[i] for i in range(x_length, data.shape[0])])
     return x, y
+
+
+def first_dimension_length(array):
+    """Returns the length of the first dimension of the provided array or list.
+    """
+    if type(array) is list:
+        return len(array)
+    else:
+        return array.shape[0]
+
+
+def generate_random_dict_key(dct, prefix):
+    """Generates a random string that is not already in the dict.
+    """
+
+    key = prefix
+    while key in dct:
+        key += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[randint(0, 25)]
+    return key

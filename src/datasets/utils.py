@@ -1,40 +1,47 @@
-import numpy as np
+import os
+import subprocess
 
+import cv2
+import pandas as pd
+from numpy.random import RandomState
+from pycocotools.coco import COCO
 from sklearn.datasets import fetch_20newsgroups, fetch_openml, load_digits
 from sklearn.model_selection import train_test_split
 
-random_state = np.random.RandomState(42)
-# data_home = "/wrk/users/thalvari/"
 data_home = None
+# data_home = "/wrk/users/thalvari/"
+pd.set_option("display.expand_frame_repr", False)
+random_state = RandomState(42)
 
 
-def load_newsgroups(n_categories=20):
+def load_newsgroups(subset="all", n_categories=20):
     categories = [
         "alt.atheism",
-        "talk.religion.misc",
         "comp.graphics",
         "sci.space",
-        "comp.os.ms-windows.misc",
-        "comp.sys.ibm.pc.hardware",
+        "rec.autos",
+        "rec.sport.hockey",
+        "sci.med",
+        "rec.sport.baseball",
+        "sci.electronics",
+        "misc.forsale",
+        "sci.crypt",
+        "talk.politics.mideast",
         "comp.sys.mac.hardware",
         "comp.windows.x",
-        "misc.forsale",
-        "rec.autos",
         "rec.motorcycles",
-        "rec.sport.baseball",
-        "rec.sport.hockey",
-        "sci.crypt",
-        "sci.electronics",
-        "sci.med",
         "soc.religion.christian",
-        "talk.politics.guns",
-        "talk.politics.mideast",
         "talk.politics.misc",
+        "talk.religion.misc",
+        "talk.politics.guns",
+        "comp.sys.ibm.pc.hardware"
     ]
-    newsgroups = fetch_20newsgroups(subset="all", categories=categories[:n_categories],
+    if not 0 < n_categories < 21:
+        n_categories = 20
+    newsgroups = fetch_20newsgroups(subset=subset, categories=categories[:n_categories],
                                     remove=("headers", "footers", "quotes"), random_state=random_state,
                                     data_home=data_home)
-    return newsgroups["data"], np.array(newsgroups["target"].astype(int)), newsgroups["target_names"], "20newsgroups"
+    return newsgroups["data"], newsgroups["target"].astype(int), newsgroups["target_names"], "20newsgroups"
 
 
 def split_data(data, labels, n_data):
@@ -71,3 +78,24 @@ def load_fashion(n_data=70000):
         "Ankle boot",
     ]
     return data, labels, label_names, "Fashion MNIST"
+
+
+def load_coco_val_2017(n=5000):
+    if n not in range(1, 5000):
+        n = 5000
+    img_folder = "data/val2017"
+    if not os.path.isdir(img_folder):
+        subprocess.call(["./data/get_coco_dataset.sh"])
+    path_to_yolov3_weights = "data/yolov3.weights"
+    if not os.path.isfile(path_to_yolov3_weights):
+        subprocess.call(["./data/get_yolov3.sh"])
+
+    coco = COCO("data/annotations/instances_val2017.json")
+    img_ids = sorted(coco.getImgIds())[:n]
+    img_dicts = coco.loadImgs(img_ids)
+    imgs = [cv2.cvtColor(cv2.imread(os.path.join(img_folder, img_dict["file_name"])), cv2.COLOR_BGR2RGB) for img_dict in
+            img_dicts]
+    with open("data/coco.names", "r") as fp:
+        class_names = [line.strip() for line in fp.readlines()]
+
+    return imgs, img_ids, class_names

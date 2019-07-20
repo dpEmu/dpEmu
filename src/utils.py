@@ -79,3 +79,9 @@ def split_df_by_model(df):
         df_.name = model_name
         dfs.append(df_)
     return dfs
+
+
+def filter_optimized_results(df, err_param_name, score_name):
+    df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmax()].reset_index(drop=True)
+    df_.name = df.name
+    return df_

@@ -1,38 +1,40 @@
 import json
-import os
-import subprocess
-from copy import deepcopy
+import sys
 
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.random import RandomState
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
-from tqdm import tqdm, trange
+from tqdm import trange
 
-from src import runner
-from src.problemgenerator import array, copy, filters, radius_generators
+from src import runner_
+from src.datasets.utils import load_coco_val_2017
+from src.plotting.utils import print_results, visualize_scores
+from src.problemgenerator.array import Array
+from src.problemgenerator.filters import GaussianNoise
+from src.problemgenerator.series import Series
 from src.utils import generate_unique_path
 
 
-class Model:
+class Preprocessor:
+    def run(self, train_data, test_data):
+        return train_data, test_data, {}
+
+
+class YOLOv3Model:
 
     def __init__(self):
-        self.results = []
+        self.random_state = RandomState(42)
         self.coco91class = [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33,
             34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
             62, 63, 64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90
         ]
-        with open("data/coco.names", "r") as fp:
-            self.class_names = [line.strip() for line in fp.readlines()]
+        self.results = []
 
-    def __print_result(self, result):
-        result = deepcopy(result)
-        result["category_id"] = self.class_names[self.coco91class.index(result["category_id"])]
-        print(result)
-
-    def __add_img_to_results(self, img, img_id):
+    def __get_results_for_img(self, img, img_id):
         conf_threshold = .25
         nms_threshold = .4
         img_h = img.shape[0]
@@ -71,19 +73,17 @@ class Model:
             i = i[0]
             x, y, w, h = boxes[i]
 
-            result = {
+            self.results.append({
                 "image_id": img_id,
                 "category_id": self.coco91class[class_ids[i]],
                 "bbox": [x, y, w, h],
                 "score": confidences[i],
-            }
-            self.results.append(result)
-            # self.__print_result(result)
+            })
 
-    def run(self, imgs, model_params):
+    def run(self, _, imgs, model_params):
         img_ids = model_params["img_ids"]
 
-        [self.__add_img_to_results(imgs[i], img_ids[i]) for i in trange(len(imgs))]
+        [self.__get_results_for_img(imgs[i], img_ids[i]) for i in trange(len(imgs))]
         if not self.results:
             return {"mAP-50": 0}
 
@@ -100,122 +100,48 @@ class Model:
         return {"mAP-50": round(coco_eval.stats[1], 3)}
 
 
-def load_coco_val_2017():
-    img_folder = "data/val2017"
-    if not os.path.isdir(img_folder):
-        subprocess.call(["./data/get_coco_dataset.sh"])
-    path_to_yolov3_weights = "data/yolov3.weights"
-    if not os.path.isfile(path_to_yolov3_weights):
-        subprocess.call(["./data/get_yolov3.sh"])
-
-    coco = COCO("data/annotations/instances_val2017.json")
-    img_ids = sorted(coco.getImgIds())[:1]
-    img_dicts = coco.loadImgs(img_ids)
-    imgs = [cv2.cvtColor(cv2.imread(os.path.join(img_folder, img_dict["file_name"])),
-                         cv2.COLOR_BGR2RGB) for img_dict in img_dicts]
-    return imgs, img_ids
-
-
-class ErrGen:
-    def __init__(self, imgs):
-        self.imgs = imgs
-
-    def generate_error(self, params):
-        imgs = deepcopy(self.imgs)
-        results = []
-        for img in tqdm(imgs):
-            img_node = array.Array(img.shape)
-            root_node = copy.Copy(img_node)
-
-            # img_node.addfilter(filters.GaussianNoise(params["mean"], params["std"]))
-            # img_node.addfilter(filters.Blur_Gaussian(params["std"]))
-            # img_node.addfilter(filters.Snow(
-            #     params["snowflake_probability"],
-            #     params["snowflake_alpha"],
-            #     params["snowstorm_alpha"]
-            # ))
-            # img_node.addfilter(filters.Rain(params["probability"]))
-            img_node.addfilter(filters.StainArea(
-                params["probability"],
-                params["radius_generator"],
-                params["transparency_percentage"]
-            ))
-            # img_node.addfilter(filters.LensFlare())
-            # img_node.addfilter(filters.JPEG_Compression(params["quality"]))
-
-            result = root_node.process(img.astype(float), np.random.RandomState(seed=42))
-            # result = root_node.process(img, np.random.RandomState(seed=42))
-            result = np.uint8(result)
-            results.append(result)
-
-            cv2.imshow(str(params), cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
-            cv2.waitKey()
-            cv2.destroyAllWindows()
-        return results
-
-
-class ParamSelector:
-    def __init__(self, params):
-        self.params = params
-
-    def next(self):
-        return self.params
-
-    def analyze(self, res):
-        self.params = None
-
-
 def visualize(df):
-    ylabel = "mAP-50"
-    # xlabel = "std"
-    # xlabel = "snowflake_probability"
-    xlabel = "probability"
-    # xlabel = "quality"
-
-    # plt.plot(df[xlabel], df[ylabel])
-    plt.semilogx(df[xlabel], df[ylabel])
-    plt.scatter(df[xlabel], df[ylabel])
-    plt.ylim([0, 1])
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.tight_layout()
-    path_to_plot = generate_unique_path("out", "png")
-    plt.savefig(path_to_plot)
+    visualize_scores(df, ["mAP-50"], "std", "YOLOv3 object detection scores with added error", log=False)
+    # visualize_scores(df, ["mAP-50"], "snowflake_probability",
+    #                  "YOLOv3 object detection scores with added error", log=True)
+    # visualize_scores(df, ["mAP-50"], "probability", "YOLOv3 object detection scores with added error", log=True)
+    # visualize_scores(df, ["mAP-50"], "quality", "YOLOv3 object detection scores with added error", log=False)
+    plt.show()
 
 
-def main():
-    imgs, img_ids = load_coco_val_2017()
-    model = Model()
+def main(argv):
+    if len(argv) != 2:
+        exit(0)
 
-    err_gen = ErrGen(imgs)
+    imgs, img_ids, class_names = load_coco_val_2017(int(argv[1]))
 
-    # param_selector = ParamSelector([(
-    #     {"mean": a, "std": b},
-    #     {"img_ids": img_ids}
-    # ) for (a, b) in [(0, 0), (0, 10), (0, 20), (0, 30), (0, 40), (0, 50)]])
-    # param_selector = ParamSelector([({"std": a}, {"img_ids": img_ids}) for a in [0, 1, 2, 3, 4, 5]])
-    # param_selector = ParamSelector([(
-    #     {"snowflake_probability": a, "snowflake_alpha": b, "snowstorm_alpha": c},
-    #     {"img_ids": img_ids}
-    # ) for (a, b, c) in [(0.0001, .4, 1), (0.001, .4, 1), (0.01, .4, 1), (0.1, .4, 1)]])
-    # param_selector = ParamSelector([({"probability": a}, {"img_ids": img_ids}) for a in [0.0001, 0.001, 0.01, 0.1]])
-    param_selector = ParamSelector([(
-        {"probability": a, "radius_generator": b, "transparency_percentage": c},
-        {"img_ids": img_ids}
-    ) for (a, b, c) in [
-        (.000001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
-        (.00001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
-        (.0001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
-        (.001, radius_generators.GaussianRadiusGenerator(0, 50), 0.2),
-    ]])
-    # param_selector = ParamSelector([({}, {"img_ids": img_ids})])
-    # param_selector = ParamSelector([({"quality": a}, {"img_ids": img_ids}) for a in [1, 5, 10, 50, 100]])
+    err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 6)]]
+    # err_params_list = [{"std": std} for std in [i for i in range(0, 6)]]
+    # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 1}
+    #                    for p in [10 ** i for i in range(-4, 0)]]
+    # err_params_list = [{"probability": p} for p in [10 ** i for i in range(-4, 0)]]
+    # err_params_list = [
+    #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
+    #     for p in [10 ** i for i in range(-6, -2)]]
+    # err_params_list = [{"quality": q} for q in [10, 25, 50, 75, 100]]
 
-    df = runner.run(model, err_gen, param_selector)
+    model_params_dict_list = [{"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names}]}]
 
-    print(df)
+    err_node = Array()
+    err_root_node = Series(err_node)
+
+    err_node.addfilter(GaussianNoise("mean", "std"))
+    # err_node.addfilter(Blur_Gaussian("std"))
+    # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
+    # err_node.addfilter(Rain("probability"))
+    # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
+    # err_node.addfilter(JPEG_Compression("quality"))
+
+    df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list)
+
+    print_results(df, ["img_ids", "class_names", "mean", "std", "radius_generator", "transparency_percentage"])
     visualize(df)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

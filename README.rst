@@ -36,6 +36,8 @@ Installation
 -  ``pip install -U pip setuptools wheel``
 -  ``pip install -r requirements.txt``
 -  ``pip install pycocotools``
+-  ``pip install -e git+https://github.com/facebookresearch/Detectron.git#egg=detectron``
+-  ``ln -s /path/to/coco venv/src/detectron/detectron/datasets/data/coco``
 
 .. _usage-:
 

@@ -30,9 +30,10 @@ class Node:
         parameters to the filters) and whose values are the desired parameter
         values.
         """
-        self.set_error_params(error_params)
         copy_data = copy.deepcopy(data)
-        self.process(copy_data, random_state)
+        copy_tree = copy.deepcopy(self)
+        copy_tree.set_error_params(error_params)
+        copy_tree.process(copy_data, random_state)
         return copy_data
 
     def get_parametrized_tree(self, error_params):

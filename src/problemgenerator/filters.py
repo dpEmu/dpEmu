@@ -44,13 +44,11 @@ class Filter(ABC):
 
     @abstractmethod
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        [extended_summary]
+        """Modifies the data according to the functionality of the filter.
 
         Args:
-            node_data (numpy.ndarray): [description]
-            random_state ([type]): [description]
+            node_data (numpy.ndarray): Data to be modified as a numpy array
+            random_state (mtrand.RandomState): An instance of numpy.random.RandomState
             named_dims (dict): Named dimensions
         """
         pass
@@ -187,7 +185,7 @@ class Uppercase(Filter):
     def __init__(self, probability_id):
         """
         Args:
-            probability_id (str): A key which maps to a probability
+            probability_id (str): A key which maps to the probability of uppercase change
         """
         self.prob_id = probability_id
         super().__init__()
@@ -565,7 +563,7 @@ class Snow(Filter):
     SOFTWARE.
 
     Args:
-        Filter ([type]): [description]
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, snowflake_probability_id, snowflake_alpha_id, snowstorm_alpha_id):
@@ -700,36 +698,13 @@ class JPEG_Compression(Filter):
     """
 
     def __init__(self, quality_id):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            quality_id ([type]): [description]
-        """
         super().__init__()
         self.quality_id = quality_id
 
     def set_params(self, params_dict):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            params_dict ([type]): [description]
-        """
         self.quality = params_dict[self.quality_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            node_data ([type]): [description]
-            random_state ([type]): [description]
-            named_dims ([type]): [description]
-        """
         iml = Image.fromarray(np.uint8(np.around(node_data)))
         buf = BytesIO()
         iml.save(buf, "JPEG", quality=self.quality)
@@ -748,36 +723,13 @@ class Blur_Gaussian(Filter):
     """
 
     def __init__(self, standard_dev_id):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            standard_dev_id ([type]): [description]
-        """
         super().__init__()
         self.std_id = standard_dev_id
 
     def set_params(self, params_dict):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            params_dict ([type]): [description]
-        """
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            node_data ([type]): [description]
-            random_state ([type]): [description]
-            named_dims ([type]): [description]
-        """
         if len(node_data.shape) == 2:
             node_data[...] = gaussian_filter(node_data, self.std)
         else:
@@ -840,36 +792,13 @@ class ResolutionVectorized(Filter):
     """
 
     def __init__(self, k_id):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            k_id ([type]): [description]
-        """
         super().__init__()
         self.k_id = k_id
 
     def set_params(self, params_dict):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            params_dict ([type]): [description]
-        """
         self.k = params_dict[self.k_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            node_data ([type]): [description]
-            random_state ([type]): [description]
-            named_dims ([type]): [description]
-        """
         w = node_data.shape[1]
         h = node_data.shape[0]
         row, col = (np.indices((h, w)) // self.k) * self.k
@@ -885,15 +814,6 @@ class Rotation(Filter):
         self.angle = params_dict[self.angle_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            node_data ([type]): [description]
-            random_state ([type]): [description]
-            named_dims ([type]): [description]
-        """
         node_data[...] = imutils.rotate(node_data, self.angle)
 
         # Guesstimation for a large enough resize to avoid black areas in cropped picture
@@ -950,23 +870,23 @@ class Brightness(Filter):
 
 
 class BrightnessVectorized(Filter):
-    """
-    Increases or decreases brightness in the image.
+    """Increases or decreases brightness in the image.
+
     tar: 0 if you want to decrease brightness, 1 if you want to increase it
     rat: scales the brightness change
-    range_id: RGB values are presented either in the range [0,1]
-            or in the set {0,...,255}
+    range: Should have value 1 or 255. RGB values are presented either
+     in the range [0,1] or in the set {0,...,255}
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, tar_id, rat_id, range_id):
-        """[summary]
-
-        [extended_summary]
-
+        """
         Args:
-            tar_id ([type]): [description]
-            rat_id ([type]): [description]
-            range_id ([type]): [description]
+            tar_id (str): A key which maps to the tar value
+            rat_id (str): A key which maps to the rat value
+            range_id (str): A key which maps to the range value
         """
         super().__init__()
         self.tar_id = tar_id
@@ -974,28 +894,11 @@ class BrightnessVectorized(Filter):
         self.range_id = range_id
 
     def set_params(self, params_dict):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            params_dict (dict): A dictionary
-        """
         self.tar = params_dict[self.tar_id]
         self.rat = params_dict[self.rat_id]
-        # self.range should have value 1 or 255
         self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            node_data ([type]): [description]
-            random_state ([type]): [description]
-            named_dims ([type]): [description]
-        """
         nd = node_data.astype("float32")
         if self.range == 255:
             nd[...] = node_data * (1 / self.range)
@@ -1015,14 +918,6 @@ class BrightnessVectorized(Filter):
 
 
 class Saturation(Filter):
-    """
-    Increases or decreases brightness in the image.
-    tar: 0 if you want to decrease brightness, 1 if you want to increase it
-    rat: scales the brightness change
-    range_id: RGB values are presented either in the range [0,1]
-            or in the discrete set {0,...,255}
-    """
-
     def __init__(self, tar_id, rat_id, range_id):
         super().__init__()
         self.tar_id = tar_id
@@ -1055,15 +950,24 @@ class Saturation(Filter):
 
 
 class SaturationVectorized(Filter):
-    """
-    Increases or decreases brightness in the image.
-    tar: 0 if you want to decrease brightness, 1 if you want to increase it
-    rat: scales the brightness change
-    range_id: RGB values are presented either in the range [0,1]
-            or in the discrete set {0,...,255}
+    """Increases or decreases saturation in the image.
+
+    tar: 0 if you want to decrease saturation, 1 if you want to increase it
+    rat: scales the saturation change
+    range: Should have value 1 or 255. RGB values are presented either
+     in the range [0,1] or in the set {0,...,255}
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, tar_id, rat_id, range_id):
+        """
+        Args:
+            tar_id (str): A key which maps to the tar value
+            rat_id (str): A key which maps to the rat value
+            range_id (str): A key which maps to the range value
+        """
         super().__init__()
         self.tar_id = tar_id
         self.rat_id = rat_id
@@ -1072,7 +976,6 @@ class SaturationVectorized(Filter):
     def set_params(self, params_dict):
         self.tar = params_dict[self.tar_id]
         self.rat = params_dict[self.rat_id]
-        # self.range should have value 1 or 255
         self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
@@ -1193,6 +1096,10 @@ class Constant(Filter):
 
 class Identity(Filter):
     def __init__(self):
+        """
+        Args:
+            Filter (object): Abstract superclass for every filter
+        """
         super().__init__()
 
     def set_params(self, params_dict):

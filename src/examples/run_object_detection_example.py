@@ -203,9 +203,9 @@ def main():
     # err_params_list = [{"quality": q} for q in [25, 50, 75, 100]]
 
     model_params_dict_list = [
-        {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names}]},
+        # {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names}]},
         # {"model": FasterRCNNModel, "params_list": [{}]},
-        # {"model": MaskRCNNModel, "params_list": [{}]}
+        {"model": MaskRCNNModel, "params_list": [{}]}
     ]
 
     err_node = Array()

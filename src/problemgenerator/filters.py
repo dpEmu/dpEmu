@@ -1,4 +1,5 @@
 import random
+from abc import ABC, abstractmethod
 from colorsys import rgb_to_hls, hls_to_rgb
 from io import BytesIO
 
@@ -12,13 +13,17 @@ from scipy.ndimage import gaussian_filter
 from src.problemgenerator.utils import generate_random_dict_key
 
 
-class Filter:
+class Filter(ABC):
     """A Filter is an error source which can be attached to an Array node.
 
     The apply method applies the filter. A filter may always assume that
     it is acting upon a Numpy array. (When the underlying data object is not
     a Numpy array, the required conversions are performed by the Array node
     to which the Filter is attached.)
+
+    Args:
+        ABC (object): Helper class that provides a standard way to create an ABC using
+    inheritance.
     """
 
     def __init__(self):
@@ -28,16 +33,44 @@ class Filter:
         random.seed(42)
         self.shape = ()
 
+    @abstractmethod
     def set_params(self, params_dict):
+        """Set parameters for error generation.
+
+        Args:
+            params_dict (dict): A Python dictionary
+        """
+        pass
+
+    @abstractmethod
+    def apply(self, node_data, random_state, named_dims):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            node_data (numpy.ndarray): [description]
+            random_state ([type]): [description]
+            named_dims (dict): Named dimensions
+        """
         pass
 
 
 class Missing(Filter):
-    """For each element in the array, change the value of the element to nan
+    """Introduce missing values to data.
+
+    For each element in the array, change the value of the element to nan
     with the provided probability.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, probability_id):
+        """
+        Args:
+            probability_id (str): A key which maps to a probability
+        """
         self.probability_id = probability_id
         super().__init__()
 
@@ -51,9 +84,17 @@ class Missing(Filter):
 
 class Clip(Filter):
     """Clip values to minimum and maximum value provided by the user.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, min_id, max_id):
+        """
+        Args:
+            min_id (str): A key which maps to a minimum value
+            max_id (str): A key which maps to a maximum value
+        """
         self.min_id = min_id
         self.max_id = max_id
         super().__init__()
@@ -67,11 +108,21 @@ class Clip(Filter):
 
 
 class GaussianNoise(Filter):
-    """For each element in the array add noise drawn from a Gaussian distribution
+    """Add normally distributed noise to data.
+
+    For each element in the array add noise drawn from a Gaussian distribution
     with the provided parameters mean and std (standard deviation).
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, mean_id, std_id):
+        """
+        Args:
+            mean_id (str): A key which maps to a mean value
+            std_id (str): A key which maps to a standard deviation value
+        """
         self.mean_id = mean_id
         self.std_id = std_id
         super().__init__()
@@ -85,13 +136,25 @@ class GaussianNoise(Filter):
 
 
 class GaussianNoiseTimeDependent(Filter):
-    """For each element in the array add noise drawn from a Gaussian distribution
+    """Add time dependent normally distributed noise.
+
+    For each element in the array add noise drawn from a Gaussian distribution
     with the provided parameters mean and std (standard deviation). The mean and
     standard deviation increase with every unit of time by the amount specified
     in the last two parameters.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, mean_id, std_id, mean_increase_id, std_increase_id):
+        """
+        Args:
+            mean_id (str): A key which maps to a mean value
+            std_id (str): A key which maps to a standard deviation value
+            mean_increase_id (str): A key which maps to an increase in mean
+            std_increase_id (str): A key which maps to an increase in standard deviation
+        """
         self.mean_id = mean_id
         self.std_id = std_id
         self.mean_increase_id = mean_increase_id
@@ -112,11 +175,20 @@ class GaussianNoiseTimeDependent(Filter):
 
 
 class Uppercase(Filter):
-    """For each character in the string, convert the character
+    """Randomly convert characters to uppercase.
+
+    For each character in the string, convert the character
     to uppercase with the provided probability.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, probability_id):
+        """
+        Args:
+            probability_id (str): A key which maps to a probability
+        """
         self.prob_id = probability_id
         super().__init__()
 
@@ -138,13 +210,21 @@ class Uppercase(Filter):
 
 
 class OCRError(Filter):
+    """Emulate optical character recognition (OCR) errors.
+
+    User should provide a probability distribution in the form of a dict,
+    specifying how probable a change of character is.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
+    """
 
     def __init__(self, normalized_params_id, p_id):
-        """ Pass normalized_params as a dict.
-
-        For example {"e": (["E", "i"], [.5, .5]), "g": (["q", "9"], [.2, .8])}
-        where the latter list consists of probabilities which should sum to 1."""
-
+        """
+        Args:
+            normalized_params_id (str): A key which maps to the probability distribution
+            p_id (str): A key which maps to a probability of the distribution being applied
+        """
         self.normalized_params_id = normalized_params_id
         self.p_id = p_id
         super().__init__()
@@ -168,15 +248,23 @@ class OCRError(Filter):
         return c
 
 
-def replace_inds(mask, str1, str2):
-    return "".join([str1[i] if mask[i] else str2[i] for i in range(len(mask))])
-
-
 class MissingArea(Filter):
-    """ TODO: radius_generator is a struct, not a function. It should be a function for repeatability
+    """Emulate optical character recognition effect of stains in text.
+
+    Introduce missing areas to text.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
+    # TODO: radius_generator is a struct, not a function. It should be a function for repeatability
 
     def __init__(self, probability_id, radius_generator_id, missing_value_id):
+        """
+        Args:
+            probability_id (str): A key which maps to a probability of stain
+            radius_generator_id (str): A key which maps to a radius_generator
+            missing_value_id (str): A key which maps to a missing value to be used
+        """
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
         self.missing_value_id = missing_value_id
@@ -245,21 +333,25 @@ class MissingArea(Filter):
 
 
 class StainArea(Filter):
-    """[summary]
+    """Adds stains to images.
 
-    [extended_summary]
+    This filter adds stains to the images.
+        probability: probability of adding a stain at each pixel.
+        radius_generator: object implementing a generate(random_state) function
+            which returns the radius of the stain.
+        transparency_percentage: 1 means that the stain is invisible and 0 means
+            that the part of the image where the stain is is completely black.
 
     Args:
-        Filter ([type]): [description]
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, probability_id, radius_generator_id, transparency_percentage_id):
-        """This filter adds stains to the images.
-            probability: probability of adding a stain at each pixel.
-            radius_generator: object implementing a generate(random_state) function
-                which returns the radius of the stain.
-            transparency_percentage: 1 means that the stain is invisible and 0 means
-                that the part of the image where the stain is is completely black.
+        """
+        Args:
+            probability_id (str): A key which maps to the probability of stain
+            radius_generator_id (str): A key which maps to the radius_generator
+            transparency_percentage_id (str): A key which maps to transparency percentage
         """
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
@@ -304,7 +396,23 @@ class StainArea(Filter):
 
 
 class Gap(Filter):
+    """Introduce gaps to time series data by simulating sensor failure.
+
+    Model the state of a sensor as a Markov chain. The sensor always
+    starts in a working state. The sensor has a specific probability
+    to stop working and a specific probability to start working.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
+    """
+
     def __init__(self, prob_break_id, prob_recover_id, missing_value_id):
+        """
+        Args:
+            prob_break_id (str): A key which maps to the probability of the sensor breaking
+            prob_recover_id (str): A key which maps to the probability of the sensor recovering
+            missing_value_id (str): A key which maps to a missing value to be used
+        """
         super().__init__()
         self.prob_break_id = prob_break_id
         self.prob_recover_id = prob_recover_id
@@ -334,8 +442,19 @@ class Gap(Filter):
 
 
 class SensorDrift(Filter):
+    """Emulate sensor values drifting due to a malfunction in the sensor.
+
+    Magnitude is the linear increase in drift during time period t_i -> t_i+1.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
+    """
+
     def __init__(self, magnitude_id):
-        """Magnitude is the linear increase in drift during time period t_i -> t_i+1."""
+        """
+        Args:
+            magnitude_id (str): A key which maps to the magnitude value
+        """
         super().__init__()
         self.magnitude_id = magnitude_id
 
@@ -348,8 +467,20 @@ class SensorDrift(Filter):
 
 
 class StrangeBehaviour(Filter):
+    """Emulate strange sensor values due to anomalous conditions around the sensor.
+
+    The function do_strange_behaviour is user defined and outputs strange sensor
+    values into the data.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
+    """
+
     def __init__(self, do_strange_behaviour_id):
-        """The function do_strange_behaviour outputs strange sensor values into the data."""
+        """
+        Args:
+            do_strange_behaviour_id (str): A key which maps to the strange_behaviour function
+        """
         super().__init__()
         self.do_strange_behaviour_id = do_strange_behaviour_id
 
@@ -401,16 +532,48 @@ class Rain(Filter):
 
 
 class Snow(Filter):
+    """Add snow to images.
+
+    This filter adds snow to images, and it uses Pierrre Vigier's implementation
+    of 2d perlin noise.
+
+    Pierre Vigier's implementation of 2d perlin noise with slight changes.
+    https://github.com/pvigier/perlin-numpy
+
+    The original code is licensed under MIT License:
+
+    MIT License
+
+    Copyright (c) 2019 Pierre Vigier
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+    Args:
+        Filter ([type]): [description]
+    """
+
     def __init__(self, snowflake_probability_id, snowflake_alpha_id, snowstorm_alpha_id):
-        """[summary]
-
-        [extended_summary]
-
+        """
         Args:
-            Filter ([type]): [description]
-            snowflake_probability_id ([type]): [description]
-            snowflake_alpha_id ([type]): [description]
-            snowstorm_alpha_id ([type]): [description]
+            snowflake_probability_id (str): A key which maps to a snowflake probability
+            snowflake_alpha_id (str):
+            snowstorm_alpha_id (str):
         """
         super().__init__()
         self.snowflake_probability_id = snowflake_probability_id
@@ -452,20 +615,6 @@ class Snow(Filter):
             LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
             OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
             SOFTWARE.
-
-            Parameters
-            ----------
-            self : [type]
-                [description]
-            width : [type]
-                [description]
-            random_state : [type]
-                [description]
-
-            Returns
-            -------
-            [type]
-                [description]
             """
             def f(t):
                 return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3

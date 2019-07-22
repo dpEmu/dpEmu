@@ -7,6 +7,7 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
+SPHINXAUTO    ?= sphinx-autobuild
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -20,5 +21,5 @@ help:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 livehtml:
-    sphinx-autobuild -b html "$(ALLSPHINXOPTS)" "$(BUILDDIR)/html"
+	@$(SPHINXAUTO) -b html "$(ALLSPHINXOPTS)" "$(BUILDDIR)/html"
 

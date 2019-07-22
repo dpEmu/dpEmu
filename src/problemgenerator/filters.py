@@ -14,6 +14,7 @@ from src.problemgenerator.utils import generate_random_dict_key
 
 class Filter:
     """A Filter is an error source which can be attached to an Array node.
+
     The apply method applies the filter. A filter may always assume that
     it is acting upon a Numpy array. (When the underlying data object is not
     a Numpy array, the required conversions are performed by the Array node
@@ -21,6 +22,8 @@ class Filter:
     """
 
     def __init__(self):
+        """Set the seeds for the RNG's of numpy and Python
+        """
         np.random.seed(42)
         random.seed(42)
         self.shape = ()

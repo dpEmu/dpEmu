@@ -17,19 +17,32 @@ def main():
     setup_logging(__name__)
 
     merge_cfg_from_file("venv/src/detectron/configs/12_2017_baselines/e2e_mask_rcnn_R-101-FPN_2x.yaml")
+    url_to_weights = (
+        "https://dl.fbaipublicfiles.com/detectron/35861858/12_2017_baselines/"
+        "e2e_mask_rcnn_R-101-FPN_2x.yaml.02_32_51.SgT4y1cO/output/train/coco_2014_train:coco_2014_valminusminival/"
+        "generalized_rcnn/model_final.pkl"
+    )
     opt_list = [
-        "TEST.WEIGHTS",
-        ("https://dl.fbaipublicfiles.com/detectron/35861858/12_2017_baselines/"
-         "e2e_mask_rcnn_R-101-FPN_2x.yaml.02_32_51.SgT4y1cO/output/train/coco_2014_train:coco_2014_valminusminival/"
-         "generalized_rcnn/model_final.pkl"),
+        "MODEL.KEYPOINTS_ON",
+        False,
+        "MODEL.MASK_ON",
+        False,
         "NUM_GPUS",
-        "1"
+        "1",
+        "TEST.DATASETS",
+        ("coco_2017_val",),
+        "TEST.SCALE",
+        "416",
+        "TEST.WEIGHTS",
+        url_to_weights,
+        "OUTPUT_DIR",
+        "tmp"
     ]
     merge_cfg_from_list(opt_list)
     assert_and_infer_cfg()
 
     results = run_inference(cfg.TEST.WEIGHTS)
-    print(round(results["coco_2014_minival"]["box"]["AP50"], 3))
+    print(round(results["coco_2017_val"]["box"]["AP50"], 3))
 
 
 if __name__ == "__main__":

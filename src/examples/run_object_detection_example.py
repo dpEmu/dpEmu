@@ -5,6 +5,7 @@ import cv2
 import detectron.utils.c2 as c2_utils
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 from caffe2.python import workspace
 from detectron.core.config import assert_and_infer_cfg
 from detectron.core.config import cfg
@@ -27,6 +28,7 @@ from src.utils import generate_unique_path
 
 c2_utils.import_detectron_ops()
 cv2.ocl.setUseOpenCL(False)
+torch.multiprocessing.set_start_method('spawn', force="True")
 
 
 class Preprocessor:
@@ -57,8 +59,8 @@ class AbstractDetectronModel(ABC):
             "1",
             "TEST.DATASETS",
             ("coco_2017_val",),
-            # "TEST.SCALE",
-            # "416",
+            "TEST.SCALE",
+            "416",
             "TEST.WEIGHTS",
             url_to_weights,
             "OUTPUT_DIR",
@@ -198,7 +200,8 @@ def visualize(df):
 def main():
     imgs, img_ids, class_names = load_coco_val_2017()
 
-    err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 1)]]
+    # err_params_list = [{"mean": 0, "std": std} for std in [0, 10, 100, 1000]]
+    err_params_list = [{"mean": 0, "std": std} for std in [0]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
     # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 1}
     #                    for p in [10 ** i for i in range(-4, 0)]]

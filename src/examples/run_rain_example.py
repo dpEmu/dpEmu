@@ -1,9 +1,9 @@
 import time
-import numpy as np
 import matplotlib.pyplot as plt
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
+
 
 def main():
     img_path = "demo/landscape.png"
@@ -33,7 +33,7 @@ def main():
     ax[1].imshow(results[1])
     ax[1].set_title("Faster")
     plt.show()
-    
+
 
 if __name__ == "__main__":
     main()

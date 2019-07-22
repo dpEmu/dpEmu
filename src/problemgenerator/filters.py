@@ -441,6 +441,7 @@ class FastRain(Filter):
             else:
                 node_data[:, :, j] = np.clip(node_data[:, :, j] + add[0:height, 0:width].astype(int), 0, 255)
 
+
 class Snow(Filter):
     def __init__(self, snowflake_probability_id, snowflake_alpha_id, snowstorm_alpha_id):
         super().__init__()

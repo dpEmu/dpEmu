@@ -196,7 +196,7 @@ def visualize(df):
 
 
 def main():
-    imgs, img_ids, class_names = load_coco_val_2017(10)
+    imgs, img_ids, class_names = load_coco_val_2017()
 
     err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 1)]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]

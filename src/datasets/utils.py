@@ -93,8 +93,9 @@ def load_coco_val_2017(n=5000):
     coco = COCO("data/annotations/instances_val2017.json")
     img_ids = sorted(coco.getImgIds())[:n]
     img_dicts = coco.loadImgs(img_ids)
-    imgs = [cv2.cvtColor(cv2.imread(os.path.join(img_folder, img_dict["file_name"])), cv2.COLOR_BGR2RGB) for img_dict in
-            img_dicts]
+    # imgs = [cv2.cvtColor(cv2.imread(os.path.join(img_folder, img_dict["file_name"])), cv2.COLOR_BGR2RGB) for img_dict in
+    #         img_dicts]
+    imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
     with open("data/coco.names", "r") as fp:
         class_names = [line.strip() for line in fp.readlines()]
 

@@ -5,6 +5,7 @@ import cv2
 import detectron.utils.c2 as c2_utils
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 import torch
 from caffe2.python import workspace
 from detectron.core.config import assert_and_infer_cfg
@@ -197,8 +198,11 @@ def visualize(df):
     plt.show()
 
 
-def main():
-    imgs, img_ids, class_names = load_coco_val_2017()
+def main(argv):
+    if len(argv) != 2:
+        exit(0)
+
+    imgs, img_ids, class_names = load_coco_val_2017(int(argv[1]))
 
     # err_params_list = [{"mean": 0, "std": std} for std in [0, 10, 100, 1000]]
     err_params_list = [{"mean": 0, "std": std} for std in [0]]
@@ -234,4 +238,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

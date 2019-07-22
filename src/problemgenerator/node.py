@@ -39,7 +39,7 @@ class Node:
         copy_tree = copy.deepcopy(self)
         copy_tree.set_error_params(error_params)
         return copy_tree
-        
+
 
 def get_node_data(data, index_tuple, make_array=True):
     index_list = list(index_tuple)

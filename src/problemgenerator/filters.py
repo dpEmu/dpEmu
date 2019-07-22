@@ -242,6 +242,14 @@ class MissingArea(Filter):
 
 
 class StainArea(Filter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        Filter ([type]): [description]
+    """
+
     def __init__(self, probability_id, radius_generator_id, transparency_percentage_id):
         """This filter adds stains to the images.
             probability: probability of adding a stain at each pixel.
@@ -391,6 +399,16 @@ class Rain(Filter):
 
 class Snow(Filter):
     def __init__(self, snowflake_probability_id, snowflake_alpha_id, snowstorm_alpha_id):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            Filter ([type]): [description]
+            snowflake_probability_id ([type]): [description]
+            snowflake_alpha_id ([type]): [description]
+            snowstorm_alpha_id ([type]): [description]
+        """
         super().__init__()
         self.snowflake_probability_id = snowflake_probability_id
         self.snowflake_alpha_id = snowflake_alpha_id
@@ -533,10 +551,8 @@ class JPEG_Compression(Filter):
 
         [extended_summary]
 
-        Parameters
-        ----------
-        quality_id : [type]
-            [description]
+        Args:
+            quality_id ([type]): [description]
         """
         super().__init__()
         self.quality_id = quality_id
@@ -545,10 +561,9 @@ class JPEG_Compression(Filter):
         """[summary]
 
         [extended_summary]
-        Parameters
-        ----------
-        params_dict : [type]
-            [description]
+
+        Args:
+            params_dict ([type]): [description]
         """
         self.quality = params_dict[self.quality_id]
 
@@ -557,14 +572,10 @@ class JPEG_Compression(Filter):
 
         [extended_summary]
 
-        Parameters
-        ----------
-        node_data : [type]
-            [description]
-        random_state : [type]
-            [description]
-        named_dims : [type]
-            [description]
+        Args:
+            node_data ([type]): [description]
+            random_state ([type]): [description]
+            named_dims ([type]): [description]
         """
         iml = Image.fromarray(np.uint8(np.around(node_data)))
         buf = BytesIO()
@@ -588,10 +599,8 @@ class Blur_Gaussian(Filter):
 
         [extended_summary]
 
-        Parameters
-        ----------
-        standard_dev_id : [type]
-            [description]
+        Args:
+            standard_dev_id ([type]): [description]
         """
         super().__init__()
         self.std_id = standard_dev_id
@@ -601,10 +610,8 @@ class Blur_Gaussian(Filter):
 
         [extended_summary]
 
-        Parameters
-        ----------
-        params_dict : [type]
-            [description]
+        Args:
+            params_dict ([type]): [description]
         """
         self.std = params_dict[self.std_id]
 
@@ -613,14 +620,10 @@ class Blur_Gaussian(Filter):
 
         [extended_summary]
 
-        Parameters
-        ----------
-        node_data : [type]
-            [description]
-        random_state : [type]
-            [description]
-        named_dims : [type]
-            [description]
+        Args:
+            node_data ([type]): [description]
+            random_state ([type]): [description]
+            named_dims ([type]): [description]
         """
         if len(node_data.shape) == 2:
             node_data[...] = gaussian_filter(node_data, self.std)
@@ -686,8 +689,10 @@ class ResolutionVectorized(Filter):
     def __init__(self, k_id):
         """[summary]
 
-        :param k_id: [description]
-        :type k_id: [type]
+        [extended_summary]
+
+        Args:
+            k_id ([type]): [description]
         """
         super().__init__()
         self.k_id = k_id
@@ -695,20 +700,22 @@ class ResolutionVectorized(Filter):
     def set_params(self, params_dict):
         """[summary]
 
-        :param params_dict: [description]
-        :type params_dict: [type]
+        [extended_summary]
+
+        Args:
+            params_dict ([type]): [description]
         """
         self.k = params_dict[self.k_id]
 
     def apply(self, node_data, random_state, named_dims):
         """[summary]
 
-        :param node_data: [description]
-        :type node_data: [type]
-        :param random_state: [description]
-        :type random_state: [type]
-        :param named_dims: [description]
-        :type named_dims: [type]
+        [extended_summary]
+
+        Args:
+            node_data ([type]): [description]
+            random_state ([type]): [description]
+            named_dims ([type]): [description]
         """
         w = node_data.shape[1]
         h = node_data.shape[0]
@@ -725,22 +732,14 @@ class Rotation(Filter):
         self.angle = params_dict[self.angle_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """This is an example of rst docstring.
+        """[summary]
 
-        Extended description of function.
+        [extended_summary]
 
-        :param int arg1: Description of arg1.
-        :param str arg2: Description of arg2.
-        :raise: ValueError if arg1 is equal to arg2
-        :return: Description of return value
-        :rtype: bool
-
-        :example:
-
-        >>> a=1
-        >>> b=2
-        >>> func(a,b)
-        True
+        Args:
+            node_data ([type]): [description]
+            random_state ([type]): [description]
+            named_dims ([type]): [description]
         """
         node_data[...] = imutils.rotate(node_data, self.angle)
 
@@ -811,13 +810,10 @@ class BrightnessVectorized(Filter):
 
         [extended_summary]
 
-        :param tar_id: 0 if you want to decrease brightness, 1 if you want to increase it
-        :type tar_id: [str]
-        :param rat_id: scales the brightness change
-        :type rat_id: [str]
-        :param range_id: RGB values are presented either in the range [0,1]
-            or in the set {0,...,255}
-        :type range_id: str
+        Args:
+            tar_id ([type]): [description]
+            rat_id ([type]): [description]
+            range_id ([type]): [description]
         """
         super().__init__()
         self.tar_id = tar_id
@@ -829,8 +825,8 @@ class BrightnessVectorized(Filter):
 
         [extended_summary]
 
-        :param params_dict: [description]
-        :type params_dict: dict
+        Args:
+            params_dict (dict): A dictionary
         """
         self.tar = params_dict[self.tar_id]
         self.rat = params_dict[self.rat_id]
@@ -842,12 +838,10 @@ class BrightnessVectorized(Filter):
 
         [extended_summary]
 
-        :param node_data: [description]
-        :type node_data: numpy array
-        :param random_state: [description]
-        :type random_state: numpy.RandomState
-        :param named_dims: [description]
-        :type named_dims: [type]
+        Args:
+            node_data ([type]): [description]
+            random_state ([type]): [description]
+            named_dims ([type]): [description]
         """
         nd = node_data.astype("float32")
         if self.range == 255:

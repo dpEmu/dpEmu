@@ -28,7 +28,7 @@ from src.utils import generate_unique_path
 
 c2_utils.import_detectron_ops()
 cv2.ocl.setUseOpenCL(False)
-torch.multiprocessing.set_start_method('spawn', force="True")
+torch.multiprocessing.set_start_method("spawn", force="True")
 
 
 class Preprocessor:

@@ -47,7 +47,7 @@ class Filter(ABC):
         """Modifies the data according to the functionality of the filter.
 
         Args:
-            node_data (numpy.ndarray): Data to be modified as a numpy array
+            node_data (numpy.ndarray): Data to be modified as a Numpy array
             random_state (mtrand.RandomState): An instance of numpy.random.RandomState
             named_dims (dict): Named dimensions
         """
@@ -530,7 +530,21 @@ class Rain(Filter):
 
 
 class FastRain(Filter):
+    """Add rain to images.
+
+    RGB values are presented either in the range [0,1] or in the set {0,...,255},
+        thus range should either have value 1 or value 255.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
+    """
+
     def __init__(self, probability_id, range_id):
+        """
+        Args:
+            probability_id (str): A key which maps to a probability of rain
+            range_id (str): A key which maps to either 1 or 255
+        """
         super().__init__()
         self.probability_id = probability_id
         self.range_id = range_id
@@ -746,8 +760,13 @@ class Snow(Filter):
 
 
 class JPEG_Compression(Filter):
-    """
-    Compress the image as JPEG and uncompress. Quality should be in range [1, 100], the bigger the less loss
+    """Compresses a JPEG-image.
+
+    Compress the image as JPEG and uncompress. Quality should be in range [1, 100],
+    the bigger the less loss.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, quality_id):
@@ -770,12 +789,20 @@ class JPEG_Compression(Filter):
 
 
 class Blur_Gaussian(Filter):
-    """
+    """Blur image according to a zero-centred normal distribution.
+
     Create blur in images by applying a Gaussian filter.
     The standard deviation of the Gaussian is taken as a parameter.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, standard_dev_id):
+        """
+        Args:
+            standard_dev_id (str): A key which maps to standard deviation
+        """
         super().__init__()
         self.std_id = standard_dev_id
 
@@ -818,11 +845,19 @@ class Blur(Filter):
 
 
 class Resolution(Filter):
-    """
-    Makes resolution k times smaller. K must be an integer
+    """Makes resolution k times smaller.
+
+    K must be an integer.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, k_id):
+        """
+        Args:
+            k_id (str): A key which maps to the k value
+        """
         super().__init__()
         self.k_id = k_id
 
@@ -840,11 +875,19 @@ class Resolution(Filter):
 
 
 class ResolutionVectorized(Filter):
-    """
-    Makes resolution k times smaller. K must be an integer
+    """Makes resolution k times smaller.
+
+    K must be an integer.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
     """
 
     def __init__(self, k_id):
+        """
+        Args:
+            k_id (str): A key which maps to the k value
+        """
         super().__init__()
         self.k_id = k_id
 
@@ -925,10 +968,10 @@ class Brightness(Filter):
 class BrightnessVectorized(Filter):
     """Increases or decreases brightness in the image.
 
-    tar: 0 if you want to decrease brightness, 1 if you want to increase it
-    rat: scales the brightness change
+    tar: 0 if you want to decrease brightness, 1 if you want to increase it.
+    rat: scales the brightness change.
     range: Should have value 1 or 255. RGB values are presented either
-     in the range [0,1] or in the set {0,...,255}
+     in the range [0,1] or in the set {0,...,255}.
 
     Args:
         Filter (object): Abstract superclass for every filter
@@ -1005,10 +1048,10 @@ class Saturation(Filter):
 class SaturationVectorized(Filter):
     """Increases or decreases saturation in the image.
 
-    tar: 0 if you want to decrease saturation, 1 if you want to increase it
-    rat: scales the saturation change
+    tar: 0 if you want to decrease saturation, 1 if you want to increase it.
+    rat: scales the saturation change.
     range: Should have value 1 or 255. RGB values are presented either
-     in the range [0,1] or in the set {0,...,255}
+     in the range [0,1] or in the set {0,...,255}.
 
     Args:
         Filter (object): Abstract superclass for every filter
@@ -1051,6 +1094,12 @@ class SaturationVectorized(Filter):
 
 
 class LensFlare(Filter):
+    """Add lens flare to an image.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -1120,7 +1169,20 @@ class LensFlare(Filter):
 
 
 class ApplyWithProbability(Filter):
+    """Apply a filter with the specified probability.
+
+    A filter is applied with the specified probability.
+
+    Args:
+        Filter (object): Any non-abstract Filter
+    """
+
     def __init__(self, ftr_id, probability_id):
+        """
+        Args:
+            ftr_id (str): A key which maps to a filter
+            probability_id (str): A key which maps to the probability of the filter being applied
+        """
         super().__init__()
         self.ftr_id = ftr_id
         self.probability_id = probability_id
@@ -1148,11 +1210,13 @@ class Constant(Filter):
 
 
 class Identity(Filter):
+    """This filter acts as the identity operator and does not modify data.
+
+    Args:
+        Filter (object): Abstract superclass for every filter
+    """
+
     def __init__(self):
-        """
-        Args:
-            Filter (object): Abstract superclass for every filter
-        """
         super().__init__()
 
     def set_params(self, params_dict):

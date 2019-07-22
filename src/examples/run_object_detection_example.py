@@ -43,8 +43,8 @@ class AbstractDetectronModel(ABC):
         workspace.GlobalInit(["caffe2", "--caffe2_log_level=0"])
         setup_logging(__name__)
 
-        path_to_cfg = self.__get_path_to_cfg()
-        url_to_weights = self.__get_url_to_weights()
+        path_to_cfg = self.get_path_to_cfg()
+        url_to_weights = self.get_url_to_weights()
 
         merge_cfg_from_file(path_to_cfg)
 
@@ -71,19 +71,22 @@ class AbstractDetectronModel(ABC):
         return {"mAP-50": round(results["coco_2017_val"]["box"]["AP50"], 3)}
 
     @abstractmethod
-    def __get_path_to_cfg(self):
+    def get_path_to_cfg(self):
         pass
 
     @abstractmethod
-    def __get_url_to_weights(self):
+    def get_url_to_weights(self):
         pass
 
 
 class FasterRCNNModel(AbstractDetectronModel):
-    def __get_path_to_cfg(self):
+    def __init__(self):
+        super().__init__()
+
+    def get_path_to_cfg(self):
         return "venv/src/detectron/configs/12_2017_baselines/e2e_faster_rcnn_X-101-64x4d-FPN_1x.yaml"
 
-    def __get_url_to_weights(self):
+    def get_url_to_weights(self):
         return (
             "https://dl.fbaipublicfiles.com/detectron/35858015/12_2017_baselines/"
             "e2e_faster_rcnn_X-101-64x4d-FPN_1x.yaml.01_40_54.1xc565DE/output/train/"
@@ -92,10 +95,13 @@ class FasterRCNNModel(AbstractDetectronModel):
 
 
 class MaskRCNNModel(AbstractDetectronModel):
-    def __get_path_to_cfg(self):
+    def __init__(self):
+        super().__init__()
+
+    def get_path_to_cfg(self):
         return "venv/src/detectron/configs/12_2017_baselines/e2e_mask_rcnn_X-101-64x4d-FPN_1x.yaml"
 
-    def __get_url_to_weights(self):
+    def get_url_to_weights(self):
         return (
             "https://dl.fbaipublicfiles.com/detectron/36494496/12_2017_baselines/"
             "e2e_mask_rcnn_X-101-64x4d-FPN_1x.yaml.07_50_11.fkwVtEvg/output/train/"
@@ -190,7 +196,7 @@ def visualize(df):
 
 
 def main():
-    imgs, img_ids, class_names = load_coco_val_2017()
+    imgs, img_ids, class_names = load_coco_val_2017(10)
 
     err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 1)]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]

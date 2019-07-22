@@ -1,7 +1,4 @@
 import re
-
-import numpy as np
-
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
 import src.problemgenerator.series as series
@@ -41,8 +38,7 @@ def test_visualizing_tuple_series_and_two_array_nodes():
 def test_visualizing_array_node_with_filter():
     x_node = array.Array((5))
     x_node.addfilter(filters.Missing("p"))
-    x_node.generate_error(np.array([.0]), {'p': 0.5})
-    path = visualize_error_generator(x_node, False)
+    path = visualize_error_generator(x_node.get_parametrized_tree({'p': 0.5}), False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'2.*Missing.*probability: 0').search(data)
@@ -54,8 +50,7 @@ def test_visualizing_array_node_with_complex_filter():
     addition = filters.Addition("f1", "f2")
     const = filters.Constant("c")
     x_node.addfilter(addition)
-    x_node.generate_error(np.array([0]), {'f1': const, 'f2': const, 'c': 5})
-    path = visualize_error_generator(x_node, False)
+    path = visualize_error_generator(x_node.get_parametrized_tree({'f1': const, 'f2': const, 'c': 5}), False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'2.*Addition').search(data)

@@ -616,6 +616,7 @@ class Snow(Filter):
             OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
             SOFTWARE.
             """
+
             def f(t):
                 return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
 

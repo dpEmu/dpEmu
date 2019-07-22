@@ -1,5 +1,4 @@
 import json
-import sys
 from abc import ABC, abstractmethod
 
 import cv2
@@ -68,7 +67,7 @@ class AbstractDetectronModel(ABC):
         merge_cfg_from_list(opt_list)
         assert_and_infer_cfg()
 
-        results = run_inference(cfg.TEST.WEIGHTS)
+        results = run_inference(imgs, cfg.TEST.WEIGHTS)
         return {"mAP-50": round(results["coco_2017_val"]["box"]["AP50"], 3)}
 
     @abstractmethod
@@ -190,13 +189,10 @@ def visualize(df):
     plt.show()
 
 
-def main(argv):
-    if len(argv) != 2:
-        exit(0)
+def main():
+    imgs, img_ids, class_names = load_coco_val_2017()
 
-    imgs, img_ids, class_names = load_coco_val_2017(int(argv[1]))
-
-    err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 6)]]
+    err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 1)]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 6)]]
     # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 1}
     #                    for p in [10 ** i for i in range(-4, 0)]]
@@ -206,11 +202,11 @@ def main(argv):
     #     for p in [10 ** i for i in range(-6, -2)]]
     # err_params_list = [{"quality": q} for q in [10, 25, 50, 75, 100]]
 
-    model_params_dict_list = [{"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names}]}]
     model_params_dict_list = [
-        {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids, "class_names": class_names}]}]
-    model_params_dict_list = [
-        {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids, "class_names": class_names}]}]
+        # {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names}]},
+        # {"model": FasterRCNNModel, "params_list": [{}]},
+        {"model": MaskRCNNModel, "params_list": [{}]}
+    ]
 
     err_node = Array()
     err_root_node = Series(err_node)
@@ -229,4 +225,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()

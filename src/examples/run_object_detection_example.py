@@ -244,8 +244,8 @@ def main(argv):
     model_params_dict_list = [
         # {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids}]},
         {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]}
-        {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]}
+        {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
     ]
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)

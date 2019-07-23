@@ -1,12 +1,17 @@
 import time
 from multiprocessing.pool import Pool
+from pickle import dump, load
 
 import pandas as pd
 from tqdm import tqdm
 
+from src.utils import generate_unique_path
+
 
 def worker(inputs):
-    train_data, test_data, preproc, err_root_node, err_params, model_params_dict_list, use_interactive_mode = inputs
+    path_to_train_data, path_to_test_data, preproc, err_root_node, err_params, model_params_dict_list, use_interactive_mode = inputs
+    train_data = load(path_to_train_data)
+    test_data = load(path_to_test_data)
     time_start = time.time()
     err_train_data = None
     if train_data:
@@ -59,9 +64,13 @@ def worker(inputs):
 
 def run(train_data, test_data, preproc, err_root_node, err_params_list, model_params_dict_list, n_processes=None,
         use_interactive_mode=False):
+    path_to_train_data = generate_unique_path("tmp", "p")
+    path_to_test_data = generate_unique_path("tmp", "p")
+    dump(train_data, path_to_train_data)
+    dump(test_data, path_to_test_data)
     pool_inputs = [(
-        train_data,
-        test_data,
+        path_to_train_data,
+        path_to_test_data,
         preproc,
         err_root_node,
         err_params,

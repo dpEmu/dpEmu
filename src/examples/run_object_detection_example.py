@@ -173,7 +173,7 @@ class YOLOv3Model:
     def run(self, _, imgs, model_params):
         img_ids = model_params["img_ids"]
 
-        net = cv2.dnn.readNet("data/yolov3.weights", "data/yolov3.cfg")
+        net = cv2.dnn.readNet("data/yolov3-spp_best.weights", "data/yolov3-spp.cfg")
         [self.__get_results_for_img(imgs[i], img_ids[i], net) for i in trange(len(imgs))]
         if not self.results:
             return {"mAP-50": 0}

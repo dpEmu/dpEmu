@@ -42,7 +42,9 @@ class AbstractDetectronModel(ABC):
     def __init__(self):
         self.random_state = RandomState(42)
 
-    def run(self, _, imgs, model_params):
+    def run(self, _, imgs, params):
+        img_ids = params["img_ids"]
+
         workspace.GlobalInit(["caffe2", "--caffe2_log_level=0"])
         setup_logging(__name__)
 
@@ -60,8 +62,8 @@ class AbstractDetectronModel(ABC):
             "1",
             "TEST.DATASETS",
             ("coco_2017_val",),
-            "TEST.SCALE",
-            "416",
+            # "TEST.SCALE",
+            # "416",
             "TEST.WEIGHTS",
             url_to_weights,
             "OUTPUT_DIR",
@@ -70,7 +72,7 @@ class AbstractDetectronModel(ABC):
         merge_cfg_from_list(opt_list)
         assert_and_infer_cfg()
 
-        results = run_inference(imgs, cfg.TEST.WEIGHTS)
+        results = run_inference(imgs, img_ids, cfg.TEST.WEIGHTS)
         return {"mAP-50": round(results["coco_2017_val"]["box"]["AP50"], 3)}
 
     @abstractmethod
@@ -190,11 +192,11 @@ class YOLOv3Model:
 
 
 def visualize(df):
-    visualize_scores(df, ["mAP-50"], "std", "YOLOv3 object detection scores with added error", log=False)
-    # visualize_scores(df, ["mAP-50"], "snowflake_probability",
-    #                  "YOLOv3 object detection scores with added error", log=True)
-    # visualize_scores(df, ["mAP-50"], "probability", "YOLOv3 object detection scores with added error", log=True)
-    # visualize_scores(df, ["mAP-50"], "quality", "YOLOv3 object detection scores with added error", log=False)
+    visualize_scores(df, ["mAP-50"], "std", "Object detection scores with added error", log=False)
+    # visualize_scores(df, ["mAP-50"], "snowflake_probability", "Object detection scores with added error", log=True)
+    # visualize_scores(df, ["mAP-50"], "probability", "Object detection scores with added error", log=True)
+    # visualize_scores(df, ["mAP-50"], "quality", "Object detection scores with added error", log=False)
+
     plt.show()
 
 
@@ -203,23 +205,6 @@ def main(argv):
         exit(0)
 
     imgs, img_ids, class_names = load_coco_val_2017(int(argv[1]))
-
-    # err_params_list = [{"mean": 0, "std": std} for std in [0, 10, 100, 1000]]
-    err_params_list = [{"mean": 0, "std": std} for std in [0]]
-    # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
-    # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 1}
-    #                    for p in [10 ** i for i in range(-4, 0)]]
-    # err_params_list = [{"probability": p} for p in [10 ** i for i in range(-4, 0)]]
-    # err_params_list = [
-    #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
-    #     for p in [10 ** i for i in range(-6, -2)]]
-    # err_params_list = [{"quality": q} for q in [25, 50, 75, 100]]
-
-    model_params_dict_list = [
-        # {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names}]},
-        # {"model": FasterRCNNModel, "params_list": [{}]},
-        {"model": MaskRCNNModel, "params_list": [{}]}
-    ]
 
     err_node = Array()
     err_root_node = Series(err_node)
@@ -231,7 +216,23 @@ def main(argv):
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
     # err_node.addfilter(JPEG_Compression("quality"))
 
-    df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list)
+    err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
+    # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
+    # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 1}
+    #                    for p in [10 ** i for i in range(-4, 0)]]
+    # err_params_list = [{"probability": p} for p in [10 ** i for i in range(-4, 0)]]
+    # err_params_list = [
+    #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
+    #     for p in [10 ** i for i in range(-6, -2)]]
+    # err_params_list = [{"quality": q} for q in [25, 50, 75, 100]]
+
+    model_params_dict_list = [
+        {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids}]},
+        {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]}
+    ]
+
+    df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)
 
     print_results(df, ["img_ids", "class_names", "mean", "std", "radius_generator", "transparency_percentage"])
     visualize(df)

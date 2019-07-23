@@ -57,7 +57,7 @@ def worker(inputs):
     return results
 
 
-def run(train_data, test_data, preproc, err_root_node, err_params_list, model_params_dict_list,
+def run(train_data, test_data, preproc, err_root_node, err_params_list, model_params_dict_list, n_processes=None,
         use_interactive_mode=False):
     pool_inputs = [(
         train_data,
@@ -69,7 +69,7 @@ def run(train_data, test_data, preproc, err_root_node, err_params_list, model_pa
         use_interactive_mode
     ) for err_params in err_params_list]
     total_results = []
-    with Pool() as pool:
+    with Pool(n_processes) as pool:
         for results in tqdm(pool.imap(worker, pool_inputs), total=len(err_params_list)):
             total_results.extend(results)
     return pd.DataFrame(total_results)

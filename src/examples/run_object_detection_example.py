@@ -1,11 +1,11 @@
 import json
+import sys
 from abc import ABC, abstractmethod
 
 import cv2
 import detectron.utils.c2 as c2_utils
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
 import torch
 from caffe2.python import workspace
 from detectron.core.config import assert_and_infer_cfg
@@ -126,11 +126,11 @@ class YOLOv3Model:
         self.results = []
 
     def __get_results_for_img(self, img, img_id, net):
-        conf_threshold = .25
-        nms_threshold = .4
+        conf_threshold = 0
+        nms_threshold = 1
         img_h = img.shape[0]
         img_w = img.shape[1]
-        inference_size = 416
+        inference_size = 608
         scale = 1 / 255
 
         blob = cv2.dnn.blobFromImage(img, scale, (inference_size, inference_size), (0, 0, 0), True, crop=False)

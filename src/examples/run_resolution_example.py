@@ -42,7 +42,7 @@ def main():
     if not same:
         print(result2-result1)
 
-    fig, ax = plt.subplots(1, 2)
+    _, ax = plt.subplots(1, 2)
     ax[0].imshow(result1)
     ax[0].set_title("Traditional")
     ax[1].imshow(result2)

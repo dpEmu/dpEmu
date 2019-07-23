@@ -40,9 +40,9 @@ def main():
     insignificant = len(abs_diff[abs_diff > 1]) == 0
     print(f"Absolute Difference at most 1: {insignificant}")
     if not insignificant:
-        abs_diff
+        print(abs_diff)
 
-    fig, ax = plt.subplots(1, 2)
+    _, ax = plt.subplots(1, 2)
     ax[0].imshow(result1)
     ax[0].set_title("Traditional")
     ax[1].imshow(result2)

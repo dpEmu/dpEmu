@@ -54,10 +54,10 @@ class AbstractDetectronModel(ABC):
         merge_cfg_from_file(path_to_cfg)
 
         opt_list = [
-            "MODEL.KEYPOINTS_ON",
-            False,
-            "MODEL.MASK_ON",
-            False,
+            # "MODEL.KEYPOINTS_ON",
+            # False,
+            # "MODEL.MASK_ON",
+            # False,
             "NUM_GPUS",
             "1",
             "TEST.DATASETS",
@@ -114,6 +114,21 @@ class MaskRCNNModel(AbstractDetectronModel):
         )
 
 
+class RetinaNetModel(AbstractDetectronModel):
+    def __init__(self):
+        super().__init__()
+
+    def get_path_to_cfg(self):
+        return "venv/src/detectron/configs/12_2017_baselines/retinanet_X-101-64x4d-FPN_1x.yaml"
+
+    def get_url_to_weights(self):
+        return (
+            "https://dl.fbaipublicfiles.com/detectron/36768875/12_2017_baselines/"
+            "retinanet_X-101-64x4d-FPN_1x.yaml.08_34_37.FSXgMpzP/output/train/"
+            "coco_2014_train%3Acoco_2014_valminusminival/retinanet/model_final.pkl"
+        )
+
+
 class YOLOv3Model:
 
     def __init__(self):
@@ -133,7 +148,7 @@ class YOLOv3Model:
         inference_size = 608
         scale = 1 / 255
 
-        blob = cv2.dnn.blobFromImage(img, scale, (inference_size, inference_size), (0, 0, 0), True, crop=False)
+        blob = cv2.dnn.blobFromImage(img, scale, (inference_size, inference_size), (0, 0, 0), True)
         net.setInput(blob)
 
         out_layer_names = net.getUnconnectedOutLayersNames()
@@ -227,9 +242,10 @@ def main(argv):
     # err_params_list = [{"quality": q} for q in [25, 50, 75, 100]]
 
     model_params_dict_list = [
-        {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids}]},
+        # {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids}]},
         {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
         {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]}
+        {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]}
     ]
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)

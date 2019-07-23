@@ -27,7 +27,7 @@ class Filter(ABC):
     """
 
     def __init__(self):
-        """Set the seeds for the RNG's of numpy and Python
+        """Set the seeds for the RNG's of numpy and Python.
         """
         np.random.seed(42)
         random.seed(42)
@@ -38,7 +38,7 @@ class Filter(ABC):
         """Set parameters for error generation.
 
         Args:
-            params_dict (dict): A Python dictionary
+            params_dict (dict): A Python dictionary.
         """
         pass
 
@@ -47,9 +47,9 @@ class Filter(ABC):
         """Modifies the data according to the functionality of the filter.
 
         Args:
-            node_data (numpy.ndarray): Data to be modified as a Numpy array
-            random_state (mtrand.RandomState): An instance of numpy.random.RandomState
-            named_dims (dict): Named dimensions
+            node_data (numpy.ndarray): Data to be modified as a Numpy array.
+            random_state (mtrand.RandomState): An instance of numpy.random.RandomState.
+            named_dims (dict): Named dimensions.
         """
         pass
 
@@ -61,13 +61,13 @@ class Missing(Filter):
     with the provided probability.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, probability_id):
         """
         Args:
-            probability_id (str): A key which maps to a probability
+            probability_id (str): A key which maps to a probability.
         """
         self.probability_id = probability_id
         super().__init__()
@@ -84,14 +84,14 @@ class Clip(Filter):
     """Clip values to minimum and maximum value provided by the user.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, min_id, max_id):
         """
         Args:
-            min_id (str): A key which maps to a minimum value
-            max_id (str): A key which maps to a maximum value
+            min_id (str): A key which maps to a minimum value.
+            max_id (str): A key which maps to a maximum value.
         """
         self.min_id = min_id
         self.max_id = max_id
@@ -112,14 +112,14 @@ class GaussianNoise(Filter):
     with the provided parameters mean and std (standard deviation).
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, mean_id, std_id):
         """
         Args:
-            mean_id (str): A key which maps to a mean value
-            std_id (str): A key which maps to a standard deviation value
+            mean_id (str): A key which maps to a mean value.
+            std_id (str): A key which maps to a standard deviation value.
         """
         self.mean_id = mean_id
         self.std_id = std_id
@@ -142,16 +142,16 @@ class GaussianNoiseTimeDependent(Filter):
     in the last two parameters.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, mean_id, std_id, mean_increase_id, std_increase_id):
         """
         Args:
-            mean_id (str): A key which maps to a mean value
-            std_id (str): A key which maps to a standard deviation value
-            mean_increase_id (str): A key which maps to an increase in mean
-            std_increase_id (str): A key which maps to an increase in standard deviation
+            mean_id (str): A key which maps to a mean value.
+            std_id (str): A key which maps to a standard deviation value.
+            mean_increase_id (str): A key which maps to an increase in mean.
+            std_increase_id (str): A key which maps to an increase in standard deviation.
         """
         self.mean_id = mean_id
         self.std_id = std_id
@@ -179,13 +179,13 @@ class Uppercase(Filter):
     to uppercase with the provided probability.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, probability_id):
         """
         Args:
-            probability_id (str): A key which maps to the probability of uppercase change
+            probability_id (str): A key which maps to the probability of uppercase change.
         """
         self.prob_id = probability_id
         super().__init__()
@@ -214,14 +214,14 @@ class OCRError(Filter):
     specifying how probable a change of character is.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, normalized_params_id, p_id):
         """
         Args:
-            normalized_params_id (str): A key which maps to the probability distribution
-            p_id (str): A key which maps to a probability of the distribution being applied
+            normalized_params_id (str): A key which maps to the probability distribution.
+            p_id (str): A key which maps to a probability of the distribution being applied.
         """
         self.normalized_params_id = normalized_params_id
         self.p_id = p_id
@@ -252,16 +252,16 @@ class MissingArea(Filter):
     Introduce missing areas to text.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
     # TODO: radius_generator is a struct, not a function. It should be a function for repeatability
 
     def __init__(self, probability_id, radius_generator_id, missing_value_id):
         """
         Args:
-            probability_id (str): A key which maps to a probability of stain
-            radius_generator_id (str): A key which maps to a radius_generator
-            missing_value_id (str): A key which maps to a missing value to be used
+            probability_id (str): A key which maps to a probability of stain.
+            radius_generator_id (str): A key which maps to a radius_generator.
+            missing_value_id (str): A key which maps to a missing value to be used.
         """
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
@@ -341,15 +341,15 @@ class StainArea(Filter):
             that the part of the image where the stain is is completely black.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, probability_id, radius_generator_id, transparency_percentage_id):
         """
         Args:
-            probability_id (str): A key which maps to the probability of stain
-            radius_generator_id (str): A key which maps to the radius_generator
-            transparency_percentage_id (str): A key which maps to transparency percentage
+            probability_id (str): A key which maps to the probability of stain.
+            radius_generator_id (str): A key which maps to the radius_generator.
+            transparency_percentage_id (str): A key which maps to the transparency percentage.
         """
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
@@ -401,15 +401,15 @@ class Gap(Filter):
     to stop working and a specific probability to start working.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, prob_break_id, prob_recover_id, missing_value_id):
         """
         Args:
-            prob_break_id (str): A key which maps to the probability of the sensor breaking
-            prob_recover_id (str): A key which maps to the probability of the sensor recovering
-            missing_value_id (str): A key which maps to a missing value to be used
+            prob_break_id (str): A key which maps to the probability of the sensor breaking.
+            prob_recover_id (str): A key which maps to the probability of the sensor recovering.
+            missing_value_id (str): A key which maps to a missing value to be used.
         """
         super().__init__()
         self.prob_break_id = prob_break_id
@@ -445,13 +445,13 @@ class SensorDrift(Filter):
     Magnitude is the linear increase in drift during time period t_i -> t_i+1.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, magnitude_id):
         """
         Args:
-            magnitude_id (str): A key which maps to the magnitude value
+            magnitude_id (str): A key which maps to the magnitude value.
         """
         super().__init__()
         self.magnitude_id = magnitude_id
@@ -471,13 +471,13 @@ class StrangeBehaviour(Filter):
     values into the data.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, do_strange_behaviour_id):
         """
         Args:
-            do_strange_behaviour_id (str): A key which maps to the strange_behaviour function
+            do_strange_behaviour_id (str): A key which maps to the strange_behaviour function.
         """
         super().__init__()
         self.do_strange_behaviour_id = do_strange_behaviour_id
@@ -536,14 +536,14 @@ class FastRain(Filter):
         thus range should either have value 1 or value 255.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, probability_id, range_id):
         """
         Args:
-            probability_id (str): A key which maps to a probability of rain
-            range_id (str): A key which maps to either 1 or 255
+            probability_id (str): A key which maps to a probability of rain.
+            range_id (str): A key which maps to value of either 1 or 255.
         """
         super().__init__()
         self.probability_id = probability_id
@@ -636,7 +636,7 @@ class Snow(Filter):
     def __init__(self, snowflake_probability_id, snowflake_alpha_id, snowstorm_alpha_id):
         """
         Args:
-            snowflake_probability_id (str): A key which maps to a snowflake probability
+            snowflake_probability_id (str): A key which maps to a snowflake probability.
             snowflake_alpha_id (str):
             snowstorm_alpha_id (str):
         """
@@ -766,7 +766,7 @@ class JPEG_Compression(Filter):
     the bigger the less loss.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, quality_id):
@@ -795,13 +795,13 @@ class Blur_Gaussian(Filter):
     The standard deviation of the Gaussian is taken as a parameter.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, standard_dev_id):
         """
         Args:
-            standard_dev_id (str): A key which maps to standard deviation
+            standard_dev_id (str): A key which maps to standard deviation.
         """
         super().__init__()
         self.std_id = standard_dev_id
@@ -850,13 +850,13 @@ class Resolution(Filter):
     K must be an integer.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, k_id):
         """
         Args:
-            k_id (str): A key which maps to the k value
+            k_id (str): A key which maps to the k value.
         """
         super().__init__()
         self.k_id = k_id
@@ -880,13 +880,13 @@ class ResolutionVectorized(Filter):
     K must be an integer.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self, k_id):
         """
         Args:
-            k_id (str): A key which maps to the k value
+            k_id (str): A key which maps to the k value.
         """
         super().__init__()
         self.k_id = k_id
@@ -928,10 +928,10 @@ class Rotation(Filter):
 class Brightness(Filter):
     """
     Increases or decreases brightness in the image.
-    tar: 0 if you want to decrease brightness, 1 if you want to increase it
-    rat: scales the brightness change
+    tar: 0 if you want to decrease brightness, 1 if you want to increase it.
+    rat: scales the brightness change.
     range_id: RGB values are presented either in the range [0,1]
-            or in the set {0,...,255}
+        or in the set {0,...,255}.
     """
 
     def __init__(self, tar_id, rat_id, range_id):
@@ -971,7 +971,7 @@ class BrightnessVectorized(Filter):
     tar: 0 if you want to decrease brightness, 1 if you want to increase it.
     rat: scales the brightness change.
     range: Should have value 1 or 255. RGB values are presented either
-     in the range [0,1] or in the set {0,...,255}.
+        in the range [0,1] or in the set {0,...,255}.
 
     Args:
         Filter (object): Abstract superclass for every filter
@@ -980,9 +980,9 @@ class BrightnessVectorized(Filter):
     def __init__(self, tar_id, rat_id, range_id):
         """
         Args:
-            tar_id (str): A key which maps to the tar value
-            rat_id (str): A key which maps to the rat value
-            range_id (str): A key which maps to the range value
+            tar_id (str): A key which maps to the tar value.
+            rat_id (str): A key which maps to the rat value.
+            range_id (str): A key which maps to the range value.
         """
         super().__init__()
         self.tar_id = tar_id
@@ -1060,9 +1060,9 @@ class SaturationVectorized(Filter):
     def __init__(self, tar_id, rat_id, range_id):
         """
         Args:
-            tar_id (str): A key which maps to the tar value
-            rat_id (str): A key which maps to the rat value
-            range_id (str): A key which maps to the range value
+            tar_id (str): A key which maps to the tar value.
+            rat_id (str): A key which maps to the rat value.
+            range_id (str): A key which maps to the range value.
         """
         super().__init__()
         self.tar_id = tar_id
@@ -1097,7 +1097,7 @@ class LensFlare(Filter):
     """Add lens flare to an image.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self):
@@ -1174,14 +1174,14 @@ class ApplyWithProbability(Filter):
     A filter is applied with the specified probability.
 
     Args:
-        Filter (object): Any non-abstract Filter
+        Filter (object): Any non-abstract Filter.
     """
 
     def __init__(self, ftr_id, probability_id):
         """
         Args:
-            ftr_id (str): A key which maps to a filter
-            probability_id (str): A key which maps to the probability of the filter being applied
+            ftr_id (str): A key which maps to a filter.
+            probability_id (str): A key which maps to the probability of the filter being applied.
         """
         super().__init__()
         self.ftr_id = ftr_id
@@ -1213,7 +1213,7 @@ class Identity(Filter):
     """This filter acts as the identity operator and does not modify data.
 
     Args:
-        Filter (object): Abstract superclass for every filter
+        Filter (object): Abstract superclass for every filter.
     """
 
     def __init__(self):

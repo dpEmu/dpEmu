@@ -278,11 +278,9 @@ def visualize_error_generator(root_node, view=True):
 
 
 def print_results(df, dropped_columns=[]):
-    dfs = split_df_by_model(df)
-
     dropped_columns.extend(["interactive_err_data"])
-    dropped_columns = [dropped_column for dropped_column in dropped_columns if dropped_column in df]
 
+    dfs = split_df_by_model(df)
     for df_ in dfs:
         print(df_.name)
-        print(df_.drop(columns=dropped_columns))
+        print(df_.drop(columns=[col for col in dropped_columns if col in df_]))

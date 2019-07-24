@@ -85,10 +85,10 @@ def load_coco_val_2017(n=5000):
         n = 5000
     img_folder = "data/val2017"
     if not os.path.isdir(img_folder):
-        subprocess.call(["./data/get_coco_dataset.sh"])
-    path_to_yolov3_weights = "data/yolov3.weights"
+        subprocess.call(["./scripts/get_coco_dataset.sh"])
+    path_to_yolov3_weights = "tmp/yolov3-spp_best.weights"
     if not os.path.isfile(path_to_yolov3_weights):
-        subprocess.call(["./data/get_yolov3.sh"])
+        subprocess.call(["./scripts/get_yolov3.sh"])
 
     coco = COCO("data/annotations/instances_val2017.json")
     img_ids = sorted(coco.getImgIds())[:n]

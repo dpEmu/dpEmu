@@ -55,12 +55,16 @@ class AbstractDetectronModel(ABC):
         opt_list = [
             "MODEL.MASK_ON",
             False,
+            "NUM_GPUS",
+            "1",
             "TEST.DATASETS",
             ("coco_2017_val",),
             # "TEST.SCALE",
-            # "400",
+            # "300",
             "TEST.WEIGHTS",
             url_to_weights,
+            "OUTPUT_DIR",
+            "tmp"
         ]
         merge_cfg_from_list(opt_list)
         assert_and_infer_cfg(make_immutable=False)

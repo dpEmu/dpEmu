@@ -148,7 +148,7 @@ class YOLOv3Model:
 
     def __get_results_for_img(self, img, img_id, class_names, net):
         conf_threshold = 0
-        nms_threshold = .5
+        nms_threshold = 1
         img_h = img.shape[0]
         img_w = img.shape[1]
         inference_size = 608

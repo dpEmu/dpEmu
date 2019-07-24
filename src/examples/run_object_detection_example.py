@@ -52,8 +52,8 @@ class AbstractDetectronModel(ABC):
             False,
             "TEST.DATASETS",
             ("coco_2017_val",),
-            "TEST.SCALE",
-            "400",
+            # "TEST.SCALE",
+            # "400",
             "TEST.WEIGHTS",
             url_to_weights,
         ]

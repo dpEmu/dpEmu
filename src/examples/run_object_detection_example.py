@@ -7,13 +7,11 @@ import detectron.utils.c2 as c2_utils
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from caffe2.python import workspace
-from detectron.core.config import assert_and_infer_cfg
+from detectron.core.config import assert_and_infer_cfg, reset_cfg
 from detectron.core.config import cfg
 from detectron.core.config import merge_cfg_from_file
 from detectron.core.config import merge_cfg_from_list
 from detectron.core.test_engine import run_inference
-from detectron.utils.logging import setup_logging
 from numpy.random import RandomState
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
@@ -44,33 +42,23 @@ class AbstractDetectronModel(ABC):
 
     def run(self, _, imgs, params):
         img_ids = params["img_ids"]
-
-        workspace.GlobalInit(["caffe2", "--caffe2_log_level=0"])
-        setup_logging(__name__)
-
         path_to_cfg = self.get_path_to_cfg()
         url_to_weights = self.get_url_to_weights()
 
+        reset_cfg()
         merge_cfg_from_file(path_to_cfg)
-
         opt_list = [
-            # "MODEL.KEYPOINTS_ON",
-            # False,
-            # "MODEL.MASK_ON",
-            # False,
-            "NUM_GPUS",
-            "1",
+            "MODEL.MASK_ON",
+            False,
             "TEST.DATASETS",
             ("coco_2017_val",),
-            # "TEST.SCALE",
-            # "416",
+            "TEST.SCALE",
+            "400",
             "TEST.WEIGHTS",
             url_to_weights,
-            "OUTPUT_DIR",
-            "tmp"
         ]
         merge_cfg_from_list(opt_list)
-        assert_and_infer_cfg()
+        assert_and_infer_cfg(make_immutable=False)
 
         results = run_inference(imgs, img_ids, cfg.TEST.WEIGHTS)
         return {"mAP-50": round(results["coco_2017_val"]["box"]["AP50"], 3)}

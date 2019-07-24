@@ -27,6 +27,8 @@ from src.problemgenerator.filters import GaussianNoise
 from src.problemgenerator.series import Series
 from src.utils import generate_unique_path
 
+c2_utils.import_detectron_ops()
+cv2.ocl.setUseOpenCL(False)
 torch.multiprocessing.set_start_method("spawn", force="True")
 
 
@@ -40,8 +42,6 @@ class AbstractDetectronModel(ABC):
     def __init__(self):
         self.random_state = RandomState(42)
 
-        c2_utils.import_detectron_ops()
-        cv2.ocl.setUseOpenCL(False)
         workspace.GlobalInit(["caffe2", "--caffe2_log_level=0"])
         setup_logging(__name__)
 

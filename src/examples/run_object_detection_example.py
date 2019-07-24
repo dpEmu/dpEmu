@@ -7,11 +7,13 @@ import detectron.utils.c2 as c2_utils
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from caffe2.python import workspace
 from detectron.core.config import assert_and_infer_cfg, reset_cfg
 from detectron.core.config import cfg
 from detectron.core.config import merge_cfg_from_file
 from detectron.core.config import merge_cfg_from_list
 from detectron.core.test_engine import run_inference
+from detectron.utils.logging import setup_logging
 from numpy.random import RandomState
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
@@ -25,8 +27,6 @@ from src.problemgenerator.filters import GaussianNoise
 from src.problemgenerator.series import Series
 from src.utils import generate_unique_path
 
-c2_utils.import_detectron_ops()
-cv2.ocl.setUseOpenCL(False)
 torch.multiprocessing.set_start_method("spawn", force="True")
 
 
@@ -39,6 +39,11 @@ class AbstractDetectronModel(ABC):
 
     def __init__(self):
         self.random_state = RandomState(42)
+
+        c2_utils.import_detectron_ops()
+        cv2.ocl.setUseOpenCL(False)
+        workspace.GlobalInit(["caffe2", "--caffe2_log_level=0"])
+        setup_logging(__name__)
 
     def run(self, _, imgs, params):
         img_ids = params["img_ids"]
@@ -230,10 +235,10 @@ def main(argv):
     # err_params_list = [{"quality": q} for q in [25, 50, 75, 100]]
 
     model_params_dict_list = [
-        # {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids}]},
-        {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
+        {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids}]},
+        # {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        # {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        # {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
     ]
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)

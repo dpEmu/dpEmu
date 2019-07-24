@@ -23,7 +23,7 @@ from src import runner_
 from src.datasets.utils import load_coco_val_2017
 from src.plotting.utils import print_results, visualize_scores
 from src.problemgenerator.array import Array
-from src.problemgenerator.filters import GaussianNoise
+from src.problemgenerator.filters import JPEG_Compression
 from src.problemgenerator.series import Series
 from src.utils import generate_unique_path
 
@@ -136,8 +136,17 @@ class YOLOv3Model:
             62, 63, 64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90
         ]
         self.results = []
+        self.show_imgs = False
 
-    def __get_results_for_img(self, img, img_id, net):
+    @staticmethod
+    def __draw_prediction(img, class_id, class_names, confidence, x, y, w, h):
+        label = str(class_names[class_id]) + " " + str(confidence)
+        colors = np.random.randint(0, 255, size=(len(class_names), 3), dtype="uint8")
+        color = [int(c) for c in colors[class_id]]
+        cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
+        cv2.putText(img, label, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+    def __get_results_for_img(self, img, img_id, class_names, net):
         conf_threshold = 0
         nms_threshold = 1
         img_h = img.shape[0]
@@ -147,7 +156,6 @@ class YOLOv3Model:
 
         blob = cv2.dnn.blobFromImage(img, scale, (inference_size, inference_size), (0, 0, 0), True)
         net.setInput(blob)
-
         out_layer_names = net.getUnconnectedOutLayersNames()
         outs = net.forward(out_layer_names)
 
@@ -158,16 +166,16 @@ class YOLOv3Model:
             for detection in out:
                 scores = detection[5:]
                 class_id = np.argmax(scores)
-                confidence = round(scores[class_id], 3)
+                confidence = float(scores[class_id])
                 if confidence > conf_threshold:
                     center_x = detection[0] * img_w
                     center_y = detection[1] * img_h
-                    w = round(detection[2] * img_w, 2)
-                    h = round(detection[3] * img_h, 2)
-                    x = round(center_x - w / 2, 2)
-                    y = round(center_y - h / 2, 2)
+                    w = detection[2] * img_w
+                    h = detection[3] * img_h
+                    x = center_x - w / 2
+                    y = center_y - h / 2
                     class_ids.append(class_id)
-                    confidences.append(float(confidence))
+                    confidences.append(confidence)
                     boxes.append([x, y, w, h])
 
         indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
@@ -175,18 +183,29 @@ class YOLOv3Model:
             i = i[0]
             x, y, w, h = boxes[i]
 
-            self.results.append({
+            result = {
                 "image_id": img_id,
                 "category_id": self.coco91class[class_ids[i]],
                 "bbox": [x, y, w, h],
                 "score": confidences[i],
-            })
+            }
+            self.results.append(result)
+            if self.show_imgs:
+                self.__draw_prediction(img, class_ids[i], class_names, round(confidences[i], 2), int(round(x)),
+                                       int(round(y)), int(round(w)), int(round(h)))
+
+        if self.show_imgs:
+            cv2.imshow(str(img_id), img)
+            cv2.waitKey()
+            cv2.destroyAllWindows()
 
     def run(self, _, imgs, model_params):
         img_ids = model_params["img_ids"]
+        class_names = model_params["class_names"]
+        self.show_imgs = model_params["show_imgs"]
 
         net = cv2.dnn.readNet("tmp/yolov3-spp_best.weights", "tmp/yolov3-spp.cfg")
-        [self.__get_results_for_img(imgs[i], img_ids[i], net) for i in trange(len(imgs))]
+        [self.__get_results_for_img(imgs[i], img_ids[i], class_names, net) for i in trange(len(imgs))]
         if not self.results:
             return {"mAP-50": 0}
 
@@ -204,10 +223,12 @@ class YOLOv3Model:
 
 
 def visualize(df):
-    visualize_scores(df, ["mAP-50"], "std", "Object detection scores with added error", log=False)
-    # visualize_scores(df, ["mAP-50"], "snowflake_probability", "Object detection scores with added error", log=True)
-    # visualize_scores(df, ["mAP-50"], "probability", "Object detection scores with added error", log=True)
-    # visualize_scores(df, ["mAP-50"], "quality", "Object detection scores with added error", log=False)
+    # visualize_scores(df, ["mAP-50"], "std", "Object detection with Gaussian noise", log=False)
+    # visualize_scores(df, ["mAP-50"], "std", "Object detection with Gaussian blur", log=False)
+    # visualize_scores(df, ["mAP-50"], "snowflake_probability", "Object detection with snow filter", log=True)
+    # visualize_scores(df, ["mAP-50"], "probability", "Object detection with rain filter", log=True)
+    # visualize_scores(df, ["mAP-50"], "probability", "Object detection with added stains", log=True)
+    visualize_scores(df, ["mAP-50"], "quality", "Object detection with JPEG compression", log=False)
 
     plt.show()
 
@@ -221,25 +242,25 @@ def main(argv):
     err_node = Array()
     err_root_node = Series(err_node)
 
-    err_node.addfilter(GaussianNoise("mean", "std"))
+    # err_node.addfilter(GaussianNoise("mean", "std"))
     # err_node.addfilter(Blur_Gaussian("std"))
     # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
     # err_node.addfilter(Rain("probability"))
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
-    # err_node.addfilter(JPEG_Compression("quality"))
+    err_node.addfilter(JPEG_Compression("quality"))
 
-    err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
+    # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
-    # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 1}
+    # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
     #                    for p in [10 ** i for i in range(-4, 0)]]
     # err_params_list = [{"probability": p} for p in [10 ** i for i in range(-4, 0)]]
     # err_params_list = [
     #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
     #     for p in [10 ** i for i in range(-6, -2)]]
-    # err_params_list = [{"quality": q} for q in [25, 50, 75, 100]]
+    err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
 
     model_params_dict_list = [
-        {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids}]},
+        {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names, "show_imgs": False}]},
         {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
         {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
         {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
@@ -247,7 +268,8 @@ def main(argv):
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)
 
-    print_results(df, ["img_ids", "class_names", "mean", "std", "radius_generator", "transparency_percentage"])
+    print_results(df, ["img_ids", "class_names", "show_imgs", "mean", "std", "radius_generator",
+                       "transparency_percentage"])
     visualize(df)
 
 

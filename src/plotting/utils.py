@@ -22,7 +22,7 @@ def visualize_scores(df, score_names, err_param_name, title, log=False):
                 ax.semilogx(df_[err_param_name], df_[score_names[i]], label=df_.name)
             else:
                 ax.plot(df_[err_param_name], df_[score_names[i]], label=df_.name)
-                ax.set_xlim([0, df_[err_param_name].max()])
+                ax.set_xlim([df_[err_param_name].min(), df_[err_param_name].max()])
             ax.set_xlabel(err_param_name)
             ax.set_ylabel(score_names[i])
             ax.legend(fontsize="small")

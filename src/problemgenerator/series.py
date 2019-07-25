@@ -13,7 +13,7 @@ class Series(Node):
         self.filters.append(custom_filter)
 
     def process(self, data, random_state, index_tuple=(), named_dims={}):
-        node_data, _, _ = get_node_data(data, index_tuple, make_array=False)
+        node_data, _, _, _ = get_node_data(data, index_tuple, make_array=False)
         data_length = first_dimension_length(node_data)
         for i in range(data_length):
             if self.dim_name:

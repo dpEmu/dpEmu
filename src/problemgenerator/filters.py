@@ -1,12 +1,15 @@
 import random
 from colorsys import rgb_to_hls, hls_to_rgb
-from math import pi, sin, cos, sqrt
-import numpy as np
-from scipy.ndimage import gaussian_filter
+from io import BytesIO
+
 import cv2
 import imutils
-from io import BytesIO
+import numpy as np
 from PIL import Image
+from math import pi, sin, cos, sqrt
+from scipy.ndimage import gaussian_filter
+
+from src.problemgenerator.utils import generate_random_dict_key
 
 
 class Filter:
@@ -46,6 +49,7 @@ class Missing(Filter):
 class Clip(Filter):
     """Clip values to minimum and maximum value provided by the user.
     """
+
     def __init__(self, min_id, max_id):
         self.min_id = min_id
         self.max_id = max_id
@@ -63,6 +67,7 @@ class GaussianNoise(Filter):
     """For each element in the array add noise drawn from a Gaussian distribution
     with the provided parameters mean and std (standard deviation).
     """
+
     def __init__(self, mean_id, std_id):
         self.mean_id = mean_id
         self.std_id = std_id
@@ -73,9 +78,7 @@ class GaussianNoise(Filter):
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
-        node_data += random_state.normal(loc=self.mean,
-                                         scale=self.std,
-                                         size=node_data.shape)
+        node_data += random_state.normal(loc=self.mean, scale=self.std, size=node_data.shape).astype(node_data.dtype)
 
 
 class GaussianNoiseTimeDependent(Filter):
@@ -84,6 +87,7 @@ class GaussianNoiseTimeDependent(Filter):
     standard deviation increase with every unit of time by the amount specified
     in the last two parameters.
     """
+
     def __init__(self, mean_id, std_id, mean_increase_id, std_increase_id):
         self.mean_id = mean_id
         self.std_id = std_id
@@ -108,6 +112,7 @@ class Uppercase(Filter):
     """For each character in the string, convert the character
     to uppercase with the provided probability.
     """
+
     def __init__(self, probability_id):
         self.prob_id = probability_id
         super().__init__()
@@ -167,6 +172,7 @@ def replace_inds(mask, str1, str2):
 class MissingArea(Filter):
     """ TODO: radius_generator is a struct, not a function. It should be a function for repeatability
     """
+
     def __init__(self, probability_id, radius_generator_id, missing_value_id):
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
@@ -189,19 +195,19 @@ class MissingArea(Filter):
             row_starts = [0]
             for i, c in enumerate(string):
                 if c == '\n':
-                    row_starts.append(i+1)
+                    row_starts.append(i + 1)
             if not row_starts or row_starts[-1] != len(string):
                 row_starts.append(len(string))
             height = len(row_starts) - 1
 
-            widths = np.array([row_starts[i+1] - row_starts[i] - 1 for i in range(height)])
+            widths = np.array([row_starts[i + 1] - row_starts[i] - 1 for i in range(height)])
             if len(widths) > 0:
                 width = np.max(widths)
             else:
                 width = 0
 
             # 2. Generate error
-            errs = np.zeros(shape=(height+1, width+1))
+            errs = np.zeros(shape=(height + 1, width + 1))
             ind = -1
             while True:
                 ind += random_state.geometric(self.probability)
@@ -259,7 +265,7 @@ class StainArea(Filter):
         width = node_data.shape[1]
 
         # 1. Generate error
-        errs = np.zeros(shape=(height+1, width+1))
+        errs = np.zeros(shape=(height + 1, width + 1))
         ind = -1
         while True:
             ind += random_state.geometric(self.probability)
@@ -397,35 +403,51 @@ class Snow(Filter):
 
     def apply(self, node_data, random_state, named_dims):
         def generate_perlin_noise(height, width, random_state):
-            # Pierre Vigier's implementation of 2d perlin noise with slight changes.
-            # https://github.com/pvigier/perlin-numpy
-            #
-            # The original code is licensed under MIT License:
-            #
-            # MIT License
-            #
-            # Copyright (c) 2019 Pierre Vigier
-            #
-            # Permission is hereby granted, free of charge, to any person obtaining a copy
-            # of this software and associated documentation files (the "Software"), to deal
-            # in the Software without restriction, including without limitation the rights
-            # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-            # copies of the Software, and to permit persons to whom the Software is
-            # furnished to do so, subject to the following conditions:
-            #
-            # The above copyright notice and this permission notice shall be included in all
-            # copies or substantial portions of the Software.
-            #
-            # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            # SOFTWARE.
+            """[summary]
 
+            Pierre Vigier's implementation of 2d perlin noise with slight changes.
+            https://github.com/pvigier/perlin-numpy
+
+            The original code is licensed under MIT License:
+
+            MIT License
+
+            Copyright (c) 2019 Pierre Vigier
+
+            Permission is hereby granted, free of charge, to any person obtaining a copy
+            of this software and associated documentation files (the "Software"), to deal
+            in the Software without restriction, including without limitation the rights
+            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+            copies of the Software, and to permit persons to whom the Software is
+            furnished to do so, subject to the following conditions:
+
+            The above copyright notice and this permission notice shall be included in all
+            copies or substantial portions of the Software.
+
+            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+            SOFTWARE.
+
+            Parameters
+            ----------
+            self : [type]
+                [description]
+            width : [type]
+                [description]
+            random_state : [type]
+                [description]
+
+            Returns
+            -------
+            [type]
+                [description]
+            """
             def f(t):
-                return 6*t**5 - 15*t**4 + 10*t**3
+                return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
 
             d = (height, width)
             grid = np.mgrid[0:d[0], 0:d[1]].astype(float)
@@ -447,17 +469,17 @@ class Snow(Filter):
             n11 = np.sum(np.dstack((grid[:, :, 0] - 1, grid[:, :, 1] - 1)) * g11, 2)
             # Interpolation
             t = f(grid)
-            n0 = n00*(1-t[:, :, 0]) + t[:, :, 0]*n10
-            n1 = n01*(1-t[:, :, 0]) + t[:, :, 0]*n11
-            return np.sqrt(2)*((1-t[:, :, 1])*n0 + t[:, :, 1]*n1)
+            n0 = n00 * (1 - t[:, :, 0]) + t[:, :, 0] * n10
+            n1 = n01 * (1 - t[:, :, 0]) + t[:, :, 0] * n11
+            return np.sqrt(2) * ((1 - t[:, :, 1]) * n0 + t[:, :, 1] * n1)
 
         def build_snowflake(r):
-            res = np.zeros(shape=(2*r+1, 2*r+1))
-            for y in range(0, 2*r+1):
-                for x in range(0, 2*r+1):
+            res = np.zeros(shape=(2 * r + 1, 2 * r + 1))
+            for y in range(0, 2 * r + 1):
+                for x in range(0, 2 * r + 1):
                     dy = y - r
                     dx = x - r
-                    d = sqrt(dx*dx + dy*dy)
+                    d = sqrt(dx * dx + dy * dy)
                     if r == 0:
                         res[y, x] = 1
                     else:
@@ -481,38 +503,70 @@ class Snow(Filter):
                 continue
             while len(flakes) <= r:
                 flakes.append(build_snowflake(len(flakes)))
-            y0 = max(0, y-r)
-            x0 = max(0, x-r)
-            y1 = min(height-1, y+r)+1
-            x1 = min(width-1, x+r)+1
-            fy0 = y0-(y-r)
-            fx0 = x0-(x-r)
-            fy1 = y1-(y-r)
-            fx1 = x1-(x-r)
+            y0 = max(0, y - r)
+            x0 = max(0, x - r)
+            y1 = min(height - 1, y + r) + 1
+            x1 = min(width - 1, x + r) + 1
+            fy0 = y0 - (y - r)
+            fx0 = x0 - (x - r)
+            fy1 = y1 - (y - r)
+            fx1 = x1 - (x - r)
             for j in range(3):
-                node_data[y0:y1, x0:x1, j] += ((255 - node_data[y0:y1, x0:x1, j]) *
-                                               flakes[r][fy0:fy1, fx0:fx1]).astype(int)
+                node_data[y0:y1, x0:x1, j] += ((255 - node_data[y0:y1, x0:x1, j]) * flakes[r][fy0:fy1, fx0:fx1]).astype(
+                    node_data.dtype)
 
         # add noise
         noise = generate_perlin_noise(height, width, random_state)
         noise = (noise + 1) / 2  # transform the noise to be in range [0, 1]
         for j in range(3):
-            node_data[:, :, j] += (self.snowstorm_alpha * (255 - node_data[:, :, j]) * noise[:, :]).astype(int)
+            node_data[:, :, j] += (self.snowstorm_alpha * (255 - node_data[:, :, j]) * noise[:, :]).astype(
+                node_data.dtype)
 
 
 class JPEG_Compression(Filter):
     """
     Compress the image as JPEG and uncompress. Quality should be in range [1, 100], the bigger the less loss
     """
+
     def __init__(self, quality_id):
+        """[summary]
+
+        [extended_summary]
+
+        Parameters
+        ----------
+        quality_id : [type]
+            [description]
+        """
         super().__init__()
         self.quality_id = quality_id
 
     def set_params(self, params_dict):
+        """[summary]
+
+        [extended_summary]
+        Parameters
+        ----------
+        params_dict : [type]
+            [description]
+        """
         self.quality = params_dict[self.quality_id]
 
     def apply(self, node_data, random_state, named_dims):
-        iml = Image.fromarray(node_data)
+        """[summary]
+
+        [extended_summary]
+
+        Parameters
+        ----------
+        node_data : [type]
+            [description]
+        random_state : [type]
+            [description]
+        named_dims : [type]
+            [description]
+        """
+        iml = Image.fromarray(np.uint8(np.around(node_data)))
         buf = BytesIO()
         iml.save(buf, "JPEG", quality=self.quality)
         iml = Image.open(buf)
@@ -528,14 +582,46 @@ class Blur_Gaussian(Filter):
     Create blur in images by applying a Gaussian filter.
     The standard deviation of the Gaussian is taken as a parameter.
     """
+
     def __init__(self, standard_dev_id):
+        """[summary]
+
+        [extended_summary]
+
+        Parameters
+        ----------
+        standard_dev_id : [type]
+            [description]
+        """
         super().__init__()
         self.std_id = standard_dev_id
 
     def set_params(self, params_dict):
+        """[summary]
+
+        [extended_summary]
+
+        Parameters
+        ----------
+        params_dict : [type]
+            [description]
+        """
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
+        """[summary]
+
+        [extended_summary]
+
+        Parameters
+        ----------
+        node_data : [type]
+            [description]
+        random_state : [type]
+            [description]
+        named_dims : [type]
+            [description]
+        """
         if len(node_data.shape) == 2:
             node_data[...] = gaussian_filter(node_data, self.std)
         else:
@@ -574,6 +660,7 @@ class Resolution(Filter):
     """
     Makes resolution k times smaller. K must be an integer
     """
+
     def __init__(self, k_id):
         super().__init__()
         self.k_id = k_id
@@ -591,6 +678,44 @@ class Resolution(Filter):
                 node_data[y0, x0] = node_data[y, x]
 
 
+class ResolutionVectorized(Filter):
+    """
+    Makes resolution k times smaller. K must be an integer
+    """
+
+    def __init__(self, k_id):
+        """[summary]
+
+        :param k_id: [description]
+        :type k_id: [type]
+        """
+        super().__init__()
+        self.k_id = k_id
+
+    def set_params(self, params_dict):
+        """[summary]
+
+        :param params_dict: [description]
+        :type params_dict: [type]
+        """
+        self.k = params_dict[self.k_id]
+
+    def apply(self, node_data, random_state, named_dims):
+        """[summary]
+
+        :param node_data: [description]
+        :type node_data: [type]
+        :param random_state: [description]
+        :type random_state: [type]
+        :param named_dims: [description]
+        :type named_dims: [type]
+        """
+        w = node_data.shape[1]
+        h = node_data.shape[0]
+        row, col = (np.indices((h, w)) // self.k) * self.k
+        node_data[...] = node_data[row, col]
+
+
 class Rotation(Filter):
     def __init__(self, angle_id):
         super().__init__()
@@ -600,6 +725,23 @@ class Rotation(Filter):
         self.angle = params_dict[self.angle_id]
 
     def apply(self, node_data, random_state, named_dims):
+        """This is an example of rst docstring.
+
+        Extended description of function.
+
+        :param int arg1: Description of arg1.
+        :param str arg2: Description of arg2.
+        :raise: ValueError if arg1 is equal to arg2
+        :return: Description of return value
+        :rtype: bool
+
+        :example:
+
+        >>> a=1
+        >>> b=2
+        >>> func(a,b)
+        True
+        """
         node_data[...] = imutils.rotate(node_data, self.angle)
 
         # Guesstimation for a large enough resize to avoid black areas in cropped picture
@@ -610,9 +752,9 @@ class Rotation(Filter):
         width = node_data.shape[1]
         height = node_data.shape[0]
 
-        x0 = round((resized_width - width)/2)
-        y0 = round((resized_height - height)/2)
-        node_data[...] = resized[y0:y0+height, x0:x0+width]
+        x0 = round((resized_width - width) / 2)
+        y0 = round((resized_height - height) / 2)
+        node_data[...] = resized[y0:y0 + height, x0:x0 + width]
 
 
 class Brightness(Filter):
@@ -665,18 +807,48 @@ class BrightnessVectorized(Filter):
     """
 
     def __init__(self, tar_id, rat_id, range_id):
+        """[summary]
+
+        [extended_summary]
+
+        :param tar_id: 0 if you want to decrease brightness, 1 if you want to increase it
+        :type tar_id: [str]
+        :param rat_id: scales the brightness change
+        :type rat_id: [str]
+        :param range_id: RGB values are presented either in the range [0,1]
+            or in the set {0,...,255}
+        :type range_id: str
+        """
         super().__init__()
         self.tar_id = tar_id
         self.rat_id = rat_id
         self.range_id = range_id
 
     def set_params(self, params_dict):
+        """[summary]
+
+        [extended_summary]
+
+        :param params_dict: [description]
+        :type params_dict: dict
+        """
         self.tar = params_dict[self.tar_id]
         self.rat = params_dict[self.rat_id]
         # self.range should have value 1 or 255
         self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
+        """[summary]
+
+        [extended_summary]
+
+        :param node_data: [description]
+        :type node_data: numpy array
+        :param random_state: [description]
+        :type random_state: numpy.RandomState
+        :param named_dims: [description]
+        :type named_dims: [type]
+        """
         nd = node_data.astype("float32")
         if self.range == 255:
             nd[...] = node_data * (1 / self.range)
@@ -793,7 +965,7 @@ class LensFlare(Filter):
                     dist = sqrt((x - x0) * (x - x0) + (y - y0) * (y - y0))
                     if dist > radius:
                         continue
-                    offset_dist = sqrt((x - x0 + x_offset)**2 + (y - y0 + y_offset)**2)
+                    offset_dist = sqrt((x - x0 + x_offset) ** 2 + (y - y0 + y_offset) ** 2)
                     r = node_data[y][x][0]
                     g = node_data[y][x][1]
                     b = node_data[y][x][2]
@@ -836,7 +1008,8 @@ class LensFlare(Filter):
                 radius = round(max(40, random_state.normal(100, 100)))
                 flare(int(x), int(y), radius)
                 steps = random_state.normal(radius, 15)
-            if (best_x - width / 2)**2 + (best_y - height / 2)**2 + 1 <= (x - width / 2)**2 + (y - height / 2)**2:
+            if (best_x - width / 2) ** 2 + (best_y - height / 2) ** 2 + 1 <= (x - width / 2) ** 2 + (
+                    y - height / 2) ** 2:
                 break
             y += origo_vector[1]
             x += origo_vector[0]
@@ -862,9 +1035,22 @@ class ClipWAV(Filter):
             lower_limit = middle - new_half_range
             return np.clip(data, lower_limit, upper_limit).astype(data.dtype)
 
-        for index, audio_data in np.ndenumerate(node_data):
-            node_data[index] = clip_audio(audio_data, self.dyn_range)
+        node_data[:] = clip_audio(node_data, self.dyn_range)
 
+
+class ApplyToTuple(Filter):
+
+    def __init__(self, ftr, tuple_index):
+        super().__init__()
+        self.ftr = ftr
+        self.tuple_index = tuple_index
+
+    def set_params(self, params_dict):
+        self.ftr.set_params(params_dict)
+    
+    def apply(self, node_data, random_state, named_dims):
+        self.ftr.apply(node_data[self.tuple_index], random_state, named_dims)
+        
 
 class ApplyWithProbability(Filter):
     def __init__(self, ftr_id, probability_id):
@@ -883,9 +1069,12 @@ class ApplyWithProbability(Filter):
 
 
 class Constant(Filter):
-    def __init__(self, value):
+    def __init__(self, value_id):
         super().__init__()
-        self.value = value
+        self.value_id = value_id
+
+    def set_params(self, params_dict):
+        self.value = params_dict[self.value_id]
 
     def apply(self, node_data, random_state, named_dims):
         node_data.fill(self.value)
@@ -900,10 +1089,10 @@ class Identity(Filter):
 
 
 class BinaryFilter(Filter):
-    def __init__(self, filter_a, filter_b):
+    def __init__(self, filter_a_id, filter_b_id):
         super().__init__()
-        self.filter_a = filter_a
-        self.filter_b = filter_b
+        self.filter_a_id = filter_a_id
+        self.filter_b_id = filter_b_id
 
     def apply(self, node_data, random_state, named_dims):
         data_a = node_data.copy()
@@ -914,6 +1103,8 @@ class BinaryFilter(Filter):
             node_data[index] = self.operation(data_a[index], data_b[index])
 
     def set_params(self, params_dict):
+        self.filter_a = params_dict[self.filter_a_id]
+        self.filter_b = params_dict[self.filter_b_id]
         self.filter_a.set_params(params_dict)
         self.filter_b.set_params(params_dict)
 
@@ -971,11 +1162,15 @@ class Difference(Filter):
     Returns the difference between the original and the filtered data,
     i.e. it is shorthand for Subtraction(filter, Identity()).
     """
-    def __init__(self, ftr):
+
+    def __init__(self, ftr_id):
         super().__init__()
-        self.ftr = Subtraction(ftr, Identity())
+        self.ftr_id = ftr_id
 
     def set_params(self, params_dict):
+        identity_key = generate_random_dict_key(params_dict, "identity")
+        params_dict[identity_key] = Identity()
+        self.ftr = Subtraction(self.ftr_id, identity_key)
         self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):
@@ -993,12 +1188,14 @@ class Min(BinaryFilter):
 
 
 class ModifyAsDataType(Filter):
-    def __init__(self, dtype, ftr):
+    def __init__(self, dtype_id, ftr_id):
         super().__init__()
-        self.dtype = dtype
-        self.ftr = ftr
+        self.dtype_id = dtype_id
+        self.ftr_id = ftr_id
 
     def set_params(self, params_dict):
+        self.dtype = params_dict[self.dtype_id]
+        self.ftr = params_dict[self.ftr_id]
         self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):

@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-import src.problemgenerator.copy as copy
 
 
 def main():
@@ -15,11 +14,9 @@ def main():
     data1 = plt.imread(img_path)
     x_node1 = array.Array(data1.shape)
     s1 = filters.Saturation("tar", "rat", "range")
-    s1.set_params(d)
     x_node1.addfilter(s1)
-    root_node1 = copy.Copy(x_node1)
     start1 = time.time()
-    result1 = root_node1.process(data1, np.random.RandomState(seed=42))
+    result1 = x_node1.generate_error(data1, d)
     end1 = time.time()
     print(f"Time traditional: {end1-start1}")
 
@@ -27,11 +24,9 @@ def main():
     data2 = plt.imread(img_path)
     x_node2 = array.Array(data2.shape)
     s2 = filters.SaturationVectorized("tar", "rat", "range")
-    s2.set_params(d)
     x_node2.addfilter(s2)
-    root_node2 = copy.Copy(x_node2)
     start2 = time.time()
-    result2 = root_node2.process(data2, np.random.RandomState(seed=42))
+    result2 = x_node2.generate_error(data2, d)
     end2 = time.time()
     print(f"Time vectorized: {end2-start2}")
 

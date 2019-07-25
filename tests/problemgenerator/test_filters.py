@@ -2,6 +2,7 @@ import numpy as np
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
+import src.problemgenerator.series as series
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator, ProbabilityArrayRadiusGenerator
 
 
@@ -132,12 +133,27 @@ def test_seed_determines_result_for_stain_filter():
     a = np.random.RandomState(seed=42).randint(0, 255, size=300).reshape((10, 10, 3))
     x_node = array.Array(a.shape)
     x_node.addfilter(filters.StainArea("probability", "radius_generator", "transparency_percentage"))
-    params = {"probability": .002,
+    params = {"probability": .005,
               "radius_generator": GaussianRadiusGenerator(10, 5),
               "transparency_percentage": 0.5}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)
+
+
+def test_seed_determines_result_for_time_dependent_gaussian_noise():
+    a = np.arange(25).reshape((5, 5)).astype(np.float64)
+    params = {}
+    params['mean'] = 2.
+    params['std'] = 3.
+    params['mean_inc'] = 1.
+    params['std_inc'] = 4.
+    x_node = array.Array()
+    x_node.addfilter(filters.GaussianNoiseTimeDependent('mean', 'std', 'mean_inc', 'std_inc'))
+    series_node = series.Series(x_node, dim_name="time")
+    out1 = series_node.generate_error(a, params, np.random.RandomState(seed=42))
+    out2 = series_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.allclose(out1, out2)
 
 
 def test_sensor_drift():
@@ -193,131 +209,204 @@ def test_two_gap():
         assert np.isnan(val)
 
 
-# def test_apply_with_probability():
-#     data = np.array([["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"]])
+def test_apply_with_probability():
+    data = np.array([["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"]])
 
-#     ocr = filters.OCRError("ps", "p")
-#     x_node = array.Array(data.shape)
-#     x_node.addfilter(filters.ApplyWithProbability("ocr_node", "ocr_prob"))
-#     series_node = series.Series(x_node)
-#     params = {"ps": {"a": [["e"], [1.0]]}, "p": 1.0, "ocr_node": ocr, "ocr_prob": 0.5}
-#     out = series_node.generate_error(data, params, np.random.RandomState(seed=42))
+    ocr = filters.OCRError("ps", "p")
+    x_node = array.Array(data.shape)
+    x_node.addfilter(filters.ApplyWithProbability("ocr_node", "ocr_prob"))
+    series_node = series.Series(x_node)
+    params = {"ps": {"a": [["e"], [1.0]]}, "p": 1.0, "ocr_node": ocr, "ocr_prob": 0.5}
+    out = series_node.generate_error(data, params, np.random.RandomState(seed=42))
 
-#     contains_distinct_elements = False
-#     for a in out:
-#         for b in out:
-#             if a != b:
-#                 contains_distinct_elements = True
-#     assert contains_distinct_elements
-
-
-# def test_constant():
-#     a = np.arange(25).reshape((5, 5))
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Constant(5))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 5))
+    contains_distinct_elements = False
+    for a in out:
+        for b in out:
+            if a != b:
+                contains_distinct_elements = True
+    assert contains_distinct_elements
 
 
-# def test_identity():
-#     a = np.arange(25).reshape((5, 5))
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Identity())
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, a)
+def test_constant():
+    a = np.arange(25).reshape((5, 5))
+    params = {'c': 5}
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Constant('c'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 5))
 
 
-# def test_addition():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Addition(filters.Constant(2), filters.Identity()))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 7))
+def test_identity():
+    a = np.arange(25).reshape((5, 5))
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Identity())
+    out = x_node.generate_error(a, {}, np.random.RandomState(seed=42))
+    assert np.array_equal(out, a)
 
 
-# def test_subtraction():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Subtraction(filters.Constant(2), filters.Identity()))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), -3))
+def test_addition():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Addition('const', 'identity'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 7))
 
 
-# def test_multiplication():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Multiplication(filters.Constant(2), filters.Identity()))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 10))
+def test_subtraction():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Subtraction('const', 'identity'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), -3))
 
 
-# def test_division():
-#     a = np.full((5, 5), 5.0)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Division(filters.Constant(2), filters.Identity()))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.allclose(out, np.full((5, 5), .4))
+def test_multiplication():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Multiplication('const', 'identity'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 10))
 
 
-# def test_integer_division():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.IntegerDivision(filters.Identity(), filters.Constant(2)))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 2))
+def test_division():
+    a = np.full((5, 5), 5.0)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Division('const', 'identity'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.allclose(out, np.full((5, 5), .4))
 
 
-# def test_modulo():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Modulo(filters.Identity(), filters.Constant(2)))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 1))
+def test_integer_division():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.IntegerDivision('identity', 'const'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 2))
 
 
-# def test_and():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.And(filters.Identity(), filters.Constant(2)))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 0))
+def test_modulo():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Modulo('identity', 'const'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 1))
 
 
-# def test_or():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Or(filters.Identity(), filters.Constant(2)))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 7))
+def test_and():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.And('identity', 'const'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 0))
 
 
-# def test_xor():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Xor(filters.Identity(), filters.Constant(3)))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 6))
+def test_or():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Or('identity', 'const'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 7))
 
 
-# def test_difference():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Difference(filters.Addition(filters.Identity(), filters.Constant(2))))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 2))
+def test_xor():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 3
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Xor('identity', 'const'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 6))
 
 
-# def test_min():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Min(filters.Identity(), filters.Constant(2)))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 2))
+def test_difference():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    params['addition'] = filters.Addition('identity', 'const')
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Difference("addition"))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+
+    assert np.array_equal(out, np.full((5, 5), 2))
 
 
-# def test_max():
-#     a = np.full((5, 5), 5)
-#     x_node = array.Array(a.shape)
-#     x_node.addfilter(filters.Max(filters.Identity(), filters.Constant(2)))
-#     out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
-#     assert np.array_equal(out, np.full((5, 5), 5))
+def test_min():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Min('identity', 'const'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 2))
+
+
+def test_max():
+    a = np.full((5, 5), 5)
+    params = {}
+    params['const'] = filters.Constant('c')
+    params['c'] = 2
+    params['identity'] = filters.Identity()
+    x_node = array.Array(a.shape)
+    x_node.addfilter(filters.Max('identity', 'const'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.full((5, 5), 5))
+
+
+def test_clip():
+    a = np.arange(5)
+    params = {}
+    params['min'] = 2
+    params['max'] = 3
+    x_node = array.Array()
+    x_node.addfilter(filters.Clip('min', 'max'))
+    out = x_node.generate_error(a, params, np.random.RandomState(seed=42))
+    assert np.array_equal(out, np.array([2, 2, 2, 3, 3]))
+
+
+def test_modify_as_datatype():
+    a = np.array([256 + 42])
+    params = {}
+    params['dtype'] = np.int8
+    params['filter'] = filters.Identity()
+    x_node = array.Array()
+    x_node.addfilter(filters.ModifyAsDataType('dtype', 'filter'))
+    out = x_node.generate_error(a, params)
+    assert np.array_equal(out, np.array([42]))

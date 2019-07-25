@@ -9,6 +9,7 @@ Guide
    :maxdepth: 2
    :caption: Contents:
 
+   manual
    license
    help
 

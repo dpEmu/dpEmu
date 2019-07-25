@@ -157,7 +157,7 @@ def split_df_by_model(df):
     return dfs
 
 
-def filter_optimized_results(df, err_param_name, score_name):
+def filter_optimized_results(df, err_param_name, score_name, is_higher_score_better):
     """[summary]
 
     [extended_summary]
@@ -166,10 +166,14 @@ def filter_optimized_results(df, err_param_name, score_name):
         df ([type]): [description]
         err_param_name ([type]): [description]
         score_name ([type]): [description]
+        is_higher_score_better (bool): [description]
 
     Returns:
         [type]: [description]
     """
-    df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmax()].reset_index(drop=True)
+    if is_higher_score_better:
+        df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmax()].reset_index(drop=True)
+    else:
+        df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmin()].reset_index(drop=True)
     df_.name = df.name
     return df_

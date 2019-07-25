@@ -1,6 +1,6 @@
+import math
 import random
 
-import math
 import matplotlib.pyplot as plt
 import numpy as np
 from graphviz import Digraph
@@ -10,25 +10,15 @@ from src.problemgenerator.filters import Filter
 from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
 
-def visualize_scores(df, score_names, err_param_name, title, log=False):
-    """[summary]
+def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, log=False):
 
-    [extended_summary]
-
-    Args:
-        df ([type]): [description]
-        score_names ([type]): [description]
-        err_param_name ([type]): [description]
-        title ([type]): [description]
-        log (bool, optional): [description]. Defaults to False.
-    """
     dfs = split_df_by_model(df)
 
     n_scores = len(score_names)
-    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 4, 4), squeeze=False)
+    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 5, 4), squeeze=False)
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
-            df_ = filter_optimized_results(df_, err_param_name, score_names[i])
+            df_ = filter_optimized_results(df_, err_param_name, score_names[i], is_higher_score_better[i])
             if log:
                 ax.semilogx(df_[err_param_name], df_[score_names[i]], label=df_.name)
             else:
@@ -38,12 +28,12 @@ def visualize_scores(df, score_names, err_param_name, title, log=False):
             ax.set_ylabel(score_names[i])
             ax.legend(fontsize="small")
 
-    fig.subplots_adjust(wspace=.25)
-    fig.suptitle(title)
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
+        fig.subplots_adjust(wspace=.25)
+        fig.suptitle(title)
+        fig.tight_layout(rect=[0, 0, 1, 0.95])
 
-    path_to_plot = generate_unique_path("out", "png")
-    fig.savefig(path_to_plot)
+        path_to_plot = generate_unique_path("out", "png")
+        fig.savefig(path_to_plot)
 
 
 def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels_name, cmap, title):
@@ -294,23 +284,11 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
     plt.savefig(path_to_plot, bbox_inches="tight")
 
 
-def visualize_confusion_matrices(df, label_names, score_name, err_param_name, labels_col, predictions_col, interactive):
-    """[summary]
-
-    [extended_summary]
-
-    Args:
-        df ([type]): [description]
-        label_names ([type]): [description]
-        score_name ([type]): [description]
-        err_param_name ([type]): [description]
-        labels_col ([type]): [description]
-        predictions_col ([type]): [description]
-        interactive ([type]): [description]
-    """
+def visualize_confusion_matrices(df, label_names, score_name, is_higher_score_better, err_param_name, labels_col,
+                                 predictions_col, interactive):
     dfs = split_df_by_model(df)
     for df_ in dfs:
-        df_ = filter_optimized_results(df_, err_param_name, score_name)
+        df_ = filter_optimized_results(df_, err_param_name, score_name, is_higher_score_better)
         for i in range(df_.shape[0]):
             visualize_confusion_matrix(
                 df_,

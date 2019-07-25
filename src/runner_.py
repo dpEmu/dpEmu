@@ -9,6 +9,16 @@ from src.utils import generate_unique_path
 
 
 def worker(inputs):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        inputs ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     path_to_train_data, path_to_test_data, preproc, err_root_node, err_params, model_params_dict_list, \
         use_interactive_mode = inputs
 
@@ -67,6 +77,20 @@ def worker(inputs):
 
 def run(train_data, test_data, preproc, err_root_node, err_params_list, model_params_dict_list, n_processes=None,
         use_interactive_mode=False):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        train_data ([type]): [description]
+        test_data ([type]): [description]
+        preproc ([type]): [description]
+        err_root_node ([type]): [description]
+        err_params_list ([type]): [description]
+        model_params_dict_list ([type]): [description]
+        n_processes ([type], optional): [description]. Defaults to None.
+        use_interactive_mode (bool, optional): [description]. Defaults to False.
+    """
     path_to_train_data = generate_unique_path("tmp", "p")
     path_to_test_data = generate_unique_path("tmp", "p")
     with open(path_to_train_data, "wb") as file:

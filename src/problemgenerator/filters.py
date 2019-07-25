@@ -1047,10 +1047,10 @@ class ApplyToTuple(Filter):
 
     def set_params(self, params_dict):
         self.ftr.set_params(params_dict)
-    
+
     def apply(self, node_data, random_state, named_dims):
         self.ftr.apply(node_data[self.tuple_index], random_state, named_dims)
-        
+
 
 class ApplyWithProbability(Filter):
     def __init__(self, ftr_id, probability_id):

@@ -1,4 +1,3 @@
-import numpy as np
 from src.problemgenerator.node import LeafNode, get_node_data, assign
 
 

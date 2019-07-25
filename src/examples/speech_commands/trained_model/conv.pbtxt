@@ -1057,6 +1057,13 @@ node {
     }
   }
   attr {
+    key: "explicit_paddings"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
     key: "padding"
     value {
       s: "SAME"
@@ -1150,39 +1157,6 @@ node {
     key: "out_type"
     value {
       type: DT_INT32
-    }
-  }
-}
-node {
-  name: "dropout/sub/x"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-        }
-        float_val: 1.0
-      }
-    }
-  }
-}
-node {
-  name: "dropout/sub"
-  op: "Sub"
-  input: "dropout/sub/x"
-  input: "sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
     }
   }
 }
@@ -1294,10 +1268,31 @@ node {
   }
 }
 node {
-  name: "dropout/add"
-  op: "Add"
-  input: "dropout/sub"
-  input: "dropout/random_uniform"
+  name: "dropout/sub/x"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 1.0
+      }
+    }
+  }
+}
+node {
+  name: "dropout/sub"
+  op: "Sub"
+  input: "dropout/sub/x"
+  input: "sub"
   attr {
     key: "T"
     value {
@@ -1306,21 +1301,43 @@ node {
   }
 }
 node {
-  name: "dropout/Floor"
-  op: "Floor"
-  input: "dropout/add"
+  name: "dropout/truediv/x"
+  op: "Const"
   attr {
-    key: "T"
+    key: "dtype"
     value {
       type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 1.0
+      }
     }
   }
 }
 node {
   name: "dropout/truediv"
   op: "RealDiv"
-  input: "Relu"
+  input: "dropout/truediv/x"
   input: "dropout/sub"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "dropout/GreaterEqual"
+  op: "GreaterEqual"
+  input: "dropout/random_uniform"
+  input: "sub"
   attr {
     key: "T"
     value {
@@ -1331,8 +1348,43 @@ node {
 node {
   name: "dropout/mul"
   op: "Mul"
+  input: "Relu"
   input: "dropout/truediv"
-  input: "dropout/Floor"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "dropout/Cast"
+  op: "Cast"
+  input: "dropout/GreaterEqual"
+  attr {
+    key: "DstT"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "SrcT"
+    value {
+      type: DT_BOOL
+    }
+  }
+  attr {
+    key: "Truncate"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "dropout/mul_1"
+  op: "Mul"
+  input: "dropout/mul"
+  input: "dropout/Cast"
   attr {
     key: "T"
     value {
@@ -1343,7 +1395,7 @@ node {
 node {
   name: "MaxPool"
   op: "MaxPool"
-  input: "dropout/mul"
+  input: "dropout/mul_1"
   attr {
     key: "T"
     value {
@@ -1804,6 +1856,13 @@ node {
     }
   }
   attr {
+    key: "explicit_paddings"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
     key: "padding"
     value {
       s: "SAME"
@@ -1897,39 +1956,6 @@ node {
     key: "out_type"
     value {
       type: DT_INT32
-    }
-  }
-}
-node {
-  name: "dropout_1/sub/x"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-        }
-        float_val: 1.0
-      }
-    }
-  }
-}
-node {
-  name: "dropout_1/sub"
-  op: "Sub"
-  input: "dropout_1/sub/x"
-  input: "sub_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
     }
   }
 }
@@ -2041,10 +2067,31 @@ node {
   }
 }
 node {
-  name: "dropout_1/add"
-  op: "Add"
-  input: "dropout_1/sub"
-  input: "dropout_1/random_uniform"
+  name: "dropout_1/sub/x"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 1.0
+      }
+    }
+  }
+}
+node {
+  name: "dropout_1/sub"
+  op: "Sub"
+  input: "dropout_1/sub/x"
+  input: "sub_1"
   attr {
     key: "T"
     value {
@@ -2053,21 +2100,43 @@ node {
   }
 }
 node {
-  name: "dropout_1/Floor"
-  op: "Floor"
-  input: "dropout_1/add"
+  name: "dropout_1/truediv/x"
+  op: "Const"
   attr {
-    key: "T"
+    key: "dtype"
     value {
       type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 1.0
+      }
     }
   }
 }
 node {
   name: "dropout_1/truediv"
   op: "RealDiv"
-  input: "Relu_1"
+  input: "dropout_1/truediv/x"
   input: "dropout_1/sub"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "dropout_1/GreaterEqual"
+  op: "GreaterEqual"
+  input: "dropout_1/random_uniform"
+  input: "sub_1"
   attr {
     key: "T"
     value {
@@ -2078,8 +2147,43 @@ node {
 node {
   name: "dropout_1/mul"
   op: "Mul"
+  input: "Relu_1"
   input: "dropout_1/truediv"
-  input: "dropout_1/Floor"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "dropout_1/Cast"
+  op: "Cast"
+  input: "dropout_1/GreaterEqual"
+  attr {
+    key: "DstT"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "SrcT"
+    value {
+      type: DT_BOOL
+    }
+  }
+  attr {
+    key: "Truncate"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "dropout_1/mul_1"
+  op: "Mul"
+  input: "dropout_1/mul"
+  input: "dropout_1/Cast"
   attr {
     key: "T"
     value {
@@ -2114,7 +2218,7 @@ node {
 node {
   name: "Reshape_1"
   op: "Reshape"
-  input: "dropout_1/mul"
+  input: "dropout_1/mul_1"
   input: "Reshape_1/shape"
   attr {
     key: "T"
@@ -4218,7 +4322,7 @@ node {
 node {
   name: "train/gradients/Reshape_1_grad/Shape"
   op: "Shape"
-  input: "dropout_1/mul"
+  input: "dropout_1/mul_1"
   attr {
     key: "T"
     value {
@@ -4251,9 +4355,209 @@ node {
   }
 }
 node {
+  name: "train/gradients/dropout_1/mul_1_grad/Shape"
+  op: "Shape"
+  input: "dropout_1/mul"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "out_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/Shape_1"
+  op: "Shape"
+  input: "dropout_1/Cast"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "out_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/BroadcastGradientArgs"
+  op: "BroadcastGradientArgs"
+  input: "train/gradients/dropout_1/mul_1_grad/Shape"
+  input: "train/gradients/dropout_1/mul_1_grad/Shape_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/Mul"
+  op: "Mul"
+  input: "train/gradients/Reshape_1_grad/Reshape"
+  input: "dropout_1/Cast"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/Sum"
+  op: "Sum"
+  input: "train/gradients/dropout_1/mul_1_grad/Mul"
+  input: "train/gradients/dropout_1/mul_1_grad/BroadcastGradientArgs"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/Reshape"
+  op: "Reshape"
+  input: "train/gradients/dropout_1/mul_1_grad/Sum"
+  input: "train/gradients/dropout_1/mul_1_grad/Shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/Mul_1"
+  op: "Mul"
+  input: "dropout_1/mul"
+  input: "train/gradients/Reshape_1_grad/Reshape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/Sum_1"
+  op: "Sum"
+  input: "train/gradients/dropout_1/mul_1_grad/Mul_1"
+  input: "train/gradients/dropout_1/mul_1_grad/BroadcastGradientArgs:1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/Reshape_1"
+  op: "Reshape"
+  input: "train/gradients/dropout_1/mul_1_grad/Sum_1"
+  input: "train/gradients/dropout_1/mul_1_grad/Shape_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/tuple/group_deps"
+  op: "NoOp"
+  input: "^train/gradients/dropout_1/mul_1_grad/Reshape"
+  input: "^train/gradients/dropout_1/mul_1_grad/Reshape_1"
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/tuple/control_dependency"
+  op: "Identity"
+  input: "train/gradients/dropout_1/mul_1_grad/Reshape"
+  input: "^train/gradients/dropout_1/mul_1_grad/tuple/group_deps"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@train/gradients/dropout_1/mul_1_grad/Reshape"
+      }
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout_1/mul_1_grad/tuple/control_dependency_1"
+  op: "Identity"
+  input: "train/gradients/dropout_1/mul_1_grad/Reshape_1"
+  input: "^train/gradients/dropout_1/mul_1_grad/tuple/group_deps"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@train/gradients/dropout_1/mul_1_grad/Reshape_1"
+      }
+    }
+  }
+}
+node {
   name: "train/gradients/dropout_1/mul_grad/Shape"
   op: "Shape"
-  input: "dropout_1/truediv"
+  input: "Relu_1"
   attr {
     key: "T"
     value {
@@ -4270,7 +4574,7 @@ node {
 node {
   name: "train/gradients/dropout_1/mul_grad/Shape_1"
   op: "Shape"
-  input: "dropout_1/Floor"
+  input: "dropout_1/truediv"
   attr {
     key: "T"
     value {
@@ -4299,8 +4603,8 @@ node {
 node {
   name: "train/gradients/dropout_1/mul_grad/Mul"
   op: "Mul"
-  input: "train/gradients/Reshape_1_grad/Reshape"
-  input: "dropout_1/Floor"
+  input: "train/gradients/dropout_1/mul_1_grad/tuple/control_dependency"
+  input: "dropout_1/truediv"
   attr {
     key: "T"
     value {
@@ -4353,8 +4657,8 @@ node {
 node {
   name: "train/gradients/dropout_1/mul_grad/Mul_1"
   op: "Mul"
-  input: "dropout_1/truediv"
-  input: "train/gradients/Reshape_1_grad/Reshape"
+  input: "Relu_1"
+  input: "train/gradients/dropout_1/mul_1_grad/tuple/control_dependency"
   attr {
     key: "T"
     value {
@@ -4451,244 +4755,9 @@ node {
   }
 }
 node {
-  name: "train/gradients/dropout_1/truediv_grad/Shape"
-  op: "Shape"
-  input: "Relu_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "out_type"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/Shape_1"
-  op: "Shape"
-  input: "dropout_1/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "out_type"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/BroadcastGradientArgs"
-  op: "BroadcastGradientArgs"
-  input: "train/gradients/dropout_1/truediv_grad/Shape"
-  input: "train/gradients/dropout_1/truediv_grad/Shape_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/RealDiv"
-  op: "RealDiv"
-  input: "train/gradients/dropout_1/mul_grad/tuple/control_dependency"
-  input: "dropout_1/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/Sum"
-  op: "Sum"
-  input: "train/gradients/dropout_1/truediv_grad/RealDiv"
-  input: "train/gradients/dropout_1/truediv_grad/BroadcastGradientArgs"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tidx"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "keep_dims"
-    value {
-      b: false
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/Reshape"
-  op: "Reshape"
-  input: "train/gradients/dropout_1/truediv_grad/Sum"
-  input: "train/gradients/dropout_1/truediv_grad/Shape"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tshape"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/Neg"
-  op: "Neg"
-  input: "Relu_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/RealDiv_1"
-  op: "RealDiv"
-  input: "train/gradients/dropout_1/truediv_grad/Neg"
-  input: "dropout_1/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/RealDiv_2"
-  op: "RealDiv"
-  input: "train/gradients/dropout_1/truediv_grad/RealDiv_1"
-  input: "dropout_1/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/mul"
-  op: "Mul"
-  input: "train/gradients/dropout_1/mul_grad/tuple/control_dependency"
-  input: "train/gradients/dropout_1/truediv_grad/RealDiv_2"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/Sum_1"
-  op: "Sum"
-  input: "train/gradients/dropout_1/truediv_grad/mul"
-  input: "train/gradients/dropout_1/truediv_grad/BroadcastGradientArgs:1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tidx"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "keep_dims"
-    value {
-      b: false
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/Reshape_1"
-  op: "Reshape"
-  input: "train/gradients/dropout_1/truediv_grad/Sum_1"
-  input: "train/gradients/dropout_1/truediv_grad/Shape_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tshape"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/tuple/group_deps"
-  op: "NoOp"
-  input: "^train/gradients/dropout_1/truediv_grad/Reshape"
-  input: "^train/gradients/dropout_1/truediv_grad/Reshape_1"
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/tuple/control_dependency"
-  op: "Identity"
-  input: "train/gradients/dropout_1/truediv_grad/Reshape"
-  input: "^train/gradients/dropout_1/truediv_grad/tuple/group_deps"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@train/gradients/dropout_1/truediv_grad/Reshape"
-      }
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout_1/truediv_grad/tuple/control_dependency_1"
-  op: "Identity"
-  input: "train/gradients/dropout_1/truediv_grad/Reshape_1"
-  input: "^train/gradients/dropout_1/truediv_grad/tuple/group_deps"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@train/gradients/dropout_1/truediv_grad/Reshape_1"
-      }
-    }
-  }
-}
-node {
   name: "train/gradients/Relu_1_grad/ReluGrad"
   op: "ReluGrad"
-  input: "train/gradients/dropout_1/truediv_grad/tuple/control_dependency"
+  input: "train/gradients/dropout_1/mul_grad/tuple/control_dependency"
   input: "Relu_1"
   attr {
     key: "T"
@@ -4934,6 +5003,13 @@ node {
     }
   }
   attr {
+    key: "explicit_paddings"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
     key: "padding"
     value {
       s: "SAME"
@@ -4983,6 +5059,13 @@ node {
         i: 1
         i: 1
         i: 1
+      }
+    }
+  }
+  attr {
+    key: "explicit_paddings"
+    value {
+      list {
       }
     }
   }
@@ -5059,7 +5142,7 @@ node {
 node {
   name: "train/gradients/MaxPool_grad/MaxPoolGrad"
   op: "MaxPoolGrad"
-  input: "dropout/mul"
+  input: "dropout/mul_1"
   input: "MaxPool"
   input: "train/gradients/Conv2D_1_grad/tuple/control_dependency"
   attr {
@@ -5104,9 +5187,209 @@ node {
   }
 }
 node {
+  name: "train/gradients/dropout/mul_1_grad/Shape"
+  op: "Shape"
+  input: "dropout/mul"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "out_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/Shape_1"
+  op: "Shape"
+  input: "dropout/Cast"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "out_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/BroadcastGradientArgs"
+  op: "BroadcastGradientArgs"
+  input: "train/gradients/dropout/mul_1_grad/Shape"
+  input: "train/gradients/dropout/mul_1_grad/Shape_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/Mul"
+  op: "Mul"
+  input: "train/gradients/MaxPool_grad/MaxPoolGrad"
+  input: "dropout/Cast"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/Sum"
+  op: "Sum"
+  input: "train/gradients/dropout/mul_1_grad/Mul"
+  input: "train/gradients/dropout/mul_1_grad/BroadcastGradientArgs"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/Reshape"
+  op: "Reshape"
+  input: "train/gradients/dropout/mul_1_grad/Sum"
+  input: "train/gradients/dropout/mul_1_grad/Shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/Mul_1"
+  op: "Mul"
+  input: "dropout/mul"
+  input: "train/gradients/MaxPool_grad/MaxPoolGrad"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/Sum_1"
+  op: "Sum"
+  input: "train/gradients/dropout/mul_1_grad/Mul_1"
+  input: "train/gradients/dropout/mul_1_grad/BroadcastGradientArgs:1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/Reshape_1"
+  op: "Reshape"
+  input: "train/gradients/dropout/mul_1_grad/Sum_1"
+  input: "train/gradients/dropout/mul_1_grad/Shape_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/tuple/group_deps"
+  op: "NoOp"
+  input: "^train/gradients/dropout/mul_1_grad/Reshape"
+  input: "^train/gradients/dropout/mul_1_grad/Reshape_1"
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/tuple/control_dependency"
+  op: "Identity"
+  input: "train/gradients/dropout/mul_1_grad/Reshape"
+  input: "^train/gradients/dropout/mul_1_grad/tuple/group_deps"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@train/gradients/dropout/mul_1_grad/Reshape"
+      }
+    }
+  }
+}
+node {
+  name: "train/gradients/dropout/mul_1_grad/tuple/control_dependency_1"
+  op: "Identity"
+  input: "train/gradients/dropout/mul_1_grad/Reshape_1"
+  input: "^train/gradients/dropout/mul_1_grad/tuple/group_deps"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@train/gradients/dropout/mul_1_grad/Reshape_1"
+      }
+    }
+  }
+}
+node {
   name: "train/gradients/dropout/mul_grad/Shape"
   op: "Shape"
-  input: "dropout/truediv"
+  input: "Relu"
   attr {
     key: "T"
     value {
@@ -5123,7 +5406,7 @@ node {
 node {
   name: "train/gradients/dropout/mul_grad/Shape_1"
   op: "Shape"
-  input: "dropout/Floor"
+  input: "dropout/truediv"
   attr {
     key: "T"
     value {
@@ -5152,8 +5435,8 @@ node {
 node {
   name: "train/gradients/dropout/mul_grad/Mul"
   op: "Mul"
-  input: "train/gradients/MaxPool_grad/MaxPoolGrad"
-  input: "dropout/Floor"
+  input: "train/gradients/dropout/mul_1_grad/tuple/control_dependency"
+  input: "dropout/truediv"
   attr {
     key: "T"
     value {
@@ -5206,8 +5489,8 @@ node {
 node {
   name: "train/gradients/dropout/mul_grad/Mul_1"
   op: "Mul"
-  input: "dropout/truediv"
-  input: "train/gradients/MaxPool_grad/MaxPoolGrad"
+  input: "Relu"
+  input: "train/gradients/dropout/mul_1_grad/tuple/control_dependency"
   attr {
     key: "T"
     value {
@@ -5304,244 +5587,9 @@ node {
   }
 }
 node {
-  name: "train/gradients/dropout/truediv_grad/Shape"
-  op: "Shape"
-  input: "Relu"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "out_type"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/Shape_1"
-  op: "Shape"
-  input: "dropout/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "out_type"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/BroadcastGradientArgs"
-  op: "BroadcastGradientArgs"
-  input: "train/gradients/dropout/truediv_grad/Shape"
-  input: "train/gradients/dropout/truediv_grad/Shape_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/RealDiv"
-  op: "RealDiv"
-  input: "train/gradients/dropout/mul_grad/tuple/control_dependency"
-  input: "dropout/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/Sum"
-  op: "Sum"
-  input: "train/gradients/dropout/truediv_grad/RealDiv"
-  input: "train/gradients/dropout/truediv_grad/BroadcastGradientArgs"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tidx"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "keep_dims"
-    value {
-      b: false
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/Reshape"
-  op: "Reshape"
-  input: "train/gradients/dropout/truediv_grad/Sum"
-  input: "train/gradients/dropout/truediv_grad/Shape"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tshape"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/Neg"
-  op: "Neg"
-  input: "Relu"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/RealDiv_1"
-  op: "RealDiv"
-  input: "train/gradients/dropout/truediv_grad/Neg"
-  input: "dropout/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/RealDiv_2"
-  op: "RealDiv"
-  input: "train/gradients/dropout/truediv_grad/RealDiv_1"
-  input: "dropout/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/mul"
-  op: "Mul"
-  input: "train/gradients/dropout/mul_grad/tuple/control_dependency"
-  input: "train/gradients/dropout/truediv_grad/RealDiv_2"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/Sum_1"
-  op: "Sum"
-  input: "train/gradients/dropout/truediv_grad/mul"
-  input: "train/gradients/dropout/truediv_grad/BroadcastGradientArgs:1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tidx"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "keep_dims"
-    value {
-      b: false
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/Reshape_1"
-  op: "Reshape"
-  input: "train/gradients/dropout/truediv_grad/Sum_1"
-  input: "train/gradients/dropout/truediv_grad/Shape_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tshape"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/tuple/group_deps"
-  op: "NoOp"
-  input: "^train/gradients/dropout/truediv_grad/Reshape"
-  input: "^train/gradients/dropout/truediv_grad/Reshape_1"
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/tuple/control_dependency"
-  op: "Identity"
-  input: "train/gradients/dropout/truediv_grad/Reshape"
-  input: "^train/gradients/dropout/truediv_grad/tuple/group_deps"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@train/gradients/dropout/truediv_grad/Reshape"
-      }
-    }
-  }
-}
-node {
-  name: "train/gradients/dropout/truediv_grad/tuple/control_dependency_1"
-  op: "Identity"
-  input: "train/gradients/dropout/truediv_grad/Reshape_1"
-  input: "^train/gradients/dropout/truediv_grad/tuple/group_deps"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@train/gradients/dropout/truediv_grad/Reshape_1"
-      }
-    }
-  }
-}
-node {
   name: "train/gradients/Relu_grad/ReluGrad"
   op: "ReluGrad"
-  input: "train/gradients/dropout/truediv_grad/tuple/control_dependency"
+  input: "train/gradients/dropout/mul_grad/tuple/control_dependency"
   input: "Relu"
   attr {
     key: "T"
@@ -5787,6 +5835,13 @@ node {
     }
   }
   attr {
+    key: "explicit_paddings"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
     key: "padding"
     value {
       s: "SAME"
@@ -5836,6 +5891,13 @@ node {
         i: 1
         i: 1
         i: 1
+      }
+    }
+  }
+  attr {
+    key: "explicit_paddings"
+    value {
+      list {
       }
     }
   }
@@ -7971,7 +8033,7 @@ node {
   }
 }
 node {
-  name: "confusion_matrix/ToInt64"
+  name: "confusion_matrix/Cast_1"
   op: "Cast"
   input: "confusion_matrix/stack"
   attr {
@@ -8037,7 +8099,7 @@ node {
   op: "SparseTensorDenseAdd"
   input: "confusion_matrix/stack_1"
   input: "confusion_matrix/ones_like"
-  input: "confusion_matrix/ToInt64"
+  input: "confusion_matrix/Cast_1"
   input: "confusion_matrix/zeros"
   attr {
     key: "T"
@@ -8878,6 +8940,490 @@ node {
   input: "^second_bias/Assign"
   input: "^second_weights/Assign"
 }
+node {
+  name: "save_1/filename/input"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "model"
+      }
+    }
+  }
+}
+node {
+  name: "save_1/filename"
+  op: "PlaceholderWithDefault"
+  input: "save_1/filename/input"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+      }
+    }
+  }
+}
+node {
+  name: "save_1/Const"
+  op: "PlaceholderWithDefault"
+  input: "save_1/filename"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+      }
+    }
+  }
+}
+node {
+  name: "save_1/SaveV2/tensor_names"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+          dim {
+            size: 7
+          }
+        }
+        string_val: "final_fc_bias"
+        string_val: "final_fc_weights"
+        string_val: "first_bias"
+        string_val: "first_weights"
+        string_val: "global_step"
+        string_val: "second_bias"
+        string_val: "second_weights"
+      }
+    }
+  }
+}
+node {
+  name: "save_1/SaveV2/shape_and_slices"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+          dim {
+            size: 7
+          }
+        }
+        string_val: ""
+        string_val: ""
+        string_val: ""
+        string_val: ""
+        string_val: ""
+        string_val: ""
+        string_val: ""
+      }
+    }
+  }
+}
+node {
+  name: "save_1/SaveV2"
+  op: "SaveV2"
+  input: "save_1/Const"
+  input: "save_1/SaveV2/tensor_names"
+  input: "save_1/SaveV2/shape_and_slices"
+  input: "final_fc_bias"
+  input: "final_fc_weights"
+  input: "first_bias"
+  input: "first_weights"
+  input: "global_step"
+  input: "second_bias"
+  input: "second_weights"
+  attr {
+    key: "dtypes"
+    value {
+      list {
+        type: DT_FLOAT
+        type: DT_FLOAT
+        type: DT_FLOAT
+        type: DT_FLOAT
+        type: DT_INT64
+        type: DT_FLOAT
+        type: DT_FLOAT
+      }
+    }
+  }
+}
+node {
+  name: "save_1/control_dependency"
+  op: "Identity"
+  input: "save_1/Const"
+  input: "^save_1/SaveV2"
+  attr {
+    key: "T"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@save_1/Const"
+      }
+    }
+  }
+}
+node {
+  name: "save_1/RestoreV2/tensor_names"
+  op: "Const"
+  device: "/device:CPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+          dim {
+            size: 7
+          }
+        }
+        string_val: "final_fc_bias"
+        string_val: "final_fc_weights"
+        string_val: "first_bias"
+        string_val: "first_weights"
+        string_val: "global_step"
+        string_val: "second_bias"
+        string_val: "second_weights"
+      }
+    }
+  }
+}
+node {
+  name: "save_1/RestoreV2/shape_and_slices"
+  op: "Const"
+  device: "/device:CPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+          dim {
+            size: 7
+          }
+        }
+        string_val: ""
+        string_val: ""
+        string_val: ""
+        string_val: ""
+        string_val: ""
+        string_val: ""
+        string_val: ""
+      }
+    }
+  }
+}
+node {
+  name: "save_1/RestoreV2"
+  op: "RestoreV2"
+  input: "save_1/Const"
+  input: "save_1/RestoreV2/tensor_names"
+  input: "save_1/RestoreV2/shape_and_slices"
+  device: "/device:CPU:0"
+  attr {
+    key: "dtypes"
+    value {
+      list {
+        type: DT_FLOAT
+        type: DT_FLOAT
+        type: DT_FLOAT
+        type: DT_FLOAT
+        type: DT_INT64
+        type: DT_FLOAT
+        type: DT_FLOAT
+      }
+    }
+  }
+}
+node {
+  name: "save_1/Assign"
+  op: "Assign"
+  input: "final_fc_bias"
+  input: "save_1/RestoreV2"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@final_fc_bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "save_1/Assign_1"
+  op: "Assign"
+  input: "final_fc_weights"
+  input: "save_1/RestoreV2:1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@final_fc_weights"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "save_1/Assign_2"
+  op: "Assign"
+  input: "first_bias"
+  input: "save_1/RestoreV2:2"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@first_bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "save_1/Assign_3"
+  op: "Assign"
+  input: "first_weights"
+  input: "save_1/RestoreV2:3"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@first_weights"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "save_1/Assign_4"
+  op: "Assign"
+  input: "global_step"
+  input: "save_1/RestoreV2:4"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT64
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@global_step"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "save_1/Assign_5"
+  op: "Assign"
+  input: "second_bias"
+  input: "save_1/RestoreV2:5"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@second_bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "save_1/Assign_6"
+  op: "Assign"
+  input: "second_weights"
+  input: "save_1/RestoreV2:6"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@second_weights"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "save_1/restore_all"
+  op: "NoOp"
+  input: "^save_1/Assign"
+  input: "^save_1/Assign_1"
+  input: "^save_1/Assign_2"
+  input: "^save_1/Assign_3"
+  input: "^save_1/Assign_4"
+  input: "^save_1/Assign_5"
+  input: "^save_1/Assign_6"
+}
 versions {
-  producer: 27
+  producer: 38
 }

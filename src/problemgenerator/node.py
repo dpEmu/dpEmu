@@ -79,4 +79,3 @@ def assign(data_root, index_tuple, value):
         location[index_tuple[0]] = value
     else:
         location[index_tuple] = value
-

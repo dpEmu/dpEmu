@@ -29,7 +29,7 @@ class Preprocessor:
         return None, imgs, {}
 
 
-class YOLOv3Model:
+class YOLOv3CPUModel:
 
     def __init__(self):
         self.random_state = RandomState(42)
@@ -131,7 +131,7 @@ def main(argv):
     if len(argv) != 2:
         exit(0)
 
-    imgs, img_ids, class_names = load_coco_val_2017(int(argv[1]))
+    imgs, img_ids, class_names, _ = load_coco_val_2017(int(argv[1]))
 
     err_node = Array()
     err_root_node = Series(err_node)
@@ -154,7 +154,8 @@ def main(argv):
     err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
 
     model_params_dict_list = [
-        {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names, "show_imgs": False}]},
+        {"model": YOLOv3CPUModel,
+         "params_list": [{"img_ids": img_ids, "class_names": class_names, "show_imgs": False}]},
     ]
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)

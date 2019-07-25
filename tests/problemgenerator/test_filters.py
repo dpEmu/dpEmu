@@ -93,11 +93,11 @@ def test_seed_determines_result_for_strange_behaviour_filter():
     assert np.array_equal(out1, out2)
 
 
-def test_seed_determines_result_for_rain_filter():
+def test_seed_determines_result_for_fastrain_filter():
     a = np.zeros((10, 10, 3), dtype=int)
     x_node = array.Array(a.shape)
-    x_node.addfilter(filters.Rain("probability"))
-    params = {"probability": 0.03}
+    x_node.addfilter(filters.FastRain("probability", "range"))
+    params = {"probability": 0.03, "range": 255}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     assert np.array_equal(out1, out2)

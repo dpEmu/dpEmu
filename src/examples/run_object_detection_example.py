@@ -41,9 +41,9 @@ class YOLOv3GPUModel:
 
     @staticmethod
     def __write_imgs_to_disk(imgs, img_filenames):
-        for i, arr in enumerate(imgs):
+        for i, img_arr in enumerate(imgs):
             path_to_img = "libs/darknet/coco/images/val2017/" + img_filenames[i]
-            img = Image.fromarray(img)
+            img = Image.fromarray(img_arr)
             img.save(path_to_img)
 
     @staticmethod

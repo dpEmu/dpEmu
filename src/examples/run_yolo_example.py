@@ -1,4 +1,6 @@
 import json
+import os
+import subprocess
 import sys
 
 import cv2
@@ -95,6 +97,10 @@ class YOLOv3CPUModel:
         img_ids = model_params["img_ids"]
         class_names = model_params["class_names"]
         self.show_imgs = model_params["show_imgs"]
+
+        path_to_yolov3_weights = "tmp/yolov3-spp_best.weights"
+        if not os.path.isfile(path_to_yolov3_weights):
+            subprocess.call(["./scripts/get_yolov3.sh"])
 
         net = cv2.dnn.readNet("tmp/yolov3-spp_best.weights", "tmp/yolov3-spp.cfg")
         results = []

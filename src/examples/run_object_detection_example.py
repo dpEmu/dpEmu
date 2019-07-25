@@ -13,6 +13,8 @@ from detectron.core.config import merge_cfg_from_list
 from detectron.core.test_engine import run_inference
 from detectron.utils.logging import setup_logging
 from numpy.random import RandomState
+from pycocotools.coco import COCO
+from pycocotools.cocoeval import COCOeval
 
 from src import runner_
 from src.datasets.utils import load_coco_val_2017
@@ -20,6 +22,7 @@ from src.plotting.utils import print_results, visualize_scores
 from src.problemgenerator.array import Array
 from src.problemgenerator.filters import JPEG_Compression
 from src.problemgenerator.series import Series
+from src.utils import generate_unique_path
 
 c2_utils.import_detectron_ops()
 cv2.ocl.setUseOpenCL(False)
@@ -29,6 +32,22 @@ torch.multiprocessing.set_start_method("spawn", force="True")
 class Preprocessor:
     def run(self, _, imgs):
         return None, imgs, {}
+
+
+class YOLOv3Model:
+
+    def run(self, _, imgs, model_params):
+        img_ids = model_params["img_ids"]
+        class_names = model_params["class_names"]
+
+        path_to_results = generate_unique_path("tmp", "json")
+        coco_gt = COCO("data/annotations/instances_val2017.json")
+        coco_eval = COCOeval(coco_gt, coco_gt.loadRes(path_to_results), "bbox")
+        coco_eval.params.imgIds = img_ids
+        coco_eval.evaluate()
+        coco_eval.accumulate()
+        coco_eval.summarize()
+        return {"mAP-50": round(coco_eval.stats[1], 3)}
 
 
 class AbstractDetectronModel(ABC):

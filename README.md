@@ -23,11 +23,11 @@ systems.
 ## Table of Contents
 
   - [Installation](#installation)
-  - [Usage](#usage)
+  - [User manual](#user-manual)
   - [Contributing](#contributing)
   - [Credits](#credits)
   - [Documentation](#documentation)
-  - [Coursework Documentation](#coursework documentation)
+  - [Coursework Documentation](#coursework-documentation)
 
 ## Installation
 
@@ -42,8 +42,10 @@ systems.
     git+https://github.com/dpEmu/Detectron.git#egg=detectron`
   - `ln -s $PWD/data venv/src/detectron/detectron/datasets/data/coco`
 
-## Usage
+## User Manual
 
+  - [User manual](https://dpemu.readthedocs.io/en/latest/manual.html)
+  
   - Run example format: `python -m src.examples.run_ocr_error_example`
 
 ## Contributing
@@ -61,8 +63,7 @@ See [Wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing).
   
 ## Documentation
 
-  - [Documentation](https://dpemu.readthedocs.io/en/latest/index.html)
-  - [User manual](https://dpemu.readthedocs.io/en/latest/manual.html)
+  - [dpEmu Documentation](https://dpemu.readthedocs.io/en/latest/index.html)
   
 ## Coursework Documentation
 

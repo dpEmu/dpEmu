@@ -9,7 +9,7 @@ class Array(LeafNode):
 
     def __init__(self, shape=()):
         self.shape = shape
-        super().__init__([])
+        super().__init__()
 
     def apply_filters(self, node_data, random_state, named_dims):
         for f in self.filters:

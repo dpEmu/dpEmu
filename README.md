@@ -46,7 +46,7 @@ systems.
 
   - [User manual](https://dpemu.readthedocs.io/en/latest/manual.html)
   
-  - Run example format: `python -m src.examples.run_ocr_error_example`
+  - Run example format: `python -m src.examples.run_tex_classification_example all 4`
 
 ## Contributing
 

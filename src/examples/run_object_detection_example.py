@@ -138,7 +138,7 @@ class YOLOv3Model:
         self.show_imgs = False
 
     @staticmethod
-    def __draw_prediction(img, class_id, class_names, confidence, x, y, w, h):
+    def __draw_box(img, class_id, class_names, confidence, x, y, w, h):
         label = str(class_names[class_id]) + " " + str(confidence)
         colors = np.random.randint(0, 255, size=(len(class_names), 3), dtype="uint8")
         color = [int(c) for c in colors[class_id]]
@@ -178,8 +178,8 @@ class YOLOv3Model:
                     })
 
                     if self.show_imgs:
-                        self.__draw_prediction(img, class_id, class_names, round(conf, 2), int(round(x)), int(round(y)),
-                                               int(round(w)), int(round(h)))
+                        self.__draw_box(img, class_id, class_names, round(conf, 2), int(round(x)), int(round(y)),
+                                        int(round(w)), int(round(h)))
 
         if self.show_imgs:
             cv2.imshow(str(img_id), img)

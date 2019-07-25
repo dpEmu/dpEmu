@@ -135,7 +135,6 @@ class YOLOv3Model:
             34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
             62, 63, 64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90
         ]
-        self.results = []
         self.show_imgs = False
 
     @staticmethod
@@ -148,7 +147,6 @@ class YOLOv3Model:
 
     def __get_results_for_img(self, img, img_id, class_names, net):
         conf_threshold = 0
-        nms_threshold = 1
         img_h = img.shape[0]
         img_w = img.shape[1]
         inference_size = 608
@@ -159,45 +157,36 @@ class YOLOv3Model:
         out_layer_names = net.getUnconnectedOutLayersNames()
         outs = net.forward(out_layer_names)
 
-        class_ids = []
-        confidences = []
-        boxes = []
+        results = []
         for out in outs:
             for detection in out:
                 scores = detection[5:]
                 class_id = np.argmax(scores)
-                confidence = float(scores[class_id])
-                if confidence > conf_threshold:
+                conf = float(scores[class_id])
+                if conf > conf_threshold:
                     center_x = detection[0] * img_w
                     center_y = detection[1] * img_h
                     w = detection[2] * img_w
                     h = detection[3] * img_h
                     x = center_x - w / 2
                     y = center_y - h / 2
-                    class_ids.append(class_id)
-                    confidences.append(confidence)
-                    boxes.append([x, y, w, h])
+                    results.append({
+                        "image_id": img_id,
+                        "category_id": self.coco91class[class_id],
+                        "bbox": [x, y, w, h],
+                        "score": conf,
+                    })
 
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
-        for i in indices:
-            i = i[0]
-            x, y, w, h = boxes[i]
-
-            result = {
-                "image_id": img_id,
-                "category_id": self.coco91class[class_ids[i]],
-                "bbox": [x, y, w, h],
-                "score": confidences[i],
-            }
-            self.results.append(result)
-            if self.show_imgs:
-                self.__draw_prediction(img, class_ids[i], class_names, round(confidences[i], 2), int(round(x)),
-                                       int(round(y)), int(round(w)), int(round(h)))
+                    if self.show_imgs:
+                        self.__draw_prediction(img, class_id, class_names, round(conf, 2), int(round(x)), int(round(y)),
+                                               int(round(w)), int(round(h)))
 
         if self.show_imgs:
             cv2.imshow(str(img_id), img)
             cv2.waitKey()
             cv2.destroyAllWindows()
+
+        return results
 
     def run(self, _, imgs, model_params):
         img_ids = model_params["img_ids"]
@@ -205,13 +194,15 @@ class YOLOv3Model:
         self.show_imgs = model_params["show_imgs"]
 
         net = cv2.dnn.readNet("tmp/yolov3-spp_best.weights", "tmp/yolov3-spp.cfg")
-        [self.__get_results_for_img(imgs[i], img_ids[i], class_names, net) for i in trange(len(imgs))]
-        if not self.results:
+        results = []
+        for i in trange(len(imgs)):
+            results.extend(self.__get_results_for_img(imgs[i], img_ids[i], class_names, net))
+        if not results:
             return {"mAP-50": 0}
 
         path_to_results = generate_unique_path("tmp", "json")
         with open(path_to_results, "w") as fp:
-            json.dump(self.results, fp)
+            json.dump(results, fp)
 
         coco_gt = COCO("data/annotations/instances_val2017.json")
         coco_eval = COCOeval(coco_gt, coco_gt.loadRes(path_to_results), "bbox")

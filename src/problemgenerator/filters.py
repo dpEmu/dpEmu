@@ -389,6 +389,59 @@ class Rain(Filter):
                             tx += cos(direction)
 
 
+class FastRain(Filter):
+    def __init__(self, probability_id, range_id):
+        super().__init__()
+        self.probability_id = probability_id
+        self.range_id = range_id
+
+    def set_params(self, params_dict):
+        self.probability = params_dict[self.probability_id]
+        # self.range should have value 1 or 255
+        self.range = params_dict[self.range_id]
+
+    def apply(self, node_data, random_state, named_dims):
+        height = node_data.shape[0]
+        width = node_data.shape[1]
+
+        # 1. Generate error
+        errs = np.zeros(shape=(height + 1, width + 1))
+        ind = -1
+        while True:
+            ind += random_state.geometric(self.probability)
+
+            if ind >= width * height:
+                break
+            y = ind // width
+            x = ind - y * width
+            x_r = 1
+            y_r = max(0, round(random_state.normal(20, 10)))
+            x0 = max(x - x_r, 0)
+            x1 = min(x + x_r + 1, width)
+            y0 = max(y - y_r, 0)
+            y1 = min(y + y_r + 1, height)
+            errs[y0, x0] += 1
+            errs[y0, x1] -= 1
+            errs[y1, x0] -= 1
+            errs[y1, x1] += 1
+
+        # 2. Calculate cumulative sums
+        errs = np.cumsum(errs, axis=0)
+        errs = np.cumsum(errs, axis=1)
+
+        # 3. Modify data
+        locs = 5 * errs
+        scales = 10 * np.sqrt(errs / 12) + 4 * errs
+        for j in range(3):
+            add = random_state.normal(locs, scales)
+            if j == 2:
+                add += 30 * errs
+            if self.range == 1:
+                node_data[:, :, j] = np.clip(node_data[:, :, j] + add[0:height, 0:width] / 255, 0, 1)
+            else:
+                node_data[:, :, j] = np.clip(node_data[:, :, j] + add[0:height, 0:width].astype(int), 0, 255)
+
+
 class Snow(Filter):
     def __init__(self, snowflake_probability_id, snowflake_alpha_id, snowstorm_alpha_id):
         super().__init__()
@@ -446,6 +499,7 @@ class Snow(Filter):
             [type]
                 [description]
             """
+
             def f(t):
                 return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
 

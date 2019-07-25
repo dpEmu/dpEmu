@@ -48,3 +48,13 @@ class Array(Node):
             assign(data, index_tuple, node_data[()])
         else:
             self.apply_filters(node_data, random_state, named_dims)
+
+
+class TupleArray(Array):
+
+    def __init__(self, shape=()):
+        self.shape = shape
+        super().__init__([])
+
+    def process(self, data, random_state, index_tuple=(), named_dims={}):
+        pass

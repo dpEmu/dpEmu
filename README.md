@@ -27,6 +27,7 @@ systems.
   - [Contributing](#contributing)
   - [Credits](#credits)
   - [Documentation](#documentation)
+  - [Coursework Documentation](#coursework documentation)
 
 ## Installation
 
@@ -57,8 +58,13 @@ See [Wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing).
   - [Juha Harviainen](https://github.com/Kalakuh)
   - [Elizabeth Berg](https://github.com/reykjaviks)
   - [Tuomas Halvari](https://github.com/thalvari)
-
+  
 ## Documentation
+
+  - [Documentation](https://dpemu.readthedocs.io/en/latest/index.html)
+  - [User manual](https://dpemu.readthedocs.io/en/latest/manual.html)
+  
+## Coursework Documentation
 
   - [Product
     Backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)

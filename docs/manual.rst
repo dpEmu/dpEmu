@@ -84,8 +84,8 @@ which will transform some of the values in the 2-dimensional array ``y`` to NaN.
 Finally we call the ``generate_error`` function of the root node with the parameter *'p'* being 0.3 after which the function then returns the errorified data. However this part is usually done by and AI runner system, 
 which we are going to discuss next.
 
-The AI runner system
-^^^^^^^^^^^^^^^^^^^^
+AI runner system
+^^^^^^^^^^^^^^^^
 
 The AI runner system, or simply Runner, is a system which is used for running multiple AI models simultaneously with distinct error parameters for the filters by using multithreading. After running all the models with all wanter parameter combinations 
 the system returns a ``pandas.DataFrame`` which can later be used for visualizing the results.
@@ -96,8 +96,8 @@ Train data and test data
 """"""""""""""""""""""""
 These are the original train data and test data which will be given to the AI models. A value ``None`` can also be passed to the runner if there is no train data.
 
-The preprocessor
-""""""""""""""""
+Preprocessor
+""""""""""""
 
 The preprocessor needs to implement a function ``run(train_data, test_data)`` and it returns the possibly preprocessed train and test data. The preprocessor can return additional data as well, and it will be listed as a separate column in the ``DataFrame`` which the runner returns.
 Here is a simple example of a preprocessor, which does nothing to the original data, but returns also an array called *"negative_data"* which contains the additive inverse of each test_data's element.
@@ -113,13 +113,13 @@ Here is a simple example of a preprocessor, which does nothing to the original d
             negative_data = -test_data
             return train_data, test_data, {"negative_data": negative_data}
 
-The error parameter list
-""""""""""""""""""""""""
+Error parameter list
+""""""""""""""""""""
 
 The list of error parameters is simply a list of dictionaries which contain the keys and error values for the error generation tree.
 
-The AI model parameter list
-"""""""""""""""""""""""""""
+AI model parameter list
+"""""""""""""""""""""""
 
 The list of AI model parameters is a list of dictionaries containing three keys: *"model"*, *"params_list"* and *"use_clean_train_data"*. 
 
@@ -166,10 +166,10 @@ Here is an example AI model parameter list and a model:
         {"model": KMeansModel, "params_list": [{"labels": labels}]}
     ]
 
-The interactive mode
-""""""""""""""""""""
+Interactive mode
+""""""""""""""""
 
-The final parameter of the Runner is a boolean telling whether to use interactive mode or not.
+The final parameter of the runner system is a boolean telling whether to use interactive mode or not.
 Some of the functions for visualizing the results require the interactive mode, for some of them it's optional
 and most of them have no interactive functionality.
 
@@ -181,3 +181,88 @@ Visualization functions
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 The module ``src.plotting`` has a file ``utils.py`` which contains multiple functions for plotting and visualizing the data.
+
+Example
+-------
+
+Here is an unrealistic but simple example which demonstrates all three components of dpEmu. In this example we are trying to predict 
+the next value of data when we know all earlier values in the data. Our model tries to do estimate this by keeping a weighted average.
+In the end of the example a plot of scores is visualized.
+
+.. code-block:: python
+    :linenos:
+
+    import sys
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    from src import runner_
+    from src.plotting.utils import visualize_scores
+    from src.problemgenerator.array import Array
+    from src.problemgenerator.filters import GaussianNoise
+
+
+    class Preprocessor:
+        def run(self, train_data, test_data):
+            # Return the original data without preprocessing
+            return train_data, test_data, {}
+
+
+    class PredictorModel:
+        def run(self, train_data, test_data, params):
+            # The model tries to predict the values of test_data
+            # by using a weighted average of previous values
+            estimate = 0
+            squared_error = 0
+
+            for elem in test_data:
+                # Calculate error
+                squared_error += (elem - estimate) * (elem - estimate)
+                # Update estimate
+                estimate = (1 - params["weight"]) * estimate + params["weight"] * elem
+
+            mean_squared_error = squared_error / len(test_data)
+
+            return {"MSE": mean_squared_error}
+
+
+    def main(argv):
+        # Create some fake data
+        if len(argv) == 2:
+            train_data = None
+            test_data = np.arange(int(sys.argv[1]))
+        else:
+            exit(0)
+
+        # Create error generation tree that has an Array node
+        # as its root node and a GaussianNoise filter
+        err_root_node = Array()
+        err_root_node.addfilter(GaussianNoise("mean", "std"))
+
+        # The standard deviation goes from 0 to 20
+        err_params_list = [{"mean": 0, "std": std} for std in range(0, 21)]
+
+        # The model is run with different weighted estimates
+        model_params_dict_list = [{
+            "model": PredictorModel,
+            "params_list": [{'weight': w} for w in [0.0, 0.05, 0.15, 0.5, 1.0]],
+            "use_clean_train_data": False
+        }]
+
+        # Run the whole thing and get DataFrame for visualization
+        df = runner_.run(train_data,
+                        test_data,
+                        Preprocessor,
+                        err_root_node,
+                        err_params_list,
+                        model_params_dict_list,
+                        use_interactive_mode=True)
+
+        # Visualize mean squared error for all used standard deviations
+        visualize_scores(df, ["MSE"], [False], "std", "Mean squared error")
+        plt.show()
+
+
+    if __name__ == "__main__":
+        main(sys.argv)

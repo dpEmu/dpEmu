@@ -14,7 +14,7 @@ def visualize_scores(df, score_names, err_param_name, title, log=False):
     dfs = split_df_by_model(df)
 
     n_scores = len(score_names)
-    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 4, 4), squeeze=False)
+    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 5, 4), squeeze=False)
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
             df_ = filter_optimized_results(df_, err_param_name, score_names[i])

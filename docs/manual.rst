@@ -26,30 +26,30 @@ Usage
 
 dpEmu consists of three components:
 
-* A system for builidng an error generator
+* A system for building an error generator
 * A system for running the AI models with different error parameters
 * Tools for visualizing the results
 
 Error generation
 ^^^^^^^^^^^^^^^^
 
-The first thing you need to do is creating an error generation tree. This is done by using the ``src.plotting`` module which contains different kinds of tree nodes and filters for adding error to the data.
+First an error generation tree needs to be created. This is done by using the ``src.problemgenerator`` module which contains different kinds of tree nodes and filters for adding error to the data.
 
-There are three generic node types, ``Array``, ``Series`` and ``TupleSeries``, and special node types for manipulating for example sound data.
+There are three generic node types, ``Array``, ``Series`` and ``TupleSeries``, and special node types for manipulating specific data types.
 
 ``Array`` node is used for handling any n-dimensional data and filters are directly applied to this data.
 
-``Series`` node is given a child node as a parameter and when error is being generated, it removes the outermost dimension of the data and passes element to the child node
-i.e. if a ``Series`` ``s`` has a child ``Array`` ``a`` and ``s`` is given an array ``[[1, 2], [3, 4]]`` as its input, then it passes array ``[1, 2]`` and ``[3, 4]`` to ``a``.
+``Series`` node is given a child node as a parameter and when error is being generated it removes the outermost dimension of the data and passes each element to the child node
+i.e. if a ``Series`` ``s`` has a child ``Array`` ``a`` and ``s`` is given an array ``[[1, 2], [3, 4]]`` as its input, then it passes arrays ``[1, 2]`` and ``[3, 4]`` to ``a``.
 
 ``TupleSeries`` node works quite similarly to ``Series``: it is given an array of child nodes and it removes the outermost dimension of the data 
 and passes the first element to the first child, the second element to the second child and so on.
 
-Filters can be added to the ``Array`` nodes and they are used for manipulating data which can be images, time series, sound or something completely else. The ``filters.py`` file contains dozens of filters (e.g. ``Snow``, ``Blur`` and ``SensorDrift``) 
-for these purposes and they can be added to an array node with the ``addfilter`` function.
+Filters can be added to ``Array`` nodes and they are used for manipulating data which can be images, time series, sound or something completely different. The ``filters.py`` file contains dozens of filters (e.g. ``Snow``, ``Blur`` and ``SensorDrift``) 
+for these purposes and they can be added to an array node by using the ``addfilter`` function.
 
-The parameters for the filters are given via a ``dict`` object when the error is being generated. During the initialization the filters are given the dictionary keys which are 
-used for finding the parameters from the parameters ``dict``.
+The parameters for the filters are given via a ``dict`` object when the error is being generated. During the initialization the filters are given the keys which are 
+later used for getting the parameters.
 
 Here is an example of what the error generation process might look like:
 
@@ -79,18 +79,18 @@ Here is an example of what the error generation process might look like:
     output = root_node.generate_error(data, {"p": probability})
 
 In the example the error generation tree has a ``TupleSeries`` as its root node, and it has two ``Array`` nodes as its children. Then on the line 18 we add a ``Missing`` filter to one of the children, 
-which will transform some of the values in the 2-dimensional array ``y`` to NaN. The filter is given a parameter with value *"p"*, which means that the probability for transforming a number into NaN is going to be given in the parameter dictionary with a key *"p"*.
+which will transform some of the values in the 2-dimensional array ``y`` to NaN. The filter is given a parameter with value *"p"*, which means that the key for the probability for transforming a number into NaN is going to be *"p"* in the parameter dictionary.
 
-Finally we call the ``generate_error`` function of the root node with the parameter *'p'* being 0.3 after which the function then returns the errorified data. However this part is usually done by and AI runner system, 
+Finally we call the ``generate_error`` function of the root node with the parameter *'p'* being 0.3, after which the function then returns the errorified data. However this part is usually done by and AI runner system, 
 which we are going to discuss next.
 
 AI runner system
 ^^^^^^^^^^^^^^^^
 
-The AI runner system, or simply Runner, is a system which is used for running multiple AI models simultaneously with distinct error parameters for the filters by using multithreading. After running all the models with all wanter parameter combinations 
-the system returns a ``pandas.DataFrame`` which can later be used for visualizing the results.
+The AI runner system, or simply runner, is a system which is used for running multiple AI models simultaneously with distinct filter error parameters by using multithreading. After running all the models with all wanted parameter combinations 
+the system returns a ``pandas.DataFrame`` object which can later be used for visualizing the results.
 
-The Runner needs to be given the following values when it is run: train data, test data, a preprocessor, an error generation tree, a list of error parameters, a list of AI models and their parameters and boolean about whether to use interactive mode.
+The runner needs to be given the following values when it is run: train data, test data, a preprocessor, an error generation tree, a list of error parameters, a list of AI models and their parameters and a boolean about whether to use interactive mode or not.
 
 Train data and test data
 """"""""""""""""""""""""
@@ -99,7 +99,7 @@ These are the original train data and test data which will be given to the AI mo
 Preprocessor
 """"""""""""
 
-The preprocessor needs to implement a function ``run(train_data, test_data)`` and it returns the possibly preprocessed train and test data. The preprocessor can return additional data as well, and it will be listed as a separate column in the ``DataFrame`` which the runner returns.
+The preprocessor needs to implement a function ``run(train_data, test_data)`` and it returns the preprocessed train and test data. The preprocessor can return additional data as well, and it will be listed as separate columns in the ``DataFrame`` which the runner returns.
 Here is a simple example of a preprocessor, which does nothing to the original data, but returns also an array called *"negative_data"* which contains the additive inverse of each test_data's element.
 
 .. code-block:: python
@@ -123,7 +123,7 @@ AI model parameter list
 
 The list of AI model parameters is a list of dictionaries containing three keys: *"model"*, *"params_list"* and *"use_clean_train_data"*. 
 
-The value of *"model"* is a class instead of an object. 
+The value of *"model"* is **a class instead of an object**. 
 The given class should implement the function ``run(train_data, test_data, parameters)`` which runs the model on the train data and test data with given parameters and returns a dictionary containing the scores and possibly additional data.
 
 The value of *"params_list"* is a list of dictionaries where each dictionary contains one set of parameters for model. The model will be given these parameters when the ``run(train_data, test_data, parameters)`` function is called.
@@ -173,7 +173,7 @@ The final parameter of the runner system is a boolean telling whether to use int
 Some of the functions for visualizing the results require the interactive mode, for some of them it's optional
 and most of them have no interactive functionality.
 
-Basically what the interactive mode does is that it adds a column containing the modified test data to the results ``DataFrame``.
+Basically what the interactive mode does is that it adds a column containing the modified test data to the resulting ``DataFrame`` object.
 The interactive visualizer functions use this data to display points of data so that e.g. the programmer can try to figure out why
 something was classified incorrectly.
 

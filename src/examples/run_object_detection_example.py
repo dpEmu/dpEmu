@@ -42,19 +42,19 @@ class YOLOv3GPUModel:
     @staticmethod
     def __write_imgs_to_disk(imgs, img_filenames):
         for i, img_arr in enumerate(imgs):
-            path_to_img = "libs/darknet/coco/images/val2017/" + img_filenames[i]
+            path_to_img = "tmp/val2017/" + img_filenames[i]
             img = Image.fromarray(img_arr)
             img.save(path_to_img)
 
     @staticmethod
     def __remove_imgs_from_disk(img_filenames):
         for img_filename in img_filenames:
-            path_to_img = "libs/darknet/coco/images/val2017/" + img_filename
+            path_to_img = "tmp/val2017/" + img_filename
             os.remove(path_to_img)
 
     @staticmethod
     def __get_map_score():
-        with open("libs/darknet/results.txt", "r") as file:
+        with open("tmp/results.txt", "r") as file:
             text = file.read()
         return float(re.findall(r"[-+]?\d*\.\d+", text)[1])
 
@@ -195,9 +195,9 @@ def main():
 
     model_params_dict_list = [
         {"model": YOLOv3GPUModel, "params_list": [{"img_filenames": img_filenames}]},
-        {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
+        # {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        # {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        # {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
     ]
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)

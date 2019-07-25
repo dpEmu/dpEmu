@@ -21,7 +21,7 @@ from src import runner_
 from src.datasets.utils import load_coco_val_2017
 from src.plotting.utils import print_results, visualize_scores
 from src.problemgenerator.array import Array
-from src.problemgenerator.filters import JPEG_Compression, Identity
+from src.problemgenerator.filters import Identity
 from src.problemgenerator.series import Series
 
 c2_utils.import_detectron_ops()
@@ -195,9 +195,9 @@ def main():
 
     model_params_dict_list = [
         {"model": YOLOv3GPUModel, "params_list": [{"img_filenames": img_filenames}]},
-        # {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        # {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        # {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
+        {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
     ]
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)

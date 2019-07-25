@@ -34,6 +34,8 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'recommonmark']
 
 napoleon_include_init_with_doc = True
 
+autodoc_mock_imports = ['torch', 'keras', 'sklearn', 'cv2', 'tensorflow']
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -55,4 +57,3 @@ html_theme = 'nature'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-autodoc_mock_imports = ["pytorch"]

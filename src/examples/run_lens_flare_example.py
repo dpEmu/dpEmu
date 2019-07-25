@@ -4,7 +4,6 @@ from PIL import Image
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-import src.problemgenerator.copy as copy
 
 
 def img_to_pixel_data(img):
@@ -19,10 +18,9 @@ def img_to_pixel_data(img):
 def main():
     img = Image.open("demo/yellow_circle.jpg")
     data = img_to_pixel_data(img)
-    x_node = array.Array(data.shape)
-    x_node.addfilter(filters.LensFlare())
-    root_node = copy.Copy(x_node)
-    result = root_node.process(data, np.random.RandomState(seed=42))
+    root_node = array.Array(data.shape)
+    root_node.addfilter(filters.LensFlare())
+    result = root_node.generate_error(data, {})
     filtered_img = Image.fromarray(result.astype('uint8'), 'RGB')
     filtered_img.show()
 

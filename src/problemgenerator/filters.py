@@ -949,6 +949,9 @@ class LensFlare(Filter):
     def __init__(self):
         super().__init__()
 
+    def set_params(self, params_dict):
+        pass
+
     def apply(self, node_data, random_state, named_dims):
         def flare(x0, y0, radius):
             gt = random_state.randint(130, 180)

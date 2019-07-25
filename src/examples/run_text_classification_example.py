@@ -85,7 +85,7 @@ class LinearSVCModel(AbstractModel):
 
 
 def visualize(df, dataset_name, label_names, test_data):
-    visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], "p",
+    visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], [True, True], "p",
                      f"{dataset_name} classification scores with added error")
     visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels", "tab20",
                       f"{dataset_name} (n={len(test_data)}) classes with added error")
@@ -95,7 +95,7 @@ def visualize(df, dataset_name, label_names, test_data):
         print(element, end="\n\n")
 
     # Remember to enable runner's interactive mode
-    visualize_confusion_matrices(df, label_names, "test_mean_accuracy", "p",
+    visualize_confusion_matrices(df, label_names, "test_mean_accuracy", True, "p",
                                  "test_labels", "predicted_test_labels", on_click)
 
     plt.show()

@@ -1,6 +1,6 @@
+import math
 import random
 
-import math
 import matplotlib.pyplot as plt
 import numpy as np
 from graphviz import Digraph
@@ -10,14 +10,14 @@ from src.problemgenerator.filters import Filter
 from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
 
-def visualize_scores(df, score_names, err_param_name, title, log=False):
+def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, log=False):
     dfs = split_df_by_model(df)
 
     n_scores = len(score_names)
     fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 4, 4), squeeze=False)
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
-            df_ = filter_optimized_results(df_, err_param_name, score_names[i])
+            df_ = filter_optimized_results(df_, err_param_name, score_names[i], is_higher_score_better[i])
             if log:
                 ax.semilogx(df_[err_param_name], df_[score_names[i]], label=df_.name)
             else:
@@ -198,10 +198,11 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
     plt.savefig(path_to_plot, bbox_inches="tight")
 
 
-def visualize_confusion_matrices(df, label_names, score_name, err_param_name, labels_col, predictions_col, interactive):
+def visualize_confusion_matrices(df, label_names, score_name, is_higher_score_better, err_param_name, labels_col,
+                                 predictions_col, interactive):
     dfs = split_df_by_model(df)
     for df_ in dfs:
-        df_ = filter_optimized_results(df_, err_param_name, score_name)
+        df_ = filter_optimized_results(df_, err_param_name, score_name, is_higher_score_better)
         for i in range(df_.shape[0]):
             visualize_confusion_matrix(
                 df_,

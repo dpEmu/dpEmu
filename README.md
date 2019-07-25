@@ -8,6 +8,8 @@ Status](https://travis-ci.com/dpEmu/dpEmu.svg?branch=master)](https://travis-ci.
 [![Codacy
 Badge](https://api.codacy.com/project/badge/Grade/87b3b421702b4885a37f4025b59f5381)](https://www.codacy.com/app/thalvari/dpEmu?utm_source=github.com&utm_medium=referral&utm_content=dpEmu/dpEmu&utm_campaign=Badge_Grade)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+[![Documentation
+Status](https://readthedocs.org/projects/dpemu/badge/?version=latest)](https://dpemu.readthedocs.io/en/latest/?badge=latest)
 
 dpEmu is being built on the specifications and requirements provided by
 Professors Jukka Nurminen and Tommi Mikkonen for the course Software
@@ -63,4 +65,3 @@ See [Wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing).
   - [Definition of Done](docs/definition_of_done.md)
   - [Meeting Etiquette](docs/meeting_etiquette.md)
   - [Team Practices](docs/team_practices.md)
-  

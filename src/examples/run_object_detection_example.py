@@ -214,12 +214,12 @@ class YOLOv3Model:
 
 
 def visualize(df):
-    # visualize_scores(df, ["mAP-50"], "std", "Object detection with Gaussian noise", log=False)
-    # visualize_scores(df, ["mAP-50"], "std", "Object detection with Gaussian blur", log=False)
-    # visualize_scores(df, ["mAP-50"], "snowflake_probability", "Object detection with snow filter", log=True)
-    # visualize_scores(df, ["mAP-50"], "probability", "Object detection with rain filter", log=True)
-    # visualize_scores(df, ["mAP-50"], "probability", "Object detection with added stains", log=True)
-    visualize_scores(df, ["mAP-50"], "quality", "Object detection with JPEG compression", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", log=True)
+    visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", log=False)
 
     plt.show()
 
@@ -252,9 +252,9 @@ def main(argv):
 
     model_params_dict_list = [
         {"model": YOLOv3Model, "params_list": [{"img_ids": img_ids, "class_names": class_names, "show_imgs": False}]},
-        {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
+        # {"model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        # {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
+        # {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
     ]
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)

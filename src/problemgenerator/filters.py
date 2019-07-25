@@ -1,40 +1,72 @@
 import random
-from colorsys import rgb_to_hls, hls_to_rgb
+from abc import ABC, abstractmethod
 from io import BytesIO
 
 import cv2
 import imutils
 import numpy as np
 from PIL import Image
-from math import pi, sin, cos, sqrt
+from math import sqrt
 from scipy.ndimage import gaussian_filter
 
 from src.problemgenerator.utils import generate_random_dict_key
 
 
-class Filter:
+class Filter(ABC):
     """A Filter is an error source which can be attached to an Array node.
+
     The apply method applies the filter. A filter may always assume that
-    it is acting upon a Numpy array. (When the underlying data object is not
-    a Numpy array, the required conversions are performed by the Array node
+    it is acting upon a NumPy array. (When the underlying data object is not
+    a NumPy array, the required conversions are performed by the Array node
     to which the Filter is attached.)
+
+    Args:
+        ABC (object): Helper class that provides a standard way to create an ABC using
+    inheritance.
     """
 
     def __init__(self):
+        """Set the seeds for the RNG's of NumPy and Python.
+        """
         np.random.seed(42)
         random.seed(42)
         self.shape = ()
 
+    @abstractmethod
     def set_params(self, params_dict):
+        """Set parameters for error generation.
+
+        Args:
+            params_dict (dict): A Python dictionary.
+        """
+        pass
+
+    @abstractmethod
+    def apply(self, node_data, random_state, named_dims):
+        """Modifies the data according to the functionality of the filter.
+
+        Args:
+            node_data (numpy.ndarray): Data to be modified as a NumPy array.
+            random_state (mtrand.RandomState): An instance of numpy.random.RandomState.
+            named_dims (dict): Named dimensions.
+        """
         pass
 
 
 class Missing(Filter):
-    """For each element in the array, change the value of the element to nan
+    """Introduce missing values to data.
+
+    For each element in the array, change the value of the element to nan
     with the provided probability.
+
+    Inherits Filter class.
     """
 
     def __init__(self, probability_id):
+        """
+        Args:
+            probability_id (str): A key which maps to a probability.
+        """
         self.probability_id = probability_id
         super().__init__()
 
@@ -48,9 +80,16 @@ class Missing(Filter):
 
 class Clip(Filter):
     """Clip values to minimum and maximum value provided by the user.
+
+    Inherits Filter class.
     """
 
     def __init__(self, min_id, max_id):
+        """
+        Args:
+            min_id (str): A key which maps to a minimum value.
+            max_id (str): A key which maps to a maximum value.
+        """
         self.min_id = min_id
         self.max_id = max_id
         super().__init__()
@@ -64,11 +103,20 @@ class Clip(Filter):
 
 
 class GaussianNoise(Filter):
-    """For each element in the array add noise drawn from a Gaussian distribution
+    """Add normally distributed noise to data.
+
+    For each element in the array add noise drawn from a Gaussian distribution
     with the provided parameters mean and std (standard deviation).
+
+    Inherits Filter class.
     """
 
     def __init__(self, mean_id, std_id):
+        """
+        Args:
+            mean_id (str): A key which maps to a mean value.
+            std_id (str): A key which maps to a standard deviation value.
+        """
         self.mean_id = mean_id
         self.std_id = std_id
         super().__init__()
@@ -82,13 +130,24 @@ class GaussianNoise(Filter):
 
 
 class GaussianNoiseTimeDependent(Filter):
-    """For each element in the array add noise drawn from a Gaussian distribution
+    """Add time dependent normally distributed noise.
+
+    For each element in the array add noise drawn from a Gaussian distribution
     with the provided parameters mean and std (standard deviation). The mean and
     standard deviation increase with every unit of time by the amount specified
     in the last two parameters.
+
+    Inherits Filter class.
     """
 
     def __init__(self, mean_id, std_id, mean_increase_id, std_increase_id):
+        """
+        Args:
+            mean_id (str): A key which maps to a mean value.
+            std_id (str): A key which maps to a standard deviation value.
+            mean_increase_id (str): A key which maps to an increase in mean.
+            std_increase_id (str): A key which maps to an increase in standard deviation.
+        """
         self.mean_id = mean_id
         self.std_id = std_id
         self.mean_increase_id = mean_increase_id
@@ -109,11 +168,19 @@ class GaussianNoiseTimeDependent(Filter):
 
 
 class Uppercase(Filter):
-    """For each character in the string, convert the character
+    """Randomly convert characters to uppercase.
+
+    For each character in the string, convert the character
     to uppercase with the provided probability.
+
+    Inherits Filter class.
     """
 
     def __init__(self, probability_id):
+        """
+        Args:
+            probability_id (str): A key which maps to the probability of uppercase change.
+        """
         self.prob_id = probability_id
         super().__init__()
 
@@ -135,13 +202,20 @@ class Uppercase(Filter):
 
 
 class OCRError(Filter):
+    """Emulate optical character recognition (OCR) errors.
+
+    User should provide a probability distribution in the form of a dict,
+    specifying how probable a change of character is.
+
+    Inherits Filter class.
+    """
 
     def __init__(self, normalized_params_id, p_id):
-        """ Pass normalized_params as a dict.
-
-        For example {"e": (["E", "i"], [.5, .5]), "g": (["q", "9"], [.2, .8])}
-        where the latter list consists of probabilities which should sum to 1."""
-
+        """
+        Args:
+            normalized_params_id (str): A key which maps to the probability distribution.
+            p_id (str): A key which maps to a probability of the distribution being applied.
+        """
         self.normalized_params_id = normalized_params_id
         self.p_id = p_id
         super().__init__()
@@ -165,15 +239,22 @@ class OCRError(Filter):
         return c
 
 
-def replace_inds(mask, str1, str2):
-    return "".join([str1[i] if mask[i] else str2[i] for i in range(len(mask))])
-
-
 class MissingArea(Filter):
-    """ TODO: radius_generator is a struct, not a function. It should be a function for repeatability
+    """Emulate optical character recognition effect of stains in text.
+
+    Introduce missing areas to text.
+
+    Inherits Filter class.
     """
+    # TODO: radius_generator is a struct, not a function. It should be a function for repeatability
 
     def __init__(self, probability_id, radius_generator_id, missing_value_id):
+        """
+        Args:
+            probability_id (str): A key which maps to a probability of stain.
+            radius_generator_id (str): A key which maps to a radius_generator.
+            missing_value_id (str): A key which maps to a missing value to be used.
+        """
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
         self.missing_value_id = missing_value_id
@@ -242,13 +323,24 @@ class MissingArea(Filter):
 
 
 class StainArea(Filter):
+    """Adds stains to images.
+
+    This filter adds stains to the images.
+        probability: probability of adding a stain at each pixel.
+        radius_generator: object implementing a generate(random_state) function
+            which returns the radius of the stain.
+        transparency_percentage: 1 means that the stain is invisible and 0 means
+            that the part of the image where the stain is is completely black.
+
+    Inherits Filter class.
+    """
+
     def __init__(self, probability_id, radius_generator_id, transparency_percentage_id):
-        """This filter adds stains to the images.
-            probability: probability of adding a stain at each pixel.
-            radius_generator: object implementing a generate(random_state) function
-                which returns the radius of the stain.
-            transparency_percentage: 1 means that the stain is invisible and 0 means
-                that the part of the image where the stain is is completely black.
+        """
+        Args:
+            probability_id (str): A key which maps to the probability of stain.
+            radius_generator_id (str): A key which maps to the radius_generator.
+            transparency_percentage_id (str): A key which maps to the transparency percentage.
         """
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
@@ -293,7 +385,22 @@ class StainArea(Filter):
 
 
 class Gap(Filter):
+    """Introduce gaps to time series data by simulating sensor failure.
+
+    Model the state of a sensor as a Markov chain. The sensor always
+    starts in a working state. The sensor has a specific probability
+    to stop working and a specific probability to start working.
+
+    Inherits Filter class.
+    """
+
     def __init__(self, prob_break_id, prob_recover_id, missing_value_id):
+        """
+        Args:
+            prob_break_id (str): A key which maps to the probability of the sensor breaking.
+            prob_recover_id (str): A key which maps to the probability of the sensor recovering.
+            missing_value_id (str): A key which maps to a missing value to be used.
+        """
         super().__init__()
         self.prob_break_id = prob_break_id
         self.prob_recover_id = prob_recover_id
@@ -323,8 +430,18 @@ class Gap(Filter):
 
 
 class SensorDrift(Filter):
+    """Emulate sensor values drifting due to a malfunction in the sensor.
+
+    Magnitude is the linear increase in drift during time period t_i -> t_i+1.
+
+    Inherits Filter class.
+    """
+
     def __init__(self, magnitude_id):
-        """Magnitude is the linear increase in drift during time period t_i -> t_i+1."""
+        """
+        Args:
+            magnitude_id (str): A key which maps to the magnitude value.
+        """
         super().__init__()
         self.magnitude_id = magnitude_id
 
@@ -337,8 +454,19 @@ class SensorDrift(Filter):
 
 
 class StrangeBehaviour(Filter):
+    """Emulate strange sensor values due to anomalous conditions around the sensor.
+
+    The function do_strange_behaviour is user defined and outputs strange sensor
+    values into the data.
+
+    Inherits Filter class.
+    """
+
     def __init__(self, do_strange_behaviour_id):
-        """The function do_strange_behaviour outputs strange sensor values into the data."""
+        """
+        Args:
+            do_strange_behaviour_id (str): A key which maps to the strange_behaviour function.
+        """
         super().__init__()
         self.do_strange_behaviour_id = do_strange_behaviour_id
 
@@ -350,47 +478,115 @@ class StrangeBehaviour(Filter):
             node_data[index] = self.do_strange_behaviour(node_data[index], random_state)
 
 
-class Rain(Filter):
-    def __init__(self, probability_id):
+class FastRain(Filter):
+    """Add rain to images.
+
+    RGB values are presented either in the range [0,1] or in the set {0,...,255},
+        thus range should either have value 1 or value 255.
+
+    Inherits Filter class.
+    """
+
+    def __init__(self, probability_id, range_id):
+        """
+        Args:
+            probability_id (str): A key which maps to a probability of rain.
+            range_id (str): A key which maps to value of either 1 or 255.
+        """
         super().__init__()
         self.probability_id = probability_id
+        self.range_id = range_id
 
     def set_params(self, params_dict):
         self.probability = params_dict[self.probability_id]
+        # self.range should have value 1 or 255
+        self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
-        width = node_data.shape[1]
         height = node_data.shape[0]
+        width = node_data.shape[1]
 
-        direction = random_state.normal(0, 0.1) * pi + pi / 2
+        # 1. Generate error
+        errs = np.zeros(shape=(height + 1, width + 1))
+        ind = -1
+        while True:
+            ind += random_state.geometric(self.probability)
 
-        for y in range(height):
-            for x in range(width):
-                if random_state.rand() <= self.probability:
-                    length = round(random_state.normal(20, 10))
-                    for k in range(4):
-                        ty = y + sin(direction + pi / 4) * 0.5 * k - length / 2 * sin(direction)
-                        tx = x + cos(direction + pi / 4) * 0.5 * k - length / 2 * cos(direction)
-                        for _ in range(length):
-                            if round(ty) < 0 or round(tx) < 0 or round(ty) >= height or round(tx) >= width:
-                                ty += sin(direction)
-                                tx += cos(direction)
-                                continue
-                            brightness = random_state.rand() * 10
-                            r = node_data[round(ty)][round(tx)][0]
-                            g = node_data[round(ty)][round(tx)][1]
-                            b = node_data[round(ty)][round(tx)][2]
-                            b = min(b + 30, 255)
-                            r = min(r + random_state.normal(brightness, 4), 255)
-                            g = min(g + random_state.normal(brightness, 4), 255)
-                            b = min(b + random_state.normal(brightness, 4), 255)
-                            node_data[round(ty)][round(tx)] = (round(r), round(g), round(b))
-                            ty += sin(direction)
-                            tx += cos(direction)
+            if ind >= width * height:
+                break
+            y = ind // width
+            x = ind - y * width
+            x_r = 1
+            y_r = max(0, round(random_state.normal(20, 10)))
+            x0 = max(x - x_r, 0)
+            x1 = min(x + x_r + 1, width)
+            y0 = max(y - y_r, 0)
+            y1 = min(y + y_r + 1, height)
+            errs[y0, x0] += 1
+            errs[y0, x1] -= 1
+            errs[y1, x0] -= 1
+            errs[y1, x1] += 1
+
+        # 2. Calculate cumulative sums
+        errs = np.cumsum(errs, axis=0)
+        errs = np.cumsum(errs, axis=1)
+
+        # 3. Modify data
+        locs = 5 * errs
+        scales = 10 * np.sqrt(errs / 12) + 4 * errs
+        for j in range(3):
+            add = random_state.normal(locs, scales)
+            if j == 2:
+                add += 30 * errs
+            if self.range == 1:
+                node_data[:, :, j] = np.clip(node_data[:, :, j] + add[0:height, 0:width] / 255, 0, 1)
+            else:
+                node_data[:, :, j] = np.clip(node_data[:, :, j] + add[0:height, 0:width].astype(int), 0, 255)
 
 
 class Snow(Filter):
+    """Add snow to images.
+
+    This filter adds snow to images, and it uses Pierrre Vigier's implementation
+    of 2d perlin noise.
+
+    Pierre Vigier's implementation of 2d perlin noise with slight changes.
+    https://github.com/pvigier/perlin-numpy
+
+    The original code is licensed under MIT License:
+
+    MIT License
+
+    Copyright (c) 2019 Pierre Vigier
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+    Inherits Filter class.
+    """
+
     def __init__(self, snowflake_probability_id, snowflake_alpha_id, snowstorm_alpha_id):
+        """
+        Args:
+            snowflake_probability_id (str): A key which maps to a snowflake probability.
+            snowflake_alpha_id (str):
+            snowstorm_alpha_id (str):
+        """
         super().__init__()
         self.snowflake_probability_id = snowflake_probability_id
         self.snowflake_alpha_id = snowflake_alpha_id
@@ -431,21 +627,8 @@ class Snow(Filter):
             LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
             OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
             SOFTWARE.
-
-            Parameters
-            ----------
-            self : [type]
-                [description]
-            width : [type]
-                [description]
-            random_state : [type]
-                [description]
-
-            Returns
-            -------
-            [type]
-                [description]
             """
+
             def f(t):
                 return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
 
@@ -524,48 +707,22 @@ class Snow(Filter):
 
 
 class JPEG_Compression(Filter):
-    """
-    Compress the image as JPEG and uncompress. Quality should be in range [1, 100], the bigger the less loss
+    """Compresses a JPEG-image.
+
+    Compress the image as JPEG and uncompress. Quality should be in range [1, 100],
+    the bigger the less loss.
+
+    Inherits Filter class.
     """
 
     def __init__(self, quality_id):
-        """[summary]
-
-        [extended_summary]
-
-        Parameters
-        ----------
-        quality_id : [type]
-            [description]
-        """
         super().__init__()
         self.quality_id = quality_id
 
     def set_params(self, params_dict):
-        """[summary]
-
-        [extended_summary]
-        Parameters
-        ----------
-        params_dict : [type]
-            [description]
-        """
         self.quality = params_dict[self.quality_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        [extended_summary]
-
-        Parameters
-        ----------
-        node_data : [type]
-            [description]
-        random_state : [type]
-            [description]
-        named_dims : [type]
-            [description]
-        """
         iml = Image.fromarray(np.uint8(np.around(node_data)))
         buf = BytesIO()
         iml.save(buf, "JPEG", quality=self.quality)
@@ -578,50 +735,26 @@ class JPEG_Compression(Filter):
 
 
 class Blur_Gaussian(Filter):
-    """
+    """Blur image according to a zero-centred normal distribution.
+
     Create blur in images by applying a Gaussian filter.
     The standard deviation of the Gaussian is taken as a parameter.
+
+    Inherits Filter class.
     """
 
     def __init__(self, standard_dev_id):
-        """[summary]
-
-        [extended_summary]
-
-        Parameters
-        ----------
-        standard_dev_id : [type]
-            [description]
+        """
+        Args:
+            standard_dev_id (str): A key which maps to standard deviation.
         """
         super().__init__()
         self.std_id = standard_dev_id
 
     def set_params(self, params_dict):
-        """[summary]
-
-        [extended_summary]
-
-        Parameters
-        ----------
-        params_dict : [type]
-            [description]
-        """
         self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        [extended_summary]
-
-        Parameters
-        ----------
-        node_data : [type]
-            [description]
-        random_state : [type]
-            [description]
-        named_dims : [type]
-            [description]
-        """
         if len(node_data.shape) == 2:
             node_data[...] = gaussian_filter(node_data, self.std)
         else:
@@ -656,60 +789,26 @@ class Blur(Filter):
                     node_data[y0][x0] = pixel_sum // pixel_count
 
 
-class Resolution(Filter):
-    """
-    Makes resolution k times smaller. K must be an integer
-    """
-
-    def __init__(self, k_id):
-        super().__init__()
-        self.k_id = k_id
-
-    def set_params(self, params_dict):
-        self.k = params_dict[self.k_id]
-
-    def apply(self, node_data, random_state, named_dims):
-        width = node_data.shape[1]
-        height = node_data.shape[0]
-        for y0 in range(height):
-            y = (y0 // self.k) * self.k
-            for x0 in range(width):
-                x = (x0 // self.k) * self.k
-                node_data[y0, x0] = node_data[y, x]
-
-
 class ResolutionVectorized(Filter):
-    """
-    Makes resolution k times smaller. K must be an integer
+    """Makes resolution k times smaller.
+
+    K must be an integer.
+
+    Inherits Filter class.
     """
 
     def __init__(self, k_id):
-        """[summary]
-
-        :param k_id: [description]
-        :type k_id: [type]
+        """
+        Args:
+            k_id (str): A key which maps to the k value.
         """
         super().__init__()
         self.k_id = k_id
 
     def set_params(self, params_dict):
-        """[summary]
-
-        :param params_dict: [description]
-        :type params_dict: [type]
-        """
         self.k = params_dict[self.k_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        :param node_data: [description]
-        :type node_data: [type]
-        :param random_state: [description]
-        :type random_state: [type]
-        :param named_dims: [description]
-        :type named_dims: [type]
-        """
         w = node_data.shape[1]
         h = node_data.shape[0]
         row, col = (np.indices((h, w)) // self.k) * self.k
@@ -717,6 +816,13 @@ class ResolutionVectorized(Filter):
 
 
 class Rotation(Filter):
+    """[summary]
+
+    [extended_summary]
+
+    Inherits Filter class.
+    """
+
     def __init__(self, angle_id):
         super().__init__()
         self.angle_id = angle_id
@@ -725,23 +831,6 @@ class Rotation(Filter):
         self.angle = params_dict[self.angle_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """This is an example of rst docstring.
-
-        Extended description of function.
-
-        :param int arg1: Description of arg1.
-        :param str arg2: Description of arg2.
-        :raise: ValueError if arg1 is equal to arg2
-        :return: Description of return value
-        :rtype: bool
-
-        :example:
-
-        >>> a=1
-        >>> b=2
-        >>> func(a,b)
-        True
-        """
         node_data[...] = imutils.rotate(node_data, self.angle)
 
         # Guesstimation for a large enough resize to avoid black areas in cropped picture
@@ -757,67 +846,23 @@ class Rotation(Filter):
         node_data[...] = resized[y0:y0 + height, x0:x0 + width]
 
 
-class Brightness(Filter):
-    """
-    Increases or decreases brightness in the image.
-    tar: 0 if you want to decrease brightness, 1 if you want to increase it
-    rat: scales the brightness change
-    range_id: RGB values are presented either in the range [0,1]
-            or in the set {0,...,255}
-    """
-
-    def __init__(self, tar_id, rat_id, range_id):
-        super().__init__()
-        self.tar_id = tar_id
-        self.rat_id = rat_id
-        self.range_id = range_id
-
-    def set_params(self, params_dict):
-        self.tar = params_dict[self.tar_id]
-        self.rat = params_dict[self.rat_id]
-        # self.range should have value 1 or 255
-        self.range = params_dict[self.range_id]
-
-    def apply(self, node_data, random_state, named_dims):
-        width = node_data.shape[1]
-        height = node_data.shape[0]
-        for y0 in range(height):
-            for x0 in range(width):
-                r = float(node_data[y0, x0, 0]) * (1 / self.range)
-                g = float(node_data[y0, x0, 1]) * (1 / self.range)
-                b = float(node_data[y0, x0, 2]) * (1 / self.range)
-                (hu, li, sa) = rgb_to_hls(r, g, b)
-
-                mult = 1 - np.exp(-2 * self.rat)
-                li = li * (1 - mult) + self.tar * mult
-
-                (r, g, b) = hls_to_rgb(hu, li, sa)
-                node_data[y0, x0, 0] = self.range * r
-                node_data[y0, x0, 1] = self.range * g
-                node_data[y0, x0, 2] = self.range * b
-
-
 class BrightnessVectorized(Filter):
-    """
-    Increases or decreases brightness in the image.
-    tar: 0 if you want to decrease brightness, 1 if you want to increase it
-    rat: scales the brightness change
-    range_id: RGB values are presented either in the range [0,1]
-            or in the set {0,...,255}
+    """Increases or decreases brightness in the image.
+
+    tar: 0 if you want to decrease brightness, 1 if you want to increase it.
+    rat: scales the brightness change.
+    range: Should have value 1 or 255. RGB values are presented either
+        in the range [0,1] or in the set {0,...,255}.
+
+    Inherits Filter class.
     """
 
     def __init__(self, tar_id, rat_id, range_id):
-        """[summary]
-
-        [extended_summary]
-
-        :param tar_id: 0 if you want to decrease brightness, 1 if you want to increase it
-        :type tar_id: [str]
-        :param rat_id: scales the brightness change
-        :type rat_id: [str]
-        :param range_id: RGB values are presented either in the range [0,1]
-            or in the set {0,...,255}
-        :type range_id: str
+        """
+        Args:
+            tar_id (str): A key which maps to the tar value.
+            rat_id (str): A key which maps to the rat value.
+            range_id (str): A key which maps to the range value.
         """
         super().__init__()
         self.tar_id = tar_id
@@ -825,30 +870,11 @@ class BrightnessVectorized(Filter):
         self.range_id = range_id
 
     def set_params(self, params_dict):
-        """[summary]
-
-        [extended_summary]
-
-        :param params_dict: [description]
-        :type params_dict: dict
-        """
         self.tar = params_dict[self.tar_id]
         self.rat = params_dict[self.rat_id]
-        # self.range should have value 1 or 255
         self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
-        """[summary]
-
-        [extended_summary]
-
-        :param node_data: [description]
-        :type node_data: numpy array
-        :param random_state: [description]
-        :type random_state: numpy.RandomState
-        :param named_dims: [description]
-        :type named_dims: [type]
-        """
         nd = node_data.astype("float32")
         if self.range == 255:
             nd[...] = node_data * (1 / self.range)
@@ -867,56 +893,24 @@ class BrightnessVectorized(Filter):
         node_data[...] = nd
 
 
-class Saturation(Filter):
-    """
-    Increases or decreases brightness in the image.
-    tar: 0 if you want to decrease brightness, 1 if you want to increase it
-    rat: scales the brightness change
-    range_id: RGB values are presented either in the range [0,1]
-            or in the discrete set {0,...,255}
-    """
-
-    def __init__(self, tar_id, rat_id, range_id):
-        super().__init__()
-        self.tar_id = tar_id
-        self.rat_id = rat_id
-        self.range_id = range_id
-
-    def set_params(self, params_dict):
-        self.tar = params_dict[self.tar_id]
-        self.rat = params_dict[self.rat_id]
-        # self.range should have value 1 or 255
-        self.range = params_dict[self.range_id]
-
-    def apply(self, node_data, random_state, named_dims):
-        width = node_data.shape[1]
-        height = node_data.shape[0]
-        for y0 in range(height):
-            for x0 in range(width):
-                r = float(node_data[y0, x0, 0]) * (1 / self.range)
-                g = float(node_data[y0, x0, 1]) * (1 / self.range)
-                b = float(node_data[y0, x0, 2]) * (1 / self.range)
-                (hu, li, sa) = rgb_to_hls(r, g, b)
-
-                mult = 1 - np.exp(-2 * self.rat * sa)
-                sa = sa * (1 - mult) + self.tar * mult
-
-                (r, g, b) = hls_to_rgb(hu, li, sa)
-                node_data[y0, x0, 0] = self.range * r
-                node_data[y0, x0, 1] = self.range * g
-                node_data[y0, x0, 2] = self.range * b
-
-
 class SaturationVectorized(Filter):
-    """
-    Increases or decreases brightness in the image.
-    tar: 0 if you want to decrease brightness, 1 if you want to increase it
-    rat: scales the brightness change
-    range_id: RGB values are presented either in the range [0,1]
-            or in the discrete set {0,...,255}
+    """Increases or decreases saturation in the image.
+
+    tar: 0 if you want to decrease saturation, 1 if you want to increase it.
+    rat: scales the saturation change.
+    range: Should have value 1 or 255. RGB values are presented either
+     in the range [0,1] or in the set {0,...,255}.
+
+    Inherits Filter class.
     """
 
     def __init__(self, tar_id, rat_id, range_id):
+        """
+        Args:
+            tar_id (str): A key which maps to the tar value.
+            rat_id (str): A key which maps to the rat value.
+            range_id (str): A key which maps to the range value.
+        """
         super().__init__()
         self.tar_id = tar_id
         self.rat_id = rat_id
@@ -925,7 +919,6 @@ class SaturationVectorized(Filter):
     def set_params(self, params_dict):
         self.tar = params_dict[self.tar_id]
         self.rat = params_dict[self.rat_id]
-        # self.range should have value 1 or 255
         self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
@@ -948,6 +941,11 @@ class SaturationVectorized(Filter):
 
 
 class LensFlare(Filter):
+    """Add lens flare to an image.
+
+    Inherits Filter class.
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -1053,7 +1051,18 @@ class ApplyToTuple(Filter):
 
 
 class ApplyWithProbability(Filter):
+    """Apply a filter with the specified probability.
+
+    A filter is applied with the specified probability.
+    Inherits Filter class.
+    """
+
     def __init__(self, ftr_id, probability_id):
+        """
+        Args:
+            ftr_id (str): A key which maps to a filter.
+            probability_id (str): A key which maps to the probability of the filter being applied.
+        """
         super().__init__()
         self.ftr_id = ftr_id
         self.probability_id = probability_id
@@ -1069,6 +1078,13 @@ class ApplyWithProbability(Filter):
 
 
 class Constant(Filter):
+    """[summary]
+
+    [extended_summary]
+
+    Inherits Filter class.
+    """
+
     def __init__(self, value_id):
         super().__init__()
         self.value_id = value_id
@@ -1081,14 +1097,29 @@ class Constant(Filter):
 
 
 class Identity(Filter):
+    """This filter acts as the identity operator and does not modify data.
+
+    Inherits Filter class.
+    """
+
     def __init__(self):
         super().__init__()
+
+    def set_params(self, params_dict):
+        pass
 
     def apply(self, node_data, random_state, named_dims):
         pass
 
 
 class BinaryFilter(Filter):
+    """[summary]
+
+    [extended_summary]
+
+    Inherits Filter class.
+    """
+
     def __init__(self, filter_a_id, filter_b_id):
         super().__init__()
         self.filter_a_id = filter_a_id
@@ -1108,51 +1139,156 @@ class BinaryFilter(Filter):
         self.filter_a.set_params(params_dict)
         self.filter_b.set_params(params_dict)
 
+    @abstractmethod
     def operation(self, element_a, element_b):
-        raise NotImplementedError()
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            element_a ([type]): [description]
+            element_b ([type]): [description]
+        """
+        pass
 
 
 class Addition(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+    """
+
     def operation(self, element_a, element_b):
         return element_a + element_b
 
 
 class Subtraction(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return element_a - element_b
 
 
 class Multiplication(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return element_a * element_b
 
 
 class Division(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return element_a / element_b
 
 
 class IntegerDivision(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return element_a // element_b
 
 
 class Modulo(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return element_a % element_b
 
 
 class And(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return element_a & element_b
 
 
 class Or(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return element_a | element_b
 
 
 class Xor(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return element_a ^ element_b
 
@@ -1178,16 +1314,45 @@ class Difference(Filter):
 
 
 class Max(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return max(element_a, element_b)
 
 
 class Min(BinaryFilter):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        BinaryFilter ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
     def operation(self, element_a, element_b):
         return min(element_a, element_b)
 
 
 class ModifyAsDataType(Filter):
+    """[summary]
+
+    [extended_summary]
+
+    Inherits Filter class.
+    """
+
     def __init__(self, dtype_id, ftr_id):
         super().__init__()
         self.dtype_id = dtype_id

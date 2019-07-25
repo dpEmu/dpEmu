@@ -82,7 +82,8 @@ class HDBSCANModel(AbstractModel):
 
 
 def visualize(df, label_names, dataset_name, data):
-    visualize_scores(df, ["AMI", "ARI"], "std", f"{dataset_name} clustering scores with added gaussian noise")
+    visualize_scores(df, ["AMI", "ARI"], [True, True], "std",
+                     f"{dataset_name} clustering scores with added gaussian noise")
     visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
                       f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
 

@@ -1,5 +1,5 @@
-Welcome to dpEmu's documentation!
-=================================
+dpEmu 0.0.1 documentation
+=========================
 
 
 Guide
@@ -9,6 +9,7 @@ Guide
    :maxdepth: 2
    :caption: Contents:
 
+   manual
    license
    help
 

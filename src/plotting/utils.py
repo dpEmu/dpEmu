@@ -1,6 +1,6 @@
+import math
 import random
 
-import math
 import matplotlib.pyplot as plt
 import numpy as np
 from graphviz import Digraph
@@ -10,33 +10,60 @@ from src.problemgenerator.filters import Filter
 from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
 
-def visualize_scores(df, score_names, err_param_name, title, log=False):
+def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, log=False):
+
     dfs = split_df_by_model(df)
 
     n_scores = len(score_names)
-    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 4, 4), squeeze=False)
+    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 5, 4), squeeze=False)
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
-            df_ = filter_optimized_results(df_, err_param_name, score_names[i])
+            df_ = filter_optimized_results(df_, err_param_name, score_names[i], is_higher_score_better[i])
             if log:
                 ax.semilogx(df_[err_param_name], df_[score_names[i]], label=df_.name)
             else:
                 ax.plot(df_[err_param_name], df_[score_names[i]], label=df_.name)
-                ax.set_xlim([0, df_[err_param_name].max()])
+                ax.set_xlim([df_[err_param_name].min(), df_[err_param_name].max()])
             ax.set_xlabel(err_param_name)
             ax.set_ylabel(score_names[i])
             ax.legend(fontsize="small")
 
-    fig.subplots_adjust(wspace=.25)
-    fig.suptitle(title)
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
+        fig.subplots_adjust(wspace=.25)
+        fig.suptitle(title)
+        fig.tight_layout(rect=[0, 0, 1, 0.95])
 
-    path_to_plot = generate_unique_path("out", "png")
-    fig.savefig(path_to_plot)
+        path_to_plot = generate_unique_path("out", "png")
+        fig.savefig(path_to_plot)
 
 
 def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels_name, cmap, title):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df ([type]): [description]
+        label_names ([type]): [description]
+        err_param_name ([type]): [description]
+        reduced_data_name ([type]): [description]
+        labels_name ([type]): [description]
+        cmap ([type]): [description]
+        title ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     def get_lims(data):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            data ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
     df = df.groupby(err_param_name).first().reset_index()
@@ -71,7 +98,32 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
 
 
 def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_data_column, on_click):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df ([type]): [description]
+        err_param_name ([type]): [description]
+        data ([type]): [description]
+        scatter_cmap ([type]): [description]
+        reduced_data_column ([type]): [description]
+        on_click ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     def get_lims(data):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            data ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
     df = df.groupby(err_param_name).first().reset_index()
@@ -128,6 +180,20 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_d
 
 
 def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, predicted_labels_column, on_click=None):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df_ ([type]): [description]
+        cm ([type]): [description]
+        row ([type]): [description]
+        label_names ([type]): [description]
+        title ([type]): [description]
+        labels_column ([type]): [description]
+        predicted_labels_column ([type]): [description]
+        on_click ([type], optional): [description]. Defaults to None.
+    """
     # Draw image of confusion matrix
     color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
     n = cm.shape[0]
@@ -151,7 +217,20 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
             cm_values[label][predicted_label].append(index)
 
     class Plot:
+        """[summary]
+
+        [extended_summary]
+        """
+
         def __init__(self, row, fig, df_, cm_values, on_click):
+            """
+            Args:
+                row ([type]): [description]
+                fig ([type]): [description]
+                df_ ([type]): [description]
+                cm_values ([type]): [description]
+                on_click ([type]): [description]
+            """
             self.row = row
             self.fig = fig
             self.cid = None
@@ -162,6 +241,13 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
                 self.cid = fig.canvas.mpl_connect('button_press_event', self)
 
         def __call__(self, event):
+            """[summary]
+
+            [extended_summary]
+
+            Args:
+                event ([type]): [description]
+            """
             if event.xdata and event.ydata:
                 x, y = int(round(event.xdata)), int(round(event.ydata))
                 label = label_names[y]
@@ -198,10 +284,11 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
     plt.savefig(path_to_plot, bbox_inches="tight")
 
 
-def visualize_confusion_matrices(df, label_names, score_name, err_param_name, labels_col, predictions_col, interactive):
+def visualize_confusion_matrices(df, label_names, score_name, is_higher_score_better, err_param_name, labels_col,
+                                 predictions_col, interactive):
     dfs = split_df_by_model(df)
     for df_ in dfs:
-        df_ = filter_optimized_results(df_, err_param_name, score_name)
+        df_ = filter_optimized_results(df_, err_param_name, score_name, is_higher_score_better)
         for i in range(df_.shape[0]):
             visualize_confusion_matrix(
                 df_,
@@ -220,7 +307,14 @@ def visualize_error_generator(root_node, view=True):
 
     root_node.generate_error() needs to be called before calling this function,
     because otherwise Filters may have incorrect or missing parameter values
-    in the graph
+    in the graph.
+
+    Args:
+        root_node ([type]): [description]
+        view (bool, optional): [description]. Defaults to True.
+
+    Returns:
+        [type]: [description]
     """
 
     dot = Digraph()
@@ -228,6 +322,15 @@ def visualize_error_generator(root_node, view=True):
     max_param_value_length = 40
 
     def describe_filter(ftr, parent_index, edge_label):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            ftr ([type]): [description]
+            parent_index ([type]): [description]
+            edge_label ([type]): [description]
+        """
         nonlocal index
         index += 1
         my_index = index
@@ -259,6 +362,14 @@ def visualize_error_generator(root_node, view=True):
                 describe_filter(value, my_index, key)
 
     def describe(node, parent_index):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            node ([type]): [description]
+            parent_index ([type]): [description]
+        """
         nonlocal index
         index += 1
         my_index = index
@@ -278,11 +389,17 @@ def visualize_error_generator(root_node, view=True):
 
 
 def print_results(df, dropped_columns=[]):
-    dfs = split_df_by_model(df)
+    """[summary]
 
+    [extended_summary]
+
+    Args:
+        df ([type]): [description]
+        dropped_columns (list, optional): [description]. Defaults to [].
+    """
     dropped_columns.extend(["interactive_err_data"])
-    dropped_columns = [dropped_column for dropped_column in dropped_columns if dropped_column in df]
 
+    dfs = split_df_by_model(df)
     for df_ in dfs:
         print(df_.name)
-        print(df_.drop(columns=dropped_columns))
+        print(df_.drop(columns=[col for col in dropped_columns if col in df_]))

@@ -1,26 +1,86 @@
 class RadiusGenerator:
+    """[summary]
+
+    [extended_summary]
+    """
+
     def __init__(self):
         pass
 
     def generate(self, random_state):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            random_state ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         print("generate(random_state) function not implemented")
         return 0
 
 
 class GaussianRadiusGenerator(RadiusGenerator):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        RadiusGenerator ([type]): [description]
+    """
+
     def __init__(self, mean, std):
+        """
+        Args:
+            mean ([type]): [description]
+            std ([type]): [description]
+        """
         self.mean = mean
         self.std = std
 
     def generate(self, random_state):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            random_state ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return max(0, self.mean + round(random_state.normal(scale=self.std)))
 
 
 class ProbabilityArrayRadiusGenerator(RadiusGenerator):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        RadiusGenerator ([type]): [description]
+    """
+
     def __init__(self, probability_array):
+        """
+        Args:
+            probability_array ([type]): [description]
+        """
         self.probability_array = probability_array
 
     def generate(self, random_state):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            random_state ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         sum_of_probabilities = 1
         for radius, _ in enumerate(self.probability_array):
             if random_state.random_sample() <= self.probability_array[radius] / sum_of_probabilities:

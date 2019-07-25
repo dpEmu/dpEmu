@@ -86,6 +86,9 @@ def load_coco_val_2017(n=5000):
     img_folder = "data/val2017"
     if not os.path.isdir(img_folder):
         subprocess.call(["./scripts/get_coco_dataset.sh"])
+    label_folder = "tmp/labels/val2017"
+    if not os.path.isdir(label_folder):
+        subprocess.call(["./scripts/generate_coco_labels.sh"])
     path_to_yolov3_weights = "tmp/yolov3-spp_best.weights"
     if not os.path.isfile(path_to_yolov3_weights):
         subprocess.call(["./scripts/get_yolov3.sh"])

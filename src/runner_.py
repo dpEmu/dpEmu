@@ -1,12 +1,22 @@
 import time
 from multiprocessing.pool import Pool
+from pickle import dump, load
 
 import pandas as pd
 from tqdm import tqdm
 
+from src.utils import generate_unique_path
+
 
 def worker(inputs):
-    train_data, test_data, preproc, err_root_node, err_params, model_params_dict_list, use_interactive_mode = inputs
+    path_to_train_data, path_to_test_data, preproc, err_root_node, err_params, model_params_dict_list, \
+        use_interactive_mode = inputs
+
+    with open(path_to_train_data, "rb") as file:
+        train_data = load(file)
+    with open(path_to_test_data, "rb") as file:
+        test_data = load(file)
+
     time_start = time.time()
     err_train_data = None
     if train_data:
@@ -55,11 +65,18 @@ def worker(inputs):
     return results
 
 
-def run(train_data, test_data, preproc, err_root_node, err_params_list, model_params_dict_list,
+def run(train_data, test_data, preproc, err_root_node, err_params_list, model_params_dict_list, n_processes=None,
         use_interactive_mode=False):
+    path_to_train_data = generate_unique_path("tmp", "p")
+    path_to_test_data = generate_unique_path("tmp", "p")
+    with open(path_to_train_data, "wb") as file:
+        dump(train_data, file)
+    with open(path_to_test_data, "wb") as file:
+        dump(test_data, file)
+
     pool_inputs = [(
-        train_data,
-        test_data,
+        path_to_train_data,
+        path_to_test_data,
         preproc,
         err_root_node,
         err_params,
@@ -67,7 +84,7 @@ def run(train_data, test_data, preproc, err_root_node, err_params_list, model_pa
         use_interactive_mode
     ) for err_params in err_params_list]
     total_results = []
-    with Pool() as pool:
+    with Pool(n_processes) as pool:
         for results in tqdm(pool.imap(worker, pool_inputs), total=len(err_params_list)):
             total_results.extend(results)
     return pd.DataFrame(total_results)

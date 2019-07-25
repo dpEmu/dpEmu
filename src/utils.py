@@ -81,7 +81,10 @@ def split_df_by_model(df):
     return dfs
 
 
-def filter_optimized_results(df, err_param_name, score_name):
-    df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmax()].reset_index(drop=True)
+def filter_optimized_results(df, err_param_name, score_name, is_higher_score_better):
+    if is_higher_score_better:
+        df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmax()].reset_index(drop=True)
+    else:
+        df_ = df.loc[df.groupby(err_param_name, sort=False)[score_name].idxmin()].reset_index(drop=True)
     df_.name = df.name
     return df_

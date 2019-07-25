@@ -14,7 +14,7 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
     dfs = split_df_by_model(df)
 
     n_scores = len(score_names)
-    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 4, 4), squeeze=False)
+    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 5, 4), squeeze=False)
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
             df_ = filter_optimized_results(df_, err_param_name, score_names[i], is_higher_score_better[i])
@@ -220,8 +220,8 @@ def visualize_error_generator(root_node, view=True):
     """Generates a directed graph describing the error generation tree and filters.
 
     root_node.generate_error() needs to be called before calling this function,
-    because otherwise Filters may have incorrect or missing parameter values
-    in the graph
+    because otherwise filters may have incorrect or missing parameter values
+    in the graph.
     """
 
     dot = Digraph()

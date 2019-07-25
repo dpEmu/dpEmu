@@ -38,7 +38,7 @@ Installation
 -  ``pip install pycocotools``
 -  ``pip install -e git+https://github.com/dpEmu/Detectron.git#egg=detectron``
 -  ``ln -s $PWD/data venv/src/detectron/detectron/datasets/data/coco``
--  ``git clone git@github.com:dpEmu/darknet.git libs``
+-  ``git clone git@github.com:dpEmu/darknet.git libs/darknet``
 -  ``./scripts/install_darknet.sh``
 
 .. _usage-:

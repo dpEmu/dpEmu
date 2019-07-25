@@ -37,7 +37,7 @@ Installation
 -  ``pip install -r requirements.txt``
 -  ``pip install pycocotools``
 -  ``pip install -e git+https://github.com/dpEmu/Detectron.git#egg=detectron``
--  ``ln -s path/to/dpEmu/data venv/src/detectron/detectron/datasets/data/coco``
+-  ``ln -s $PWD/data venv/src/detectron/detectron/datasets/data/coco``
 
 .. _usage-:
 

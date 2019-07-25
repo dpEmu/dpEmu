@@ -202,7 +202,7 @@ def main():
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)
 
-    print_results(df, ["img_ids", "class_names", "show_imgs", "mean", "std", "radius_generator",
+    print_results(df, ["img_ids", "img_filenames", "show_imgs", "mean", "std", "radius_generator",
                        "transparency_percentage"])
     # visualize(df)
 

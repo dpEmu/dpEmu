@@ -266,3 +266,7 @@ In the end of the example a plot of scores is visualized.
 
     if __name__ == "__main__":
         main(sys.argv)
+
+Here's what the resulting image should look like:
+
+.. image:: manual_demo.png

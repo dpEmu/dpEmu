@@ -26,7 +26,7 @@ Usage
 
 dpEmu consists of three components:
 
-* Error generator
+* A system for builidng an error generator
 * A system for running the AI models with different error parameters
 * Tools for visualizing the results
 
@@ -85,7 +85,7 @@ Finally we call the ``generate_error`` function of the root node with the parame
 which we are going to discuss next.
 
 The AI runner system
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^
 
 The AI runner system, or simply Runner, is a system which is used for running multiple AI models simultaneously with distinct error parameters for the filters by using multithreading. After running all the models with all wanter parameter combinations 
 the system returns a ``pandas.DataFrame`` which can later be used for visualizing the results.
@@ -97,7 +97,7 @@ Train data and test data
 These are the original train data and test data which will be given to the AI models. A value ``None`` can also be passed to the runner if there is no train data.
 
 The preprocessor
-""""""""""""
+""""""""""""""""
 
 The preprocessor needs to implement a function ``run(train_data, test_data)`` and it returns the possibly preprocessed train and test data. The preprocessor can return additional data as well, and it will be listed as a separate column in the ``DataFrame`` which the runner returns.
 Here is a simple example of a preprocessor, which does nothing to the original data, but returns also an array called *"negative_data"* which contains the additive inverse of each test_data's element.
@@ -165,3 +165,19 @@ Here is an example AI model parameter list and a model:
     model_params_dict_list = [
         {"model": KMeansModel, "params_list": [{"labels": labels}]}
     ]
+
+The interactive mode
+""""""""""""""""""""
+
+The final parameter of the Runner is a boolean telling whether to use interactive mode or not.
+Some of the functions for visualizing the results require the interactive mode, for some of them it's optional
+and most of them have no interactive functionality.
+
+Basically what the interactive mode does is that it adds a column containing the modified test data to the results ``DataFrame``.
+The interactive visualizer functions use this data to display points of data so that e.g. the programmer can try to figure out why
+something was classified incorrectly.
+
+Visualization functions
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The module ``src.plotting`` has a file ``utils.py`` which contains multiple functions for plotting and visualizing the data.

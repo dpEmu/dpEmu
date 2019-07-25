@@ -219,8 +219,8 @@ def visualize_error_generator(root_node, view=True):
     """Generates a directed graph describing the error generation tree and filters.
 
     root_node.generate_error() needs to be called before calling this function,
-    because otherwise Filters may have incorrect or missing parameter values
-    in the graph
+    because otherwise filters may have incorrect or missing parameter values
+    in the graph.
     """
 
     dot = Digraph()

@@ -11,6 +11,17 @@ from src.utils import generate_unique_path, split_df_by_model, filter_optimized_
 
 
 def visualize_scores(df, score_names, err_param_name, title, log=False):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df ([type]): [description]
+        score_names ([type]): [description]
+        err_param_name ([type]): [description]
+        title ([type]): [description]
+        log (bool, optional): [description]. Defaults to False.
+    """
     dfs = split_df_by_model(df)
 
     n_scores = len(score_names)
@@ -36,7 +47,33 @@ def visualize_scores(df, score_names, err_param_name, title, log=False):
 
 
 def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels_name, cmap, title):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df ([type]): [description]
+        label_names ([type]): [description]
+        err_param_name ([type]): [description]
+        reduced_data_name ([type]): [description]
+        labels_name ([type]): [description]
+        cmap ([type]): [description]
+        title ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     def get_lims(data):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            data ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
     df = df.groupby(err_param_name).first().reset_index()
@@ -71,7 +108,32 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
 
 
 def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_data_column, on_click):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df ([type]): [description]
+        err_param_name ([type]): [description]
+        data ([type]): [description]
+        scatter_cmap ([type]): [description]
+        reduced_data_column ([type]): [description]
+        on_click ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     def get_lims(data):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            data ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
     df = df.groupby(err_param_name).first().reset_index()
@@ -128,6 +190,20 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_d
 
 
 def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, predicted_labels_column, on_click=None):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df_ ([type]): [description]
+        cm ([type]): [description]
+        row ([type]): [description]
+        label_names ([type]): [description]
+        title ([type]): [description]
+        labels_column ([type]): [description]
+        predicted_labels_column ([type]): [description]
+        on_click ([type], optional): [description]. Defaults to None.
+    """
     # Draw image of confusion matrix
     color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
     n = cm.shape[0]
@@ -151,7 +227,20 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
             cm_values[label][predicted_label].append(index)
 
     class Plot:
+        """[summary]
+
+        [extended_summary]
+        """
+
         def __init__(self, row, fig, df_, cm_values, on_click):
+            """
+            Args:
+                row ([type]): [description]
+                fig ([type]): [description]
+                df_ ([type]): [description]
+                cm_values ([type]): [description]
+                on_click ([type]): [description]
+            """
             self.row = row
             self.fig = fig
             self.cid = None
@@ -162,6 +251,13 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
                 self.cid = fig.canvas.mpl_connect('button_press_event', self)
 
         def __call__(self, event):
+            """[summary]
+
+            [extended_summary]
+
+            Args:
+                event ([type]): [description]
+            """
             if event.xdata and event.ydata:
                 x, y = int(round(event.xdata)), int(round(event.ydata))
                 label = label_names[y]
@@ -199,6 +295,19 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
 
 
 def visualize_confusion_matrices(df, label_names, score_name, err_param_name, labels_col, predictions_col, interactive):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df ([type]): [description]
+        label_names ([type]): [description]
+        score_name ([type]): [description]
+        err_param_name ([type]): [description]
+        labels_col ([type]): [description]
+        predictions_col ([type]): [description]
+        interactive ([type]): [description]
+    """
     dfs = split_df_by_model(df)
     for df_ in dfs:
         df_ = filter_optimized_results(df_, err_param_name, score_name)
@@ -220,7 +329,14 @@ def visualize_error_generator(root_node, view=True):
 
     root_node.generate_error() needs to be called before calling this function,
     because otherwise Filters may have incorrect or missing parameter values
-    in the graph
+    in the graph.
+
+    Args:
+        root_node ([type]): [description]
+        view (bool, optional): [description]. Defaults to True.
+
+    Returns:
+        [type]: [description]
     """
 
     dot = Digraph()
@@ -228,6 +344,15 @@ def visualize_error_generator(root_node, view=True):
     max_param_value_length = 40
 
     def describe_filter(ftr, parent_index, edge_label):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            ftr ([type]): [description]
+            parent_index ([type]): [description]
+            edge_label ([type]): [description]
+        """
         nonlocal index
         index += 1
         my_index = index
@@ -259,6 +384,14 @@ def visualize_error_generator(root_node, view=True):
                 describe_filter(value, my_index, key)
 
     def describe(node, parent_index):
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            node ([type]): [description]
+            parent_index ([type]): [description]
+        """
         nonlocal index
         index += 1
         my_index = index
@@ -278,6 +411,14 @@ def visualize_error_generator(root_node, view=True):
 
 
 def print_results(df, dropped_columns=[]):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df ([type]): [description]
+        dropped_columns (list, optional): [description]. Defaults to [].
+    """
     dropped_columns.extend(["interactive_err_data"])
 
     dfs = split_df_by_model(df)

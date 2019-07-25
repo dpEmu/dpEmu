@@ -16,8 +16,8 @@ class Filter(ABC):
     """A Filter is an error source which can be attached to an Array node.
 
     The apply method applies the filter. A filter may always assume that
-    it is acting upon a Numpy array. (When the underlying data object is not
-    a Numpy array, the required conversions are performed by the Array node
+    it is acting upon a NumPy array. (When the underlying data object is not
+    a NumPy array, the required conversions are performed by the Array node
     to which the Filter is attached.)
 
     Args:
@@ -26,7 +26,7 @@ class Filter(ABC):
     """
 
     def __init__(self):
-        """Set the seeds for the RNG's of numpy and Python.
+        """Set the seeds for the RNG's of NumPy and Python.
         """
         np.random.seed(42)
         random.seed(42)
@@ -46,7 +46,7 @@ class Filter(ABC):
         """Modifies the data according to the functionality of the filter.
 
         Args:
-            node_data (numpy.ndarray): Data to be modified as a Numpy array.
+            node_data (numpy.ndarray): Data to be modified as a NumPy array.
             random_state (mtrand.RandomState): An instance of numpy.random.RandomState.
             named_dims (dict): Named dimensions.
         """
@@ -1103,8 +1103,17 @@ class BinaryFilter(Filter):
         self.filter_a.set_params(params_dict)
         self.filter_b.set_params(params_dict)
 
+    @abstractmethod
     def operation(self, element_a, element_b):
-        raise NotImplementedError()
+        """[summary]
+
+        [extended_summary]
+
+        Args:
+            element_a ([type]): [description]
+            element_b ([type]): [description]
+        """
+        pass
 
 
 class Addition(BinaryFilter):

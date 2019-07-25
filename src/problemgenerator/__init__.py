@@ -1,2 +1,2 @@
-"""This module contains everything related to error generation
+"""This module contains everything related to error generation.
 """

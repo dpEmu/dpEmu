@@ -10,7 +10,6 @@ Guide
    :caption: Contents:
 
    license
-   manual
    help
 
 

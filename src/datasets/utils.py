@@ -85,16 +85,15 @@ def load_coco_val_2017(n=5000):
         n = 5000
     img_folder = "data/val2017"
     if not os.path.isdir(img_folder):
-        subprocess.call(["./data/get_coco_dataset.sh"])
-    path_to_yolov3_weights = "data/yolov3.weights"
+        subprocess.call(["./scripts/get_coco_dataset.sh"])
+    path_to_yolov3_weights = "tmp/yolov3-spp_best.weights"
     if not os.path.isfile(path_to_yolov3_weights):
-        subprocess.call(["./data/get_yolov3.sh"])
+        subprocess.call(["./scripts/get_yolov3.sh"])
 
     coco = COCO("data/annotations/instances_val2017.json")
     img_ids = sorted(coco.getImgIds())[:n]
     img_dicts = coco.loadImgs(img_ids)
-    imgs = [cv2.cvtColor(cv2.imread(os.path.join(img_folder, img_dict["file_name"])), cv2.COLOR_BGR2RGB) for img_dict in
-            img_dicts]
+    imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
     with open("data/coco.names", "r") as fp:
         class_names = [line.strip() for line in fp.readlines()]
 

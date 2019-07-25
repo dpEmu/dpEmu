@@ -6,10 +6,24 @@ from umap import UMAP
 
 
 def run_ml_script(cline):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        cline ([type]): [description]
+    """
     _run_script(cline.split())
 
 
 def _run_script(args):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        args ([type]): [description]
+    """
     prog = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     out, err = prog.communicate()
     if out:
@@ -19,6 +33,18 @@ def _run_script(args):
 
 
 def reduce_dimensions(data, random_state, target_dim=2):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        data ([type]): [description]
+        random_state ([type]): [description]
+        target_dim (int, optional): [description]. Defaults to 2.
+
+    Returns:
+        [type]: [description]
+    """
     jl_limit = johnson_lindenstrauss_min_dim(n_samples=data.shape[0], eps=.3)
     pca_limit = 30
 
@@ -32,6 +58,18 @@ def reduce_dimensions(data, random_state, target_dim=2):
 
 
 def reduce_dimensions_sparse(data, random_state, target_dim=2):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        data ([type]): [description]
+        random_state ([type]): [description]
+        target_dim (int, optional): [description]. Defaults to 2.
+
+    Returns:
+        [type]: [description]
+    """
     svd_limit = 30
 
     if data.shape[1] > svd_limit:

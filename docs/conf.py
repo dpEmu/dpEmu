@@ -34,6 +34,8 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'recommonmark']
 
 napoleon_include_init_with_doc = True
 
+autodoc_mock_imports = ['torch', 'keras', 'sklearn', 'cv2', 'tensorflow', 'PIL', 'future', 'hdbscan', 'imutils', 'matplotlib', 'mock', 'numpy', 'pandas', 'pytest', 'scipy', 'tqdm', 'umap', 'graphviz', 'numba']
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -54,3 +56,4 @@ html_theme = 'nature'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+

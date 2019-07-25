@@ -56,7 +56,7 @@ class YOLOv3GPUModel:
     def __get_map_score():
         with open("libs/darknet/results.txt", "r") as file:
             text = file.read()
-        return float(re.findall(r"[-+]?\d*\.\d+", text)[1]), 3
+        return float(re.findall(r"[-+]?\d*\.\d+", text)[1])
 
     def run(self, _, imgs, model_params):
         img_filenames = model_params["img_filenames"]

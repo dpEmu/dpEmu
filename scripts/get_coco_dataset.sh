@@ -13,4 +13,4 @@ rm val2017.zip
 
 cd ..
 mkdir tmp/val2017
-java -jar data/cocotoyolo.jar "data/annotations/instances_val2017.json" "$PWD/tmp/val2017" "all" "data/labels"
+java -jar data/cocotoyolo.jar "data/annotations/instances_val2017.json" "$PWD/tmp/val2017/" "all" "data/labels/"

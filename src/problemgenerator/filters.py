@@ -949,6 +949,9 @@ class LensFlare(Filter):
     def __init__(self):
         super().__init__()
 
+    def set_params(self, params_dict):
+        pass
+
     def apply(self, node_data, random_state, named_dims):
         def flare(x0, y0, radius):
             gt = random_state.randint(130, 180)
@@ -1012,6 +1015,42 @@ class LensFlare(Filter):
             y += origo_vector[1]
             x += origo_vector[0]
             steps -= 1
+
+
+class ClipWAV(Filter):
+    def __init__(self, dyn_range_id):
+        super().__init__()
+        self.dyn_range_id = dyn_range_id
+
+    def set_params(self, params_dict):
+        self.dyn_range = params_dict[self.dyn_range_id]
+
+    def apply(self, node_data, random_state, named_dims):
+
+        def clip_audio(data, dyn_range):
+            min_, max_ = min(data), max(data)
+            half_range = .5 * max_ - .5 * min_
+            middle = (min_ + max_) / 2
+            new_half_range = half_range * dyn_range
+            upper_limit = middle + new_half_range
+            lower_limit = middle - new_half_range
+            return np.clip(data, lower_limit, upper_limit).astype(data.dtype)
+
+        node_data[:] = clip_audio(node_data, self.dyn_range)
+
+
+class ApplyToTuple(Filter):
+
+    def __init__(self, ftr, tuple_index):
+        super().__init__()
+        self.ftr = ftr
+        self.tuple_index = tuple_index
+
+    def set_params(self, params_dict):
+        self.ftr.set_params(params_dict)
+
+    def apply(self, node_data, random_state, named_dims):
+        self.ftr.apply(node_data[self.tuple_index], random_state, named_dims)
 
 
 class ApplyWithProbability(Filter):

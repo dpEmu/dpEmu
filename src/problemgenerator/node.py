@@ -37,7 +37,7 @@ class Node:
         for child in self.children:
             child.set_error_params(params_dict)
 
-    def process(self, data, random_state):
+    def process(self, data, random_state, index_tuple=(), named_dims={}):
         pass
 
     def generate_error(self, data, error_params, random_state=np.random.RandomState(42)):

@@ -70,10 +70,10 @@ class AbstractDetectronModel(ABC):
             "MODEL.MASK_ON False "
             "OUTPUT_DIR tmp"
         )
-        print_results(cmd)
+        print(cmd)
 
         write_imgs_to_disk(imgs, img_filenames)
-        subprocess.call([cmd + " | grep 'IoU=0.50 ' > tmp/result.txt"])
+        subprocess.call([cmd, path_to_cfg, url_to_weights])
 
         return {"mAP-50": round(get_map_score(), 3)}
 

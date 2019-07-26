@@ -86,9 +86,6 @@ def load_coco_val_2017(n=5000):
     img_folder = "data/val2017"
     if not os.path.isdir(img_folder):
         subprocess.call(["./scripts/get_coco_dataset.sh"])
-    label_folder = "tmp/labels/val2017"
-    if not os.path.isdir(label_folder):
-        subprocess.call(["./scripts/generate_coco_labels.sh"])
 
     coco = COCO("data/annotations/instances_val2017.json")
     img_ids = sorted(coco.getImgIds())[:n]

@@ -21,7 +21,7 @@ from src import runner_
 from src.datasets.utils import load_coco_val_2017
 from src.plotting.utils import print_results, visualize_scores
 from src.problemgenerator.array import Array
-from src.problemgenerator.filters import JPEG_Compression
+from src.problemgenerator.filters import Identity
 from src.problemgenerator.series import Series
 
 c2_utils.import_detectron_ops()
@@ -43,7 +43,6 @@ class YOLOv3GPUModel:
     def __write_imgs_to_disk(imgs, img_filenames):
         for i, img_arr in enumerate(imgs):
             path_to_img = "libs/darknet/coco/images/val2017/" + img_filenames[i]
-            # path_to_img = "tmp/images/val2017/" + img_filenames[i]
             img = Image.fromarray(img_arr)
             img.save(path_to_img)
 
@@ -51,7 +50,6 @@ class YOLOv3GPUModel:
     def __remove_imgs_from_disk(img_filenames):
         for img_filename in img_filenames:
             path_to_img = "libs/darknet/coco/images/val2017/" + img_filename
-            # path_to_img = "tmp/images/val2017/" + img_filename
             os.remove(path_to_img)
 
     @staticmethod
@@ -185,8 +183,8 @@ def main():
     # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
     # err_node.addfilter(Rain("probability"))
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
-    err_node.addfilter(JPEG_Compression("quality"))
-    # err_node.addfilter(Identity())
+    # err_node.addfilter(JPEG_Compression("quality"))
+    err_node.addfilter(Identity())
 
     # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
@@ -196,8 +194,8 @@ def main():
     # err_params_list = [
     #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
     #     for p in [10 ** i for i in range(-6, -2)]]
-    err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
-    # err_params_list = [{}]
+    # err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
+    err_params_list = [{}]
 
     model_params_dict_list = [
         {"model": YOLOv3GPUModel, "params_list": [{"img_filenames": img_filenames}]},

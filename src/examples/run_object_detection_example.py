@@ -61,19 +61,8 @@ class AbstractDetectronModel(ABC):
         path_to_cfg = self.get_path_to_cfg()
         url_to_weights = self.get_url_to_weights()
 
-        cmd = (
-            "python libs/Detectron/tools/test_net.py "
-            f"--cfg {path_to_cfg} "
-            f"TEST.WEIGHTS {url_to_weights} "
-            "NUM_GPUS 1 "
-            """TEST.DATASETS '("coco_2017_val",)' """
-            "MODEL.MASK_ON False "
-            "OUTPUT_DIR tmp"
-        )
-        print(cmd)
-
         write_imgs_to_disk(imgs, img_filenames)
-        subprocess.call([cmd, path_to_cfg, url_to_weights])
+        subprocess.call(["./scripts/run_detectron.sh", path_to_cfg, url_to_weights])
 
         return {"mAP-50": round(get_map_score(), 3)}
 

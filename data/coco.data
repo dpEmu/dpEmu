@@ -1,4 +1,0 @@
-classes = 80
-valid  = tmp/labels/val2017/image_list.txt
-names = data/coco.names
-eval=coco

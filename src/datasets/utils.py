@@ -92,6 +92,7 @@ def load_coco_val_2017(n=5000):
     img_dicts = coco.loadImgs(img_ids)
     img_filenames = [img_dict["file_name"] for img_dict in img_dicts]
     imgs = [cv2.imread(os.path.join(img_folder, img_filename)) for img_filename in img_filenames]
+    imgs = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in imgs]
     with open("data/coco.names", "r") as fp:
         class_names = [line.strip() for line in fp.readlines()]
 

@@ -3,18 +3,8 @@ import re
 import subprocess
 from abc import ABC, abstractmethod
 
-import cv2
-import detectron.utils.c2 as c2_utils
 import matplotlib.pyplot as plt
-import torch
 from PIL import Image
-from caffe2.python import workspace
-from detectron.core.config import assert_and_infer_cfg, reset_cfg
-from detectron.core.config import cfg
-from detectron.core.config import merge_cfg_from_file
-from detectron.core.config import merge_cfg_from_list
-from detectron.core.test_engine import run_inference
-from detectron.utils.logging import setup_logging
 from numpy.random import RandomState
 
 from src import runner_
@@ -24,14 +14,23 @@ from src.problemgenerator.array import Array
 from src.problemgenerator.filters import Identity
 from src.problemgenerator.series import Series
 
-c2_utils.import_detectron_ops()
-cv2.ocl.setUseOpenCL(False)
-torch.multiprocessing.set_start_method("spawn", force="True")
-
 
 class Preprocessor:
     def run(self, _, imgs):
         return None, imgs, {}
+
+
+def write_imgs_to_disk(imgs, img_filenames):
+    for i, img_arr in enumerate(imgs):
+        img = Image.fromarray(img_arr)
+        path_to_img = "tmp/val2017/" + img_filenames[i]
+        img.save(path_to_img, "jpeg", quality=100)
+
+
+def get_map_score():
+    with open("tmp/results.txt", "r") as file:
+        text = file.read()
+    return float(re.findall(r"[-+]?\d*\.\d+", text)[1])
 
 
 class YOLOv3GPUModel:
@@ -39,38 +38,17 @@ class YOLOv3GPUModel:
     def __init__(self):
         self.random_state = RandomState(42)
 
-    @staticmethod
-    def __write_imgs_to_disk(imgs, img_filenames):
-        for i, img_arr in enumerate(imgs):
-            path_to_img = "libs/darknet/coco/images/val2017/" + img_filenames[i]
-            img_arr = cv2.cvtColor(img_arr, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(img_arr)
-            img.save(path_to_img, "jpeg", quality=100)
-
-    @staticmethod
-    def __remove_imgs_from_disk(img_filenames):
-        for img_filename in img_filenames:
-            path_to_img = "libs/darknet/coco/images/val2017/" + img_filename
-            os.remove(path_to_img)
-
-    @staticmethod
-    def __get_map_score():
-        with open("tmp/results.txt", "r") as file:
-            text = file.read()
-        return float(re.findall(r"[-+]?\d*\.\d+", text)[1])
-
-    def run(self, _, imgs, model_params):
-        img_filenames = model_params["img_filenames"]
+    def run(self, _, imgs, params):
+        img_filenames = params["img_filenames"]
 
         path_to_yolov3_weights = "tmp/yolov3-spp_best.weights"
         if not os.path.isfile(path_to_yolov3_weights):
             subprocess.call(["./scripts/get_yolov3.sh"])
 
-        self.__write_imgs_to_disk(imgs, img_filenames)
+        write_imgs_to_disk(imgs, img_filenames)
         subprocess.call(["./scripts/run_darknet.sh"])
-        self.__remove_imgs_from_disk(img_filenames)
 
-        return {"mAP-50": round(self.__get_map_score(), 3)}
+        return {"mAP-50": round(get_map_score(), 3)}
 
 
 class AbstractDetectronModel(ABC):
@@ -78,35 +56,26 @@ class AbstractDetectronModel(ABC):
     def __init__(self):
         self.random_state = RandomState(42)
 
-        workspace.GlobalInit(["caffe2", "--caffe2_log_level=0"])
-        setup_logging(__name__)
-
     def run(self, _, imgs, params):
-        img_ids = params["img_ids"]
+        img_filenames = params["img_filenames"]
         path_to_cfg = self.get_path_to_cfg()
         url_to_weights = self.get_url_to_weights()
 
-        reset_cfg()
-        merge_cfg_from_file(path_to_cfg)
-        opt_list = [
-            "MODEL.MASK_ON",
-            False,
-            "NUM_GPUS",
-            "1",
-            "TEST.DATASETS",
-            ("coco_2017_val",),
-            # "TEST.SCALE",
-            # "300",
-            "TEST.WEIGHTS",
-            url_to_weights,
-            "OUTPUT_DIR",
-            "tmp"
-        ]
-        merge_cfg_from_list(opt_list)
-        assert_and_infer_cfg(make_immutable=False)
+        cmd = (
+            "python libs/Detectron/tools/test_net.py "
+            f"--cfg {path_to_cfg} "
+            f"TEST.WEIGHTS {url_to_weights} "
+            "NUM_GPUS 1 "
+            """TEST.DATASETS '("coco_2017_val",)' """
+            "MODEL.MASK_ON False "
+            "OUTPUT_DIR tmp"
+        )
+        print_results(cmd)
 
-        results = run_inference(imgs, img_ids, cfg.TEST.WEIGHTS)
-        return {"mAP-50": round(results["coco_2017_val"]["box"]["AP50"], 3)}
+        write_imgs_to_disk(imgs, img_filenames)
+        subprocess.call([cmd + " | grep 'IoU=0.50 ' > tmp/result.txt"])
+
+        return {"mAP-50": round(get_map_score(), 3)}
 
     @abstractmethod
     def get_path_to_cfg(self):
@@ -122,7 +91,7 @@ class FasterRCNNModel(AbstractDetectronModel):
         super().__init__()
 
     def get_path_to_cfg(self):
-        return "venv/src/detectron/configs/12_2017_baselines/e2e_faster_rcnn_X-101-64x4d-FPN_1x.yaml"
+        return "libs/Detectron/configs/12_2017_baselines/e2e_faster_rcnn_X-101-64x4d-FPN_1x.yaml"
 
     def get_url_to_weights(self):
         return (
@@ -137,7 +106,7 @@ class MaskRCNNModel(AbstractDetectronModel):
         super().__init__()
 
     def get_path_to_cfg(self):
-        return "venv/src/detectron/configs/12_2017_baselines/e2e_mask_rcnn_X-101-64x4d-FPN_1x.yaml"
+        return "libs/Detectron/configs/12_2017_baselines/e2e_mask_rcnn_X-101-64x4d-FPN_1x.yaml"
 
     def get_url_to_weights(self):
         return (
@@ -152,7 +121,7 @@ class RetinaNetModel(AbstractDetectronModel):
         super().__init__()
 
     def get_path_to_cfg(self):
-        return "venv/src/detectron/configs/12_2017_baselines/retinanet_X-101-64x4d-FPN_1x.yaml"
+        return "libs/Detectron/configs/12_2017_baselines/retinanet_X-101-64x4d-FPN_1x.yaml"
 
     def get_url_to_weights(self):
         return (
@@ -174,7 +143,7 @@ def visualize(df):
 
 
 def main():
-    imgs, img_ids, _, img_filenames = load_coco_val_2017()
+    imgs, _, _, img_filenames = load_coco_val_2017()
 
     err_node = Array()
     err_root_node = Series(err_node)
@@ -199,9 +168,9 @@ def main():
     err_params_list = [{}]
 
     model_params_dict_list = [
-        # {model": FasterRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        # {"model": MaskRCNNModel, "params_list": [{"img_ids": img_ids}]},
-        # {"model": RetinaNetModel, "params_list": [{"img_ids": img_ids}]},
+        # {model": FasterRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
+        {"model": MaskRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
+        # {"model": RetinaNetModel, "params_list": [{"img_filenames": img_filenames}]},
         {"model": YOLOv3GPUModel, "params_list": [{"img_filenames": img_filenames}]},
     ]
 
@@ -209,7 +178,7 @@ def main():
 
     print_results(df, ["img_ids", "img_filenames", "show_imgs", "mean", "std", "radius_generator",
                        "transparency_percentage"])
-    visualize(df)
+    # visualize(df)
 
 
 if __name__ == "__main__":

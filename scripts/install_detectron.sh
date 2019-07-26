@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cd libs/Detectron
-make dev
-ln -s ../.. $PWD/detectron/datasets/data/coco
+python setup.py develop
+ln -s $PWD/../.. $PWD/detectron/datasets/data/coco

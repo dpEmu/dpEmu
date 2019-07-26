@@ -1,0 +1,4 @@
+classes= 80
+valid  = data/val2017.txt
+names = data/coco.names
+eval=coco

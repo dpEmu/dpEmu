@@ -4,10 +4,8 @@ import subprocess
 import sys
 
 import cv2
-import detectron.utils.c2 as c2_utils
 import matplotlib.pyplot as plt
 import numpy as np
-import torch
 from numpy.random import RandomState
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
@@ -20,10 +18,6 @@ from src.problemgenerator.array import Array
 from src.problemgenerator.filters import JPEG_Compression
 from src.problemgenerator.series import Series
 from src.utils import generate_unique_path
-
-c2_utils.import_detectron_ops()
-cv2.ocl.setUseOpenCL(False)
-torch.multiprocessing.set_start_method("spawn", force="True")
 
 
 class Preprocessor:
@@ -160,8 +154,7 @@ def main(argv):
     err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
 
     model_params_dict_list = [
-        {"model": YOLOv3CPUModel,
-         "params_list": [{"img_ids": img_ids, "class_names": class_names, "show_imgs": False}]},
+        {"model": YOLOv3CPUModel, "params_list": [{"img_ids": img_ids, "class_names": class_names, "show_imgs": False}]}
     ]
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)

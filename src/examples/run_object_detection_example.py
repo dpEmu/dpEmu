@@ -67,7 +67,7 @@ class YOLOv3GPUModel:
             subprocess.call(["./scripts/get_yolov3.sh"])
 
         self.__write_imgs_to_disk(imgs, img_filenames)
-        subprocess.call(["./scripts/run_yolov3_gpu.sh"])
+        subprocess.call(["./scripts/run_darknet.sh"])
         self.__remove_imgs_from_disk(img_filenames)
 
         return {"mAP-50": round(self.__get_map_score(), 3)}

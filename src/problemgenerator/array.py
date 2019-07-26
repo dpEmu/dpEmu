@@ -40,7 +40,7 @@ class Array(LeafNode):
             index_tuple (tuple, optional): The index of the node. Defaults to ().
             named_dims (dict, optional): Named dimensions. Defaults to {}.
         """
-        node_data, is_list, is_scalar = get_node_data(data, index_tuple)
+        node_data, is_list, is_scalar, is_tuple = get_node_data(data, index_tuple)
         if is_list:
             self.apply_filters(node_data, random_state, named_dims)
             assign(data, index_tuple, list(node_data))

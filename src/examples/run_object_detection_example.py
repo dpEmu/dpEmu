@@ -140,7 +140,7 @@ def main():
     # err_node.addfilter(GaussianNoise("mean", "std"))
     # err_node.addfilter(Blur_Gaussian("std"))
     # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
-    err_node.addfilter(FastRain("probability"))
+    err_node.addfilter(FastRain("probability", "range_id"))
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
     # err_node.addfilter(JPEG_Compression("quality"))
     # err_node.addfilter(Identity())
@@ -149,7 +149,7 @@ def main():
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
     # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
     #                    for p in [10 ** i for i in range(-4, 0)]]
-    err_params_list = [{"probability": p, "range": 255} for p in [10 ** i for i in range(-4, 0)]]
+    err_params_list = [{"probability": p, "range_id": 255} for p in [10 ** i for i in range(-4, 0)]]
     # err_params_list = [
     #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
     #     for p in [10 ** i for i in range(-6, -2)]]
@@ -166,7 +166,7 @@ def main():
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)
 
     print_results(df, ["img_ids", "img_filenames", "show_imgs", "mean", "std", "radius_generator",
-                       "transparency_percentage"])
+                       "transparency_percentage", "range_id"])
     visualize(df)
 
 

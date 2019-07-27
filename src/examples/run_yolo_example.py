@@ -15,7 +15,7 @@ from src import runner_
 from src.datasets.utils import load_coco_val_2017
 from src.plotting.utils import print_results, visualize_scores
 from src.problemgenerator.array import Array
-from src.problemgenerator.filters import FastRain
+from src.problemgenerator.filters import Snow
 from src.problemgenerator.series import Series
 from src.utils import generate_unique_path
 
@@ -120,8 +120,8 @@ class YOLOv3CPUModel:
 def visualize(df):
     # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", log=False)
     # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", log=True)
-    visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", log=True)
+    visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", log=True)
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", log=True)
     # visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", log=False)
 
@@ -139,16 +139,16 @@ def main(argv):
 
     # err_node.addfilter(GaussianNoise("mean", "std"))
     # err_node.addfilter(Blur_Gaussian("std"))
-    # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
-    err_node.addfilter(FastRain("probability", "range_id"))
+    err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
+    # err_node.addfilter(FastRain("probability", "range_id"))
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
     # err_node.addfilter(JPEG_Compression("quality"))
 
     # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
-    # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
-    #                    for p in [10 ** i for i in range(-4, 0)]]
-    err_params_list = [{"probability": p, "range_id": 255} for p in [10 ** i for i in range(-4, 0)]]
+    err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
+                       for p in [10 ** i for i in range(-4, 0)]]
+    # err_params_list = [{"probability": p, "range_id": 255} for p in [10 ** i for i in range(-4, 0)]]
     # err_params_list = [
     #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
     #     for p in [10 ** i for i in range(-6, -2)]]

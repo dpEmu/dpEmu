@@ -1,8 +1,8 @@
 import os
+import random as rn
 import subprocess
 
 import cv2
-import pandas as pd
 from numpy.random import RandomState
 from pycocotools.coco import COCO
 from sklearn.datasets import fetch_20newsgroups, fetch_openml, load_digits
@@ -10,7 +10,6 @@ from sklearn.model_selection import train_test_split
 
 data_home = None
 # data_home = "/wrk/users/thalvari/"
-pd.set_option("display.expand_frame_repr", False)
 random_state = RandomState(42)
 
 
@@ -80,21 +79,23 @@ def load_fashion(n_data=70000):
     return data, labels, label_names, "Fashion MNIST"
 
 
-def load_coco_val_2017(n=5000):
+def load_coco_val_2017(n=5000, is_shuffled=False):
     if n not in range(1, 5000):
         n = 5000
     img_folder = "data/val2017"
     if not os.path.isdir(img_folder):
         subprocess.call(["./scripts/get_coco_dataset.sh"])
-    path_to_yolov3_weights = "tmp/yolov3-spp_best.weights"
-    if not os.path.isfile(path_to_yolov3_weights):
-        subprocess.call(["./scripts/get_yolov3.sh"])
 
     coco = COCO("data/annotations/instances_val2017.json")
-    img_ids = sorted(coco.getImgIds())[:n]
+    img_ids = coco.getImgIds()
+    if is_shuffled:
+        rn.shuffle(img_ids)
+    img_ids = img_ids[:n]
     img_dicts = coco.loadImgs(img_ids)
-    imgs = [cv2.imread(os.path.join(img_folder, img_dict["file_name"])) for img_dict in img_dicts]
+    img_filenames = [img_dict["file_name"] for img_dict in img_dicts]
+    imgs = [cv2.imread(os.path.join(img_folder, img_filename)) for img_filename in img_filenames]
+    imgs = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in imgs]
     with open("data/coco.names", "r") as fp:
         class_names = [line.strip() for line in fp.readlines()]
 
-    return imgs, img_ids, class_names
+    return imgs, img_ids, class_names, img_filenames

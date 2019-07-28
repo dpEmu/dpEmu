@@ -3,15 +3,17 @@ import random
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from graphviz import Digraph
 from matplotlib.colors import LinearSegmentedColormap
 
 from src.problemgenerator.filters import Filter
 from src.utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
+pd.set_option("display.expand_frame_repr", False)
+
 
 def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, log=False):
-
     dfs = split_df_by_model(df)
 
     n_scores = len(score_names)
@@ -53,6 +55,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
     Returns:
         [type]: [description]
     """
+
     def get_lims(data):
         """[summary]
 
@@ -113,6 +116,7 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_d
     Returns:
         [type]: [description]
     """
+
     def get_lims(data):
         """[summary]
 

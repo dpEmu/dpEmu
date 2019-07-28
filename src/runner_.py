@@ -33,11 +33,13 @@ def worker(inputs):
         err_train_data = err_root_node.generate_error(train_data, err_params)
     err_test_data = err_root_node.generate_error(test_data, err_params)
     time_used_err = time.time() - time_start
+
     time_start = time.time()
     preproc_train_data, preproc_err_test_using_train, result_base_using_train = preproc().run(train_data, err_test_data)
     preproc_err_train_data, preproc_err_test_using_err_train, result_base_using_err_train = preproc().run(
         err_train_data, err_test_data)
     time_used_preproc = time.time() - time_start
+
     results = []
     for model_params_dict in model_params_dict_list:
         model = model_params_dict["model"]

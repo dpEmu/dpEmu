@@ -1,6 +1,5 @@
 *
 !.gitignore
-!mnist_subset/
 !temperature.csv
 !passengers.csv
-!*.sh
+!coco*

@@ -17,6 +17,7 @@ from src import runner_
 from src.datasets.utils import load_newsgroups
 from src.ml.utils import reduce_dimensions_sparse
 from src.plotting.utils import visualize_scores, visualize_classes, print_results, visualize_confusion_matrices
+from src.plotting.utils import visualize_best_model_params
 from src.problemgenerator.array import Array
 from src.problemgenerator.filters import MissingArea
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator
@@ -87,6 +88,14 @@ class LinearSVCModel(AbstractModel):
 def visualize(df, dataset_name, label_names, test_data):
     visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], [True, True], "p",
                      f"{dataset_name} classification scores with added error")
+    visualize_best_model_params(df, "MultinomialNB", ["alpha"], ["train_mean_accuracy"], [True], "p",
+                                f"Best parameters for {dataset_name} clustering")
+    visualize_best_model_params(df, "MultinomialNBClean", ["alpha"], ["train_mean_accuracy"], [True], "p",
+                                f"Best parameters for {dataset_name} clustering")
+    visualize_best_model_params(df, "LinearSVC", ["C"], ["train_mean_accuracy"], [True], "p",
+                                f"Best parameters for {dataset_name} clustering")
+    visualize_best_model_params(df, "LinearSVCClean", ["C"], ["train_mean_accuracy"], [True], "p",
+                                f"Best parameters for {dataset_name} clustering")
     visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels", "tab20",
                       f"{dataset_name} (n={len(test_data)}) classes with added error")
 

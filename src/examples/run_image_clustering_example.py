@@ -14,6 +14,7 @@ from src import runner_
 from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
 from src.plotting.utils import visualize_scores, visualize_classes, print_results, visualize_interactive_plot
+from src.plotting.utils import visualize_best_model_params
 from src.problemgenerator.array import Array
 from src.problemgenerator.filters import GaussianNoise, Clip
 
@@ -84,6 +85,8 @@ class HDBSCANModel(AbstractModel):
 def visualize(df, label_names, dataset_name, data):
     visualize_scores(df, ["AMI", "ARI"], [True, True], "std",
                      f"{dataset_name} clustering scores with added gaussian noise")
+    visualize_best_model_params(df, "HDBSCAN", ["min_cluster_size", "min_samples"], ["AMI", "ARI"], [True, True], "std",
+                                f"Best parameters for {dataset_name} clustering")
     visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
                       f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
 

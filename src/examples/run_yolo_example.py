@@ -7,6 +7,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from PIL import Image
 from numpy.random import RandomState
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
@@ -87,6 +88,9 @@ class YOLOv3CPUModel:
 
         if self.show_imgs:
             cv2.imshow(str(img_id), img)
+            path_to_img = generate_unique_path("out", "jpg")
+            img = Image.fromarray(img)
+            img.save(path_to_img, "jpeg", quality=100)
             cv2.waitKey()
             cv2.destroyAllWindows()
 

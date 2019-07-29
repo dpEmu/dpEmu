@@ -151,4 +151,4 @@ The error parameter makes the resolution k times smaller.
 
 #### The results of Resolution filter
 
-![Resolution]()
+![Resolution](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Resolution/20190729-180019-917356.png)

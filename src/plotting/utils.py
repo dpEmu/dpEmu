@@ -14,6 +14,19 @@ pd.set_option("display.expand_frame_repr", False)
 
 
 def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, log=False):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df (pandas.DataFrame): [description]
+        score_names (list): [description]
+        is_higher_score_better (list): [description]
+        err_param_name (str): [description]
+        title (str): The title of the plot
+        log (bool, optional): [description]. Defaults to False.
+    """
+
     dfs = split_df_by_model(df)
 
     n_scores = len(score_names)
@@ -39,6 +52,20 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
 
 
 def visualize_best_model_params(df, model_name, model_params, scores, higher_is_better, err_param, title, log=False):
+    """[summary]
+
+    [extended_summary]
+
+    Args:
+        df ([type]): [description]
+        model_name ([type]): [description]
+        model_params ([type]): [description]
+        scores ([type]): [description]
+        higher_is_better ([type]): [description]
+        err_param ([type]): [description]
+        title ([type]): [description]
+        log (bool, optional): [description]. Defaults to False.
+    """
     dfs = split_df_by_model(df)
 
     for model_param in model_params:

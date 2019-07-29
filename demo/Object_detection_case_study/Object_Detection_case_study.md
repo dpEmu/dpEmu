@@ -1,6 +1,6 @@
 # Object Detection case study
 
-## Comparison of models from FaceBook's Detectron-project and YOLOv3GPU
+## Comparison of models from FaceBook's Detectron-project and YOLOv3
 
 We compared the performance of models from FaceBook's Detectron project and YOLOv3 model from Joseph Redmon, when different error sources were added. The models from FaceBook's Detectron project were FasterRCNN, MaskRCNN and RetinaNet.
 
@@ -76,19 +76,19 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 
 ##### probability 0.0001
 
-![probability 10^-4]()
+![probability 10^-4](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Snow/20190729-151434-149765.jpg)
 
 ##### probability 0.001
 
-![probability 10^-3]()
+![probability 10^-3](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Snow/20190729-151443-736282.jpg)
 
 ##### probability 0.01
 
-![probability 10^-2]()
+![probability 10^-2](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Snow/20190729-151452-361038.jpg)
 
 ##### probability 0.1
 
-![probability 10^-1]()
+![probability 10^-1](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Snow/20190729-151507-952953.jpg)
 
 #### The results of Snow filter
 
@@ -100,19 +100,19 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 
 ##### quality 10
 
-![quality 10]()
+![quality 10](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/JPEG_Compression/20190729-150821-361183.jpg)
 
 ##### quality 20
 
-![quality 20]()
+![quality 20](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/JPEG_Compression/20190729-150831-366993.jpg)
 
 ##### quality 30
 
-![quality 30]()
+![quality 30](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/JPEG_Compression/20190729-150839-587541.jpg)
 
 ##### quality 100
 
-![quality 100]()
+![quality 100](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/JPEG_Compression/20190729-150847-940301.jpg)
 
 #### The results of JPEG Compression filter
 
@@ -124,19 +124,19 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 
 ##### Value of k 1
 
-![k 1]()
+![k 1](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Resolution/20190729-151611-205148.jpg)
 
 ##### Value of k 2
 
-![k 2]()
+![k 2](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Resolution/20190729-151621-167993.jpg)
 
 ##### Value of k 3
 
-![k 3]()
+![k 3](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Resolution/20190729-151630-067637.jpg)
 
 ##### Value of k 4
 
-![k 4]()
+![k 4](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Resolution/20190729-151639-036737.jpg)
 
 #### The results of Resolution filter
 

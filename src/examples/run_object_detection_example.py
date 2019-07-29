@@ -11,7 +11,7 @@ from src import runner_
 from src.datasets.utils import load_coco_val_2017
 from src.plotting.utils import print_results, visualize_scores
 from src.problemgenerator.array import Array
-from src.problemgenerator.filters import JPEG_Compression
+from src.problemgenerator.filters import ResolutionVectorized
 from src.problemgenerator.series import Series
 
 
@@ -126,7 +126,8 @@ def visualize(df):
     # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", log=True)
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", log=True)
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", log=True)
-    visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", log=False)
+    visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", log=False)
 
     plt.show()
 
@@ -142,7 +143,8 @@ def main():
     # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
     # err_node.addfilter(FastRain("probability", "range_id"))
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
-    err_node.addfilter(JPEG_Compression("quality"))
+    # err_node.addfilter(JPEG_Compression("quality"))
+    err_node.addfilter(ResolutionVectorized("k"))
     # err_node.addfilter(Identity())
 
     # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
@@ -153,7 +155,8 @@ def main():
     # err_params_list = [
     #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
     #     for p in [10 ** i for i in range(-6, -2)]]
-    err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
+    # err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
+    err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
     # err_params_list = [{}]
 
     model_params_dict_list = [

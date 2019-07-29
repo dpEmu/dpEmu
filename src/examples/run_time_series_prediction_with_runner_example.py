@@ -1,5 +1,4 @@
 import random as rn
-from copy import deepcopy
 from io import BytesIO
 
 import matplotlib.pyplot as plt
@@ -17,8 +16,13 @@ from sklearn.preprocessing import MinMaxScaler
 
 import src.problemgenerator.array as array
 import src.problemgenerator.filters as filters
-from src import runner
+from src import runner_
 from src.problemgenerator.utils import to_time_series_x_y
+
+
+class Preprocessor:
+    def run(self, train_data, test_data):
+        return train_data, test_data, {}
 
 
 class Model:
@@ -44,7 +48,7 @@ class Model:
         byte_img = BytesIO(byte_img)
         return Image.open(byte_img)
 
-    def run(self, data, model_params):
+    def run(self, _, data, model_params):
         seed = model_params["seed"]
         rn.seed(seed)
         np.random.seed(seed)
@@ -99,53 +103,30 @@ class Model:
         }
 
 
-# Add gaussian noise with parameters to data
-class ErrGen:
-    def __init__(self, data):
-        self.data = data
-
-    def generate_error(self, params):
-        seed = params["seed"]
-        y = deepcopy(self.data)
-        root_node = array.Array(y.shape)
-
-        # root_node.addfilter(filters.GaussianNoise("mean", "std"))
-        root_node.addfilter(filters.SensorDrift("magnitude"))
-        # root_node.addfilter(filters.Gap("prob_break", "prob_recover", "value"))
-
-        return root_node.generate_error(y, params, np.random.RandomState(seed=seed))
-
-
-# Ternary searches best parameter
-class ParamSelector:
-    def __init__(self, params):
-        self.params = params
-
-    def next(self):
-        return self.params
-
-    def analyze(self, res):
-        self.params = None
-
-
 # Example usage
 def main():
     data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"]).values.astype(float)
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:200].values.astype(float)
 
-    err_gen = ErrGen(data)
+    model_params_list = [
+        {"model": Model, "params_list": [{"seed": 42}]}
+    ]
 
-    model = Model()
-    # param_selector = ParamSelector([({"mean": a, "std": b, "seed": d}, {"seed": c}) for (a, b, c, d) in
-    #                                 [(0, 0, 0, 0), (0, 15, 0, 0), (0, 20, 0, 0)]])
-    param_selector = ParamSelector([({"magnitude": a, "seed": 42}, {"seed": 42}) for a in [0, 2, 10]])
-    # param_selector = ParamSelector([({"prob_break": a, "prob_recover": b, "value": np.nan, "seed": d},
-    #                                 {"seed": c}) for (a, b, c, d) in
-    #                                 [(.1, .5, 0, 0), (.1, .5, 0, 0), (.1, .5, 0, 0)]])
+    root_node = array.Array(data.shape)
 
-    res = runner.run(model, err_gen, param_selector)
+    # root_node.addfilter(filters.GaussianNoise("mean", "std"))
+    root_node.addfilter(filters.SensorDrift("magnitude"))
+    # root_node.addfilter(filters.Gap("prob_break", "prob_recover", "value"))
+
+    # err_params_list = [{"mean": a, "std": b} for (a, b) in [(0, 0), (0, 15), (0, 20)]]
+    err_params_list = [{"magnitude": a} for a in [0, 2, 10]]
+    # err_params_list = [{"prob_break": a, "prob_recover": b, "value": np.nan}
+    #                    for (a, b) in [(0, 1), (.02, .8), (.1, .5)]]
+
+    res = runner_.run(None, data, Preprocessor, root_node, err_params_list, model_params_list)
     print(res)
 
 
-# Call main
-main()
+if __name__ == "__main__":
+    # Call main
+    main()

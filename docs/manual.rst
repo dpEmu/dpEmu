@@ -113,6 +113,11 @@ Here is a simple example of a preprocessor, which does nothing to the original d
             negative_data = -test_data
             return train_data, test_data, {"negative_data": negative_data}
 
+Error generation tree
+"""""""""""""""""""""
+
+The root node of the error generation tree should be given to the runner. The structure of the error generation tree is described above.
+
 Error parameter list
 """"""""""""""""""""
 

@@ -48,6 +48,26 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 
 ### Rain filter
 
+#### Example images using the filter:
+
+##### probability 0.0001
+
+![probability 10^-4](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Rain/20190729-151307-080828.jpg)
+
+##### probability 0.001
+
+![probability 10^-3](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Rain/20190729-151314-483299.jpg)
+
+##### probability 0.01
+
+![probability 10^-2](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Rain/20190729-151323-269028.jpg)
+
+##### probability 0.1
+
+![probability 10^-1](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Rain/20190729-151330-649152.jpg)
+
+#### The results
+
 ![Rain](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Rain/20190727-103514-755422.png)
 
 ### Snow filter

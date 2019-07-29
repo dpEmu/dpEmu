@@ -38,6 +38,34 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
         fig.savefig(path_to_plot)
 
 
+def visualize_best_model_params(df, model_name, model_params, scores, higher_is_better, err_param, title, log=False):
+    dfs = split_df_by_model(df)
+
+    for model_param in model_params:
+        plt.figure()
+        ax = plt.subplot(111)
+        for i, _ in enumerate(scores):
+            for df_ in dfs:
+                if df_.name != model_name:
+                    continue
+                df_ = filter_optimized_results(df_, err_param, scores[i], higher_is_better[i])
+                if log:
+                    plt.semilogx(df_[err_param], df_[model_param], label=df_.name)
+                else:
+                    plt.plot(df_[err_param], df_[model_param], label=scores[i])
+                    ax.set_xlim([df_[err_param].min(), df_[err_param].max()])
+                ax.set_xlabel(err_param)
+                ax.set_ylabel(model_param)
+                plt.legend(fontsize="small")
+
+        plt.subplots_adjust(wspace=.25)
+        plt.suptitle(title + " (" + model_name + ")")
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+        path_to_plot = generate_unique_path("out", "png")
+        plt.savefig(path_to_plot)
+
+
 def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels_name, cmap, title):
     """[summary]
 

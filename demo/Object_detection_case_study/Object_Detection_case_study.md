@@ -42,7 +42,7 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 
 ![std 1.0](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Blur_Gaussian/20190729-150714-401435.jpg)
 
-#### The results
+#### The results of Gaussian Blur filter
 
 ![Gaussian Blur](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Blur_Gaussian/20190728-011623-029059.png)
 
@@ -66,18 +66,78 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 
 ![probability 10^-1](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Rain/20190729-151330-649152.jpg)
 
-#### The results
+#### The results of Rain filter 
 
 ![Rain](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Rain/20190727-103514-755422.png)
 
 ### Snow filter
 
+#### Example images using the filter:
+
+##### probability 0.0001
+
+![probability 10^-4]()
+
+##### probability 0.001
+
+![probability 10^-3]()
+
+##### probability 0.01
+
+![probability 10^-2]()
+
+##### probability 0.1
+
+![probability 10^-1]()
+
+#### The results of Snow filter
+
 ![Snow](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Snow/20190727-162540-567252.png)
 
 ### JPEG Compression
 
+#### Example images using the filter:
+
+##### quality 10
+
+![quality 10]()
+
+##### quality 20
+
+![quality 20]()
+
+##### quality 30
+
+![quality 30]()
+
+##### quality 100
+
+![quality 100]()
+
+#### The results of JPEG Compression filter
+
 ![JPEG Compression](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/JPEG_Compression/20190727-062156-111953.png)
 
 ### Resolution
+
+#### Example images using the filter:
+
+##### Value of k 1
+
+![k 1]()
+
+##### Value of k 2
+
+![k 2]()
+
+##### Value of k 3
+
+![k 3]()
+
+##### Value of k 4
+
+![k 4]()
+
+#### The results of Resolution filter
 
 ![Resolution]()

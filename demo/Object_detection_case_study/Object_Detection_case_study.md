@@ -6,23 +6,25 @@ We compared the performance of models from FaceBook's Detectron project and YOLO
 
 ## Data
 
-We used 118 288 jpg-images (COCO train2017) to train the models. 5000 images (COCO val2017) were used to calculate the mAP-50 scores.
+We used 118 288 jpg images (COCO train2017) to train the models. 5000 images (COCO val2017) were used to calculate the mAP-50 scores.
 
 Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and RetinaNet. YOLOv3's weights were trained by us, using the Kale cluster of University of Helsinki. The training took approximately five days when two NVIDIA Tesla V100 GPUs were used. 
 
-## Error types used in the case study
+## Error types (Filters) used in the case study
 
 * Gaussian blur
 
-* Rain
+* Added rain
 
-* Snow
+* Added snow
 
 * JPEG compression
 
 * Resolution change
 
 ### Gaussian blur filter
+
+The error parameter here is the standard deviation (std) for the Gaussian distribution.
 
 #### Example images using the filter:
 
@@ -48,6 +50,8 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 
 ### Rain filter
 
+The error parameter here is the probability of rain.
+
 #### Example images using the filter:
 
 ##### probability 0.0001
@@ -71,6 +75,9 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 ![Rain](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/Rain/20190727-103514-755422.png)
 
 ### Snow filter
+
+The error parameter here is the probability of snow. The other parameters had static values as follows: 
+"snowflake_alpha": .4, "snowstorm_alpha": 0
 
 #### Example images using the filter:
 
@@ -96,6 +103,8 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 
 ### JPEG Compression
 
+The error parameter here is the quality of JPEG-compression. The higher the value, the better quality the picture has.
+
 #### Example images using the filter:
 
 ##### quality 10
@@ -119,6 +128,8 @@ Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and Retina
 ![JPEG Compression](https://github.com/dpEmu/dpEmu/blob/object_detection_case_study/demo/Object_detection_case_study/JPEG_Compression/20190727-062156-111953.png)
 
 ### Resolution
+
+The error parameter makes the resolution k times smaller.
 
 #### Example images using the filter:
 

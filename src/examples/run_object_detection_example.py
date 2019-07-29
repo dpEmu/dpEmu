@@ -9,9 +9,10 @@ from numpy.random import RandomState
 
 from src import runner_
 from src.datasets.utils import load_coco_val_2017
+from src.ml.utils import run_ml_module_using_cli
 from src.plotting.utils import print_results, visualize_scores
 from src.problemgenerator.array import Array
-from src.problemgenerator.filters import ResolutionVectorized
+from src.problemgenerator.filters import Identity
 from src.problemgenerator.series import Series
 
 
@@ -27,16 +28,18 @@ def write_imgs_to_disk(imgs, img_filenames):
         img.save(path_to_img, "jpeg", quality=100)
 
 
-def get_map_score():
-    with open("tmp/results.txt", "r") as file:
-        text = file.read()
-    return float(re.findall(r"[-+]?\d*\.\d+", text)[1])
-
-
 class YOLOv3GPUModel:
 
     def __init__(self):
         self.random_state = RandomState(42)
+
+    @staticmethod
+    def __get_map_score(out):
+        for line in out:
+            if "mAP@0.50" in line:
+                matches = re.findall(r"[-+]?\d*\.\d+", line)
+                return float(matches[1])
+        return None
 
     def run(self, _, imgs, params):
         img_filenames = params["img_filenames"]
@@ -46,9 +49,10 @@ class YOLOv3GPUModel:
             subprocess.call(["./scripts/get_yolov3.sh"])
 
         write_imgs_to_disk(imgs, img_filenames)
-        subprocess.call(["./scripts/run_darknet.sh"])
+        cline = "libs/darknet/darknet detector map data/coco.data tmp/yolov3-spp.cfg tmp/yolov3-spp_best.weights"
+        out = run_ml_module_using_cli(cline)
 
-        return {"mAP-50": round(get_map_score(), 3)}
+        return {"mAP-50": round(self.__get_map_score(out), 3)}
 
 
 class AbstractDetectronModel(ABC):
@@ -56,15 +60,30 @@ class AbstractDetectronModel(ABC):
     def __init__(self):
         self.random_state = RandomState(42)
 
+    @staticmethod
+    def __get_map_score(out):
+        for line in out:
+            if "IoU=0.50 " in line:
+                matches = re.findall(r"[-+]?\d*\.\d+", line)
+                return float(matches[1])
+        return None
+
     def run(self, _, imgs, params):
         img_filenames = params["img_filenames"]
         path_to_cfg = self.get_path_to_cfg()
         url_to_weights = self.get_url_to_weights()
 
         write_imgs_to_disk(imgs, img_filenames)
-        subprocess.call(["./scripts/run_detectron.sh", path_to_cfg, url_to_weights])
+        cline = f"""libs/Detectron/tools/test_net.py \
+            --cfg {path_to_cfg} \
+            TEST.WEIGHTS {url_to_weights} \
+            NUM_GPUS 1 \
+            TEST.DATASETS '("coco_2017_val",)' \
+            MODEL.MASK_ON False \
+            OUTPUT_DIR tmp"""
+        out = run_ml_module_using_cli(cline)
 
-        return {"mAP-50": round(get_map_score(), 3)}
+        return {"mAP-50": round(self.__get_map_score(out), 3)}
 
     @abstractmethod
     def get_path_to_cfg(self):
@@ -144,8 +163,8 @@ def main():
     # err_node.addfilter(FastRain("probability", "range_id"))
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
     # err_node.addfilter(JPEG_Compression("quality"))
-    err_node.addfilter(ResolutionVectorized("k"))
-    # err_node.addfilter(Identity())
+    # err_node.addfilter(ResolutionVectorized("k"))
+    err_node.addfilter(Identity())
 
     # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
@@ -156,13 +175,13 @@ def main():
     #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
     #     for p in [10 ** i for i in range(-6, -2)]]
     # err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
-    err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
-    # err_params_list = [{}]
+    # err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
+    err_params_list = [{}]
 
     model_params_dict_list = [
-        {"model": FasterRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
-        {"model": MaskRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
-        {"model": RetinaNetModel, "params_list": [{"img_filenames": img_filenames}]},
+        # {"model": FasterRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
+        # {"model": MaskRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
+        # {"model": RetinaNetModel, "params_list": [{"img_filenames": img_filenames}]},
         {"model": YOLOv3GPUModel, "params_list": [{"img_filenames": img_filenames}]},
     ]
 
@@ -170,7 +189,7 @@ def main():
 
     print_results(df, ["img_ids", "img_filenames", "show_imgs", "mean", "radius_generator", "transparency_percentage",
                        "range_id", "snowflake_alpha", "snowstorm_alpha"])
-    visualize(df)
+    # visualize(df)
 
 
 if __name__ == "__main__":

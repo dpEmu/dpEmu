@@ -1,3 +1,4 @@
+import shlex
 import subprocess
 
 from sklearn.decomposition import PCA, TruncatedSVD
@@ -5,7 +6,7 @@ from sklearn.random_projection import johnson_lindenstrauss_min_dim, SparseRando
 from umap import UMAP
 
 
-def run_ml_script(cline):
+def run_ml_module_using_cli(cline):
     """[summary]
 
     [extended_summary]
@@ -13,23 +14,10 @@ def run_ml_script(cline):
     Args:
         cline ([type]): [description]
     """
-    _run_script(cline.split())
-
-
-def _run_script(args):
-    """[summary]
-
-    [extended_summary]
-
-    Args:
-        args ([type]): [description]
-    """
-    prog = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    out, err = prog.communicate()
-    if out:
-        print(out)
-    if err:
-        print(err)
+    proc = subprocess.Popen(shlex.split(cline), stdout=subprocess.PIPE, universal_newlines=True)
+    out, _ = proc.communicate()
+    print(out)
+    return out
 
 
 def reduce_dimensions(data, random_state, target_dim=2):

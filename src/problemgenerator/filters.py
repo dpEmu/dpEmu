@@ -1116,14 +1116,17 @@ class Identity(Filter):
 
 
 class BinaryFilter(Filter):
-    """[summary]
-
-    [extended_summary]
+    """This abstract filter takes two filters and applies some pairwise binary operation on their results.
 
     Inherits Filter class.
     """
 
     def __init__(self, filter_a_id, filter_b_id):
+        """
+        Args:
+            filter_a_id (str): A key which maps to the first filter
+            filter_b_id (str): A key which maps to the second filter
+        """
         super().__init__()
         self.filter_a_id = filter_a_id
         self.filter_b_id = filter_b_id
@@ -1144,24 +1147,19 @@ class BinaryFilter(Filter):
 
     @abstractmethod
     def operation(self, element_a, element_b):
-        """[summary]
-
-        [extended_summary]
+        """The operation which is applied pairwise on the n-dimensional arrays of child filters.
 
         Args:
-            element_a ([type]): [description]
-            element_b ([type]): [description]
+            element_a (object): The first element
+            element_b (object): The second element
         """
         pass
 
 
 class Addition(BinaryFilter):
-    """[summary]
+    """This filter does pairwise addition on the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1169,15 +1167,9 @@ class Addition(BinaryFilter):
 
 
 class Subtraction(BinaryFilter):
-    """[summary]
+    """This filter does pairwise subtraction on the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1185,15 +1177,9 @@ class Subtraction(BinaryFilter):
 
 
 class Multiplication(BinaryFilter):
-    """[summary]
+    """This filter does pairwise multiplication on the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1201,15 +1187,9 @@ class Multiplication(BinaryFilter):
 
 
 class Division(BinaryFilter):
-    """[summary]
+    """This filter does pairwise division on the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1217,15 +1197,9 @@ class Division(BinaryFilter):
 
 
 class IntegerDivision(BinaryFilter):
-    """[summary]
+    """This filter does pairwise integer division on the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1233,15 +1207,9 @@ class IntegerDivision(BinaryFilter):
 
 
 class Modulo(BinaryFilter):
-    """[summary]
+    """This filter does pairwise modulo operation on the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1249,15 +1217,9 @@ class Modulo(BinaryFilter):
 
 
 class And(BinaryFilter):
-    """[summary]
+    """This filter does pairwise bitwise AND on the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1265,15 +1227,9 @@ class And(BinaryFilter):
 
 
 class Or(BinaryFilter):
-    """[summary]
+    """"This filter does pairwise bitwise OR on the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1281,15 +1237,9 @@ class Or(BinaryFilter):
 
 
 class Xor(BinaryFilter):
-    """[summary]
+    """This filter does pairwise bitwise XOR on the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1297,9 +1247,10 @@ class Xor(BinaryFilter):
 
 
 class Difference(Filter):
-    """
-    Returns the difference between the original and the filtered data,
+    """This filter returns the difference between the original and the filtered data,
     i.e. it is shorthand for Subtraction(filter, Identity()).
+
+    Inherits BinaryFilter class.
     """
 
     def __init__(self, ftr_id):
@@ -1317,15 +1268,10 @@ class Difference(Filter):
 
 
 class Max(BinaryFilter):
-    """[summary]
+    """This filter returns a multidimensional array of pairwise maximums
+    of the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):
@@ -1333,15 +1279,10 @@ class Max(BinaryFilter):
 
 
 class Min(BinaryFilter):
-    """[summary]
+    """This filter returns a multidimensional array of pairwise minimums
+    of the multidimensional arrays returned by the child filters.
 
-    [extended_summary]
-
-    Args:
-        BinaryFilter ([type]): [description]
-
-    Returns:
-        [type]: [description]
+    Inherits BinaryFilter class.
     """
 
     def operation(self, element_a, element_b):

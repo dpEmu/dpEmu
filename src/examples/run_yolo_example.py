@@ -144,6 +144,8 @@ def visualize(df):
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", log=True)
     # visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", log=False)
     visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with brightness", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with saturation", log=False)
 
     plt.show()
 
@@ -164,6 +166,8 @@ def main(argv):
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
     # err_node.addfilter(JPEG_Compression("quality"))
     err_node.addfilter(ResolutionVectorized("k"))
+    # err_node.addfilter(BrightnessVectorized("tar", "rate", "range"))
+    # err_node.addfilter(SaturationVectorized("tar", "rate", "range"))
     # err_node.addfilter(Identity())
 
     # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
@@ -176,6 +180,7 @@ def main(argv):
     #     for p in [10 ** i for i in range(-6, -2)]]
     # err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
     err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
+    # err_params_list = [{"tar": 1, "rate": rat, "range": 255} for rat in [0.0, 0.5, 1.0, 10.0, 20.0]]
     # err_params_list = [{}]
 
     model_params_dict_list = [

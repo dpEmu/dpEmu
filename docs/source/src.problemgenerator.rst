@@ -44,6 +44,14 @@ src.problemgenerator.series module
    :undoc-members:
    :show-inheritance:
 
+src.problemgenerator.tuple module
+---------------------------------
+
+.. automodule:: src.problemgenerator.tuple
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.problemgenerator.utils module
 ---------------------------------
 

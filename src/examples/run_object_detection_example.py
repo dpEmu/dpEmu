@@ -179,10 +179,10 @@ def main():
     err_params_list = [{}]
 
     model_params_dict_list = [
-        # {"model": FasterRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
-        # {"model": MaskRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
-        # {"model": RetinaNetModel, "params_list": [{"img_filenames": img_filenames}]},
         {"model": YOLOv3GPUModel, "params_list": [{"img_filenames": img_filenames}]},
+        # {"model": FasterRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
+        {"model": MaskRCNNModel, "params_list": [{"img_filenames": img_filenames}]},
+        # {"model": RetinaNetModel, "params_list": [{"img_filenames": img_filenames}]},
     ]
 
     df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)

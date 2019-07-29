@@ -33,14 +33,6 @@ class YOLOv3GPUModel:
     def __init__(self):
         self.random_state = RandomState(42)
 
-    @staticmethod
-    def __get_map_score(out):
-        for line in out:
-            if "mAP@0.50" in line:
-                matches = re.findall(r"[-+]?\d*\.\d+", line)
-                return float(matches[1])
-        return None
-
     def run(self, _, imgs, params):
         img_filenames = params["img_filenames"]
 
@@ -52,21 +44,14 @@ class YOLOv3GPUModel:
         cline = "libs/darknet/darknet detector map data/coco.data tmp/yolov3-spp.cfg tmp/yolov3-spp_best.weights"
         out = run_ml_module_using_cli(cline)
 
-        return {"mAP-50": round(self.__get_map_score(out), 3)}
+        match = re.search(r"\(mAP@0.50\) = (\d+\.\d+)", out)
+        return {"mAP-50": round(float(match.group(1)), 3)}
 
 
 class AbstractDetectronModel(ABC):
 
     def __init__(self):
         self.random_state = RandomState(42)
-
-    @staticmethod
-    def __get_map_score(out):
-        for line in out:
-            if "IoU=0.50 " in line:
-                matches = re.findall(r"[-+]?\d*\.\d+", line)
-                return float(matches[1])
-        return None
 
     def run(self, _, imgs, params):
         img_filenames = params["img_filenames"]
@@ -83,7 +68,8 @@ class AbstractDetectronModel(ABC):
             OUTPUT_DIR tmp"""
         out = run_ml_module_using_cli(cline)
 
-        return {"mAP-50": round(self.__get_map_score(out), 3)}
+        match = re.search(r"IoU=0.50      \| area=   all \| maxDets=100 ] = (\d+\.\d+)", out)
+        return {"mAP-50": round(float(match.group(1)), 3)}
 
     @abstractmethod
     def get_path_to_cfg(self):

@@ -19,7 +19,7 @@ def worker(inputs):
     Returns:
         [type]: [description]
     """
-    path_to_train_data, path_to_test_data, preproc, err_root_node, err_params, model_params_dict_list, \
+    path_to_train_data, path_to_test_data, preproc, preproc_params, err_root_node, err_params, model_params_dict_list, \
         use_interactive_mode = inputs
 
     with open(path_to_train_data, "rb") as file:
@@ -35,9 +35,10 @@ def worker(inputs):
     time_used_err = time.time() - time_start
 
     time_start = time.time()
-    preproc_train_data, preproc_err_test_using_train, result_base_using_train = preproc().run(train_data, err_test_data)
+    preproc_train_data, preproc_err_test_using_train, result_base_using_train = preproc().run(
+        train_data, err_test_data, preproc_params)
     preproc_err_train_data, preproc_err_test_using_err_train, result_base_using_err_train = preproc().run(
-        err_train_data, err_test_data)
+        err_train_data, err_test_data, preproc_params)
     time_used_preproc = time.time() - time_start
 
     results = []
@@ -77,8 +78,8 @@ def worker(inputs):
     return results
 
 
-def run(train_data, test_data, preproc, err_root_node, err_params_list, model_params_dict_list, n_processes=None,
-        use_interactive_mode=False):
+def run(train_data, test_data, preproc, preproc_params, err_root_node, err_params_list, model_params_dict_list,
+        n_processes=None, use_interactive_mode=False):
     """[summary]
 
     [extended_summary]
@@ -104,6 +105,7 @@ def run(train_data, test_data, preproc, err_root_node, err_params_list, model_pa
         path_to_train_data,
         path_to_test_data,
         preproc,
+        preproc_params,
         err_root_node,
         err_params,
         model_params_dict_list,

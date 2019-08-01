@@ -43,12 +43,12 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
             ax.set_ylabel(score_names[i])
             ax.legend(fontsize="small")
 
-        fig.subplots_adjust(wspace=.25)
-        fig.suptitle(title)
-        fig.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.subplots_adjust(wspace=.25)
+    fig.suptitle(title)
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
 
-        path_to_plot = generate_unique_path("out", "png")
-        fig.savefig(path_to_plot)
+    path_to_plot = generate_unique_path("out", "png")
+    fig.savefig(path_to_plot)
 
 
 def visualize_best_model_params(

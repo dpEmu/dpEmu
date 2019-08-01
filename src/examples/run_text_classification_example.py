@@ -16,8 +16,8 @@ from sklearn.svm import LinearSVC
 from src import runner_
 from src.datasets.utils import load_newsgroups
 from src.ml.utils import reduce_dimensions_sparse
-from src.plotting.utils import visualize_scores, visualize_classes, print_results, visualize_confusion_matrices
 from src.plotting.utils import visualize_best_model_params
+from src.plotting.utils import visualize_scores, visualize_classes, print_results, visualize_confusion_matrices
 from src.problemgenerator.array import Array
 from src.problemgenerator.filters import MissingArea
 from src.problemgenerator.radius_generators import GaussianRadiusGenerator
@@ -31,7 +31,7 @@ class Preprocessor:
     def __init__(self):
         self.random_state = RandomState(42)
 
-    def run(self, train_data, test_data):
+    def run(self, train_data, test_data, _):
         vectorizer = TfidfVectorizer(max_df=0.5, min_df=2, stop_words="english")
         vectorized_train_data = vectorizer.fit_transform(train_data)
         vectorized_test_data = vectorizer.transform(test_data)
@@ -164,7 +164,7 @@ def main(argv):
     err_root_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
     # err_root_node.addfilter(OCRError("normalized_params", "p"))
 
-    df = runner_.run(train_data, test_data, Preprocessor, err_root_node, err_params_list, model_params_dict_list,
+    df = runner_.run(train_data, test_data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
                      use_interactive_mode=True)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",

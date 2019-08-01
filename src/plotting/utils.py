@@ -51,7 +51,10 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
         fig.savefig(path_to_plot)
 
 
-def visualize_best_model_params(df, model_name, model_params, scores, higher_is_better, err_param, title, x_log=False, y_log=False):
+def visualize_best_model_params(
+        df, model_name, model_params, scores, higher_is_better,
+        err_param, title, x_log=False, y_log=False
+        ):
     """[summary]
 
     [extended_summary]

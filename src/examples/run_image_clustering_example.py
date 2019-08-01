@@ -13,8 +13,8 @@ from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 from src import runner_
 from src.datasets.utils import load_digits_, load_mnist, load_fashion
 from src.ml.utils import reduce_dimensions
-from src.plotting.utils import visualize_scores, visualize_classes, print_results, visualize_interactive_plot
 from src.plotting.utils import visualize_best_model_params
+from src.plotting.utils import visualize_scores, visualize_classes, print_results, visualize_interactive_plot
 from src.problemgenerator.array import Array
 from src.problemgenerator.filters import GaussianNoise, Clip
 
@@ -26,9 +26,9 @@ class Preprocessor:
     def __init__(self):
         self.random_state = RandomState(42)
 
-    def run(self, _, data):
+    def run(self, _1, data, _2):
         reduced_data = reduce_dimensions(data, self.random_state)
-        return _, reduced_data, {"reduced_data": reduced_data}
+        return None, reduced_data, {"reduced_data": reduced_data}
 
 
 class AbstractModel(ABC):
@@ -142,7 +142,7 @@ def main(argv):
     err_root_node.addfilter(GaussianNoise("mean", "std"))
     err_root_node.addfilter(Clip("min_val", "max_val"))
 
-    df = runner_.run(None, data, Preprocessor, err_root_node, err_params_list, model_params_dict_list,
+    df = runner_.run(None, data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
                      use_interactive_mode=True)
 
     print_results(df, ["labels", "reduced_data"])

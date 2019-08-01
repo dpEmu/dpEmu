@@ -6,8 +6,8 @@ Description
 
 dpEmu is a Python library for emulating data problems in use and training of machine learning systems.
 
-Installation
-------------
+Installation on a home computer
+-------------------------------
 
 To install dpEmu on your computer, run the following commands in your terminal:
 
@@ -29,6 +29,63 @@ You need to run also the following commands if you want to run the object detect
     ./scripts/install_detectron.sh
     git clone git@github.com:dpEmu/darknet.git libs/darknet
     ./scripts/install_darknet.sh
+
+Installation on University of Helsinki clusters (Ukko2 and Kale)
+----------------------------------------------------------------
+
+To install dpEmu on Kale or Ukko2 clusters, first establish a ssh connection to the cluster:
+
+.. code-block:: bash
+
+    ssh ukko2.cs.helsinki.fi
+
+Or:
+
+.. code-block:: bash
+
+    ssh kale.grid.helsinki.fi
+
+Now you can install dpEmu by running the following commands in your terminal:
+
+.. code-block:: bash
+
+    cd $WRKDIR
+    module load Python/3.7.0-intel-2018b
+    git clone git@github.com:dpEmu/dpEmu.git
+    cd dpEmu
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -U pip setuptools wheel --cache-dir $TMPDIR
+    pip install -r requirements.txt --cache-dir $TMPDIR
+    pip install pycocotools --cache-dir $TMPDIR
+
+You need to run also the following commands if you want to run the object detection example:
+
+.. code-block:: bash
+
+    module load CUDA/10.0.130
+    module load cuDNN/7.5.0.56-CUDA-10.0.130
+    git clone git@github.com:dpEmu/Detectron.git libs/Detectron
+    ./scripts/install_detectron.sh
+    git clone git@github.com:dpEmu/darknet.git libs/darknet
+    ./scripts/install_darknet.sh
+
+Running jobs on Kale or Ukko2
+-----------------------------
+
+Open file src/datasets/utils.py. For example:
+
+.. code-block:: bash
+
+    nano src/datasets/utils.py
+
+Uncomment the line "data_home = $WRKDIR" and comment the line "data_home = None" so that the file will look like:
+
+.. code-block:: python
+    :linenos:
+
+    # data_home = None
+    data_home = "$WRKDIR"
 
 Usage
 -----

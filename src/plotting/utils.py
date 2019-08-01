@@ -51,7 +51,7 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
         fig.savefig(path_to_plot)
 
 
-def visualize_best_model_params(df, model_name, model_params, scores, higher_is_better, err_param, title, log=False):
+def visualize_best_model_params(df, model_name, model_params, scores, higher_is_better, err_param, title, x_log=False, y_log=False):
     """[summary]
 
     [extended_summary]
@@ -64,7 +64,8 @@ def visualize_best_model_params(df, model_name, model_params, scores, higher_is_
         higher_is_better ([type]): [description]
         err_param ([type]): [description]
         title ([type]): [description]
-        log (bool, optional): [description]. Defaults to False.
+        x_log (bool, optional): [description]. Defaults to False.
+        y_log (bool, optional): [description]. Defaults to False.
     """
     dfs = split_df_by_model(df)
 
@@ -76,8 +77,12 @@ def visualize_best_model_params(df, model_name, model_params, scores, higher_is_
                 if df_.name != model_name:
                     continue
                 df_ = filter_optimized_results(df_, err_param, scores[i], higher_is_better[i])
-                if log:
-                    plt.semilogx(df_[err_param], df_[model_param], label=df_.name)
+                if x_log and y_log:
+                    plt.loglog(df_[err_param], df_[model_param], label=scores[i])
+                elif x_log:
+                    plt.semilogx(df_[err_param], df_[model_param], label=scores[i])
+                elif y_log:
+                    plt.semilogy(df_[err_param], df_[model_param], label=scores[i])
                 else:
                     plt.plot(df_[err_param], df_[model_param], label=scores[i])
                     ax.set_xlim([df_[err_param].min(), df_[err_param].max()])

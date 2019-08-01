@@ -8,8 +8,10 @@ from pycocotools.coco import COCO
 from sklearn.datasets import fetch_20newsgroups, fetch_openml, load_digits
 from sklearn.model_selection import train_test_split
 
-data_home = None
-# data_home = "/wrk/users/thalvari/"
+if os.environ.get("HYSERVICE"):
+    data_home = "$TMPDIR"
+else:
+    data_home = None
 random_state = RandomState(42)
 
 

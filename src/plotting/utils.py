@@ -14,17 +14,17 @@ pd.set_option("display.expand_frame_repr", False)
 
 
 def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, log=False):
-    """[summary]
-
-    [extended_summary]
+    """Plots the wanted scores for all distinct models that were used.
 
     Args:
-        df (pandas.DataFrame): [description]
-        score_names (list): [description]
-        is_higher_score_better (list): [description]
-        err_param_name (str): [description]
-        title (str): The title of the plot
-        log (bool, optional): [description]. Defaults to False.
+        df (pandas.DataFrame): The dataframe returned by the runner.
+        score_names (list): A list of strings which are the names of the scores for which we want to create a plot.
+        is_higher_score_better (list): A list of booleans for each score type: True means that a higher score
+            is better and False means a lower score is better.
+        err_param_name (str): The error whose distinct values are going to be used on the x-axis.
+        title (str): The title of the plot.
+        log (bool, optional): A bool telling whether a logarithmic scale should be used on x-axis or not.
+            Defaults to False.
     """
 
     dfs = split_df_by_model(df)
@@ -52,44 +52,45 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
 
 
 def visualize_best_model_params(
-        df, model_name, model_params, scores, higher_is_better,
-        err_param, title, x_log=False, y_log=False
+            df, model_name, model_params, score_names, is_higher_score_better,
+            err_param_name, title, x_log=False, y_log=False
         ):
-    """[summary]
-
-    [extended_summary]
+    """Plots the best model parameters for distinct error values.
 
     Args:
-        df ([type]): [description]
-        model_name ([type]): [description]
-        model_params ([type]): [description]
-        scores ([type]): [description]
-        higher_is_better ([type]): [description]
-        err_param ([type]): [description]
-        title ([type]): [description]
-        x_log (bool, optional): [description]. Defaults to False.
-        y_log (bool, optional): [description]. Defaults to False.
+        df (pandas.DataFrame): The dataframe returned by the runner.
+        model_name (str): The name of the model for which we want to plot the best parameters.
+        model_params (list): A list of strings which are the names of the params of the model we want to plot.
+        score_names (list): A list of strings which are the names of the scores for which we want to create a plot.
+        is_higher_score_better (list): A list of booleans for each score type: True means that a higher score
+            is better and False means a lower score is better.
+        err_param_name (str): The error whose distinct values are going to be used on the x-axis.
+         title (str): The title of the plot.
+        x_log (bool, optional): A bool telling whether a logarithmic scale should be used on x-axis or not.
+            Defaults to False.
+        y_log (bool, optional): A bool telling whether a logarithmic scale should be used on y-axis or not.
+            Defaults to False.
     """
     dfs = split_df_by_model(df)
 
     for model_param in model_params:
         plt.figure()
         ax = plt.subplot(111)
-        for i, _ in enumerate(scores):
+        for i, _ in enumerate(score_names):
             for df_ in dfs:
                 if df_.name != model_name:
                     continue
-                df_ = filter_optimized_results(df_, err_param, scores[i], higher_is_better[i])
+                df_ = filter_optimized_results(df_, err_param_name, score_names[i], is_higher_score_better[i])
                 if x_log and y_log:
-                    plt.loglog(df_[err_param], df_[model_param], label=scores[i])
+                    plt.loglog(df_[err_param_name], df_[model_param], label=score_names[i])
                 elif x_log:
-                    plt.semilogx(df_[err_param], df_[model_param], label=scores[i])
+                    plt.semilogx(df_[err_param_name], df_[model_param], label=score_names[i])
                 elif y_log:
-                    plt.semilogy(df_[err_param], df_[model_param], label=scores[i])
+                    plt.semilogy(df_[err_param_name], df_[model_param], label=score_names[i])
                 else:
-                    plt.plot(df_[err_param], df_[model_param], label=scores[i])
-                    ax.set_xlim([df_[err_param].min(), df_[err_param].max()])
-                ax.set_xlabel(err_param)
+                    plt.plot(df_[err_param_name], df_[model_param], label=score_names[i])
+                    ax.set_xlim([df_[err_param_name].min(), df_[err_param_name].max()])
+                ax.set_xlabel(err_param_name)
                 ax.set_ylabel(model_param)
                 plt.legend(fontsize="small")
 
@@ -164,20 +165,18 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
 
 
 def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_data_column, on_click):
-    """[summary]
+    """Creates an interactive plot for each different value of the given error type.
 
-    [extended_summary]
+    The data points in the plots can be clicked to activate a given function.
 
     Args:
-        df ([type]): [description]
-        err_param_name ([type]): [description]
-        data ([type]): [description]
-        scatter_cmap ([type]): [description]
-        reduced_data_column ([type]): [description]
-        on_click ([type]): [description]
-
-    Returns:
-        [type]: [description]
+        df (pandas.DataFrame): The dataframe returned by the runner.
+        err_param_name (str): The name of error parameter based on which the data is grouped by.
+        data (obj): The original data that was given to the runner module.
+        scatter_cmap (str): The color map for the scatter plot
+        reduced_data_column (str): The name of the column containing the reduced data
+        on_click (function): A function used for interactive plotting.
+            When a data point is clicked, the function is given the original and modified elements as its parameters.
     """
 
     def get_lims(data):
@@ -456,13 +455,11 @@ def visualize_error_generator(root_node, view=True):
 
 
 def print_results(df, dropped_columns=[]):
-    """[summary]
-
-    [extended_summary]
+    """Prints the dataframe row by row excluding the unwanted columns.
 
     Args:
-        df ([type]): [description]
-        dropped_columns (list, optional): [description]. Defaults to [].
+        df (pandas.DataFrame): The dataframe returned by the runner.
+        dropped_columns (list, optional): List of the column names we do not want to be printed. Defaults to [].
     """
     dropped_columns.extend(["interactive_err_data"])
 

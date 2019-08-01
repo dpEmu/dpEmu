@@ -10,9 +10,10 @@ from src.problemgenerator.filters import GaussianNoise
 
 
 class Preprocessor:
-    def run(self, train_data, test_data):
-        # Return the original data without preprocessing
-        return train_data, test_data, {}
+    def run(self, train_data, test_data, params):
+        # Preprocess the data by changing its data type from int to float
+        dtype = params["dtype"]
+        return train_data, test_data.astype(dtype), {"dtype": dtype}
 
 
 class PredictorModel:
@@ -57,16 +58,21 @@ def main(argv):
     }]
 
     # Run the whole thing and get DataFrame for visualization
-    df = runner_.run(train_data,
-                     test_data,
-                     Preprocessor,
-                     err_root_node,
-                     err_params_list,
-                     model_params_dict_list,
+    df = runner_.run(train_data=train_data,
+                     test_data=test_data,
+                     preproc=Preprocessor,
+                     preproc_params={"dtype": float},
+                     err_root_node=err_root_node,
+                     err_params_list=err_params_list,
+                     model_params_dict_list=model_params_dict_list,
                      use_interactive_mode=True)
 
     # Visualize mean squared error for all used standard deviations
-    visualize_scores(df, ["MSE"], [False], "std", "Mean squared error")
+    visualize_scores(df=df,
+                     score_names=["MSE"],
+                     is_higher_score_better=[False],
+                     err_param_name="std",
+                     title="Mean squared error")
     plt.show()
 
 

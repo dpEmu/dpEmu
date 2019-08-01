@@ -33,6 +33,8 @@ You need to run also the following commands if you want to run the object detect
 Installation on University of Helsinki clusters (Ukko2 and Kale)
 ----------------------------------------------------------------
 
+First you need to have access rights to the clusters. See instructions for who can get access rights to `Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide#KaleUserGuide-Access>`_ or to `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide#Ukko2UserGuide-1.0Access>`_.
+
 To install dpEmu on Kale or Ukko2 clusters, first establish a ssh connection to the cluster:
 
 .. code-block:: bash
@@ -45,12 +47,13 @@ Or:
 
     ssh kale.grid.helsinki.fi
 
-Now you can install dpEmu by running the following commands in your terminal:
+Now you can install dpEmu by running the following commands in the remote terminal:
 
 .. code-block:: bash
 
     cd $WRKDIR
     module load Python/3.7.0-intel-2018b
+    export SCIKIT_LEARN_DATA=$TMPDIR
     git clone git@github.com:dpEmu/dpEmu.git
     cd dpEmu
     python3 -m venv venv
@@ -70,8 +73,8 @@ You need to run also the following commands if you want to run the object detect
     git clone git@github.com:dpEmu/darknet.git libs/darknet
     ./scripts/install_darknet.sh
 
-Running jobs on Kale or Ukko2
------------------------------
+An example of running a job on Kale or Ukko2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Open file src/datasets/utils.py. For example:
 
@@ -85,7 +88,36 @@ Uncomment the line "data_home = $WRKDIR" and comment the line "data_home = None"
     :linenos:
 
     # data_home = None
-    data_home = "$WRKDIR"
+    data_home = "$TMPDIR"
+
+Create the batch file for the job:
+
+.. code-block:: bash
+
+    nano batch-submit.job
+
+Then write the following content to it and save the file. Remember to put your userid in place of <userid>:
+
+.. code-block:: bash
+
+    #!/bin/bash
+    #SBATCH -J dpEmu
+    #SBATCH --workdir=/wrk/users/<userid>/dpEmu/
+    #SBATCH -o text_classification_result.txt
+    #SBATCH -c 8
+    #SBATCH --mem=256G
+    #SBATCH -t 30:00
+
+    srun python3 -m src.examples.run_text_classification_example all 20
+    srun sleep 60
+
+Submit the batch job to be run:
+
+.. code-block:: bash
+
+    sbatch batch-submit.job
+
+The example src.examples.run_text_classification_example will save images to the dpEmu/out directory. Additionally, the previously specified file text_classification_result.txt will contain statistics about the job. This file is located in the directory dpEmu.
 
 Usage
 -----
@@ -276,8 +308,9 @@ In the end of the example a plot of scores is visualized.
 
     class Preprocessor:
         def run(self, train_data, test_data):
-            # Return the original data without preprocessing
-            return train_data, test_data, {}
+            # Preprocess the data by changing its data type from int to float
+            dtype = params["dtype"]
+            return train_data, test_data.astype(dtype), {"dtype": dtype}
 
 
     class PredictorModel:
@@ -322,16 +355,22 @@ In the end of the example a plot of scores is visualized.
         }]
 
         # Run the whole thing and get DataFrame for visualization
-        df = runner_.run(train_data,
-                        test_data,
-                        Preprocessor,
-                        err_root_node,
-                        err_params_list,
-                        model_params_dict_list,
-                        use_interactive_mode=True)
+        df = runner_.run(train_data=train_data,
+                     test_data=test_data,
+                     preproc=Preprocessor,
+                     preproc_params={"dtype": float},
+                     err_root_node=err_root_node,
+                     err_params_list=err_params_list,
+                     model_params_dict_list=model_params_dict_list,
+                     use_interactive_mode=True)
+
 
         # Visualize mean squared error for all used standard deviations
-        visualize_scores(df, ["MSE"], [False], "std", "Mean squared error")
+        visualize_scores(df=df,
+                     score_names=["MSE"],
+                     is_higher_score_better=[False],
+                     err_param_name="std",
+                     title="Mean squared error")
         plt.show()
 
 

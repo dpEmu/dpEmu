@@ -10,7 +10,7 @@ data = np.array(["shambler", "shub-niggurath", "ogre", "difficulty: nightmare",
 
 t0 = time()
 for i in range(20000):
-    root_node = array.Array(data.shape)
+    root_node = array.Array()
     params = utils.load_ocr_error_params("config/example_text_error_params.json")
     normalized_params = utils.normalize_ocr_error_params(params)
 

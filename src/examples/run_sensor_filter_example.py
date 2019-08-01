@@ -7,7 +7,7 @@ y = np.arange(100.0, 200.0)
 print("Original y:\n", y)
 
 data = y
-root_node = array.Array(y.shape)
+root_node = array.Array()
 print(f"input shape: {data.shape}")
 
 """

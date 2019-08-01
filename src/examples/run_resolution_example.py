@@ -14,7 +14,7 @@ def main():
     # img2 = Image.open("demo/landscape.png")
     # data2 = np.array(img2)
     data = plt.imread("demo/landscape.png")
-    x_node = array.Array(data.shape)
+    x_node = array.Array()
     r = filters.ResolutionVectorized("resolution")
     x_node.addfilter(r)
     start = time.time()

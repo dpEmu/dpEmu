@@ -11,7 +11,7 @@ def main():
 
     # Use the vectorized version
     data = plt.imread(img_path)
-    x_node = array.Array(data.shape)
+    x_node = array.Array()
     b = filters.BrightnessVectorized("tar", "rat", "range")
     x_node.addfilter(b)
     start = time.time()

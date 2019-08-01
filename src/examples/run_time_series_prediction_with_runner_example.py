@@ -112,7 +112,7 @@ def main():
         {"model": Model, "params_list": [{"seed": 42}]}
     ]
 
-    root_node = array.Array(data.shape)
+    root_node = array.Array()
 
     # root_node.addfilter(filters.GaussianNoise("mean", "std"))
     root_node.addfilter(filters.SensorDrift("magnitude"))

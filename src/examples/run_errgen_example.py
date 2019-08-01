@@ -17,7 +17,7 @@ observations, sensors = 100, 10
 data = np.random.randn(observations, sensors)
 
 # Create an Array object to represent the battery of 10 sensors
-sensor_array = array.Array(sensors)
+sensor_array = array.Array()
 
 # Add a Missing filters to randomly transform elements to Nan
 # (NaN = "not a number", i.e. missing or invalid data)

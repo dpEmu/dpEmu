@@ -376,11 +376,13 @@ def visualize_error_generator(root_node, view=True):
     in the graph.
 
     Args:
-        root_node ([type]): [description]
-        view (bool, optional): [description]. Defaults to True.
+        root_node (Node): The root node of the error generation tree.
+        view (bool, optional): If view is True then the error generation tree graph is displayed to user
+            in addition to saving it to a file. If False then it's only saved to file in DOT graph
+            description language. Defaults to True.
 
     Returns:
-        [type]: [description]
+        str: File path to the saved DOT graph description file.
     """
 
     dot = Digraph()
@@ -388,14 +390,12 @@ def visualize_error_generator(root_node, view=True):
     max_param_value_length = 40
 
     def describe_filter(ftr, parent_index, edge_label):
-        """[summary]
-
-        [extended_summary]
+        """Describes a filter as a dot node.
 
         Args:
-            ftr ([type]): [description]
-            parent_index ([type]): [description]
-            edge_label ([type]): [description]
+            ftr (Filter): The filter to be described.
+            parent_index (int): The index of the parent node or filter.
+            edge_label (str): The label of the edge.
         """
         nonlocal index
         index += 1
@@ -428,13 +428,11 @@ def visualize_error_generator(root_node, view=True):
                 describe_filter(value, my_index, key)
 
     def describe(node, parent_index):
-        """[summary]
-
-        [extended_summary]
+        """Describes a node as a dot node.
 
         Args:
-            node ([type]): [description]
-            parent_index ([type]): [description]
+            node (Node): [The node to be described.
+            parent_index (int): The index of the parent node.
         """
         nonlocal index
         index += 1

@@ -12,7 +12,7 @@ def main():
     data = cv2.imread("demo/landscape.png")
     print(type(data))
     print(data.shape)
-    root_node = array.Array(data.shape)
+    root_node = array.Array()
     root_node.addfilter(filters.Rotation("angle"))
     result = root_node.generate_error(data, {'angle': angle})
     # filtered_img = Image.fromarray(result)

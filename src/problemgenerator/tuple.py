@@ -8,6 +8,6 @@ class Tuple(LeafNode):
 
     def process(self, data, random_state, index_tuple=(), named_dims={}):
         """Apply all filters in this node."""
-        node_data, is_list, is_scalar, is_tuple = get_node_data(data, index_tuple)
+        node_data, _, _, _ = get_node_data(data, index_tuple)
         self.apply_filters(node_data, random_state, named_dims)
         assign(data, index_tuple, tuple(node_data))

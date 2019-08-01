@@ -13,7 +13,7 @@ def main():
     data = np.array(img)
     # data = plt.imread(img_path)
 
-    root_node = array.Array(data.shape)
+    root_node = array.Array()
     # root_node.addfilter(filters.Snow("p", "flake_alpha", "storm_alpha"))
     root_node.addfilter(filters.FastRain("p", "r"))
     before = time.time()

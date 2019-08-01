@@ -17,7 +17,7 @@ img_original = Image.fromarray(data, "RGB")
 img_original.show()
 
 # generate error
-root_node = array.Array(data.shape)
+root_node = array.Array()
 # add filter which subtracts each pixel value from 255
 root_node.addfilter(filters.Subtraction("const", "identity"))
 out = root_node.generate_error(data, {'c': 255, 'const': filters.Constant("c"), 'identity': filters.Identity()})

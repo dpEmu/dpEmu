@@ -26,7 +26,7 @@ params["std_inc"] = std_increase
 params["p"] = prob
 
 
-x_node = array.Array(x[0].shape)
+x_node = array.Array()
 x_node.addfilter(filters.GaussianNoiseTimeDependent("mean", "std", "mean_inc", "std_inc"))
 x_node.addfilter(filters.Missing("p"))
 y_node = array.Array(y[0].shape)

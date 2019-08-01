@@ -19,7 +19,7 @@ def img_to_pixel_data(img):
 def main():
     img = Image.open("demo/landscape.png")
     data = img_to_pixel_data(img)
-    root_node = array.Array(data.shape)
+    root_node = array.Array()
     root_node.addfilter(filters.StainArea("p", "radius_gen", "alpha"))
     params = {'p': .00002, "radius_gen": radius_generators.GaussianRadiusGenerator(50, 20), 'alpha': .9}
     result = root_node.generate_error(data, params)

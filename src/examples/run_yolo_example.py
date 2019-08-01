@@ -25,7 +25,7 @@ torch.multiprocessing.set_start_method("spawn", force="True")
 
 
 class Preprocessor:
-    def run(self, _, imgs):
+    def run(self, _1, imgs, _2):
         return None, imgs, {}
 
 
@@ -187,7 +187,8 @@ def main(argv):
         {"model": YOLOv3CPUModel, "params_list": [{"img_ids": img_ids, "class_names": class_names, "show_imgs": True}]}
     ]
 
-    df = runner_.run(None, imgs, Preprocessor, err_root_node, err_params_list, model_params_dict_list, n_processes=1)
+    df = runner_.run(None, imgs, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
+                     n_processes=1)
 
     print_results(df, ["img_ids", "class_names", "show_imgs", "mean", "radius_generator", "transparency_percentage",
                        "range_id", "snowflake_alpha", "snowstorm_alpha"])

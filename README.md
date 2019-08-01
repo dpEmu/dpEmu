@@ -48,7 +48,7 @@ systems.
 
   - [User manual](https://dpemu.readthedocs.io/en/latest/manual.html)
   
-  - Run example format: `python -m src.examples.run_tex_classification_example all 4`
+  - Run example format: `python -m src.examples.run_text_classification_example all 4`
 
 ## Contributing
 

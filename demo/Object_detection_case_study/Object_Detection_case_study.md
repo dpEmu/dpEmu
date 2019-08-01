@@ -28,19 +28,19 @@ The error parameter here is the standard deviation (std) for the Gaussian distri
 
 #### Example images using the filter:
 
-##### std 0.0
+##### std: 0.0
 
 ![std 0.0](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Blur_Gaussian/20190729-150653-727543.jpg)
 
-##### std 1.0
+##### std: 1.0
 
 ![std 1.0](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Blur_Gaussian/20190729-150700-771777.jpg)
 
-##### std 2.0
+##### std: 2.0
 
 ![std 0.0](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Blur_Gaussian/20190729-150707-503684.jpg)
 
-##### std 3.0
+##### std: 3.0
 
 ![std 1.0](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Blur_Gaussian/20190729-150714-401435.jpg)
 
@@ -54,19 +54,19 @@ The error parameter here is the probability of rain.
 
 #### Example images using the filter:
 
-##### probability 0.0001
+##### probability: 0.0001
 
 ![probability 10^-4](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Rain/20190729-151307-080828.jpg)
 
-##### probability 0.001
+##### probability: 0.001
 
 ![probability 10^-3](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Rain/20190729-151314-483299.jpg)
 
-##### probability 0.01
+##### probability: 0.01
 
 ![probability 10^-2](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Rain/20190729-151323-269028.jpg)
 
-##### probability 0.1
+##### probability: 0.1
 
 ![probability 10^-1](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Rain/20190729-151330-649152.jpg)
 
@@ -77,23 +77,23 @@ The error parameter here is the probability of rain.
 ### Snow filter
 
 The error parameter here is the probability of snow. The other parameters had static values as follows: 
-"snowflake_alpha": .4, "snowstorm_alpha": 0
+"snowflake_alpha": 0.4, "snowstorm_alpha": 0
 
 #### Example images using the filter:
 
-##### probability 0.0001
+##### probability: 0.0001
 
 ![probability 10^-4](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Snow/20190729-151434-149765.jpg)
 
-##### probability 0.001
+##### probability: 0.001
 
 ![probability 10^-3](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Snow/20190729-151443-736282.jpg)
 
-##### probability 0.01
+##### probability: 0.01
 
 ![probability 10^-2](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Snow/20190729-151452-361038.jpg)
 
-##### probability 0.1
+##### probability: 0.1
 
 ![probability 10^-1](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Snow/20190729-151507-952953.jpg)
 
@@ -107,19 +107,19 @@ The error parameter here is the quality of JPEG-compression. The higher the valu
 
 #### Example images using the filter:
 
-##### quality 10
+##### quality: 10
 
 ![quality 10](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/JPEG_Compression/20190729-150821-361183.jpg)
 
-##### quality 20
+##### quality: 20
 
 ![quality 20](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/JPEG_Compression/20190729-150831-366993.jpg)
 
-##### quality 30
+##### quality: 30
 
 ![quality 30](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/JPEG_Compression/20190729-150839-587541.jpg)
 
-##### quality 100
+##### quality: 100
 
 ![quality 100](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/JPEG_Compression/20190729-150847-940301.jpg)
 
@@ -133,19 +133,19 @@ The error parameter makes the resolution k times smaller.
 
 #### Example images using the filter:
 
-##### Value of k 1
+##### Value of k: 1
 
 ![k 1](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Resolution/20190729-151611-205148.jpg)
 
-##### Value of k 2
+##### Value of k: 2
 
 ![k 2](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Resolution/20190729-151621-167993.jpg)
 
-##### Value of k 3
+##### Value of k: 3
 
 ![k 3](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Resolution/20190729-151630-067637.jpg)
 
-##### Value of k 4
+##### Value of k: 4
 
 ![k 4](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Resolution/20190729-151639-036737.jpg)
 

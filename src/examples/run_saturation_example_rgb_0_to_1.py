@@ -11,7 +11,7 @@ def main():
 
     # Use the vectorized version
     data = plt.imread(img_path)
-    x_node = array.Array(data.shape)
+    x_node = array.Array()
     s = filters.SaturationVectorized("tar", "rat", "range")
     x_node.addfilter(s)
     start = time.time()

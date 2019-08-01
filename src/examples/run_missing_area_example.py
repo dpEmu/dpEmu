@@ -22,7 +22,7 @@ data = np.array(["Lorem ipsum dolor sit amet,\n" +
                  "Hello\n" +
                  "Hello"])
 
-root_node = array.Array(data.shape)
+root_node = array.Array()
 root_node.addfilter(filters.MissingArea("p", "radius_gen", "value"))
 
 params = {}

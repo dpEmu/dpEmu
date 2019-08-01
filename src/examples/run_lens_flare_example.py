@@ -18,7 +18,7 @@ def img_to_pixel_data(img):
 def main():
     img = Image.open("demo/yellow_circle.jpg")
     data = img_to_pixel_data(img)
-    root_node = array.Array(data.shape)
+    root_node = array.Array()
     root_node.addfilter(filters.LensFlare())
     result = root_node.generate_error(data, {})
     filtered_img = Image.fromarray(result.astype('uint8'), 'RGB')

@@ -4,8 +4,8 @@ import src.problemgenerator.series as series
 
 from src.plotting.utils import visualize_error_generator
 
-x_node = array.Array((20,))
-y_node = array.Array((10, 2))
+x_node = array.Array()
+y_node = array.Array()
 root_node = series.TupleSeries([x_node, y_node])
 
 params = {"c": 0.5, "b": 5, "a": 1}

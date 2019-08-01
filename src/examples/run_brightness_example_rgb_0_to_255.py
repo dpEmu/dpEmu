@@ -14,7 +14,7 @@ def main():
     # Use the vectorized version
     img2 = Image.open(img_path)
     data = np.array(img2)
-    x_node = array.Array(data.shape)
+    x_node = array.Array()
     b2 = filters.BrightnessVectorized("tar", "rat", "range")
     x_node.addfilter(b2)
     start = time.time()

@@ -30,7 +30,6 @@ class Filter(ABC):
         """
         np.random.seed(42)
         random.seed(42)
-        self.shape = ()
 
     @abstractmethod
     def set_params(self, params_dict):

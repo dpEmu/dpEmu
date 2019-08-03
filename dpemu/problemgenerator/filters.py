@@ -9,7 +9,7 @@ from PIL import Image
 from math import sqrt
 from scipy.ndimage import gaussian_filter
 
-from src.problemgenerator.utils import generate_random_dict_key
+from .utils import generate_random_dict_key
 
 
 class Filter(ABC):

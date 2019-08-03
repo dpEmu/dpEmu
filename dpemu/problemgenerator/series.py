@@ -1,5 +1,5 @@
-from src.problemgenerator.node import Node, get_node_data
-from src.problemgenerator.utils import first_dimension_length
+from .node import Node, get_node_data
+from .utils import first_dimension_length
 
 
 class Series(Node):

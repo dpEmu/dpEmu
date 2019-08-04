@@ -790,7 +790,7 @@ class Blur(Filter):
 
         ones = np.ones(shape=(node_data.shape[0], node_data.shape[1]))
         div = avg(self.radius, ones)
-        for j in range(self.repeats):
+        for _ in range(self.repeats):
             if len(node_data.shape) == 2:
                 node_data[:, :] = avg(self.radius, node_data) // div
             else:

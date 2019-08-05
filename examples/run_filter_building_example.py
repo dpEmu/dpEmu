@@ -1,8 +1,8 @@
 import numpy as np
 from PIL import Image
 
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
+from dpemu import array
+from dpemu import filters
 
 # generate image with bitwise operations
 data = []

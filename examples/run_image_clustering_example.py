@@ -10,13 +10,12 @@ from numpy.random import RandomState
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
-from src import runner_
-from src.datasets.utils import load_digits_, load_mnist, load_fashion
-from src.ml.utils import reduce_dimensions
-from src.plotting.utils import visualize_best_model_params
-from src.plotting.utils import visualize_scores, visualize_classes, print_results, visualize_interactive_plot
-from src.problemgenerator.array import Array
-from src.problemgenerator.filters import GaussianNoise, Clip
+from dpemu import runner_
+from dpemu import dataset_utils
+from dpemu import ml_utils
+from dpemu import plotting_utils
+from dpemu import array
+from dpemu import filters
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
@@ -27,7 +26,7 @@ class Preprocessor:
         self.random_state = RandomState(42)
 
     def run(self, _1, data, _2):
-        reduced_data = reduce_dimensions(data, self.random_state)
+        reduced_data = ml_utils.reduce_dimensions(data, self.random_state)
         return None, reduced_data, {"reduced_data": reduced_data}
 
 
@@ -83,12 +82,12 @@ class HDBSCANModel(AbstractModel):
 
 
 def visualize(df, label_names, dataset_name, data):
-    visualize_scores(df, ["AMI", "ARI"], [True, True], "std",
-                     f"{dataset_name} clustering scores with added gaussian noise")
-    visualize_best_model_params(df, "HDBSCAN", ["min_cluster_size", "min_samples"], ["AMI", "ARI"], [True, True], "std",
-                                f"Best parameters for {dataset_name} clustering")
-    visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
-                      f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
+    plotting_utils.visualize_scores(df, ["AMI", "ARI"], [True, True], "std",
+                                    f"{dataset_name} clustering scores with added gaussian noise")
+    plotting_utils.visualize_best_model_params(df, "HDBSCAN", ["min_cluster_size", "min_samples"], ["AMI", "ARI"],
+                                               [True, True], "std", f"Best parameters for {dataset_name} clustering")
+    plotting_utils.visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
+                                     f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
 
     def on_click(original, modified):
         # reshape data
@@ -104,18 +103,18 @@ def visualize(df, label_names, dataset_name, data):
         fg.show()
 
     # Remember to enable runner's interactive mode
-    visualize_interactive_plot(df, "std", data, "tab10", "reduced_data", on_click)
+    plotting_utils.visualize_interactive_plot(df, "std", data, "tab10", "reduced_data", on_click)
 
     plt.show()
 
 
 def main(argv):
     if len(argv) == 3 and argv[1] == "digits":
-        data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
+        data, labels, label_names, dataset_name = dataset_utils.load_digits_(int(argv[2]))
     elif len(argv) == 3 and argv[1] == "mnist":
-        data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
+        data, labels, label_names, dataset_name = dataset_utils.load_mnist(int(argv[2]))
     elif len(argv) == 3 and argv[1] == "fashion":
-        data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
+        data, labels, label_names, dataset_name = dataset_utils.load_fashion(int(argv[2]))
     else:
         exit(0)
 
@@ -138,14 +137,14 @@ def main(argv):
         } for min_cluster_size in min_cluster_size_steps for min_samples in min_samples_steps]},
     ]
 
-    err_root_node = Array()
-    err_root_node.addfilter(GaussianNoise("mean", "std"))
-    err_root_node.addfilter(Clip("min_val", "max_val"))
+    err_root_node = array.Array()
+    err_root_node.addfilter(filters.GaussianNoise("mean", "std"))
+    err_root_node.addfilter(filters.Clip("min_val", "max_val"))
 
     df = runner_.run(None, data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
                      use_interactive_mode=True)
 
-    print_results(df, ["labels", "reduced_data"])
+    plotting_utils.print_results(df, ["labels", "reduced_data"])
     visualize(df, label_names, dataset_name, data)
 
 

@@ -1,8 +1,8 @@
 import numpy as np
 
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.radius_generators as radius_generators
+from dpemu import array
+from dpemu import filters
+from dpemu import radius_generators
 
 data = np.array(["Lorem ipsum dolor sit amet,\n" +
                  "consectetur adipisci elit,\n" +

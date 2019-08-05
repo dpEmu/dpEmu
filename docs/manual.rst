@@ -6,8 +6,8 @@ Description
 
 dpEmu is a Python library for emulating data problems in use and training of machine learning systems.
 
-Installation
-------------
+Installation on a home computer
+-------------------------------
 
 To install dpEmu on your computer, run the following commands in your terminal:
 
@@ -29,6 +29,105 @@ You need to run also the following commands if you want to run the object detect
     ./scripts/install_detectron.sh
     git clone git@github.com:dpEmu/darknet.git libs/darknet
     ./scripts/install_darknet.sh
+
+Installation on University of Helsinki clusters (Ukko2 and Kale)
+----------------------------------------------------------------
+
+First you need to have access rights to the clusters. See instructions for who can get access rights to `Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide#KaleUserGuide-Access>`_ or to `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide#Ukko2UserGuide-1.0Access>`_.
+
+To install dpEmu on Kale or Ukko2 clusters, first establish a ssh connection to the cluster:
+
+.. code-block:: bash
+
+    ssh ukko2.cs.helsinki.fi
+
+Or:
+
+.. code-block:: bash
+
+    ssh kale.grid.helsinki.fi
+
+Now you can install dpEmu by running the following commands in the remote terminal:
+
+.. code-block:: bash
+
+    module load Python/3.7.0-intel-2018b
+    export SCIKIT_LEARN_DATA=$TMPDIR
+
+    cd $WRKDIR
+    git clone git@github.com:dpEmu/dpEmu.git
+    cd dpEmu
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -U pip setuptools wheel --cache-dir $TMPDIR
+    pip install -r requirements.txt --cache-dir $TMPDIR
+    pip install pycocotools --cache-dir $TMPDIR
+
+You also need to run the following commands if you want to run the object detection example:
+
+.. code-block:: bash
+
+    module load CUDA/10.0.130
+    module load cuDNN/7.5.0.56-CUDA-10.0.130
+
+    cd $WRKDIR/dpEmu
+    source venv/bin/activate
+    git clone git@github.com:dpEmu/Detectron.git libs/Detectron
+    ./scripts/install_detectron.sh
+    git clone git@github.com:dpEmu/darknet.git libs/darknet
+    ./scripts/install_darknet.sh
+
+Instructions for running jobs on Kale or Ukko2:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Official instructions: `Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide>`_ or `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide>`_
+
+An example of running a job on Kale or Ukko2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+    module load Python/3.7.0-intel-2018b
+    export SCIKIT_LEARN_DATA=$TMPDIR
+
+    cd $WRKDIR/dpEmu
+    source venv/bin/activate
+
+
+Create the batch file for the job:
+
+.. code-block:: bash
+
+    nano batch-submit.job
+
+Then write the following content to it and save the file. **Remember to put your userid in place of <userid>**:
+
+.. code-block:: bash
+
+    #!/bin/bash
+    #SBATCH -J dpEmu
+    #SBATCH --workdir=/wrk/users/<userid>/dpEmu/
+    #SBATCH -o text_classification_result.txt
+    #SBATCH -c 8
+    #SBATCH --mem=128G
+    #SBATCH -t 20:00
+
+    srun python3 -m src.examples.run_text_classification_example all 20
+    srun sleep 60
+
+Submit the batch job to be run:
+
+.. code-block:: bash
+
+    sbatch batch-submit.job
+
+You can view the execution of the code as if it was executed on your home terminal:
+
+.. code-block:: bash
+
+    tail -f text_classification_result.txt
+
+The example src.examples.run_text_classification_example will save images to the dpEmu/out directory.
 
 Usage
 -----
@@ -219,8 +318,9 @@ In the end of the example a plot of scores is visualized.
 
     class Preprocessor:
         def run(self, train_data, test_data):
-            # Return the original data without preprocessing
-            return train_data, test_data, {}
+            # Preprocess the data by changing its data type from int to float
+            dtype = params["dtype"]
+            return train_data, test_data.astype(dtype), {"dtype": dtype}
 
 
     class PredictorModel:
@@ -265,16 +365,22 @@ In the end of the example a plot of scores is visualized.
         }]
 
         # Run the whole thing and get DataFrame for visualization
-        df = runner_.run(train_data,
-                        test_data,
-                        Preprocessor,
-                        err_root_node,
-                        err_params_list,
-                        model_params_dict_list,
-                        use_interactive_mode=True)
+        df = runner_.run(train_data=train_data,
+                     test_data=test_data,
+                     preproc=Preprocessor,
+                     preproc_params={"dtype": float},
+                     err_root_node=err_root_node,
+                     err_params_list=err_params_list,
+                     model_params_dict_list=model_params_dict_list,
+                     use_interactive_mode=True)
+
 
         # Visualize mean squared error for all used standard deviations
-        visualize_scores(df, ["MSE"], [False], "std", "Mean squared error")
+        visualize_scores(df=df,
+                     score_names=["MSE"],
+                     is_higher_score_better=[False],
+                     err_param_name="std",
+                     title="Mean squared error")
         plt.show()
 
 
@@ -284,3 +390,18 @@ In the end of the example a plot of scores is visualized.
 Here's what the resulting image should look like:
 
 .. image:: manual_demo.png
+
+How to run examples
+-------------------
+
+If the examples do not require command line arguments, then they can be run as follows:
+
+.. code-block:: bash
+
+    python3 -m src.examples.run_manual_predictor_example
+
+Enable the interactive mode by writing ``-i``
+
+.. code-block:: bash
+
+    python3 -m src.examples.run_text_classification_example all 4 -i

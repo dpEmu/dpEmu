@@ -15,9 +15,9 @@ from math import sqrt
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-from src.problemgenerator.utils import to_time_series_x_y
+from dpemu import array
+from dpemu import filters
+from dpemu import pg_utils
 
 
 class Model:
@@ -65,7 +65,7 @@ class Model:
         train, test = self.data[:-n_test], self.data[-n_test:]
         train = self.scaler.fit_transform(train)
         train_periodic_diffs = self.__get_periodic_diffs(train, n_period)
-        train_periodic_diffs = to_time_series_x_y(train_periodic_diffs, n_steps)
+        train_periodic_diffs = pg_utils.to_time_series_x_y(train_periodic_diffs, n_steps)
 
         model = Sequential()
         model.add(LSTM(n_nodes, activation="relu", input_shape=(n_steps, n_features)))
@@ -97,7 +97,7 @@ def main():
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
     y = data.values.astype(float)
-    root_node = array.Array(y.shape)
+    root_node = array.Array()
 
     def strange(a, _):
         if a <= 500 and a >= 400:

@@ -1,11 +1,12 @@
 import numpy as np
 from PIL import Image
+from pathlib import Path
 from dpemu import array
 from dpemu import filters
 
 
 def main():
-    img = Image.open("../demo/landscape.png")
+    img = Image.open(Path(__file__).resolve().parents[1] / "demo/landscape.png")
     data = np.array(img)
     root_node = array.Array()
     root_node.addfilter(filters.Blur_Gaussian('std'))

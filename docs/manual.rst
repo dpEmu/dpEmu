@@ -404,4 +404,4 @@ Enable the interactive mode by writing ``-i``
 
 .. code-block:: bash
 
-    python3 -m src.examples.run_text_classification_example test 4 -i
+    python3 -m src.examples.run_text_classification_example all 4 -i

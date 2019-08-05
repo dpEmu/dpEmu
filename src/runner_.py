@@ -21,7 +21,7 @@ def worker(inputs):
         [type]: [description]
     """
     path_to_train_data, path_to_test_data, preproc, preproc_params, err_root_node, err_params, model_params_dict_list, \
-    use_interactive_mode = inputs
+        use_interactive_mode = inputs
 
     with open(path_to_train_data, "rb") as file:
         train_data = load(file)

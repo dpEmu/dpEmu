@@ -142,11 +142,6 @@ def main(argv):
             "min_samples": min_samples,
             "labels": labels
         } for min_cluster_size in min_cluster_size_steps for min_samples in min_samples_steps]},
-        {"model": HDBSCANModel, "params_list": [{
-            "min_cluster_size": min_cluster_size,
-            "min_samples": min_samples,
-            "labels": labels
-        } for min_cluster_size in min_cluster_size_steps for min_samples in [5]]},
     ]
 
     err_root_node = Array()

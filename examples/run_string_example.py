@@ -1,7 +1,7 @@
 import numpy as np
 
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
+from dpemu import array
+from dpemu import filters
 
 data = np.array(["hello world",
                  "all your Bayes' theorems are belong to us"])

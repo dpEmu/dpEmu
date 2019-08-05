@@ -3,14 +3,14 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src import runner_
-from src.plotting.utils import visualize_scores
-from src.problemgenerator.array import Array
-from src.problemgenerator.filters import GaussianNoise
+from dpemu import runner_
+from dpemu import plotting_utils
+from dpemu import array
+from dpemu import filters
 
 
 class Preprocessor:
-    def run(self, train_data, test_data):
+    def run(self, train_data, test_data, _):
         # Return the original data without preprocessing
         return train_data, test_data, {}
 
@@ -43,8 +43,8 @@ def main(argv):
 
     # Create error generation tree that has an Array node
     # as its root node and a GaussianNoise filter
-    err_root_node = Array()
-    err_root_node.addfilter(GaussianNoise("mean", "std"))
+    err_root_node = array.Array()
+    err_root_node.addfilter(filters.GaussianNoise("mean", "std"))
 
     # The standard deviation goes from 0 to 20
     err_params_list = [{"mean": 0, "std": std} for std in range(0, 21)]
@@ -60,13 +60,14 @@ def main(argv):
     df = runner_.run(train_data,
                      test_data,
                      Preprocessor,
+                     None,
                      err_root_node,
                      err_params_list,
                      model_params_dict_list,
                      use_interactive_mode=True)
 
     # Visualize mean squared error for all used standard deviations
-    visualize_scores(df, ["MSE"], [False], "std", "Mean squared error")
+    plotting_utils.visualize_scores(df, ["MSE"], [False], "std", "Mean squared error")
     plt.show()
 
 

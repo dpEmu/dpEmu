@@ -2,9 +2,9 @@ import numpy as np
 
 from PIL import Image
 
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.radius_generators as radius_generators
+from dpemu import array
+from dpemu import filters
+from dpemu import radius_generators
 
 
 def img_to_pixel_data(img):

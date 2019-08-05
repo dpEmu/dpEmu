@@ -1,9 +1,9 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.series as series
+from dpemu import array
+from dpemu import filters
+from dpemu import series
 
 """
 Generate time dependent Gaussian noise and (non time dependent) missing values to MNIST data.
@@ -29,7 +29,7 @@ params["p"] = prob
 x_node = array.Array()
 x_node.addfilter(filters.GaussianNoiseTimeDependent("mean", "std", "mean_inc", "std_inc"))
 x_node.addfilter(filters.Missing("p"))
-y_node = array.Array(y[0].shape)
+y_node = array.Array()
 root_node = series.TupleSeries([x_node, y_node], dim_name="time")
 out_x, out_y = root_node.generate_error((x, y), params)
 

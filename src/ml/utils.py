@@ -22,7 +22,7 @@ def run_ml_module_using_cli(cline):
         if line or proc.poll() is not None:
             print(line)
             lines.append(line)
-        if proc.poll() is not None:
+        if not line and proc.poll() is not None:
             break
     return "\n".join(lines)
 

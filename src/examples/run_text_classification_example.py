@@ -103,9 +103,11 @@ def visualize(df, dataset_name, label_names, test_data, use_interactive_mode):
         def on_click(element, label, predicted_label):
             print(label, " predicted as ", predicted_label, ":", sep="")
             print(element, end="\n\n")
+    else:
+        on_click = None
 
-        visualize_confusion_matrices(df, label_names, "test_mean_accuracy", True, "p",
-                                     "test_labels", "predicted_test_labels", on_click)
+    visualize_confusion_matrices(df, label_names, "test_mean_accuracy", True, "p",
+                                 "test_labels", "predicted_test_labels", on_click)
 
     plt.show()
 

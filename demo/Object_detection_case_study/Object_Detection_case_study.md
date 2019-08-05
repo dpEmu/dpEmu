@@ -34,19 +34,19 @@ The error parameter here is the standard deviation (std) for the Gaussian distri
 
 ##### std: 1.0
 
-![std 1.0](Blur_Gaussian/20190729-150700-771777.jpg)
+![std 1.0](../../demo/Object_detection_case_study/Blur_Gaussian/20190729-150700-771777.jpg)
 
 ##### std: 2.0
 
-![std 0.0](Blur_Gaussian/20190729-150707-503684.jpg)
+![std 0.0](../../demo/Object_detection_case_study/Blur_Gaussian/20190729-150707-503684.jpg)
 
 ##### std: 3.0
 
-![std 1.0](Blur_Gaussian/20190729-150714-401435.jpg)
+![std 1.0](../../demo/Object_detection_case_study/Blur_Gaussian/20190729-150714-401435.jpg)
 
 #### The results of Gaussian Blur filter
 
-![Gaussian Blur](Blur_Gaussian/20190728-011623-029059.png)
+![Gaussian Blur](../../demo/Object_detection_case_study/Blur_Gaussian/20190728-011623-029059.png)
 
 ### Rain filter
 
@@ -56,23 +56,23 @@ The error parameter here is the probability of rain.
 
 ##### probability: 0.0001
 
-![probability 10^-4](Rain/20190729-151307-080828.jpg)
+![probability 10^-4](../../demo/Object_detection_case_study/Rain/20190729-151307-080828.jpg)
 
 ##### probability: 0.001
 
-![probability 10^-3](Rain/20190729-151314-483299.jpg)
+![probability 10^-3](../../demo/Object_detection_case_study/Rain/20190729-151314-483299.jpg)
 
 ##### probability: 0.01
 
-![probability 10^-2](Rain/20190729-151323-269028.jpg)
+![probability 10^-2](../../demo/Object_detection_case_study/Rain/20190729-151323-269028.jpg)
 
 ##### probability: 0.1
 
-![probability 10^-1](Rain/20190729-151330-649152.jpg)
+![probability 10^-1](../../demo/Object_detection_case_study/Rain/20190729-151330-649152.jpg)
 
 #### The results of Rain filter 
 
-![Rain](Rain/20190727-103514-755422.png)
+![Rain](../../demo/Object_detection_case_study/Rain/20190727-103514-755422.png)
 
 ### Snow filter
 
@@ -83,23 +83,23 @@ The error parameter here is the probability of snow. The other parameters had st
 
 ##### probability: 0.0001
 
-![probability 10^-4](Snow/20190729-151434-149765.jpg)
+![probability 10^-4](../../demo/Object_detection_case_study/Snow/20190729-151434-149765.jpg)
 
 ##### probability: 0.001
 
-![probability 10^-3](Snow/20190729-151443-736282.jpg)
+![probability 10^-3](../../demo/Object_detection_case_study/Snow/20190729-151443-736282.jpg)
 
 ##### probability: 0.01
 
-![probability 10^-2](Snow/20190729-151452-361038.jpg)
+![probability 10^-2](../../demo/Object_detection_case_study/Snow/20190729-151452-361038.jpg)
 
 ##### probability: 0.1
 
-![probability 10^-1](Snow/20190729-151507-952953.jpg)
+![probability 10^-1](../../demo/Object_detection_case_study/Snow/20190729-151507-952953.jpg)
 
 #### The results of Snow filter
 
-![Snow](Snow/20190727-162540-567252.png)
+![Snow](../../demo/Object_detection_case_study/Snow/20190727-162540-567252.png)
 
 ### JPEG Compression
 
@@ -109,23 +109,23 @@ The error parameter here is the quality of JPEG-compression. The higher the valu
 
 ##### quality: 10
 
-![quality 10](JPEG_Compression/20190729-150821-361183.jpg)
+![quality 10](../../demo/Object_detection_case_study/JPEG_Compression/20190729-150821-361183.jpg)
 
 ##### quality: 20
 
-![quality 20](JPEG_Compression/20190729-150831-366993.jpg)
+![quality 20](../../demo/Object_detection_case_study/JPEG_Compression/20190729-150831-366993.jpg)
 
 ##### quality: 30
 
-![quality 30](JPEG_Compression/20190729-150839-587541.jpg)
+![quality 30](../../demo/Object_detection_case_study/JPEG_Compression/20190729-150839-587541.jpg)
 
 ##### quality: 100
 
-![quality 100](JPEG_Compression/20190729-150847-940301.jpg)
+![quality 100](../../demo/Object_detection_case_study/JPEG_Compression/20190729-150847-940301.jpg)
 
 #### The results of JPEG Compression filter
 
-![JPEG Compression](JPEG_Compression/20190727-062156-111953.png)
+![JPEG Compression](../../demo/Object_detection_case_study/JPEG_Compression/20190727-062156-111953.png)
 
 ### Resolution
 
@@ -135,20 +135,20 @@ The error parameter makes the resolution k times smaller.
 
 ##### Value of k: 1
 
-![k 1](Resolution/20190729-151611-205148.jpg)
+![k 1](../../demo/Object_detection_case_study/Resolution/20190729-151611-205148.jpg)
 
 ##### Value of k: 2
 
-![k 2](Resolution/20190729-151621-167993.jpg)
+![k 2](../../demo/Object_detection_case_study/Resolution/20190729-151621-167993.jpg)
 
 ##### Value of k: 3
 
-![k 3](Resolution/20190729-151630-067637.jpg)
+![k 3](../../demo/Object_detection_case_study/Resolution/20190729-151630-067637.jpg)
 
 ##### Value of k: 4
 
-![k 4](Resolution/20190729-151639-036737.jpg)
+![k 4](../../demo/Object_detection_case_study/Resolution/20190729-151639-036737.jpg)
 
 #### The results of Resolution filter
 
-![Resolution](Resolution/20190729-180019-917356.png)
+![Resolution](../../demo/Object_detection_case_study/Resolution/20190729-180019-917356.png)

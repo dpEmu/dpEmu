@@ -7,7 +7,7 @@ setuptools.setup(
     name="dpemu",
     version="0.0.1",
     author="Team dpEmu",
-    #author_email="author@example.com",
+    # author_email="author@example.com",
     description="Tools for emulating data problems",
     long_description=long_description,
     long_description_content_type="text/markdown",

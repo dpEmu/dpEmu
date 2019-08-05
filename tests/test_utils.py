@@ -1,7 +1,6 @@
 import numpy as np
 from mock import patch
-
-import src.utils as utils
+from dpemu import utils
 
 
 @patch("src.utils.get_project_root", return_value="root")

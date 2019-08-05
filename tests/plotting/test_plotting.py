@@ -1,13 +1,13 @@
 import re
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.series as series
-from src.plotting.utils import visualize_error_generator
+from dpemu import array
+from dpemu import filters
+from dpemu import series
+from dpemu import plotting_utils
 
 
 def test_visualizing_array_node():
     x_node = array.Array()
-    path = visualize_error_generator(x_node, False)
+    path = plotting_utils.visualize_error_generator(x_node, False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'1.*Array').search(data)
@@ -16,7 +16,7 @@ def test_visualizing_array_node():
 def test_visualizing_series_and_array_nodes():
     x_node = array.Array()
     series_node = series.Series(x_node)
-    path = visualize_error_generator(series_node, False)
+    path = plotting_utils.visualize_error_generator(series_node, False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'1.*Series').search(data)
@@ -27,7 +27,7 @@ def test_visualizing_tuple_series_and_two_array_nodes():
     x_node = array.Array()
     y_node = array.Array()
     series_node = series.TupleSeries([x_node, y_node])
-    path = visualize_error_generator(series_node, False)
+    path = plotting_utils.visualize_error_generator(series_node, False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'1.*TupleSeries').search(data)
@@ -38,7 +38,7 @@ def test_visualizing_tuple_series_and_two_array_nodes():
 def test_visualizing_array_node_with_filter():
     x_node = array.Array()
     x_node.addfilter(filters.Missing("p"))
-    path = visualize_error_generator(x_node.get_parametrized_tree({'p': 0.5}), False)
+    path = plotting_utils.visualize_error_generator(x_node.get_parametrized_tree({'p': 0.5}), False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'2.*Missing.*probability: 0').search(data)
@@ -50,7 +50,7 @@ def test_visualizing_array_node_with_complex_filter():
     addition = filters.Addition("f1", "f2")
     const = filters.Constant("c")
     x_node.addfilter(addition)
-    path = visualize_error_generator(x_node.get_parametrized_tree({'f1': const, 'f2': const, 'c': 5}), False)
+    path = plotting_utils.visualize_error_generator(x_node.get_parametrized_tree({'f1': const, 'f2': const, 'c': 5}), False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'2.*Addition').search(data)

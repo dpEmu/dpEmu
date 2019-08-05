@@ -762,30 +762,40 @@ class Blur_Gaussian(Filter):
 
 
 class Blur(Filter):
-
-    def __init__(self, repeats_id):
+    def __init__(self, repeats_id, radius_id=None):
         super().__init__()
         self.repeats_id = repeats_id
+        self.radius_id = radius_id
 
     def set_params(self, params_dict):
         self.repeats = params_dict[self.repeats_id]
+        if self.radius_id is not None:
+            self.radius = params_dict[self.radius_id]
+        else:
+            self.radius = 1
 
     def apply(self, node_data, random_state, named_dims):
-        width = node_data.shape[1]
-        height = node_data.shape[0]
+        def avg(radius, data):
+            height = data.shape[0]
+            width = data.shape[1]
+            diam = 2*radius + 1
+            temp = np.zeros(shape=(height + diam, width + diam))
+            temp[0:height, 0:width] += data
+            temp[diam:height + diam, 0:width] -= data
+            temp[0:height, diam:width + diam] -= data
+            temp[diam:height + diam, diam:width + diam] += data
+            temp = np.cumsum(temp, axis=0)
+            temp = np.cumsum(temp, axis=1)
+            return temp[radius:height + radius, radius:width + radius]
+
+        ones = np.ones(shape=(node_data.shape[0], node_data.shape[1]))
+        div = avg(self.radius, ones)
         for _ in range(self.repeats):
-            original = np.copy(node_data)
-            for y0 in range(height):
-                for x0 in range(width):
-                    pixel_sum = np.array([0, 0, 0])
-                    pixel_count = 0
-                    for y in range(y0 - 1, y0 + 2):
-                        for x in range(x0 - 1, x0 + 2):
-                            if y < 0 or x < 0 or y == height or x == width:
-                                continue
-                            pixel_sum += original[y][x]
-                            pixel_count += 1
-                    node_data[y0][x0] = pixel_sum // pixel_count
+            if len(node_data.shape) == 2:
+                node_data[:, :] = avg(self.radius, node_data) // div
+            else:
+                for i in range(node_data.shape[-1]):
+                    node_data[:, :, i] = avg(self.radius, node_data[:, :, i]) // div
 
 
 class ResolutionVectorized(Filter):

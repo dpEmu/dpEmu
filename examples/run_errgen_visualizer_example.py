@@ -1,8 +1,9 @@
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.series as series
+from dpemu import array
+from dpemu import filters
+from dpemu import series
 
-from src.plotting.utils import visualize_error_generator
+# from src.plotting.utils import visualize_error_generator
+from dpemu import plotting_utils
 
 x_node = array.Array()
 y_node = array.Array()
@@ -15,4 +16,4 @@ params['gauss_b'] = filters.GaussianNoise("b", "a")
 x_node.addfilter(filters.Addition('gauss_a', 'gauss_b'))
 y_node.addfilter(filters.Missing(probability_id="c"))
 
-visualize_error_generator(root_node.get_parametrized_tree(params))
+plotting_utils.visualize_error_generator(root_node.get_parametrized_tree(params))

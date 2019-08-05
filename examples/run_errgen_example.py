@@ -1,7 +1,7 @@
 import numpy as np
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.series as series
+from dpemu import array
+from dpemu import filters
+from dpemu import series
 
 # To load data from a csv file, uncomment the rows below and
 # give the data file name as the first command line argument.

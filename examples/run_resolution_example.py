@@ -2,8 +2,8 @@ import time
 
 # from PIL import Image
 import matplotlib.pyplot as plt
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
+from dpemu import array
+from dpemu import filters
 
 
 def main():

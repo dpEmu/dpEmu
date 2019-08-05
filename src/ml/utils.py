@@ -14,10 +14,18 @@ def run_ml_module_using_cli(cline):
     Args:
         cline ([type]): [description]
     """
-    proc = subprocess.Popen(shlex.split(cline), stdout=subprocess.PIPE, universal_newlines=True)
-    out, _ = proc.communicate()
-    print(out)
-    return out
+    proc = subprocess.Popen(shlex.split(cline), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                            universal_newlines=True)
+    out = []
+    while True:
+        line = proc.stdout.readline().rstrip()
+        if line or proc.poll() is not None:
+            print(line)
+            out.append(line)
+        if proc.poll() is not None:
+            break
+    out = "\n".join(out)
+    return "".join(out)
 
 
 def reduce_dimensions(data, random_state, target_dim=2):

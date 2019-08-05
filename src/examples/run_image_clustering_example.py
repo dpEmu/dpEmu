@@ -82,42 +82,48 @@ class HDBSCANModel(AbstractModel):
         ).fit(data)
 
 
-def visualize(df, label_names, dataset_name, data):
+def visualize(df, label_names, dataset_name, data, use_interactive_mode):
     visualize_scores(df, ["AMI", "ARI"], [True, True], "std",
                      f"{dataset_name} clustering scores with added gaussian noise")
-    visualize_best_model_params(df, "HDBSCAN", ["min_cluster_size", "min_samples"], ["AMI", "ARI"], [True, True], "std",
-                                f"Best parameters for {dataset_name} clustering")
+    visualize_best_model_params(df, "HDBSCAN #1", ["min_cluster_size", "min_samples"], ["AMI", "ARI"], [True, True],
+                                "std", f"Best parameters for {dataset_name} clustering")
+    visualize_best_model_params(df, "HDBSCAN #2", ["min_cluster_size", "min_samples"], ["AMI", "ARI"], [True, True],
+                                "std", f"Best parameters for {dataset_name} clustering")
     visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
                       f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
 
-    def on_click(original, modified):
-        # reshape data
-        original = original.reshape((28, 28))
-        modified = modified.reshape((28, 28))
+    if use_interactive_mode:
+        def on_click(original, modified):
+            # reshape data
+            original = original.reshape((28, 28))
+            modified = modified.reshape((28, 28))
 
-        # create a figure and draw the images
-        fg, axs = plt.subplots(1, 2)
-        axs[0].matshow(original, cmap='gray_r')
-        axs[0].axis('off')
-        axs[1].matshow(modified, cmap='gray_r')
-        axs[1].axis('off')
-        fg.show()
+            # create a figure and draw the images
+            fg, axs = plt.subplots(1, 2)
+            axs[0].matshow(original, cmap='gray_r')
+            axs[0].axis('off')
+            axs[1].matshow(modified, cmap='gray_r')
+            axs[1].axis('off')
+            fg.show()
 
-    # Remember to enable runner's interactive mode
-    visualize_interactive_plot(df, "std", data, "tab10", "reduced_data", on_click)
+        visualize_interactive_plot(df, "std", data, "tab10", "reduced_data", on_click)
 
     plt.show()
 
 
 def main(argv):
-    if len(argv) == 3 and argv[1] == "digits":
-        data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
-    elif len(argv) == 3 and argv[1] == "mnist":
-        data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
-    elif len(argv) == 3 and argv[1] == "fashion":
-        data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
-    else:
+    if len(argv) not in [3, 4] or argv[1] not in ["digits", "mnist", "fashion"]:
         exit(0)
+    if argv[1] == "digits":
+        data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
+    elif argv[1] == "mnist":
+        data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
+    else:
+        data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
+    if len(argv) == 4 and argv[3] == "-i":
+        use_interactive_mode = True
+    else:
+        use_interactive_mode = False
 
     min_val = np.amin(data)
     max_val = np.amax(data)
@@ -136,6 +142,11 @@ def main(argv):
             "min_samples": min_samples,
             "labels": labels
         } for min_cluster_size in min_cluster_size_steps for min_samples in min_samples_steps]},
+        {"model": HDBSCANModel, "params_list": [{
+            "min_cluster_size": min_cluster_size,
+            "min_samples": min_samples,
+            "labels": labels
+        } for min_cluster_size in min_cluster_size_steps for min_samples in [5]]},
     ]
 
     err_root_node = Array()
@@ -143,10 +154,10 @@ def main(argv):
     err_root_node.addfilter(Clip("min_val", "max_val"))
 
     df = runner_.run(None, data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
-                     use_interactive_mode=True)
+                     use_interactive_mode=use_interactive_mode)
 
     print_results(df, ["labels", "reduced_data"])
-    visualize(df, label_names, dataset_name, data)
+    visualize(df, label_names, dataset_name, data, use_interactive_mode)
 
 
 if __name__ == "__main__":

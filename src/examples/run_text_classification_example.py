@@ -88,13 +88,13 @@ class LinearSVCModel(AbstractModel):
 def visualize(df, dataset_name, label_names, test_data, use_interactive_mode):
     visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], [True, True], "p",
                      f"{dataset_name} classification scores with added error")
-    visualize_best_model_params(df, "MultinomialNB", ["alpha"], ["test_mean_accuracy"], [True], "p",
+    visualize_best_model_params(df, "MultinomialNB #1", ["alpha"], ["test_mean_accuracy"], [True], "p",
                                 f"Best parameters for {dataset_name} clustering", x_log=False, y_log=True)
-    visualize_best_model_params(df, "MultinomialNBClean", ["alpha"], ["test_mean_accuracy"], [True], "p",
+    visualize_best_model_params(df, "MultinomialNBClean #1", ["alpha"], ["test_mean_accuracy"], [True], "p",
                                 f"Best parameters for {dataset_name} clustering", x_log=False, y_log=True)
-    visualize_best_model_params(df, "LinearSVC", ["C"], ["test_mean_accuracy"], [True], "p",
+    visualize_best_model_params(df, "LinearSVC #1", ["C"], ["test_mean_accuracy"], [True], "p",
                                 f"Best parameters for {dataset_name} clustering", x_log=False, y_log=True)
-    visualize_best_model_params(df, "LinearSVCClean", ["C"], ["test_mean_accuracy"], [True], "p",
+    visualize_best_model_params(df, "LinearSVCClean #1", ["C"], ["test_mean_accuracy"], [True], "p",
                                 f"Best parameters for {dataset_name} clustering", x_log=False, y_log=True)
     visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels", "tab20",
                       f"{dataset_name} (n={len(test_data)}) classes with added error")
@@ -113,15 +113,14 @@ def visualize(df, dataset_name, label_names, test_data, use_interactive_mode):
 
 
 def main(argv):
-    if len(argv) == 3 and argv[1] in ["all", "test"]:
-        data, labels, label_names, dataset_name = load_newsgroups(argv[1], int(argv[2]))
-        use_interactive_mode = False
-    elif len(argv) == 4 and argv[1] in ["all", "test"] and argv[3] == "-i":
-        data, labels, label_names, dataset_name = load_newsgroups(argv[1], int(argv[2]))
+    if len(argv) not in [3, 4] or argv[1] not in ["all", "test"]:
+        exit(0)
+    if len(argv) == 4 and argv[3] == "-i":
         use_interactive_mode = True
     else:
-        exit(0)
+        use_interactive_mode = False
 
+    data, labels, label_names, dataset_name = load_newsgroups(argv[1], int(argv[2]))
     train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=.2,
                                                                         random_state=RandomState(42))
 

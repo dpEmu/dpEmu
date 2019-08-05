@@ -1,4 +1,5 @@
 import time
+from collections import Counter
 from multiprocessing.pool import Pool
 from pickle import dump, load
 
@@ -20,7 +21,7 @@ def worker(inputs):
         [type]: [description]
     """
     path_to_train_data, path_to_test_data, preproc, preproc_params, err_root_node, err_params, model_params_dict_list, \
-        use_interactive_mode = inputs
+    use_interactive_mode = inputs
 
     with open(path_to_train_data, "rb") as file:
         train_data = load(file)
@@ -42,6 +43,7 @@ def worker(inputs):
     time_used_preproc = time.time() - time_start
 
     results = []
+    counter = Counter()
     for model_params_dict in model_params_dict_list:
         model = model_params_dict["model"]
         model_params_list = model_params_dict["params_list"]
@@ -54,6 +56,8 @@ def worker(inputs):
             model_name = model.__name__.replace("Model", "Clean")
         else:
             model_name = model.__name__.replace("Model", "")
+        counter[model_name] += 1
+        model_name += f" #{counter[model_name]}"
 
         for model_params in model_params_list:
             time_start = time.time()

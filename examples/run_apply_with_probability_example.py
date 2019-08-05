@@ -1,7 +1,7 @@
 import numpy as np
-import src.problemgenerator.array as array
-import src.problemgenerator.series as series
-import src.problemgenerator.filters as filters
+from dpemu import array
+from dpemu import series
+from dpemu import filters
 
 data = np.array([["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"]])
 

@@ -11,6 +11,7 @@ before_install:
 
 install:
   - pip install -r requirements.txt
+  - pip install pycocotools
 
 script:
   - pytest --cov=dpemu --cov-config=.coveragerc tests

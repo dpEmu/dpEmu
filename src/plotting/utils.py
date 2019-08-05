@@ -102,39 +102,32 @@ def visualize_best_model_params(
         plt.savefig(path_to_plot)
 
 
-def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels_name, cmap, title):
-    """[summary]
-
-    [extended_summary]
+def visualize_classes(df, label_names, err_param_name, reduced_data_column, labels_column, cmap, title):
+    """This function visualizes the classes as 2-dimensional plots for different error parameter values.
 
     Args:
-        df ([type]): [description]
-        label_names ([type]): [description]
-        err_param_name ([type]): [description]
-        reduced_data_name ([type]): [description]
-        labels_name ([type]): [description]
-        cmap ([type]): [description]
-        title ([type]): [description]
-
-    Returns:
-        [type]: [description]
+        df (pandas.DataFrame): The dataframe returned by the runner.
+        label_names (list): A list containing the names of the labels.
+        err_param_name (str): The name of the error parameter whose different values are used for plots.
+        reduced_data_column (str): The name of the column that contains the reduced data.
+        labels_column (str): The name of the column that contains the labels for each element.
+        cmap (str): The name of the color map used for coloring the plot.
+        title (str): The title of the plot.
     """
 
     def get_lims(data):
-        """[summary]
-
-        [extended_summary]
+        """Returns the limits of the plot.
 
         Args:
-            data ([type]): [description]
+            data (list): A list of 2-dimensional data points.
 
         Returns:
-            [type]: [description]
+            float, float, float, float: minimum x, maximum x, minimum y, maximum y.
         """
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
     df = df.groupby(err_param_name).first().reset_index()
-    labels = df[labels_name][0]
+    labels = df[labels_column][0]
 
     n_col = math.ceil(df.shape[0] / 2)
     fig, axs = plt.subplots(2, n_col, figsize=(2.5 * n_col + 1, 5), constrained_layout=True)
@@ -144,7 +137,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
             ax.set_yticks([])
             plt.box(False)
             continue
-        reduced_data = df[reduced_data_name][i]
+        reduced_data = df[reduced_data_column][i]
         x_min, x_max, y_min, y_max = get_lims(reduced_data)
         sc = ax.scatter(*reduced_data.T, c=labels, cmap=cmap, marker=".", s=40)
         ax.set_xlim(x_min, x_max)
@@ -225,9 +218,9 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_d
                 closest = event.ind[0]
 
                 def dist(x0, y0, x1, y1):
-                    return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)The name of thThe name of the column containing the real labels.e column containing the real labels.
+                    return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)
 
-                # find closest data pointThe name of the column containing the real labels.The name of the column containing the real labels.
+                # find closest data point
                 for elem in event.ind:
                     best_dist = dist(self.reduced_T[0][elem], self.reduced_T[1][elem], mevent.xdata, mevent.ydata)
                     new_dist = dist(self.reduced_T[0][closest], self.reduced_T[1][closest], mevent.xdata, mevent.ydata)
@@ -254,7 +247,7 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
         title (str): The title of the confusion matrix visualization.
         labels_column (str): The name of the column containing the real labels.
         predicted_labels_column (str): The name of the column containing the predicted labels.
-        on_click (function, optional): If this parameter is passed to the function, then the interactive mode
+        on_click (function, optional): If this parameter is passed to the function, then the interactive mode.
             will be set on and clicking an element causes the event listener to call this function.
             The function should take three parameters: an element, a real label and a predicted label. Defaults to None.
     """
@@ -350,7 +343,21 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
 
 
 def visualize_confusion_matrices(df, label_names, score_name, is_higher_score_better, err_param_name, labels_col,
-                                 predictions_col, interactive):
+                                 predictions_col, on_click=None):
+    """Generates confusion matrices for each error parameter combination and model.
+
+    Args:
+        df (pandas.DataFrame): The dataframe returned by the runner.
+        label_names (list): A list containing the names of the labels.
+        score_name (str): The name of the score type used for filtering the best results.
+        is_higher_score_better (bool): If true, then a higher value of score is better and vice versa.
+        err_param_name (str): The name of the error parameter whose different values the matrices use.
+        labels_col (str): The name of the column containing the real labels.
+        predictions_col (str): The name of the column containing the predicted labels.
+        on_click (function, optional): If this parameter is passed to the function, then the interactive mode
+            will be set on and clicking an element causes the event listener to call this function.
+            The function should take three parameters: an element, a real label and a predicted label. Defaults to None.
+    """
     dfs = split_df_by_model(df)
     for df_ in dfs:
         df_ = filter_optimized_results(df_, err_param_name, score_name, is_higher_score_better)
@@ -363,7 +370,7 @@ def visualize_confusion_matrices(df, label_names, score_name, is_higher_score_be
                 f"{df_.name} confusion matrix ({err_param_name}={round(df_[err_param_name][i], 3)})",
                 labels_col,
                 predictions_col,
-                interactive
+                on_click
             )
 
 

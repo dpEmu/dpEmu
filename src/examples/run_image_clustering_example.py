@@ -87,8 +87,6 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
                      f"{dataset_name} clustering scores with added gaussian noise")
     visualize_best_model_params(df, "HDBSCAN #1", ["min_cluster_size", "min_samples"], ["AMI", "ARI"], [True, True],
                                 "std", f"Best parameters for {dataset_name} clustering")
-    visualize_best_model_params(df, "HDBSCAN #2", ["min_cluster_size", "min_samples"], ["AMI", "ARI"], [True, True],
-                                "std", f"Best parameters for {dataset_name} clustering")
     visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
                       f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
 

@@ -114,7 +114,7 @@ def main(argv):
     if len(argv) == 3 and argv[1] in ["all", "test"]:
         data, labels, label_names, dataset_name = load_newsgroups(argv[1], int(argv[2]))
         use_interactive_mode = False
-    elif len(argv) == 4 and argv[1] in ["all", "test"] and argv[1] == "-i":
+    elif len(argv) == 4 and argv[1] in ["all", "test"] and argv[3] == "-i":
         data, labels, label_names, dataset_name = load_newsgroups(argv[1], int(argv[2]))
         use_interactive_mode = True
     else:

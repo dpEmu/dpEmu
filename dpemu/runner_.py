@@ -5,7 +5,7 @@ from pickle import dump, load
 import pandas as pd
 from tqdm import tqdm
 
-from src.utils import generate_unique_path
+from dpemu.utils import generate_unique_path
 
 
 def worker(inputs):

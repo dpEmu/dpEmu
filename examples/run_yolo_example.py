@@ -12,13 +12,13 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tqdm import trange
 
-from src import runner_
-from src.datasets.utils import load_coco_val_2017
-from src.plotting.utils import print_results, visualize_scores
-from src.problemgenerator.array import Array
-from src.problemgenerator.filters import ResolutionVectorized
-from src.problemgenerator.series import Series
-from src.utils import generate_unique_path
+from dpemu import runner_
+from dpemu import utils
+from dpemu import dataset_utils
+from dpemu.plotting.utils import print_results, visualize_scores
+from dpemu import array
+from dpemu import filters
+from dpemu import series
 
 cv2.ocl.setUseOpenCL(False)
 torch.multiprocessing.set_start_method("spawn", force="True")
@@ -100,7 +100,7 @@ class YOLOv3CPUModel:
 
         if self.show_imgs:
             cv2.imshow(str(img_id), img)
-            path_to_img = generate_unique_path("out", "jpg")
+            path_to_img = utils.generate_unique_path("out", "jpg")
             cv2.imwrite(path_to_img, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
             cv2.waitKey()
             cv2.destroyAllWindows()
@@ -123,7 +123,7 @@ class YOLOv3CPUModel:
         if not results:
             return {"mAP-50": 0}
 
-        path_to_results = generate_unique_path("tmp", "json")
+        path_to_results = utils.generate_unique_path("tmp", "json")
         with open(path_to_results, "w") as fp:
             json.dump(results, fp)
 
@@ -154,10 +154,10 @@ def main(argv):
     if len(argv) != 2:
         exit(0)
 
-    imgs, img_ids, class_names, _ = load_coco_val_2017(int(argv[1]), is_shuffled=True)
+    imgs, img_ids, class_names, _ = dataset_utils.load_coco_val_2017(int(argv[1]), is_shuffled=True)
 
-    err_node = Array()
-    err_root_node = Series(err_node)
+    err_node = array.Array()
+    err_root_node = series.Series(err_node)
 
     # err_node.addfilter(GaussianNoise("mean", "std"))
     # err_node.addfilter(Blur_Gaussian("std"))
@@ -165,7 +165,7 @@ def main(argv):
     # err_node.addfilter(FastRain("probability", "range_id"))
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
     # err_node.addfilter(JPEG_Compression("quality"))
-    err_node.addfilter(ResolutionVectorized("k"))
+    err_node.addfilter(filters.ResolutionVectorized("k"))
     # err_node.addfilter(BrightnessVectorized("tar", "rate", "range"))
     # err_node.addfilter(SaturationVectorized("tar", "rate", "range"))
     # err_node.addfilter(Identity())

@@ -1,13 +1,11 @@
 import numpy as np
-
 from PIL import Image
-
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
+from dpemu import array
+from dpemu import filters
 
 
 def main():
-    img = Image.open("demo/landscape.png")
+    img = Image.open("../demo/landscape.png")
     data = np.array(img)
     root_node = array.Array()
     root_node.addfilter(filters.Blur_Gaussian('std'))

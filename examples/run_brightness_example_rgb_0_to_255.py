@@ -3,12 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
+from dpemu import array
+from dpemu import filters
 
 
 def main():
-    img_path = "demo/landscape.png"
+    img_path = "../demo/landscape.png"
     d = {"tar": 1, "rat": 0.55, "range": 255}
 
     # Use the vectorized version

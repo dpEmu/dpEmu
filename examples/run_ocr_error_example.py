@@ -1,9 +1,9 @@
 from time import time
 
 import numpy as np
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.utils as utils
+from dpemu import array
+from dpemu import filters
+from dpemu import pg_utils
 
 data = np.array(["shambler", "shub-niggurath", "ogre", "difficulty: nightmare",
                  "quad damage", "health 100, health 99, health 0"])
@@ -11,8 +11,8 @@ data = np.array(["shambler", "shub-niggurath", "ogre", "difficulty: nightmare",
 t0 = time()
 for i in range(20000):
     root_node = array.Array()
-    params = utils.load_ocr_error_params("config/example_text_error_params.json")
-    normalized_params = utils.normalize_ocr_error_params(params)
+    params = pg_utils.load_ocr_error_params("config/example_text_error_params.json")
+    normalized_params = pg_utils.normalize_ocr_error_params(params)
 
     root_node.addfilter(filters.OCRError("params", "p"))
     out = root_node.generate_error(data, {'params': normalized_params, 'p': .5})

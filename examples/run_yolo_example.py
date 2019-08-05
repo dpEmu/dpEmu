@@ -159,16 +159,16 @@ def main(argv):
     err_node = array.Array()
     err_root_node = series.Series(err_node)
 
-    # err_node.addfilter(GaussianNoise("mean", "std"))
-    # err_node.addfilter(Blur_Gaussian("std"))
-    # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
-    # err_node.addfilter(FastRain("probability", "range_id"))
-    # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
-    # err_node.addfilter(JPEG_Compression("quality"))
+    # err_node.addfilter(filters.GaussianNoise("mean", "std"))
+    # err_node.addfilter(filters.Blur_Gaussian("std"))
+    # err_node.addfilter(filters.Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
+    # err_node.addfilter(filters.FastRain("probability", "range_id"))
+    # err_node.addfilter(filters.StainArea("probability", "radius_generator", "transparency_percentage"))
+    # err_node.addfilter(filters.JPEG_Compression("quality"))
     err_node.addfilter(filters.ResolutionVectorized("k"))
-    # err_node.addfilter(BrightnessVectorized("tar", "rate", "range"))
-    # err_node.addfilter(SaturationVectorized("tar", "rate", "range"))
-    # err_node.addfilter(Identity())
+    # err_node.addfilter(filters.BrightnessVectorized("tar", "rate", "range"))
+    # err_node.addfilter(filters.SaturationVectorized("tar", "rate", "range"))
+    # err_node.addfilter(filters.Identity())
 
     # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]

@@ -51,9 +51,10 @@ Now you can install dpEmu by running the following commands in the remote termin
 
 .. code-block:: bash
 
-    cd $WRKDIR
     module load Python/3.7.0-intel-2018b
     export SCIKIT_LEARN_DATA=$TMPDIR
+
+    cd $WRKDIR
     git clone git@github.com:dpEmu/dpEmu.git
     cd dpEmu
     python3 -m venv venv
@@ -62,33 +63,36 @@ Now you can install dpEmu by running the following commands in the remote termin
     pip install -r requirements.txt --cache-dir $TMPDIR
     pip install pycocotools --cache-dir $TMPDIR
 
-You need to run also the following commands if you want to run the object detection example:
+You also need to run the following commands if you want to run the object detection example:
 
 .. code-block:: bash
 
     module load CUDA/10.0.130
     module load cuDNN/7.5.0.56-CUDA-10.0.130
+
+    cd $WRKDIR/dpEmu
+    source venv/bin/activate
     git clone git@github.com:dpEmu/Detectron.git libs/Detectron
     ./scripts/install_detectron.sh
     git clone git@github.com:dpEmu/darknet.git libs/darknet
     ./scripts/install_darknet.sh
 
+Instructions for running jobs on Kale or Ukko2:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Official instructions: `Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide>`_ or `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide>`_
+
 An example of running a job on Kale or Ukko2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Open file src/datasets/utils.py. For example:
-
 .. code-block:: bash
 
-    nano src/datasets/utils.py
+    module load Python/3.7.0-intel-2018b
+    export SCIKIT_LEARN_DATA=$TMPDIR
 
-Uncomment the line "data_home = $WRKDIR" and comment the line "data_home = None" so that the file will look like:
+    cd $WRKDIR/dpEmu
+    source venv/bin/activate
 
-.. code-block:: python
-    :linenos:
-
-    # data_home = None
-    data_home = "$TMPDIR"
 
 Create the batch file for the job:
 
@@ -96,7 +100,7 @@ Create the batch file for the job:
 
     nano batch-submit.job
 
-Then write the following content to it and save the file. Remember to put your userid in place of <userid>:
+Then write the following content to it and save the file. **Remember to put your userid in place of <userid>**:
 
 .. code-block:: bash
 
@@ -105,8 +109,8 @@ Then write the following content to it and save the file. Remember to put your u
     #SBATCH --workdir=/wrk/users/<userid>/dpEmu/
     #SBATCH -o text_classification_result.txt
     #SBATCH -c 8
-    #SBATCH --mem=256G
-    #SBATCH -t 30:00
+    #SBATCH --mem=128G
+    #SBATCH -t 20:00
 
     srun python3 -m src.examples.run_text_classification_example all 20
     srun sleep 60
@@ -117,7 +121,13 @@ Submit the batch job to be run:
 
     sbatch batch-submit.job
 
-The example src.examples.run_text_classification_example will save images to the dpEmu/out directory. Additionally, the previously specified file text_classification_result.txt will contain statistics about the job. This file is located in the directory dpEmu.
+You can view the execution of the code as if it was executed on your home terminal:
+
+.. code-block:: bash
+
+    tail -f text_classification_result.txt
+
+The example src.examples.run_text_classification_example will save images to the dpEmu/out directory.
 
 Usage
 -----
@@ -380,3 +390,18 @@ In the end of the example a plot of scores is visualized.
 Here's what the resulting image should look like:
 
 .. image:: manual_demo.png
+
+How to run examples
+-------------------
+
+If the examples do not require command line arguments, then they can be run as follows:
+
+.. code-block:: bash
+
+    python3 -m src.examples.run_manual_predictor_example
+
+Enable the interactive mode by writing ``-i``
+
+.. code-block:: bash
+
+    python3 -m src.examples.run_text_classification_example test 4 -i

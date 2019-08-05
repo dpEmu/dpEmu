@@ -50,7 +50,8 @@ def test_visualizing_array_node_with_complex_filter():
     addition = filters.Addition("f1", "f2")
     const = filters.Constant("c")
     x_node.addfilter(addition)
-    path = plotting_utils.visualize_error_generator(x_node.get_parametrized_tree({'f1': const, 'f2': const, 'c': 5}), False)
+    path = plotting_utils.visualize_error_generator(
+        x_node.get_parametrized_tree({'f1': const, 'f2': const, 'c': 5}), False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'2.*Addition').search(data)

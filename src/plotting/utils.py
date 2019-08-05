@@ -180,15 +180,13 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_d
     """
 
     def get_lims(data):
-        """[summary]
-
-        [extended_summary]
+        """Returns the limits of the plot.
 
         Args:
-            data ([type]): [description]
+            data (list): A list of 2-dimensional data points.
 
         Returns:
-            [type]: [description]
+            float, float, float, float: minimum x, maximum x, minimum y, maximum y.
         """
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
@@ -227,9 +225,9 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_d
                 closest = event.ind[0]
 
                 def dist(x0, y0, x1, y1):
-                    return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)
+                    return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)The name of thThe name of the column containing the real labels.e column containing the real labels.
 
-                # find closest data point
+                # find closest data pointThe name of the column containing the real labels.The name of the column containing the real labels.
                 for elem in event.ind:
                     best_dist = dist(self.reduced_T[0][elem], self.reduced_T[1][elem], mevent.xdata, mevent.ydata)
                     new_dist = dist(self.reduced_T[0][closest], self.reduced_T[1][closest], mevent.xdata, mevent.ydata)

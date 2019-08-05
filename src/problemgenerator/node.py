@@ -15,7 +15,6 @@ class Node:
         """
         self.filters = []
         self.children = children
-        self.shape = ()
 
     def addfilter(self, error_filter):
         """Attach a filter (error source) to the node.
@@ -24,7 +23,6 @@ class Node:
             error_filter (object): A pre-existing or user-specified filter
         """
         self.filters.append(error_filter)
-        error_filter.shape = self.shape
 
     def set_error_params(self, params_dict):
         """Set error parameters for the filter.

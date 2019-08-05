@@ -13,8 +13,8 @@ y = np.random.rand(100, 1)
 data = (x, y)
 
 # Build a data model tree.
-x_node = array.Array(x[0].shape)
-y_node = array.Array(y[0].shape)
+x_node = array.Array()
+y_node = array.Array()
 root_node = series.TupleSeries([x_node, y_node])
 
 # Suppose we want to introduce NaN values (i.e. missing data)

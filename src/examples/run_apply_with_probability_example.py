@@ -8,7 +8,7 @@ data = np.array([["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], ["a"], 
 params = {"a": [["e"], [1.0]]}
 ocr = filters.OCRError("ocr_params", "ocr_p")
 
-x_node = array.Array(data.shape)
+x_node = array.Array()
 x_node.addfilter(filters.ApplyWithProbability('ocr', 'p'))
 root_node = series.Series(x_node)
 

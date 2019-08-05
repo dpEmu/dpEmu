@@ -12,12 +12,7 @@ class Array(LeafNode):
         Node (object):
     """
 
-    def __init__(self, shape=()):
-        """
-        Args:
-            shape (tuple, optional): The shape of the Array. Defaults to ().
-        """
-        self.shape = shape
+    def __init__(self):
         super().__init__()
 
     def apply_filters(self, node_data, random_state, named_dims):
@@ -61,12 +56,7 @@ class TupleArray(Array):
         Array (object): An Array node represents a data array of any dimension (>= 0).
     """
 
-    def __init__(self, shape=()):
-        """
-        Args:
-            shape (tuple, optional): The shape of... . Defaults to ().
-        """
-        self.shape = shape
+    def __init__(self):
         super().__init__([])
 
     def process(self, data, random_state, index_tuple=(), named_dims={}):

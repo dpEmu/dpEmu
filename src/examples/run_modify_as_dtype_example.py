@@ -8,7 +8,7 @@ import src.problemgenerator.filters as filters
 
 def main():
     data = cv2.imread("demo/landscape.png")
-    x_node = array.Array(data.shape)
+    x_node = array.Array()
 
     # Some filters, e.g. Rotation, expect the data to have a specific data type, e.g. uint8.
     #

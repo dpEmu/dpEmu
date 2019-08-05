@@ -123,6 +123,10 @@ def main(argv):
     else:
         use_interactive_mode = False
 
+    err_root_node = Array()
+    err_root_node.addfilter(GaussianNoise("mean", "std"))
+    err_root_node.addfilter(Clip("min_val", "max_val"))
+
     min_val = np.amin(data)
     max_val = np.amax(data)
     std_steps = np.linspace(0, max_val, num=8)
@@ -141,10 +145,6 @@ def main(argv):
             "labels": labels
         } for min_cluster_size in min_cluster_size_steps for min_samples in min_samples_steps]},
     ]
-
-    err_root_node = Array()
-    err_root_node.addfilter(GaussianNoise("mean", "std"))
-    err_root_node.addfilter(Clip("min_val", "max_val"))
 
     df = runner_.run(None, data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
                      use_interactive_mode=use_interactive_mode)

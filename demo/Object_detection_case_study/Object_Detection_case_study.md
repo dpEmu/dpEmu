@@ -30,23 +30,23 @@ The error parameter here is the standard deviation (std) for the Gaussian distri
 
 ##### std: 0.0
 
-![std 0.0](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Blur_Gaussian/20190729-150653-727543.jpg)
+![std 0.0](demo/Object_detection_case_study/Blur_Gaussian/20190729-150653-727543.jpg)
 
 ##### std: 1.0
 
-![std 1.0](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Blur_Gaussian/20190729-150700-771777.jpg)
+![std 1.0](demo/Object_detection_case_study/Blur_Gaussian/20190729-150700-771777.jpg)
 
 ##### std: 2.0
 
-![std 0.0](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Blur_Gaussian/20190729-150707-503684.jpg)
+![std 0.0](demo/Object_detection_case_study/Blur_Gaussian/20190729-150707-503684.jpg)
 
 ##### std: 3.0
 
-![std 1.0](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Blur_Gaussian/20190729-150714-401435.jpg)
+![std 1.0](demo/Object_detection_case_study/Blur_Gaussian/20190729-150714-401435.jpg)
 
 #### The results of Gaussian Blur filter
 
-![Gaussian Blur](https://raw.githubusercontent.com/dpEmu/dpEmu/master/demo/Object_detection_case_study/Blur_Gaussian/20190728-011623-029059.png)
+![Gaussian Blur](demo/Object_detection_case_study/Blur_Gaussian/20190728-011623-029059.png)
 
 ### Rain filter
 

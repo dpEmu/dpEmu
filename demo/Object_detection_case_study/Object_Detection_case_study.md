@@ -30,7 +30,7 @@ The error parameter here is the standard deviation (std) for the Gaussian distri
 
 ##### std: 0.0
 
-![std 0.0](Blur_Gaussian/20190729-150653-727543.jpg)
+![std 0.0](../../demo/Object_detection_case_study/Blur_Gaussian/20190729-150653-727543.jpg)
 
 ##### std: 1.0
 

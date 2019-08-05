@@ -85,7 +85,7 @@ class LinearSVCModel(AbstractModel):
         return LinearSVC(C=params["C"], random_state=self.random_state).fit(train_data, train_labels)
 
 
-def visualize(df, dataset_name, label_names, test_data):
+def visualize(df, dataset_name, label_names, test_data, use_interactive_mode):
     visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], [True, True], "p",
                      f"{dataset_name} classification scores with added error")
     visualize_best_model_params(df, "MultinomialNB", ["alpha"], ["test_mean_accuracy"], [True], "p",
@@ -99,13 +99,13 @@ def visualize(df, dataset_name, label_names, test_data):
     visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels", "tab20",
                       f"{dataset_name} (n={len(test_data)}) classes with added error")
 
-    def on_click(element, label, predicted_label):
-        print(label, " predicted as ", predicted_label, ":", sep="")
-        print(element, end="\n\n")
+    if use_interactive_mode:
+        def on_click(element, label, predicted_label):
+            print(label, " predicted as ", predicted_label, ":", sep="")
+            print(element, end="\n\n")
 
-    # Remember to enable runner's interactive mode
-    visualize_confusion_matrices(df, label_names, "test_mean_accuracy", True, "p",
-                                 "test_labels", "predicted_test_labels", on_click)
+        visualize_confusion_matrices(df, label_names, "test_mean_accuracy", True, "p",
+                                     "test_labels", "predicted_test_labels", on_click)
 
     plt.show()
 
@@ -113,6 +113,10 @@ def visualize(df, dataset_name, label_names, test_data):
 def main(argv):
     if len(argv) == 3 and argv[1] in ["all", "test"]:
         data, labels, label_names, dataset_name = load_newsgroups(argv[1], int(argv[2]))
+        use_interactive_mode = False
+    elif len(argv) == 4 and argv[1] in ["all", "test"] and argv[1] == "-i":
+        data, labels, label_names, dataset_name = load_newsgroups(argv[1], int(argv[2]))
+        use_interactive_mode = True
     else:
         exit(0)
 
@@ -165,12 +169,12 @@ def main(argv):
     # err_root_node.addfilter(OCRError("normalized_params", "p"))
 
     df = runner_.run(train_data, test_data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
-                     use_interactive_mode=True)
+                     use_interactive_mode=use_interactive_mode)
 
     print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
                        "radius_generator", "missing_value", "normalized_params"])
 
-    visualize(df, dataset_name, label_names, test_data)
+    visualize(df, dataset_name, label_names, test_data, use_interactive_mode)
 
 
 if __name__ == "__main__":

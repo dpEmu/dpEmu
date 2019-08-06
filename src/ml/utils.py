@@ -1,5 +1,6 @@
-import shlex
-import subprocess
+from shlex import split
+from subprocess import Popen, PIPE, STDOUT
+from sys import stdout
 
 from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.random_projection import johnson_lindenstrauss_min_dim, SparseRandomProjection
@@ -14,17 +15,18 @@ def run_ml_module_using_cli(cline):
     Args:
         cline ([type]): [description]
     """
-    proc = subprocess.Popen(shlex.split(cline), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                            universal_newlines=True)
-    lines = []
+    proc = Popen(split(cline), bufsize=0, stdout=PIPE, stderr=STDOUT, universal_newlines=True)
+    chars = []
     while True:
-        line = proc.stdout.readline().rstrip()
-        if line or proc.poll() is not None:
-            print(line)
-            lines.append(line)
-        if not line and proc.poll() is not None:
+        char = proc.stdout.read(1)
+        if not char and proc.poll() is not None:
+            print()
             break
-    return "\n".join(lines)
+        if char:
+            stdout.write(char)
+            stdout.flush()
+            chars.append(char)
+    return "".join(chars)
 
 
 def reduce_dimensions(data, random_state, target_dim=2):

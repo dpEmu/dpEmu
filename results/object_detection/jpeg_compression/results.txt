@@ -1,3 +1,4 @@
+# With kale using v100 flag
 FasterRCNN #1
    mAP-50  quality  time_used_err  time_used_mod  time_used_preproc
 0   0.277       10      67.882708     768.891039         115.212303

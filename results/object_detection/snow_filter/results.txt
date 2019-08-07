@@ -1,4 +1,4 @@
-# Run with kale using v100 flag
+# Run with Kale using v100 flag
 FasterRCNN #1
    mAP-50  snowflake_probability  time_used_err  time_used_mod  time_used_preproc
 0   0.633                 0.0001     663.486226     774.997859         177.816619

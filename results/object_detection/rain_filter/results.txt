@@ -1,4 +1,4 @@
-# Run with kale using v100 flag
+# Run with Kale using v100 flag
 FasterRCNN #1
    mAP-50  probability  time_used_err  time_used_mod  time_used_preproc
 0   0.633       0.0001     190.715252     777.327355         187.658537

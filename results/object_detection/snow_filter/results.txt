@@ -1,0 +1,37 @@
+# Run with kale using v100 flag
+FasterRCNN #1
+   mAP-50  snowflake_probability  time_used_err  time_used_mod  time_used_preproc
+0   0.633                 0.0001     663.486226     774.997859         177.816619
+1   0.607                 0.0010     680.570817     774.458990         179.933889
+2   0.472                 0.0100     938.393672     772.764939         198.970245
+3   0.134                 0.1000    3674.790983     771.709939         193.272068
+MaskRCNN #1
+   mAP-50  snowflake_probability  time_used_err  time_used_mod  time_used_preproc
+0   0.638                 0.0001     663.486226     771.385179         177.816619
+1   0.615                 0.0010     680.570817     773.293710         179.933889
+2   0.481                 0.0100     938.393672     769.910893         198.970245
+3   0.139                 0.1000    3674.790983     757.343367         193.272068
+RetinaNet #1
+   mAP-50  snowflake_probability  time_used_err  time_used_mod  time_used_preproc
+0   0.591                 0.0001     663.486226    1010.275800         177.816619
+1   0.565                 0.0010     680.570817    1007.321969         179.933889
+2   0.434                 0.0100     938.393672     997.765778         198.970245
+3   0.138                 0.1000    3674.790983     978.903506         193.272068
+YOLOv3 #1
+   mAP-50  snowflake_probability  time_used_err  time_used_mod  time_used_preproc
+0   0.552                 0.0001     663.486226      78.452321         177.816619
+1   0.519                 0.0010     680.570817      82.956383         179.933889
+2   0.385                 0.0100     938.393672      82.844820         198.970245
+3   0.088                 0.1000    3674.790983      83.912266         193.272068
+
+Job ID: 3171451
+Cluster: kale
+User/Group: thalvari/thalvari
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 4
+CPU Utilized: 06:12:41
+CPU Efficiency: 32.08% of 19:21:36 core-walltime
+Job Wall-clock time: 04:50:24
+Memory Utilized: 25.76 GB
+Memory Efficiency: 80.50% of 32.00 GB

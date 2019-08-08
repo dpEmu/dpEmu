@@ -1,0 +1,37 @@
+# Run with Kale using v100 flag
+FasterRCNN #1
+   mAP-50  std  time_used_err  time_used_mod  time_used_preproc
+0   0.636    0       6.381662     781.913708         177.339026
+1   0.596    1      44.078606     765.774397         173.354824
+2   0.481    2      59.683885     760.672670         152.661092
+3   0.370    3      78.726987     758.099961         142.896409
+MaskRCNN #1
+   mAP-50  std  time_used_err  time_used_mod  time_used_preproc
+0   0.643    0       6.381662     770.590128         177.339026
+1   0.599    1      44.078606     763.622734         173.354824
+2   0.488    2      59.683885     757.522946         152.661092
+3   0.373    3      78.726987     756.036289         142.896409
+RetinaNet #1
+   mAP-50  std  time_used_err  time_used_mod  time_used_preproc
+0   0.594    0       6.381662    1004.763407         177.339026
+1   0.555    1      44.078606     997.216716         173.354824
+2   0.453    2      59.683885     994.593611         152.661092
+3   0.347    3      78.726987     989.820983         142.896409
+YOLOv3 #1
+   mAP-50  std  time_used_err  time_used_mod  time_used_preproc
+0   0.556    0       6.381662      89.302752         177.339026
+1   0.522    1      44.078606      82.100662         173.354824
+2   0.423    2      59.683885      81.466439         152.661092
+3   0.326    3      78.726987      80.993057         142.896409
+
+Job ID: 3171675
+Cluster: kale
+User/Group: thalvari/thalvari
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 4
+CPU Utilized: 04:34:13
+CPU Efficiency: 35.74% of 12:47:16 core-walltime
+Job Wall-clock time: 03:11:49
+Memory Utilized: 24.22 GB
+Memory Efficiency: 75.69% of 32.00 GB

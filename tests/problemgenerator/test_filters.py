@@ -1,9 +1,9 @@
 import numpy as np
 
-import src.problemgenerator.array as array
-import src.problemgenerator.filters as filters
-import src.problemgenerator.series as series
-from src.problemgenerator.radius_generators import GaussianRadiusGenerator, ProbabilityArrayRadiusGenerator
+from dpemu import array
+from dpemu import filters
+from dpemu import series
+from dpemu import radius_generators
 
 
 def test_seed_determines_result_for_missing_filter():
@@ -51,7 +51,7 @@ def test_seed_determines_result_for_missing_area_filter_with_gaussian_radius_gen
     x_node = array.Array()
     x_node.addfilter(filters.MissingArea("probability", "radius_generator", "missing_value"))
     params = {"probability": 0.05,
-              "radius_generator": GaussianRadiusGenerator(1, 1),
+              "radius_generator": radius_generators.GaussianRadiusGenerator(1, 1),
               "missing_value": "#"}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
@@ -63,7 +63,7 @@ def test_seed_determines_result_for_missing_area_filter_with_probability_array_r
     x_node = array.Array()
     x_node.addfilter(filters.MissingArea("probability", "radius_generator", "missing_value"))
     params = {"probability": 0.05,
-              "radius_generator": ProbabilityArrayRadiusGenerator([.6, .3, .1]),
+              "radius_generator": radius_generators.ProbabilityArrayRadiusGenerator([.6, .3, .1]),
               "missing_value": "#"}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
@@ -134,7 +134,7 @@ def test_seed_determines_result_for_stain_filter():
     x_node = array.Array()
     x_node.addfilter(filters.StainArea("probability", "radius_generator", "transparency_percentage"))
     params = {"probability": .005,
-              "radius_generator": GaussianRadiusGenerator(10, 5),
+              "radius_generator": radius_generators.GaussianRadiusGenerator(10, 5),
               "transparency_percentage": 0.5}
     out1 = x_node.generate_error(a, params, np.random.RandomState(seed=42))
     out2 = x_node.generate_error(a, params, np.random.RandomState(seed=42))

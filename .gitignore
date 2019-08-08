@@ -18,6 +18,7 @@ lib/
 lib64/
 parts/
 sdist/
+XDG_CACHE_HOME/
 var/
 wheels/
 pip-wheel-metadata/

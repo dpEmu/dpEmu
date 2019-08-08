@@ -102,39 +102,32 @@ def visualize_best_model_params(
         plt.savefig(path_to_plot)
 
 
-def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels_name, cmap, title):
-    """[summary]
-
-    [extended_summary]
+def visualize_classes(df, label_names, err_param_name, reduced_data_column, labels_column, cmap, title):
+    """This function visualizes the classes as 2-dimensional plots for different error parameter values.
 
     Args:
-        df ([type]): [description]
-        label_names ([type]): [description]
-        err_param_name ([type]): [description]
-        reduced_data_name ([type]): [description]
-        labels_name ([type]): [description]
-        cmap ([type]): [description]
-        title ([type]): [description]
-
-    Returns:
-        [type]: [description]
+        df (pandas.DataFrame): The dataframe returned by the runner.
+        label_names (list): A list containing the names of the labels.
+        err_param_name (str): The name of the error parameter whose different values are used for plots.
+        reduced_data_column (str): The name of the column that contains the reduced data.
+        labels_column (str): The name of the column that contains the labels for each element.
+        cmap (str): The name of the color map used for coloring the plot.
+        title (str): The title of the plot.
     """
 
     def get_lims(data):
-        """[summary]
-
-        [extended_summary]
+        """Returns the limits of the plot.
 
         Args:
-            data ([type]): [description]
+            data (list): A list of 2-dimensional data points.
 
         Returns:
-            [type]: [description]
+            float, float, float, float: minimum x, maximum x, minimum y, maximum y.
         """
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
     df = df.groupby(err_param_name).first().reset_index()
-    labels = df[labels_name][0]
+    labels = df[labels_column][0]
 
     n_col = math.ceil(df.shape[0] / 2)
     fig, axs = plt.subplots(2, n_col, figsize=(2.5 * n_col + 1, 5), constrained_layout=True)
@@ -144,7 +137,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_name, labels
             ax.set_yticks([])
             plt.box(False)
             continue
-        reduced_data = df[reduced_data_name][i]
+        reduced_data = df[reduced_data_column][i]
         x_min, x_max, y_min, y_max = get_lims(reduced_data)
         sc = ax.scatter(*reduced_data.T, c=labels, cmap=cmap, marker=".", s=40)
         ax.set_xlim(x_min, x_max)
@@ -180,15 +173,13 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_d
     """
 
     def get_lims(data):
-        """[summary]
-
-        [extended_summary]
+        """Returns the limits of the plot.
 
         Args:
-            data ([type]): [description]
+            data (list): A list of 2-dimensional data points.
 
         Returns:
-            [type]: [description]
+            float, float, float, float: minimum x, maximum x, minimum y, maximum y.
         """
         return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
@@ -246,19 +237,19 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_d
 
 
 def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, predicted_labels_column, on_click=None):
-    """[summary]
-
-    [extended_summary]
+    """Creates a confusion matrix which can be made interactive if wanted.
 
     Args:
-        df_ ([type]): [description]
-        cm ([type]): [description]
-        row ([type]): [description]
-        label_names ([type]): [description]
-        title ([type]): [description]
-        labels_column ([type]): [description]
-        predicted_labels_column ([type]): [description]
-        on_click ([type], optional): [description]. Defaults to None.
+        df_ (DataFrame): The original dataframe returned by the runner.
+        cm (list): An integer matrix describing the number of elements in each category of the confusion matrix.
+        row (int): The row of the dataframe used for this matrix.
+        label_names (list): A list of strings containing the names of the labels.
+        title (str): The title of the confusion matrix visualization.
+        labels_column (str): The name of the column containing the real labels.
+        predicted_labels_column (str): The name of the column containing the predicted labels.
+        on_click (function, optional): If this parameter is passed to the function, then the interactive mode.
+            will be set on and clicking an element causes the event listener to call this function.
+            The function should take three parameters: an element, a real label and a predicted label. Defaults to None.
     """
     # Draw image of confusion matrix
     color_map = LinearSegmentedColormap.from_list("white_to_blue", [(1, 1, 1), (0.2, 0.2, 1)], 256)
@@ -283,19 +274,20 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
             cm_values[label][predicted_label].append(index)
 
     class Plot:
-        """[summary]
+        """This class describes a combination of a plot and an event listener.
 
-        [extended_summary]
+        It is required so that the event listeners refer to a correct row of data
+        and the references exist after the function is run.
         """
 
         def __init__(self, row, fig, df_, cm_values, on_click):
             """
             Args:
-                row ([type]): [description]
-                fig ([type]): [description]
-                df_ ([type]): [description]
-                cm_values ([type]): [description]
-                on_click ([type]): [description]
+                row (int): The row of the original dataframe whose data the matrix uses.
+                fig (Figure): The figure to which the confusion matrix is plotted.
+                df_ (DataFrame): The original dataframe returned by the runner.
+                cm_values (list): A matrix of lists containing the elements of each category of the confusion matrix.
+                on_click (function): A function to be called after a cell is clicked.
             """
             self.row = row
             self.fig = fig
@@ -307,12 +299,12 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
                 self.cid = fig.canvas.mpl_connect('button_press_event', self)
 
         def __call__(self, event):
-            """[summary]
+            """This function passes an element from the clicked category to the on_click function.
 
-            [extended_summary]
+            This function is called by the event listener.
 
             Args:
-                event ([type]): [description]
+                event (Event): The button press event which activated the event listener.
             """
             if event.xdata and event.ydata:
                 x, y = int(round(event.xdata)), int(round(event.ydata))
@@ -351,7 +343,21 @@ def visualize_confusion_matrix(df_, cm, row, label_names, title, labels_column, 
 
 
 def visualize_confusion_matrices(df, label_names, score_name, is_higher_score_better, err_param_name, labels_col,
-                                 predictions_col, interactive):
+                                 predictions_col, on_click=None):
+    """Generates confusion matrices for each error parameter combination and model.
+
+    Args:
+        df (pandas.DataFrame): The dataframe returned by the runner.
+        label_names (list): A list containing the names of the labels.
+        score_name (str): The name of the score type used for filtering the best results.
+        is_higher_score_better (bool): If true, then a higher value of score is better and vice versa.
+        err_param_name (str): The name of the error parameter whose different values the matrices use.
+        labels_col (str): The name of the column containing the real labels.
+        predictions_col (str): The name of the column containing the predicted labels.
+        on_click (function, optional): If this parameter is passed to the function, then the interactive mode
+            will be set on and clicking an element causes the event listener to call this function.
+            The function should take three parameters: an element, a real label and a predicted label. Defaults to None.
+    """
     dfs = split_df_by_model(df)
     for df_ in dfs:
         df_ = filter_optimized_results(df_, err_param_name, score_name, is_higher_score_better)
@@ -364,7 +370,7 @@ def visualize_confusion_matrices(df, label_names, score_name, is_higher_score_be
                 f"{df_.name} confusion matrix ({err_param_name}={round(df_[err_param_name][i], 3)})",
                 labels_col,
                 predictions_col,
-                interactive
+                on_click
             )
 
 

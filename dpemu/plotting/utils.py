@@ -13,7 +13,7 @@ from ..utils import generate_unique_path, split_df_by_model, filter_optimized_re
 pd.set_option("display.expand_frame_repr", False)
 
 
-def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, log=False):
+def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, x_log=False, y_log=False):
     """Plots the wanted scores for all distinct models that were used.
 
     Args:
@@ -23,7 +23,9 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
             is better and False means a lower score is better.
         err_param_name (str): The error whose distinct values are going to be used on the x-axis.
         title (str): The title of the plot.
-        log (bool, optional): A bool telling whether a logarithmic scale should be used on x-axis or not.
+        x_log (bool, optional): A bool telling whether a logarithmic scale should be used on x-axis or not.
+            Defaults to False.
+        y_log (bool, optional): A bool telling whether a logarithmic scale should be used on y-axis or not.
             Defaults to False.
     """
 
@@ -34,8 +36,12 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
             df_ = filter_optimized_results(df_, err_param_name, score_names[i], is_higher_score_better[i])
-            if log:
+            if x_log and y_log:
+                ax.loglog(df_[err_param_name], df_[score_names[i]], label=df_.name)
+            elif x_log:
                 ax.semilogx(df_[err_param_name], df_[score_names[i]], label=df_.name)
+            elif y_log:
+                ax.semilogy(df_[err_param_name], df_[score_names[i]], label=df_.name)
             else:
                 ax.plot(df_[err_param_name], df_[score_names[i]], label=df_.name)
                 ax.set_xlim([df_[err_param_name].min(), df_[err_param_name].max()])

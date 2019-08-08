@@ -3,7 +3,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-from dpemu import runner_
+from dpemu import runner
 from dpemu import plotting_utils
 from dpemu import array
 from dpemu import filters
@@ -57,14 +57,14 @@ def main(argv):
     }]
 
     # Run the whole thing and get DataFrame for visualization
-    df = runner_.run(train_data,
-                     test_data,
-                     Preprocessor,
-                     None,
-                     err_root_node,
-                     err_params_list,
-                     model_params_dict_list,
-                     use_interactive_mode=True)
+    df = runner.run(train_data,
+                    test_data,
+                    Preprocessor,
+                    None,
+                    err_root_node,
+                    err_params_list,
+                    model_params_dict_list,
+                    use_interactive_mode=True)
 
     # Visualize mean squared error for all used standard deviations
     plotting_utils.visualize_scores(df, ["MSE"], [False], "std", "Mean squared error")

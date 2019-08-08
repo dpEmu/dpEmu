@@ -10,7 +10,7 @@ from numpy.random import RandomState
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
-from dpemu import runner_
+from dpemu import runner
 from dpemu import dataset_utils
 from dpemu import ml_utils
 from dpemu import plotting_utils
@@ -146,8 +146,8 @@ def main(argv):
         } for min_cluster_size in min_cluster_size_steps for min_samples in min_samples_steps]},
     ]
 
-    df = runner_.run(None, data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
-                     use_interactive_mode=use_interactive_mode)
+    df = runner.run(None, data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
+                    use_interactive_mode=use_interactive_mode)
 
     plotting_utils.print_results(df, ["labels", "reduced_data"])
     visualize(df, label_names, dataset_name, data, use_interactive_mode)

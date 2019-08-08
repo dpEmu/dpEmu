@@ -12,7 +12,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tqdm import trange
 
-from dpemu import runner_
+from dpemu import runner
 from dpemu import utils
 from dpemu import dataset_utils
 from dpemu import plotting_utils
@@ -137,16 +137,17 @@ class YOLOv3CPUModel:
 
 
 def visualize(df):
-    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", log=True)
-    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", log=True)
-    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter",
+    #                  x_log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", x_log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", x_log=True)
     plotting_utils.visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression",
-                                    log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with brightness", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with saturation", log=False)
+                                    x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with brightness", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with saturation", x_log=False)
 
     plt.show()
 
@@ -188,8 +189,8 @@ def main(argv):
         {"model": YOLOv3CPUModel, "params_list": [{"img_ids": img_ids, "class_names": class_names, "show_imgs": True}]}
     ]
 
-    df = runner_.run(None, imgs, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
-                     n_processes=1)
+    df = runner.run(None, imgs, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
+                    n_processes=1)
 
     plotting_utils.print_results(df, ["img_ids", "class_names", "show_imgs", "mean", "radius_generator",
                                       "transparency_percentage", "range_id", "snowflake_alpha", "snowstorm_alpha"])

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from numpy.random import RandomState
 
-from dpemu import runner_
+from dpemu import runner
 from dpemu import dataset_utils
 from dpemu import ml_utils
 from dpemu import plotting_utils
@@ -122,19 +122,19 @@ class RetinaNetModel(AbstractDetectronModel):
 
 def visualize(df):
     # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "std",
-    #                                 "Object detection with Gaussian noise", log=False)
+    #                                 "Object detection with Gaussian noise", x_log=False)
     # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "std",
-    #                                 "Object detection with Gaussian blur", log=False)
+    #                                 "Object detection with Gaussian blur", x_log=False)
     # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "snowflake_probability",
-    #                                 "Object detection with snow filter", log=True)
+    #                                 "Object detection with snow filter", x_log=True)
     # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "probability",
-    #                                 "Object detection with rain filter", log=True)
+    #                                 "Object detection with rain filter", x_log=True)
     # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "probability",
-    #                                 "Object detection with added stains", log=True)
+    #                                 "Object detection with added stains", x_log=True)
     plotting_utils.visualize_scores(df, ["mAP-50"], [True], "quality",
-                                    "Object detection with JPEG compression", log=False)
+                                    "Object detection with JPEG compression", x_log=False)
     # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "k",
-    #                                 "Object detection with reduced resolution", log=False)
+    #                                 "Object detection with reduced resolution", x_log=False)
 
     plt.show()
 
@@ -175,8 +175,8 @@ def main():
         {"model": YOLOv3Model, "params_list": [{}]},
     ]
 
-    df = runner_.run(None, imgs, Preprocessor, preproc_params, err_root_node, err_params_list, model_params_dict_list,
-                     n_processes=1)
+    df = runner.run(None, imgs, Preprocessor, preproc_params, err_root_node, err_params_list, model_params_dict_list,
+                    n_processes=1)
 
     plotting_utils.print_results(df, ["show_imgs", "mean", "radius_generator", "transparency_percentage", "range_id",
                                       "snowflake_alpha", "snowstorm_alpha"])

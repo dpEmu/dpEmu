@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 
-from dpemu import runner_
+from dpemu import runner
 from dpemu import dataset_utils
 from dpemu import ml_utils
 from dpemu import plotting_utils
@@ -172,8 +172,8 @@ def main(argv):
         },
     ]
 
-    df = runner_.run(train_data, test_data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
-                     use_interactive_mode=use_interactive_mode)
+    df = runner.run(train_data, test_data, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
+                    use_interactive_mode=use_interactive_mode)
 
     plotting_utils.print_results(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix",
                                       "predicted_test_labels", "radius_generator", "missing_value",

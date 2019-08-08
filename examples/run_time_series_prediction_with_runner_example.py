@@ -16,7 +16,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 from dpemu import array
 from dpemu import filters
-from dpemu import runner_
+from dpemu import runner
 from dpemu import pg_utils
 
 
@@ -123,7 +123,7 @@ def main():
     # err_params_list = [{"prob_break": a, "prob_recover": b, "value": np.nan}
     #                    for (a, b) in [(0, 1), (.02, .8), (.1, .5)]]
 
-    res = runner_.run(None, data, Preprocessor, None, root_node, err_params_list, model_params_list)
+    res = runner.run(None, data, Preprocessor, None, root_node, err_params_list, model_params_list)
     print(res)
 
 

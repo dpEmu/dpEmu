@@ -13,7 +13,7 @@ Guide
    license
    help
    cluster_instructions
-   Demo_missing_areas
+   tutorials/Tutorial_1
 
 
 Indices and tables

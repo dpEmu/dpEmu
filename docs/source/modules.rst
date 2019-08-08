@@ -1,7 +1,7 @@
-src
-===
+dpemu
+=====
 
 .. toctree::
    :maxdepth: 4
 
-   src
+   dpemu

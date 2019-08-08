@@ -30,59 +30,6 @@ You need to run also the following commands if you want to run the object detect
     git clone git@github.com:dpEmu/darknet.git libs/darknet
     ./scripts/install_darknet.sh
 
-Installation on University of Helsinki clusters (Ukko2 and Kale)
-----------------------------------------------------------------
-
-First you need to have access rights to the clusters. See instructions for who can get access rights to `Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide#KaleUserGuide-Access>`_ or to `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide#Ukko2UserGuide-1.0Access>`_.
-
-To install dpEmu on Kale or Ukko2 clusters, first establish a ssh connection to the cluster:
-
-.. code-block:: bash
-
-    ssh ukko2.cs.helsinki.fi
-
-Or:
-
-.. code-block:: bash
-
-    ssh kale.grid.helsinki.fi
-
-Now you can install dpEmu by running the following commands in the remote terminal:
-
-.. code-block:: bash
-
-    module load Python/3.7.0-intel-2018b
-    export SCIKIT_LEARN_DATA=$TMPDIR
-
-    cd $WRKDIR
-    git clone git@github.com:dpEmu/dpEmu.git
-    cd dpEmu
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -U pip setuptools wheel --cache-dir $TMPDIR
-    pip install -r requirements.txt --cache-dir $TMPDIR
-    pip install pycocotools --cache-dir $TMPDIR
-
-Object detection example requirements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You also need to run the following commands if you want to run the object detection example:
-
-.. code-block:: bash
-
-    module load CUDA/10.0.130
-    module load cuDNN/7.5.0.56-CUDA-10.0.130
-
-    cd $WRKDIR/dpEmu
-    source venv/bin/activate
-    git clone git@github.com:dpEmu/Detectron.git libs/Detectron
-    ./scripts/install_detectron.sh
-    git clone git@github.com:dpEmu/darknet.git libs/darknet
-    ./scripts/install_darknet.sh
-
-`Instructions for running jobs on Kale or Ukko2`_
-
-`Example jobs on Kale and Ukko2`_
 
 Usage
 -----
@@ -250,8 +197,8 @@ Visualization functions
 
 The module ``src.plotting`` has a file ``utils.py`` which contains multiple functions for plotting and visualizing the data.
 
-Example
--------
+A Complete Example
+------------------
 
 Here is an unrealistic but simple example which demonstrates all three components of dpEmu. In this example we are trying to predict 
 the next value of data when we know all earlier values in the data. Our model tries to do estimate this by keeping a weighted average.
@@ -360,108 +307,3 @@ Enable the interactive mode by writing ``-i``
 .. code-block:: bash
 
     python3 -m src.examples.run_text_classification_example all 4 -i
-
-Instructions for running jobs on Kale or Ukko2
-----------------------------------------------
-
-Official instructions: `Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide>`_ or `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide>`_
-
-
-Example jobs on Kale and Ukko2
-------------------------------
-
-Running  text classification example on Kale or Ukko2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: bash
-
-    module load Python/3.7.0-intel-2018b
-    export SCIKIT_LEARN_DATA=$TMPDIR
-
-    cd $WRKDIR/dpEmu
-    source venv/bin/activate
-
-
-Create the batch file for the job:
-
-.. code-block:: bash
-
-    nano batch-submit.job
-
-Then write the following content to it and save the file. **Remember to put your username in place of <username>**:
-
-.. code-block:: bash
-
-    #!/bin/bash
-    #SBATCH -J dpEmu
-    #SBATCH --workdir=/wrk/users/<username>/dpEmu/
-    #SBATCH -o text_classification_result.txt
-    #SBATCH -c 8
-    #SBATCH --mem=128G
-    #SBATCH -t 20:00
-
-    srun python3 -m src.examples.run_text_classification_example all 20
-    srun sleep 60
-
-Submit the batch job to be run:
-
-.. code-block:: bash
-
-    sbatch batch-submit.job
-
-You can view the execution of the code as if it was executed on your home terminal:
-
-.. code-block:: bash
-
-    tail -f text_classification_result.txt
-
-The example src.examples.run_text_classification_example will save images to the dpEmu/out directory.
-
-Running object detection example on Kale or Ukko2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Remember to clone the relevant repositorios and run the required scripts, if you have not already. See `Object detection example requirements`_
-
-.. code-block:: bash
-
-    module load CUDA/10.0.130
-    module load cuDNN/7.5.0.56-CUDA-10.0.130
-    module load Python/3.7.0-intel-2018b
-
-    cd $WRKDIR/dpEmu
-    source venv/bin/activate
-
-Create the batch file for the job:
-
-.. code-block:: bash
-
-    nano batch-submit.job
-
-Then write the following content to it and save the file. **Remember to put your username in place of <username>**:
-
-.. code-block:: bash
-
-    #!/bin/bash
-    #SBATCH -J dpEmu
-    #SBATCH --workdir=/wrk/users/<username>/dpEmu/
-    #SBATCH -o object_detection_example.txt
-    #SBATCH -c 4
-    #SBATCH --mem=32G
-    #SBATCH -p gpu
-    #SBATCH --gres=gpu:1
-    #SBATCH -t 10:00:00
-
-    srun python3 -m src.examples.run_object_detection_example
-    srun sleep 60
-
-Submit the batch job to be run:
-
-.. code-block:: bash
-
-    sbatch batch-submit.job
-
-You can view the execution of the code as if it was executed on your home terminal:
-
-.. code-block:: bash
-
-    tail -f object_detection_example.txt

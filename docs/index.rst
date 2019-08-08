@@ -6,12 +6,14 @@ Guide
 ^^^^^
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    manual
    license
    help
+   cluster_instructions
+   Demo_missing_areas
 
 
 Indices and tables

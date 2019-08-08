@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 
-from dpemu import runner_
+from dpemu import runner
 from dpemu.dataset_utils import load_newsgroups
 from dpemu.ml_utils import reduce_dimensions_sparse
 from dpemu.plotting_utils import visualize_best_model_params, visualize_scores, visualize_classes, \
@@ -182,7 +182,7 @@ def main(argv):
 
     train_data, test_data, train_labels, test_labels, label_names, dataset_name = get_data(argv)
 
-    df = runner_.run(
+    df = runner.run(
         train_data=train_data,
         test_data=test_data,
         preproc=Preprocessor,

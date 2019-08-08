@@ -12,7 +12,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tqdm import trange
 
-from dpemu import runner_
+from dpemu import runner
 from dpemu.dataset_utils import load_coco_val_2017
 from dpemu.plotting_utils import print_results_by_model, visualize_scores
 from dpemu.problemgenerator.array import Array
@@ -193,7 +193,7 @@ def main(argv):
 
     imgs, img_ids, class_names, _ = load_coco_val_2017(int(argv[1]), is_shuffled=True)
 
-    df = runner_.run(
+    df = runner.run(
         train_data=None,
         test_data=imgs,
         preproc=Preprocessor,

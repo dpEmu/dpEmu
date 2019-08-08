@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from numpy.random import RandomState
 
-from dpemu import runner_
+from dpemu import runner
 from dpemu.datasets.utils import load_coco_val_2017
 from dpemu.ml.utils import run_ml_module_using_cli
 from dpemu.plotting.utils import print_results_by_model, visualize_scores
@@ -158,20 +158,21 @@ def get_model_params_dict_list():
 
 
 def visualize(df):
-    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", log=True)
-    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", log=True)
-    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", log=True)
-    visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter",
+    #                  x_log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", x_log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", x_log=True)
+    visualize_scores(df, ["mAP-50"], [True], "quality",  "Object detection with JPEG compression", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", x_log=False)
     plt.show()
 
 
 def main():
     imgs, _, _, img_filenames = load_coco_val_2017()
 
-    df = runner_.run(
+    df = runner.run(
         train_data=None,
         test_data=imgs,
         preproc=Preprocessor,

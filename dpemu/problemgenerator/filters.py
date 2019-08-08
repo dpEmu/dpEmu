@@ -847,7 +847,7 @@ class Rotation(Filter):
         height = node_data.shape[0]
         ra = abs(self.angle % 180) * pi/180
         ra = min(ra, pi - ra)
-        factor = sin(ra) * width / height + cos(ra)
+        factor = sin(ra) * max(width, height) / min(width, height) + cos(ra)
 
         resized = cv2.resize(node_data, None, fx=factor, fy=factor)
         resized_width = resized.shape[1]

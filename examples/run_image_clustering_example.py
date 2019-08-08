@@ -10,7 +10,7 @@ from numpy.random import RandomState
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
-from dpemu import runner_
+from dpemu import runner
 from dpemu.datasets.utils import load_digits_, load_mnist, load_fashion
 from dpemu.ml.utils import reduce_dimensions
 from dpemu.plotting.utils import visualize_best_model_params
@@ -161,7 +161,7 @@ def main(argv):
 
     data, labels, label_names, dataset_name = get_data(argv)
 
-    df = runner_.run(
+    df = runner.run(
         train_data=None,
         test_data=data,
         preproc=Preprocessor,

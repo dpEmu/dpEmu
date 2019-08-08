@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from dpemu import runner_
-from dpemu.plotting.utils import visualize_scores, print_results_by_model, visualize_best_model_params
+from dpemu.plotting_utils import visualize_scores, print_results_by_model, visualize_best_model_params
 from dpemu.problemgenerator.array import Array
 from dpemu.problemgenerator.filters import GaussianNoise
 

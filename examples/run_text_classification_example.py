@@ -14,14 +14,13 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 
 from dpemu import runner_
-from dpemu.datasets.utils import load_newsgroups
-from dpemu.ml.utils import reduce_dimensions_sparse
-from dpemu.plotting.utils import visualize_best_model_params
-from dpemu.plotting.utils import visualize_scores, visualize_classes, print_results_by_model, \
-    visualize_confusion_matrices
+from dpemu.dataset_utils import load_newsgroups
+from dpemu.ml_utils import reduce_dimensions_sparse
+from dpemu.plotting_utils import visualize_best_model_params, visualize_scores, visualize_classes, \
+    print_results_by_model, visualize_confusion_matrices
 from dpemu.problemgenerator.array import Array
 from dpemu.problemgenerator.filters import MissingArea
-from dpemu.problemgenerator.radius_generators import GaussianRadiusGenerator
+from dpemu.radius_generators import GaussianRadiusGenerator
 
 warnings.simplefilter("ignore", category=ConvergenceWarning)
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)

@@ -32,6 +32,7 @@ Now you can install dpEmu by running the following commands in the remote termin
     pip install -U pip setuptools wheel --cache-dir $TMPDIR
     pip install -r requirements.txt --cache-dir $TMPDIR
     pip install pycocotools --cache-dir $TMPDIR
+    pip install -e .
 
 Object detection example requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

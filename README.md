@@ -38,6 +38,7 @@ systems.
   - `pip install -U pip setuptools wheel`
   - `pip install -r requirements.txt`
   - `pip install pycocotools`
+  - `pip install -e .`
 #### For object detection example (CUDA and cuDNN required)
   - `git clone git@github.com:dpEmu/Detectron.git libs/Detectron`
   - `./scripts/install_detectron.sh`

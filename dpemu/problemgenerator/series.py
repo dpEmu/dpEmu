@@ -1,5 +1,5 @@
 from .node import Node, get_node_data
-from .utils import first_dimension_length
+from ..pg_utils import first_dimension_length
 
 
 class Series(Node):

@@ -33,7 +33,7 @@ Then write the following content to it and save the file. **Remember to put your
     #SBATCH --mem=128G
     #SBATCH -t 20:00
 
-    srun python3 -m src.examples.run_text_classification_example all 20
+    srun python3 examples/run_text_classification_example all 20
     srun sleep 60
 
 Submit the batch job to be run:
@@ -48,7 +48,7 @@ You can view the execution of the code as if it was executed on your home termin
 
     tail -f text_classification_result.txt
 
-The example src.examples.run_text_classification_example will save images to the dpEmu/out directory.
+The example examples/run_text_classification_example will save images to the dpEmu/out directory.
 
 Running object detection example on Kale or Ukko2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -84,7 +84,7 @@ Then write the following content to it and save the file. **Remember to put your
     #SBATCH --gres=gpu:1
     #SBATCH -t 10:00:00
 
-    srun python3 -m src.examples.run_object_detection_example
+    srun python3 examples/run_object_detection_example
     srun sleep 60
 
 Submit the batch job to be run:

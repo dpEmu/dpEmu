@@ -9,7 +9,7 @@ from PIL import Image
 from math import sqrt, sin, cos, pi
 from scipy.ndimage import gaussian_filter
 
-from .utils import generate_random_dict_key
+from ..pg_utils import generate_random_dict_key
 
 
 class Filter(ABC):

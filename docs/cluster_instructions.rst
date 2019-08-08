@@ -25,7 +25,7 @@ Now you can install dpEmu by running the following commands in the remote termin
     export SCIKIT_LEARN_DATA=$TMPDIR
 
     cd $WRKDIR
-    git clone git@github.com:dpEmu/dpEmu.git
+    git clone https://github.com/dpEmu/dpEmu.git
     cd dpEmu
     python3 -m venv venv
     source venv/bin/activate
@@ -45,9 +45,9 @@ You also need to run the following commands if you want to run the object detect
 
     cd $WRKDIR/dpEmu
     source venv/bin/activate
-    git clone git@github.com:dpEmu/Detectron.git libs/Detectron
+    git clone https://github.com/dpEmu/Detectron.git
     ./scripts/install_detectron.sh
-    git clone git@github.com:dpEmu/darknet.git libs/darknet
+    git clone https://github.com/dpEmu/darknet.git
     ./scripts/install_darknet.sh
 
 

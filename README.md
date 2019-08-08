@@ -31,7 +31,7 @@ systems.
 
 ## Installation
 
-  - `git clone git@github.com:dpEmu/dpEmu.git`
+  - `git clone https://github.com/dpEmu/dpEmu.git`
   - `cd dpEmu`
   - `python3 -m venv venv`
   - `source venv/bin/activate`
@@ -40,9 +40,9 @@ systems.
   - `pip install pycocotools`
   - `pip install -e .`
 #### For object detection example (CUDA and cuDNN required)
-  - `git clone git@github.com:dpEmu/Detectron.git libs/Detectron`
+  - `git clone https://github.com/dpEmu/Detectron.git`
   - `./scripts/install_detectron.sh`
-  - `git clone git@github.com:dpEmu/darknet.git libs/darknet`
+  - `git clone https://github.com/dpEmu/darknet.git`
   - `./scripts/install_darknet.sh`
 
 ## User Manual

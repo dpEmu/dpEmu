@@ -11,10 +11,10 @@ from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 from dpemu import runner
-from dpemu.datasets.utils import load_digits_, load_mnist, load_fashion
-from dpemu.ml.utils import reduce_dimensions
-from dpemu.plotting.utils import visualize_best_model_params
-from dpemu.plotting.utils import visualize_scores, visualize_classes, print_results_by_model, visualize_interactive_plot
+from dpemu.dataset_utils import load_digits_, load_mnist, load_fashion
+from dpemu.ml_utils import reduce_dimensions
+from dpemu.plotting_utils import visualize_best_model_params, visualize_scores, visualize_classes, \
+    print_results_by_model, visualize_interactive_plot
 from dpemu.problemgenerator.array import Array
 from dpemu.problemgenerator.filters import GaussianNoise, Clip
 

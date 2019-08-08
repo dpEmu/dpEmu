@@ -10,8 +10,8 @@ std = float(sys.argv[1])
 prob = float(sys.argv[2])
 
 n = 1000
-x_file = Path("data/mnist_data.npy")
-y_file = Path("data/mnist_label.npy")
+x_file = Path("data/mnist_subset/x.npy")
+y_file = Path("data/mnist_subset/y.npy")
 x = np.load(x_file)[:n].reshape((n, 28, 28))
 y = np.load(y_file)[:n]
 

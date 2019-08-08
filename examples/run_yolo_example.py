@@ -142,7 +142,8 @@ def visualize(df):
     # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", log=True)
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", log=True)
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", log=True)
-    plotting_utils.visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", log=False)
+    plotting_utils.visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression",
+                                    log=False)
     # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", log=False)
     # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with brightness", log=False)
     # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with saturation", log=False)

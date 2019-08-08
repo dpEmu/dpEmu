@@ -1,10 +1,9 @@
 import numpy as np
 from mock import patch
+from dpemu import utils
 
-import src.utils as utils
 
-
-@patch("src.utils.get_project_root", return_value="root")
+@patch("dpemu.utils.get_project_root", return_value="root")
 def test_get_project_root(root_mock):
     assert utils.get_project_root() == "root"
 

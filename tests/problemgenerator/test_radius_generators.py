@@ -1,6 +1,6 @@
 import numpy as np
 
-import src.problemgenerator.radius_generators as radius_generators
+from dpemu import radius_generators
 
 
 def test_probability_array_radius_generator_returns_zero_if_no_radius_is_chosen():

@@ -5,7 +5,7 @@ import numpy as np
 
 from pytest import approx
 
-import src.problemgenerator.utils as utils
+from dpemu import pg_utils
 
 
 def test_load_ocr_error_params():
@@ -14,7 +14,7 @@ def test_load_ocr_error_params():
          "b": [["b", "o"], [8, 2]]}
     temp.write(bytes(json.dumps(d), encoding='UTF-8'))
     temp.seek(0)
-    d2 = utils.load_ocr_error_params(temp.name)
+    d2 = pg_utils.load_ocr_error_params(temp.name)
     for key, values in d2.items():
         assert key in d
         for i in range(len(values[0])):
@@ -26,7 +26,7 @@ def test_normalize_ocr_error_params():
     params = {"a": [["a", "o"], [20, 5]],
               "b": [["o", "b"], [2, 8]]}
 
-    normalized_params = utils.normalize_ocr_error_params(params)
+    normalized_params = pg_utils.normalize_ocr_error_params(params)
 
     assert normalized_params["a"][0][0] == "a"
     assert normalized_params["a"][0][1] == "o"
@@ -39,10 +39,10 @@ def test_normalize_ocr_error_params():
 
 
 def test_normalize_probs():
-    s = sum(utils.normalize_probs([10, 15, 67, 87, 90]))
+    s = sum(pg_utils.normalize_probs([10, 15, 67, 87, 90]))
     assert s == approx(1)
 
 
 def test_to_time_series_x_y():
-    x, y = utils.to_time_series_x_y(np.array([0, 1, 2, 3, 4, 5]), 3)
+    x, y = pg_utils.to_time_series_x_y(np.array([0, 1, 2, 3, 4, 5]), 3)
     assert np.array_equal(x, np.array([[0, 1, 2], [1, 2, 3], [2, 3, 4]])) and np.array_equal(y, np.array([3, 4, 5]))

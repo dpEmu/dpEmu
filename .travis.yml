@@ -10,10 +10,13 @@ before_install:
   - "sudo apt-get install graphviz"
 
 install:
+  - pip install -U pip setuptools wheel
   - pip install -r requirements.txt
+  - pip install pycocotools
+  - pip install -e .
 
 script:
-  - pytest --cov=src --cov-config=.coveragerc tests
+  - pytest --cov=dpemu --cov-config=.coveragerc tests
   - flake8
 
 after_success:

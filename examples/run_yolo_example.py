@@ -13,12 +13,12 @@ from pycocotools.cocoeval import COCOeval
 from tqdm import trange
 
 from dpemu import runner_
-from dpemu import utils
-from dpemu import dataset_utils
-from dpemu import plotting_utils
-from dpemu import array
-from dpemu import filters
-from dpemu import series
+from dpemu.datasets.utils import load_coco_val_2017
+from dpemu.plotting.utils import print_results_by_model, visualize_scores
+from dpemu.problemgenerator.array import Array
+from dpemu.problemgenerator.filters import JPEG_Compression
+from dpemu.problemgenerator.series import Series
+from dpemu.utils import generate_unique_path
 
 cv2.ocl.setUseOpenCL(False)
 torch.multiprocessing.set_start_method("spawn", force="True")
@@ -100,7 +100,7 @@ class YOLOv3CPUModel:
 
         if self.show_imgs:
             cv2.imshow(str(img_id), img)
-            path_to_img = utils.generate_unique_path("out", "jpg")
+            path_to_img = generate_unique_path("out", "jpg")
             cv2.imwrite(path_to_img, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
             cv2.waitKey()
             cv2.destroyAllWindows()
@@ -123,7 +123,7 @@ class YOLOv3CPUModel:
         if not results:
             return {"mAP-50": 0}
 
-        path_to_results = utils.generate_unique_path("tmp", "json")
+        path_to_results = generate_unique_path("tmp", "json")
         with open(path_to_results, "w") as fp:
             json.dump(results, fp)
 
@@ -136,41 +136,23 @@ class YOLOv3CPUModel:
         return {"mAP-50": round(coco_eval.stats[1], 3)}
 
 
-def visualize(df):
-    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", log=True)
-    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", log=True)
-    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", log=True)
-    plotting_utils.visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression",
-                                    log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with brightness", log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with saturation", log=False)
+def get_err_root_node():
+    err_node = Array()
+    err_root_node = Series(err_node)
+    # err_node.addfilter(GaussianNoise("mean", "std"))
+    # err_node.addfilter(Blur_Gaussian("std"))
+    # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
+    # err_node.addfilter(FastRain("probability", "range_id"))
+    # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
+    err_node.addfilter(JPEG_Compression("quality"))
+    # err_node.addfilter(ResolutionVectorized("k"))
+    # err_node.addfilter(BrightnessVectorized("tar", "rate", "range"))
+    # err_node.addfilter(SaturationVectorized("tar", "rate", "range"))
+    # err_node.addfilter(Identity())
+    return err_root_node
 
-    plt.show()
 
-
-def main(argv):
-    if len(argv) != 2:
-        exit(0)
-
-    imgs, img_ids, class_names, _ = dataset_utils.load_coco_val_2017(int(argv[1]), is_shuffled=True)
-
-    err_node = array.Array()
-    err_root_node = series.Series(err_node)
-
-    # err_node.addfilter(filters.GaussianNoise("mean", "std"))
-    # err_node.addfilter(filters.Blur_Gaussian("std"))
-    # err_node.addfilter(filters.Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
-    # err_node.addfilter(filters.FastRain("probability", "range_id"))
-    # err_node.addfilter(filters.StainArea("probability", "radius_generator", "transparency_percentage"))
-    err_node.addfilter(filters.JPEG_Compression("quality"))
-    # err_node.addfilter(filters.ResolutionVectorized("k"))
-    # err_node.addfilter(filters.BrightnessVectorized("tar", "rate", "range"))
-    # err_node.addfilter(filters.SaturationVectorized("tar", "rate", "range"))
-    # err_node.addfilter(filters.Identity())
-
+def get_err_params_list():
     # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
     # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
     # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
@@ -183,16 +165,47 @@ def main(argv):
     # err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
     # err_params_list = [{"tar": 1, "rate": rat, "range": 255} for rat in [0.0, 0.5, 1.0, 10.0, 20.0]]
     # err_params_list = [{}]
+    return err_params_list
 
-    model_params_dict_list = [
+
+def get_model_params_dict_list(img_ids, class_names):
+    return [
         {"model": YOLOv3CPUModel, "params_list": [{"img_ids": img_ids, "class_names": class_names, "show_imgs": True}]}
     ]
 
-    df = runner_.run(None, imgs, Preprocessor, None, err_root_node, err_params_list, model_params_dict_list,
-                     n_processes=1)
 
-    plotting_utils.print_results(df, ["img_ids", "class_names", "show_imgs", "mean", "radius_generator",
-                                      "transparency_percentage", "range_id", "snowflake_alpha", "snowstorm_alpha"])
+def visualize(df):
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", log=True)
+    visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with brightness", log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with saturation", log=False)
+    plt.show()
+
+
+def main(argv):
+    if len(argv) != 2:
+        exit(0)
+
+    imgs, img_ids, class_names, _ = load_coco_val_2017(int(argv[1]), is_shuffled=True)
+
+    df = runner_.run(
+        train_data=None,
+        test_data=imgs,
+        preproc=Preprocessor,
+        preproc_params=None,
+        err_root_node=get_err_root_node(),
+        err_params_list=get_err_params_list(),
+        model_params_dict_list=get_model_params_dict_list(img_ids, class_names),
+        n_processes=1
+    )
+
+    print_results_by_model(df, ["img_ids", "class_names", "show_imgs", "mean", "radius_generator",
+                                "transparency_percentage", "range_id", "snowflake_alpha", "snowstorm_alpha"])
     visualize(df)
 
 

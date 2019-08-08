@@ -8,12 +8,12 @@ from PIL import Image
 from numpy.random import RandomState
 
 from dpemu import runner
-from dpemu import dataset_utils
-from dpemu import ml_utils
-from dpemu import plotting_utils
-from dpemu import array
-from dpemu import filters
-from dpemu import series
+from dpemu.datasets.utils import load_coco_val_2017
+from dpemu.ml.utils import run_ml_module_using_cli
+from dpemu.plotting.utils import print_results_by_model, visualize_scores
+from dpemu.problemgenerator.array import Array
+from dpemu.problemgenerator.filters import JPEG_Compression
+from dpemu.problemgenerator.series import Series
 
 
 class Preprocessor:
@@ -39,7 +39,7 @@ class YOLOv3Model:
             subprocess.call(["./scripts/get_yolov3.sh"])
 
         cline = "libs/darknet/darknet detector map data/coco.data tmp/yolov3-spp.cfg tmp/yolov3-spp_best.weights"
-        out = ml_utils.run_ml_module_using_cli(cline)
+        out = run_ml_module_using_cli(cline)
 
         match = re.search(r"\(mAP@0.50\) = (\d+\.\d+)", out)
         return {"mAP-50": round(float(match.group(1)), 3)}
@@ -61,7 +61,7 @@ class AbstractDetectronModel(ABC):
             TEST.DATASETS '("coco_2017_val",)' \
             MODEL.MASK_ON False \
             OUTPUT_DIR tmp"""
-        out = ml_utils.run_ml_module_using_cli(cline)
+        out = run_ml_module_using_cli(cline)
 
         match = re.search(r"IoU=0.50      \| area=   all \| maxDets=100 ] = (\d+\.\d+)", out)
         return {"mAP-50": round(float(match.group(1)), 3)}
@@ -120,66 +120,71 @@ class RetinaNetModel(AbstractDetectronModel):
         )
 
 
-def visualize(df):
-    # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "std",
-    #                                 "Object detection with Gaussian noise", x_log=False)
-    # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "std",
-    #                                 "Object detection with Gaussian blur", x_log=False)
-    # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "snowflake_probability",
-    #                                 "Object detection with snow filter", x_log=True)
-    # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "probability",
-    #                                 "Object detection with rain filter", x_log=True)
-    # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "probability",
-    #                                 "Object detection with added stains", x_log=True)
-    plotting_utils.visualize_scores(df, ["mAP-50"], [True], "quality",
-                                    "Object detection with JPEG compression", x_log=False)
-    # plotting_utils.visualize_scores(df, ["mAP-50"], [True], "k",
-    #                                 "Object detection with reduced resolution", x_log=False)
-
-    plt.show()
+def get_err_root_node():
+    err_node = Array()
+    err_root_node = Series(err_node)
+    # err_node.addfilter(GaussianNoise("mean", "std"))
+    # err_node.addfilter(Blur_Gaussian("std"))
+    # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
+    # err_node.addfilter(FastRain("probability", "range_id"))
+    # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
+    err_node.addfilter(JPEG_Compression("quality"))
+    # err_node.addfilter(ResolutionVectorized("k"))
+    # err_node.addfilter(Identity())
+    return err_root_node
 
 
-def main():
-    imgs, _, _, img_filenames = dataset_utils.load_coco_val_2017()
-
-    preproc_params = {"img_filenames": img_filenames}
-
-    err_node = array.Array()
-    err_root_node = series.Series(err_node)
-
-    # err_node.addfilter(filters.GaussianNoise("mean", "std"))
-    # err_node.addfilter(filters.Blur_Gaussian("std"))
-    # err_node.addfilter(filters.Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
-    # err_node.addfilter(filters.FastRain("probability", "range_id"))
-    # err_node.addfilter(filters.StainArea("probability", "radius_generator", "transparency_percentage"))
-    err_node.addfilter(filters.JPEG_Compression("quality"))
-    # err_node.addfilter(filters.ResolutionVectorized("k"))
-    # err_node.addfilter(filters.Identity())
-
-    # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
-    # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
-    # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
+def get_err_params_list():
+    # return [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
+    # return [{"std": std} for std in [i for i in range(0, 4)]]
+    # return [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
     #                    for p in [10 ** i for i in range(-4, 0)]]
-    # err_params_list = [{"probability": p, "range_id": 255} for p in [10 ** i for i in range(-4, 0)]]
-    # err_params_list = [
+    # return [{"probability": p, "range_id": 255} for p in [10 ** i for i in range(-4, 0)]]
+    # return [
     #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
     #     for p in [10 ** i for i in range(-6, -2)]]
-    err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
-    # err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
-    # err_params_list = [{}]
+    return [{"quality": q} for q in [10, 20, 30, 100]]
+    # return [{"k": k} for k in [1, 2, 3, 4]]
+    # return [{}]
 
-    model_params_dict_list = [
+
+def get_model_params_dict_list():
+    return [
         {"model": FasterRCNNModel, "params_list": [{}]},
         {"model": MaskRCNNModel, "params_list": [{}]},
         {"model": RetinaNetModel, "params_list": [{}]},
         {"model": YOLOv3Model, "params_list": [{}]},
     ]
 
-    df = runner.run(None, imgs, Preprocessor, preproc_params, err_root_node, err_params_list, model_params_dict_list,
-                    n_processes=1)
 
-    plotting_utils.print_results(df, ["show_imgs", "mean", "radius_generator", "transparency_percentage", "range_id",
-                                      "snowflake_alpha", "snowstorm_alpha"])
+def visualize(df):
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter",
+    #                  x_log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", x_log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", x_log=True)
+    visualize_scores(df, ["mAP-50"], [True], "quality",  "Object detection with JPEG compression", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", x_log=False)
+    plt.show()
+
+
+def main():
+    imgs, _, _, img_filenames = load_coco_val_2017()
+
+    df = runner.run(
+        train_data=None,
+        test_data=imgs,
+        preproc=Preprocessor,
+        preproc_params={"img_filenames": img_filenames},
+        err_root_node=get_err_root_node(),
+        err_params_list=get_err_params_list(),
+        model_params_dict_list=get_model_params_dict_list(),
+        n_processes=1
+    )
+
+    print_results_by_model(df, ["show_imgs", "mean", "radius_generator", "transparency_percentage", "range_id",
+                                "snowflake_alpha", "snowstorm_alpha"])
     visualize(df)
 
 

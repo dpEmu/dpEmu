@@ -464,7 +464,7 @@ def visualize_error_generator(root_node, view=True):
     return path_to_graph
 
 
-def print_results(df, dropped_columns=[]):
+def print_results_by_model(df, dropped_columns=[]):
     """Prints the dataframe row by row excluding the unwanted columns.
 
     Args:

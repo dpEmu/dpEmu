@@ -6,7 +6,7 @@ import cv2
 import imutils
 import numpy as np
 from PIL import Image
-from math import sqrt
+from math import sqrt, sin, cos, pi
 from scipy.ndimage import gaussian_filter
 
 from .utils import generate_random_dict_key
@@ -842,13 +842,16 @@ class Rotation(Filter):
     def apply(self, node_data, random_state, named_dims):
         node_data[...] = imutils.rotate(node_data, self.angle)
 
-        # Guesstimation for a large enough resize to avoid black areas in cropped picture
-        factor = 1.8
+        # Calculate optimal scale ratio
+        width = node_data.shape[1]
+        height = node_data.shape[0]
+        ra = abs(self.angle % 180) * pi/180
+        ra = min(ra, pi - ra)
+        factor = sin(ra) * width / height + cos(ra)
+
         resized = cv2.resize(node_data, None, fx=factor, fy=factor)
         resized_width = resized.shape[1]
         resized_height = resized.shape[0]
-        width = node_data.shape[1]
-        height = node_data.shape[0]
 
         x0 = round((resized_width - width) / 2)
         y0 = round((resized_height - height) / 2)

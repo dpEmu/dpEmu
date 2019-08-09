@@ -1,7 +1,7 @@
 import numpy as np
 
-from dpemu import array
-from dpemu import filters
+from dpemu.problemgenerator import array
+from dpemu.problemgenerator import filters
 
 y = np.arange(100.0, 200.0)
 print("Original y:\n", y)

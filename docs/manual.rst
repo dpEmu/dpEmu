@@ -13,76 +13,14 @@ To install dpEmu on your computer, run the following commands in your terminal:
 
 .. code-block:: bash
 
-    git clone git@github.com:dpEmu/dpEmu.git
+    git clone https://github.com/dpEmu/dpEmu.git
     cd dpEmu
     python3 -m venv venv
     source venv/bin/activate
     pip install -U pip setuptools wheel
     pip install -r requirements.txt
     pip install pycocotools
-
-You need to run also the following commands if you want to run the object detection example:
-
-.. code-block:: bash
-
-    git clone git@github.com:dpEmu/Detectron.git libs/Detectron
-    ./scripts/install_detectron.sh
-    git clone git@github.com:dpEmu/darknet.git libs/darknet
-    ./scripts/install_darknet.sh
-
-Installation on University of Helsinki clusters (Ukko2 and Kale)
-----------------------------------------------------------------
-
-First you need to have access rights to the clusters. See instructions for who can get access rights to `Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide#KaleUserGuide-Access>`_ or to `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide#Ukko2UserGuide-1.0Access>`_.
-
-To install dpEmu on Kale or Ukko2 clusters, first establish a ssh connection to the cluster:
-
-.. code-block:: bash
-
-    ssh ukko2.cs.helsinki.fi
-
-Or:
-
-.. code-block:: bash
-
-    ssh kale.grid.helsinki.fi
-
-Now you can install dpEmu by running the following commands in the remote terminal:
-
-.. code-block:: bash
-
-    module load Python/3.7.0-intel-2018b
-    export SCIKIT_LEARN_DATA=$TMPDIR
-
-    cd $WRKDIR
-    git clone git@github.com:dpEmu/dpEmu.git
-    cd dpEmu
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -U pip setuptools wheel --cache-dir $TMPDIR
-    pip install -r requirements.txt --cache-dir $TMPDIR
-    pip install pycocotools --cache-dir $TMPDIR
-
-Object detection example requirements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You also need to run the following commands if you want to run the object detection example:
-
-.. code-block:: bash
-
-    module load CUDA/10.0.130
-    module load cuDNN/7.5.0.56-CUDA-10.0.130
-
-    cd $WRKDIR/dpEmu
-    source venv/bin/activate
-    git clone git@github.com:dpEmu/Detectron.git libs/Detectron
-    ./scripts/install_detectron.sh
-    git clone git@github.com:dpEmu/darknet.git libs/darknet
-    ./scripts/install_darknet.sh
-
-`Instructions for running jobs on Kale or Ukko2`_
-
-`Example jobs on Kale and Ukko2`_
+    pip install -e .
 
 Usage
 -----
@@ -250,8 +188,8 @@ Visualization functions
 
 The module ``src.plotting`` has a file ``utils.py`` which contains multiple functions for plotting and visualizing the data.
 
-Example
--------
+A Complete Example
+------------------
 
 Here is an unrealistic but simple example which demonstrates all three components of dpEmu. In this example we are trying to predict 
 the next value of data when we know all earlier values in the data. Our model tries to do estimate this by keeping a weighted average.
@@ -265,17 +203,15 @@ In the end of the example a plot of scores is visualized.
     import matplotlib.pyplot as plt
     import numpy as np
 
-    from src import runner_
-    from src.plotting.utils import visualize_scores
-    from src.problemgenerator.array import Array
-    from src.problemgenerator.filters import GaussianNoise
+    from dpemu import runner
+    from dpemu.plotting_utils import visualize_scores, print_results_by_model, visualize_best_model_params
+    from dpemu.problemgenerator.array import Array
+    from dpemu.problemgenerator.filters import GaussianNoise
 
 
     class Preprocessor:
-        def run(self, train_data, test_data):
-            # Preprocess the data by changing its data type from int to float
-            dtype = params["dtype"]
-            return train_data, test_data.astype(dtype), {"dtype": dtype}
+        def run(self, train_data, test_data, params):
+            return train_data, test_data, {}
 
 
     class PredictorModel:
@@ -296,172 +232,118 @@ In the end of the example a plot of scores is visualized.
             return {"MSE": mean_squared_error}
 
 
-    def main(argv):
-        # Create some fake data
-        if len(argv) == 2:
-            train_data = None
-            test_data = np.arange(int(sys.argv[1]))
-        else:
-            exit(0)
+    def get_data(argv):
+        train_data = None
+        test_data = np.arange(int(sys.argv[1]))
+        return train_data, test_data
 
+
+    def get_err_root_node():
         # Create error generation tree that has an Array node
         # as its root node and a GaussianNoise filter
         err_root_node = Array()
         err_root_node.addfilter(GaussianNoise("mean", "std"))
+        return err_root_node
 
+
+    def get_err_params_list():
         # The standard deviation goes from 0 to 20
-        err_params_list = [{"mean": 0, "std": std} for std in range(0, 21)]
+        return [{"mean": 0, "std": std} for std in range(0, 21)]
 
+
+    def get_model_params_dict_list():
         # The model is run with different weighted estimates
-        model_params_dict_list = [{
+        return [{
             "model": PredictorModel,
             "params_list": [{'weight': w} for w in [0.0, 0.05, 0.15, 0.5, 1.0]],
             "use_clean_train_data": False
         }]
 
-        # Run the whole thing and get DataFrame for visualization
-        df = runner_.run(train_data=train_data,
-                     test_data=test_data,
-                     preproc=Preprocessor,
-                     preproc_params={"dtype": float},
-                     err_root_node=err_root_node,
-                     err_params_list=err_params_list,
-                     model_params_dict_list=model_params_dict_list,
-                     use_interactive_mode=True)
 
-
+    def visualize(df):
         # Visualize mean squared error for all used standard deviations
-        visualize_scores(df=df,
-                     score_names=["MSE"],
-                     is_higher_score_better=[False],
-                     err_param_name="std",
-                     title="Mean squared error")
+        visualize_scores(
+            df=df,
+            score_names=["MSE"],
+            is_higher_score_better=[False],
+            err_param_name="std",
+            title="Mean squared error"
+        )
+        visualize_best_model_params(
+            df=df,
+            model_name="Predictor #1",
+            model_params=["weight"],
+            score_names=["MSE"],
+            is_higher_score_better=[False],
+            err_param_name="std",
+            title=f"Best model params"
+        )
+
         plt.show()
+
+
+    def main(argv):
+        # Create some fake data
+        if len(argv) == 2:
+            train_data, test_data = get_data(argv)
+        else:
+            exit(0)
+
+        # Run the whole thing and get DataFrame for visualization
+        df = runner.run(
+            train_data=train_data,
+            test_data=test_data,
+            preproc=Preprocessor,
+            preproc_params=None,
+            err_root_node=get_err_root_node(),
+            err_params_list=get_err_params_list(),
+            model_params_dict_list=get_model_params_dict_list()
+        )
+
+        print_results_by_model(df)
+        visualize(df)
 
 
     if __name__ == "__main__":
         main(sys.argv)
 
+
+Run the program with the command:
+
+.. code-block:: bash
+
+    python3 examples/run_manual_predictor_example 1000
+
 Here's what the resulting image should look like:
 
 .. image:: manual_demo.png
 
+Best model parameters for different standard deviation values:
+
+.. image:: manual_best_model_params.png
+
+
 How to run examples
 -------------------
+
+**Run the examples from project root.**
 
 If the examples do not require command line arguments, then they can be run as follows:
 
 .. code-block:: bash
 
-    python3 -m src.examples.run_manual_predictor_example
+    python3 examples/run_saturation_example_rgb_0_to_1.py
 
-Enable the interactive mode by writing ``-i``
-
-.. code-block:: bash
-
-    python3 -m src.examples.run_text_classification_example all 4 -i
-
-Instructions for running jobs on Kale or Ukko2
-----------------------------------------------
-
-Official instructions: `Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide>`_ or `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide>`_
-
-
-Example jobs on Kale and Ukko2
-------------------------------
-
-Running  text classification example on Kale or Ukko2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If the examples require command line arguments, add them after the name of the file, each one separated by space (the argument 22 tells the angle of the counterclockwise rotation of the picture):
 
 .. code-block:: bash
 
-    module load Python/3.7.0-intel-2018b
-    export SCIKIT_LEARN_DATA=$TMPDIR
-
-    cd $WRKDIR/dpEmu
-    source venv/bin/activate
+    python3 examples/run_rotate_example.py 22
 
 
-Create the batch file for the job:
+
+The interactive mode is activated above by writing ``-i``
 
 .. code-block:: bash
 
-    nano batch-submit.job
-
-Then write the following content to it and save the file. **Remember to put your username in place of <username>**:
-
-.. code-block:: bash
-
-    #!/bin/bash
-    #SBATCH -J dpEmu
-    #SBATCH --workdir=/wrk/users/<username>/dpEmu/
-    #SBATCH -o text_classification_result.txt
-    #SBATCH -c 8
-    #SBATCH --mem=128G
-    #SBATCH -t 20:00
-
-    srun python3 -m src.examples.run_text_classification_example all 20
-    srun sleep 60
-
-Submit the batch job to be run:
-
-.. code-block:: bash
-
-    sbatch batch-submit.job
-
-You can view the execution of the code as if it was executed on your home terminal:
-
-.. code-block:: bash
-
-    tail -f text_classification_result.txt
-
-The example src.examples.run_text_classification_example will save images to the dpEmu/out directory.
-
-Running object detection example on Kale or Ukko2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Remember to clone the relevant repositorios and run the required scripts, if you have not already. See `Object detection example requirements`_
-
-.. code-block:: bash
-
-    module load CUDA/10.0.130
-    module load cuDNN/7.5.0.56-CUDA-10.0.130
-    module load Python/3.7.0-intel-2018b
-
-    cd $WRKDIR/dpEmu
-    source venv/bin/activate
-
-Create the batch file for the job:
-
-.. code-block:: bash
-
-    nano batch-submit.job
-
-Then write the following content to it and save the file. **Remember to put your username in place of <username>**:
-
-.. code-block:: bash
-
-    #!/bin/bash
-    #SBATCH -J dpEmu
-    #SBATCH --workdir=/wrk/users/<username>/dpEmu/
-    #SBATCH -o object_detection_example.txt
-    #SBATCH -c 4
-    #SBATCH --mem=32G
-    #SBATCH -p gpu
-    #SBATCH --gres=gpu:1
-    #SBATCH -t 10:00:00
-
-    srun python3 -m src.examples.run_object_detection_example
-    srun sleep 60
-
-Submit the batch job to be run:
-
-.. code-block:: bash
-
-    sbatch batch-submit.job
-
-You can view the execution of the code as if it was executed on your home terminal:
-
-.. code-block:: bash
-
-    tail -f object_detection_example.txt
+    python3 examples/run_text_classification_example test 4 -i

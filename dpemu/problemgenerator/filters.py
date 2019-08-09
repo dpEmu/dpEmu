@@ -36,7 +36,7 @@ class Filter(ABC):
         """Set parameters for error generation.
 
         Args:
-            params_dict (dict): A Python dictionary.
+            params_dict (dict): A dictionary which contains error parameter name and value pairs.
         """
         pass
 
@@ -46,7 +46,7 @@ class Filter(ABC):
 
         Args:
             node_data (numpy.ndarray): Data to be modified as a NumPy array.
-            random_state (mtrand.RandomState): An instance of numpy.random.RandomState.
+            random_state (mtrand.RandomState): An instance of numpy.random.RandomState() random number generator.
             named_dims (dict): Named dimensions.
         """
         pass

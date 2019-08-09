@@ -6,12 +6,15 @@ Guide
 ^^^^^
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    manual
+   tutorials/Tutorial_Getting_Started_with_dpEmu
    license
    help
+   cluster_installation
+   cluster_instructions_examples
 
 
 Indices and tables

@@ -10,6 +10,5 @@ pip install -e libs/Detectron
 
 FILE=$PWD/libs/Detectron/detectron/datasets/data/coco
 if [ ! -e "$FILE" ]; then
-  echo "hello"
   ln -s $PWD $FILE
 fi

@@ -1,10 +1,10 @@
 import sys
 import cv2
-# from PIL import Image
+import matplotlib.pyplot as plt
 
 
-from dpemu import array
-from dpemu import filters
+from dpemu.problemgenerator import array
+from dpemu.problemgenerator import filters
 
 
 def main():
@@ -17,8 +17,8 @@ def main():
     result = root_node.generate_error(data, {'angle': angle})
     # filtered_img = Image.fromarray(result)
     # filtered_img.show()
-    cv2.imshow("Rotated", result)
-    cv2.waitKey(0)
+    plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+    plt.show()
 
 
 if __name__ == "__main__":

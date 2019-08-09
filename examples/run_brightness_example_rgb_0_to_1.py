@@ -1,13 +1,13 @@
 import time
 import matplotlib.pyplot as plt
 
-from dpemu import array
-from dpemu import filters
+from dpemu.problemgenerator import array
+from dpemu.problemgenerator import filters
 
 
 def main():
     d = {"tar": 1, "rat": 0.5, "range": 1}
-    img_path = "../demo/landscape.png"
+    img_path = "demo/landscape.png"
 
     # Use the vectorized version
     data = plt.imread(img_path)

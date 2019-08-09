@@ -10,7 +10,7 @@ Guide
    :caption: Contents:
 
    manual
-   tutorials/Tutorial_1
+   tutorials/Tutorial_Getting_Started_with_dpEmu
    license
    help
    cluster_installation

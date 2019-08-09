@@ -1,4 +1,7 @@
-class RadiusGenerator:
+from abc import ABC, abstractmethod
+
+
+class RadiusGenerator(ABC):
     """[summary]
 
     [extended_summary]
@@ -7,6 +10,7 @@ class RadiusGenerator:
     def __init__(self):
         pass
 
+    @abstractmethod
     def generate(self, random_state):
         """[summary]
 
@@ -18,8 +22,7 @@ class RadiusGenerator:
         Returns:
             [type]: [description]
         """
-        print("generate(random_state) function not implemented")
-        return 0
+        pass
 
 
 class GaussianRadiusGenerator(RadiusGenerator):

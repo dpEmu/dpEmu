@@ -13,8 +13,8 @@ from pycocotools.cocoeval import COCOeval
 from tqdm import trange
 
 from dpemu import runner
-from dpemu.datasets.utils import load_coco_val_2017
-from dpemu.plotting.utils import print_results_by_model, visualize_scores
+from dpemu.dataset_utils import load_coco_val_2017
+from dpemu.plotting_utils import print_results_by_model, visualize_scores
 from dpemu.problemgenerator.array import Array
 from dpemu.problemgenerator.filters import JPEG_Compression
 from dpemu.problemgenerator.series import Series
@@ -177,12 +177,10 @@ def get_model_params_dict_list(img_ids, class_names):
 def visualize(df):
     # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian noise", x_log=False)
     # visualize_scores(df, ["mAP-50"], [True], "std", "Object detection with Gaussian blur", x_log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter",
-    #                  x_log=True)
+    # visualize_scores(df, ["mAP-50"], [True], "snowflake_probability", "Object detection with snow filter", x_log=True)
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", x_log=True)
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", x_log=True)
-    visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression",
-                     x_log=False)
+    visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", x_log=False)
     # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", x_log=False)
     # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with brightness", x_log=False)
     # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with saturation", x_log=False)

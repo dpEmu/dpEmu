@@ -1,5 +1,4 @@
 #!/bin/bash
 
-cd libs/Detectron
-python setup.py develop
-ln -s $PWD/../.. $PWD/detectron/datasets/data/coco
+pip install -e libs/Detectron
+ln -s $PWD $PWD/libs/Detectron/detectron/datasets/data/coco

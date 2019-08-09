@@ -3,8 +3,8 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-from dpemu import runner_
-from dpemu.plotting.utils import visualize_scores, print_results_by_model, visualize_best_model_params
+from dpemu import runner
+from dpemu.plotting_utils import visualize_scores, print_results_by_model, visualize_best_model_params
 from dpemu.problemgenerator.array import Array
 from dpemu.problemgenerator.filters import GaussianNoise
 
@@ -90,7 +90,7 @@ def main(argv):
         exit(0)
 
     # Run the whole thing and get DataFrame for visualization
-    df = runner_.run(
+    df = runner.run(
         train_data=train_data,
         test_data=test_data,
         preproc=Preprocessor,

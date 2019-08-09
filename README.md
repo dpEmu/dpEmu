@@ -27,8 +27,7 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 * `python3 -m venv venv`
 * `source venv/bin/activate`
 * `pip install -U pip setuptools wheel`
-* `pip install -r requirements/base.txt`
-* (or `pip install -r requirements/with_examples.txt` to run all examples)
+* `pip install -r requirements/base.txt` (or `pip install -r requirements/with_examples.txt`)
 * `pip install -e .`
 
 #### Additional steps for object detection example (CUDA and cuDNN required)

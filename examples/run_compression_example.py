@@ -2,12 +2,12 @@ import numpy as np
 
 from PIL import Image
 
-from dpemu import array
-from dpemu import filters
+from dpemu.problemgenerator import array
+from dpemu.problemgenerator import filters
 
 
 def main():
-    img = Image.open("../demo/landscape.png")
+    img = Image.open("demo/landscape.png")
     data = np.array(img)
     root_node = array.Array()
     root_node.addfilter(filters.JPEG_Compression('quality'))

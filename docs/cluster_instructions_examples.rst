@@ -1,10 +1,20 @@
-.. _cluster_examples:
+.. _cluster_instructions:
+
+Instructions and examples for running jobs on Kale or Ukko2
+-----------------------------------------------------------
+
+Official instructions
+^^^^^^^^^^^^^^^^^^^^^
+
+`Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide>`_ 
+
+`Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide>`_
 
 Example jobs on Kale and Ukko2
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Running  text classification example on Kale or Ukko2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: bash
 
@@ -51,9 +61,10 @@ You can view the execution of the code as if it was executed on your home termin
 The example examples/run_text_classification_example will save images to the dpEmu/out directory.
 
 Running object detection example on Kale or Ukko2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""""""""""""
 
-Remember to clone the relevant repositorios and run the required scripts, if you have not already. See `Object detection example requirements`_
+Remember to clone the relevant repositorios and run the required scripts, if you have not already: 
+:ref:`object_detection_requirements`.
 
 .. code-block:: bash
 

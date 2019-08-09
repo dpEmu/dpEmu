@@ -203,17 +203,15 @@ In the end of the example a plot of scores is visualized.
     import matplotlib.pyplot as plt
     import numpy as np
 
-    from src import runner_
-    from src.plotting.utils import visualize_scores
-    from src.problemgenerator.array import Array
-    from src.problemgenerator.filters import GaussianNoise
+    from dpemu import runner
+    from dpemu.plotting_utils import visualize_scores, print_results_by_model, visualize_best_model_params
+    from dpemu.problemgenerator.array import Array
+    from dpemu.problemgenerator.filters import GaussianNoise
 
 
     class Preprocessor:
-        def run(self, train_data, test_data):
-            # Preprocess the data by changing its data type from int to float
-            dtype = params["dtype"]
-            return train_data, test_data.astype(dtype), {"dtype": dtype}
+        def run(self, train_data, test_data, params):
+            return train_data, test_data, {}
 
 
     class PredictorModel:
@@ -234,67 +232,118 @@ In the end of the example a plot of scores is visualized.
             return {"MSE": mean_squared_error}
 
 
-    def main(argv):
-        # Create some fake data
-        if len(argv) == 2:
-            train_data = None
-            test_data = np.arange(int(sys.argv[1]))
-        else:
-            exit(0)
+    def get_data(argv):
+        train_data = None
+        test_data = np.arange(int(sys.argv[1]))
+        return train_data, test_data
 
+
+    def get_err_root_node():
         # Create error generation tree that has an Array node
         # as its root node and a GaussianNoise filter
         err_root_node = Array()
         err_root_node.addfilter(GaussianNoise("mean", "std"))
+        return err_root_node
 
+
+    def get_err_params_list():
         # The standard deviation goes from 0 to 20
-        err_params_list = [{"mean": 0, "std": std} for std in range(0, 21)]
+        return [{"mean": 0, "std": std} for std in range(0, 21)]
 
+
+    def get_model_params_dict_list():
         # The model is run with different weighted estimates
-        model_params_dict_list = [{
+        return [{
             "model": PredictorModel,
             "params_list": [{'weight': w} for w in [0.0, 0.05, 0.15, 0.5, 1.0]],
             "use_clean_train_data": False
         }]
 
-        # Run the whole thing and get DataFrame for visualization
-        df = runner_.run(train_data=train_data,
-                     test_data=test_data,
-                     preproc=Preprocessor,
-                     preproc_params={"dtype": float},
-                     err_root_node=err_root_node,
-                     err_params_list=err_params_list,
-                     model_params_dict_list=model_params_dict_list,
-                     use_interactive_mode=True)
 
-
+    def visualize(df):
         # Visualize mean squared error for all used standard deviations
-        visualize_scores(df=df,
-                     score_names=["MSE"],
-                     is_higher_score_better=[False],
-                     err_param_name="std",
-                     title="Mean squared error")
+        visualize_scores(
+            df=df,
+            score_names=["MSE"],
+            is_higher_score_better=[False],
+            err_param_name="std",
+            title="Mean squared error"
+        )
+        visualize_best_model_params(
+            df=df,
+            model_name="Predictor #1",
+            model_params=["weight"],
+            score_names=["MSE"],
+            is_higher_score_better=[False],
+            err_param_name="std",
+            title=f"Best model params"
+        )
+
         plt.show()
+
+
+    def main(argv):
+        # Create some fake data
+        if len(argv) == 2:
+            train_data, test_data = get_data(argv)
+        else:
+            exit(0)
+
+        # Run the whole thing and get DataFrame for visualization
+        df = runner.run(
+            train_data=train_data,
+            test_data=test_data,
+            preproc=Preprocessor,
+            preproc_params=None,
+            err_root_node=get_err_root_node(),
+            err_params_list=get_err_params_list(),
+            model_params_dict_list=get_model_params_dict_list()
+        )
+
+        print_results_by_model(df)
+        visualize(df)
 
 
     if __name__ == "__main__":
         main(sys.argv)
 
+
+Run the program with the command:
+
+.. code-block:: bash
+
+    python3 examples/run_manual_predictor_example 1000
+
 Here's what the resulting image should look like:
 
 .. image:: manual_demo.png
 
+Best model parameters for different standard deviation values:
+
+.. image:: manual_best_model_params.png
+
+
 How to run examples
 -------------------
+
+**Run the examples from project root.**
 
 If the examples do not require command line arguments, then they can be run as follows:
 
 .. code-block:: bash
 
-    python3 examples/run_manual_predictor_example <integer argument>
+    python3 examples/run_saturation_example_rgb_0_to_1.py
 
-Enable the interactive mode by writing ``-i``
+If the examples require command line arguments, add them after the name of the file, each one separated by space (the argument 22 tells the angle of the counterclockwise rotation of the picture):
 
 .. code-block:: bash
 
-    python3 examples/run_text_classification_example all 4 -i
+    python3 examples/run_rotate_example.py 22
+
+
+
+The interactive mode is activated above by writing ``-i``
+
+.. code-block:: bash
+
+    python3 examples/run_text_classification_example test 4 -i

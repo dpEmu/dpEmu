@@ -1,5 +1,3 @@
-.. _cluster_instructions:
-
 Installation on University of Helsinki clusters (Ukko2 and Kale)
 ----------------------------------------------------------------
 
@@ -34,10 +32,13 @@ Now you can install dpEmu by running the following commands in the remote termin
     pip install pycocotools --cache-dir $TMPDIR
     pip install -e .
 
+
+.. _object_detection_requirements:
+
 Object detection example requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You also need to run the following commands if you want to run the object detection example:
+You need to run the following commands, if you want to run the object detection example:
 
 .. code-block:: bash
 
@@ -52,9 +53,4 @@ You also need to run the following commands if you want to run the object detect
     ./scripts/install_darknet.sh
 
 
-Instructions for running jobs on Kale or Ukko2
-----------------------------------------------
-
-Official instructions: `Kale <https://wiki.helsinki.fi/display/it4sci/Kale+User+Guide>`_ or `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide>`_
-
-:ref:`cluster_examples`.
+:ref:`cluster_instructions`.

@@ -10,10 +10,11 @@ Guide
    :caption: Contents:
 
    manual
+   tutorials/Tutorial_1
    license
    help
-   cluster_instructions
-   tutorials/Tutorial_1
+   cluster_installation
+   cluster_instructions_examples
 
 
 Indices and tables

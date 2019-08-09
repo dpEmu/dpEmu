@@ -1,8 +1,8 @@
 import numpy as np
 from PIL import Image
 from pathlib import Path
-from dpemu import array
-from dpemu import filters
+from dpemu.problemgenerator import array
+from dpemu.problemgenerator import filters
 
 
 def main():

@@ -3,7 +3,7 @@
 if [ -z "$TMPDIR" ]; then
   pip install -r libs/Detectron/requirements.txt
 else
-  pip install -r libs/Detectron/requirements.txt --cache-dir $TMPDIR/.cache
+  pip install -r libs/Detectron/requirements.txt --cache-dir $TMPDIR
 fi
 
 pip install -e libs/Detectron

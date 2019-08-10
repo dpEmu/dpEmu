@@ -1,61 +1,102 @@
-User Manual
-===========
-
-Description
------------
-
-dpEmu is a Python library for emulating data problems in use and training of machine learning systems.
-
-Installation on a home computer
--------------------------------
-
-To install dpEmu on your computer, run the following commands in your terminal:
-
-.. code-block:: bash
-
-    git clone https://github.com/dpEmu/dpEmu.git
-    cd dpEmu
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -U pip setuptools wheel
-    pip install -r requirements.txt
-    pip install pycocotools
-    pip install -e .
-
 Usage
------
+=====
 
 dpEmu consists of three components:
 
-* A system for building an error generator
-* A system for running the AI models with different error parameters
-* Tools for visualizing the results
+  * A system for building an error generator
+  * A system for running the AI models with different error parameters
+  * Tools for visualizing the results
 
-Error generation
+
+Error Generation
 ^^^^^^^^^^^^^^^^
 
-First an error generation tree needs to be created. This is done by using the ``src.problemgenerator`` module which contains different kinds of tree nodes and filters for adding error to the data.
+For a quick hands-on introduction to error generation in dpEmu, see the
+`Error Generation Basics tutorial <tutorials/Error_Generation_Basics.ipynb>`_.
 
-There are three generic node types, ``Array``, ``Series`` and ``TupleSeries``, and special node types for manipulating specific data types.
+Error generation in dpEmu consists of three simple steps:
 
-``Array`` node is used for handling any n-dimensional data and filters are directly applied to this data.
+ * Defining the structure of the data by constructing an error generation tree.
+ * Attaching filters (error sources) to the tree.
+ * Calling the ``generate_error`` method on the root node of the tree.
 
-``Series`` node is given a child node as a parameter and when error is being generated it removes the outermost dimension of the data and passes each element to the child node
-i.e. if a ``Series`` ``s`` has a child ``Array`` ``a`` and ``s`` is given an array ``[[1, 2], [3, 4]]`` as its input, then it passes arrays ``[1, 2]`` and ``[3, 4]`` to ``a``.
 
-``TupleSeries`` node works quite similarly to ``Series``: it is given an array of child nodes and it removes the outermost dimension of the data 
-and passes the first element to the first child, the second element to the second child and so on.
+Creating an Error Generation Tree
+---------------------------------
 
-Filters can be added to ``Array`` nodes and they are used for manipulating data which can be images, time series, sound or something completely different. The ``filters.py`` file contains dozens of filters (e.g. ``Snow``, ``Blur`` and ``SensorDrift``) 
-for these purposes and they can be added to an array node by using the ``addfilter`` function.
+Error generation trees consist of tree nodes. The most common type of leaf node
+is the ``Array``, which can represent a Numpy array (or Python list) of any
+dimension. Even a scalar value can be represented by an ``Array`` node provided
+that node is not the root of the tree. If the fundamental unit of your data is
+a tuple (as is the case with, e.g. .wav audio data), use a Tuple node as the
+leaf.
 
-The parameters for the filters are given via a ``dict`` object when the error is being generated. During the initialization the filters are given the keys which are 
-later used for getting the parameters.
+The simplest and most commonly used non-leaf node type is the ``Series``.
+The ``Series`` represents the leftmost dimension of any unit of data passed to
+it. For example, you might choose to represent a matrix of data as a series of
+rows. In that case you would then create an ``Array`` node to represent a row
+and provide it as the argument to a ``Series`` node:
 
-Here is an example of what the error generation process might look like:
+.. code-block:: python
+
+    from dpemu.nodes import Array, Series
+
+    row_node = Array()
+    root_node = Series(row_node)
+
+A TupleSeries represents a tuple where the first (i.e. leftmost) dimensions of
+the tuple elements are in some sense "the same". For example, if we have one
+Numpy array, X, containing the input data and another, Y, containing each data
+point's correct label, we may choose to represent (X, Y) as a TupleSeries.
+
+There is usually more than one valid way to represent the structure of the data
+as a tree. For example, a 2d Numpy array can be represented as:
+
+ * a matrix, i.e. a single Array node
+ * a list of rows, i.e. a Series with an Array as its child
+ * a list of lists of scalars, i.e. a Series whose child
+   is a Series whose child is an Array.
+
+
+Adding Filters (Error Sources)
+------------------------------
+
+Filters can be added to leaf nodes such as ``Array`` or ``Tuple`` nodes.
+Dozens of filters (e.g. ``Snow``, ``Blur`` and ``SensorDrift``) are provided
+out of the box. They can be used to manipulate practically any kind of data,
+including but not limited to images,time series and sound. Users can also
+create their own custom error sources by subclassing the ``Filter`` class.
+
+To create a filter, call the constructor and provide string identifiers for
+the error parameters of that filter. To attach the filter to a leaf node,
+call the node's ``addfilter`` method with the filter object as the parameter.
+
+
+Calling the ``generate_error`` Method
+---------------------------------
+
+Once you have defined your error generation tree and added the desired filters,
+you can call the ``generate_error`` method of the root node of the tree. The method
+takes two arguments:
+
+ * the data into which the errors are to be introduced, and
+ * a dictionary of error parameters.
+
+The parameter dictionary contains the error parameter values that are to be
+used in the error generation. The keys corresponding to the values are the
+error parameter identifier strings which you provided to the Filter
+constructor(s).
+
+The ``generate_error`` method does not overwrite the original data but returns
+a copy instead.
+
+This is an example of what the error generation process might look like:
 
 .. code-block:: python
     :linenos:
+
+    from dpemu.nodes import Array, TupleSeries
+    from dpemu.problemgenerator.filters import Missing, GaussianNoise
 
     # Assume our data is a tuple of the form (x, y) where x has
     # shape (100, 10) and y has shape (100,). We can think of each
@@ -63,39 +104,69 @@ Here is an example of what the error generation process might look like:
     # explanatory variables and y_i represents the corresponding
     # value of the response variable.
     x = np.random.rand(100, 10)
-    y = np.random.rand(100, 1)
+    y = np.random.rand(100)
     data = (x, y)
 
     # Build a data model tree.
-    x_node = array.Array()
-    y_node = array.Array()
-    root_node = series.TupleSeries([x_node, y_node])
+    x_node = Array()
+    y_node = Array()
+    root_node = TupleSeries([x_node, y_node])
 
-    # Suppose we want to introduce NaN values (i.e. missing data)
-    # to y only (thus keeping x intact).
+    # Add a filter to introduce NaN values (i.e. missing data)
+    # in y.
+    y_node.addfilter(Missing("p"))
+
+    # Add another filter to produce Gaussian noise in x.
+    x_node.addfilter(GaussianNoise("mean", "std"))
+
+    # Define the error parameters and feed the data to the root node.
     probability = .3
-    y_node.addfilter(filters.Missing("p"))
+    noise_mean = 0.0
+    noise_std = .1
+    params = {"p": probability,
+              "mean": noise_mean,
+              "std": noise_std}
+    output = root_node.generate_error(data, params)
 
-    # Feed the data to the root node.
-    output = root_node.generate_error(data, {"p": probability})
+In the example the error generation tree has a ``TupleSeries`` as its
+root node, which in turn has two ``Array`` nodes as its children. Then on
+line 19 we add a ``Missing`` filter to one of the children, which will
+transform some of the values in the 1-dimensional array ``y`` to NaN.
+The filter is given a parameter with value *"p"*, which means that the key
+for the probability for transforming a number into NaN is going to be
+*"p"* in the parameter dictionary.
 
-In the example the error generation tree has a ``TupleSeries`` as its root node, and it has two ``Array`` nodes as its children. Then on the line 18 we add a ``Missing`` filter to one of the children, 
-which will transform some of the values in the 2-dimensional array ``y`` to NaN. The filter is given a parameter with value *"p"*, which means that the key for the probability for transforming a number into NaN is going to be *"p"* in the parameter dictionary.
+We then create a GaussianNoise filter and attach it to ``x_node``, the
+other child of the root node. The GaussianNoise filter takes two string
+identifier arguments, corresponding to the mean and standard deviation
+of the Gaussian distribution from which the noise is drawn.
 
-Finally we call the ``generate_error`` function of the root node with the parameter *'p'* being 0.3, after which the function then returns the errorified data. However this part is usually done by and AI runner system, 
-which we are going to discuss next.
+Finally we call the ``generate_error`` method of the root node, providing
+it with the data and the error parameter dictionary. The method returns
+an errorified copy of the data. However, if you wish to run a machine
+learning model on the data, the ML runner – to be discussed next – will
+call the method for you.
 
-AI runner system
+
+ML runner system
 ^^^^^^^^^^^^^^^^
 
-The AI runner system, or simply runner, is a system which is used for running multiple AI models simultaneously with distinct filter error parameters by using multithreading. After running all the models with all wanted parameter combinations 
-the system returns a ``pandas.DataFrame`` object which can later be used for visualizing the results.
+The ML runner system, or simply runner, is a system which is used for running
+multiple machine learning models simultaneously with distinct filter error
+parameters by using multithreading. After running all the models with all
+desired parameter combinations the system returns a ``pandas.DataFrame``
+object which can be used for visualizing the results.
 
-The runner needs to be given the following values when it is run: train data, test data, a preprocessor, an error generation tree, a list of error parameters, a list of AI models and their parameters and a boolean about whether to use interactive mode or not.
+The runner needs to be given the following values when it is run: train data,
+test data, a preprocessor, an error generation tree, a list of error
+parameters, a list of ML models and their parameters and a boolean indicating
+whether or not to use interactive mode.
 
 Train data and test data
 """"""""""""""""""""""""
-These are the original train data and test data which will be given to the AI models. A value ``None`` can also be passed to the runner if there is no train data.
+These are the original train data and test data which will be given to the ML
+models. A ``None`` value can also be passed to the runner if there is no
+training data.
 
 Preprocessor
 """"""""""""
@@ -172,21 +243,26 @@ Here is an example AI model parameter list and a model:
         {"model": KMeansModel, "params_list": [{"labels": labels}]}
     ]
 
+
 Interactive mode
 """"""""""""""""
 
-The final parameter of the runner system is a boolean telling whether to use interactive mode or not.
-Some of the functions for visualizing the results require the interactive mode, for some of them it's optional
-and most of them have no interactive functionality.
+The final parameter of the runner system is a boolean indicating whether to use
+interactive mode or not. Some of the functions for visualizing the results
+require interactive mode; for others it is optional. Most visualization
+functions have no interactive functionality.
 
-Basically what the interactive mode does is that it adds a column containing the modified test data to the resulting ``DataFrame`` object.
-The interactive visualizer functions use this data to display points of data so that e.g. the programmer can try to figure out why
-something was classified incorrectly.
+Basically what the interactive mode does is that it adds a column containing
+the modified test data to the resulting ``DataFrame`` object. The interactive
+visualizer functions use this data to display points of data so that e.g.
+the user can try to figure out why something was classified incorrectly.
+
 
 Visualization functions
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The module ``src.plotting`` has a file ``utils.py`` which contains multiple functions for plotting and visualizing the data.
+The ``dpemu.plotting_utils`` module contains several functions for plotting and
+visualizing the data.
 
 A Complete Example
 ------------------
@@ -323,7 +399,7 @@ Best model parameters for different standard deviation values:
 .. image:: manual_best_model_params.png
 
 
-How to run examples
+How to Run Examples
 -------------------
 
 **Run the examples from project root.**

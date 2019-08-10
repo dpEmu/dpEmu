@@ -6,9 +6,6 @@ Subpackages
 
 .. toctree::
 
-   dpemu.datasets
-   dpemu.ml
-   dpemu.plotting
    dpemu.problemgenerator
 
 Submodules
@@ -62,10 +59,10 @@ dpemu.radius\_generators module
    :undoc-members:
    :show-inheritance:
 
-dpemu.runner\_ module
----------------------
+dpemu.runner module
+-------------------
 
-.. automodule:: dpemu.runner_
+.. automodule:: dpemu.runner
    :members:
    :undoc-members:
    :show-inheritance:

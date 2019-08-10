@@ -28,9 +28,9 @@ Now you can install dpEmu by running the following commands in the remote termin
     python3 -m venv venv
     source venv/bin/activate
     pip install -U pip setuptools wheel --cache-dir $TMPDIR
-    pip install -r requirements.txt --cache-dir $TMPDIR
-    pip install pycocotools --cache-dir $TMPDIR
-    pip install -e .
+    pip install -r requirements/base.txt --cache-dir $TMPDIR (pip install -r requirements/with_examples.txt --cache-dir $TMPDIR)
+    pip install -e "git+https://github.com/cocodataset/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI" --cache-dir $TMPDIR
+    pip install -e . --cache-dir $TMPDIR
 
 
 .. _object_detection_requirements:

@@ -7,7 +7,7 @@ dpEmu consists of three components:
   * A system for running the AI models with different error parameters
   * Tools for visualizing the results
 
-Error generation
+Error Generation
 ^^^^^^^^^^^^^^^^
 
 For a quick hands-on introduction to error generation in dpEmu, see the
@@ -19,19 +19,33 @@ Error generation in dpEmu consists of three simple steps:
   * Attaching filters (error sources) to the tree.
   * Calling the generate_error method on the root node of the tree. 
 
+
+Creating an Error Generation Tree
+---------------------------------
+
 Error generation trees consist of tree nodes. The most common type of leaf node
 is the ``Array``, which can represent a Numpy array (or Python list) of any
-dimension. 
+dimension. Even a scalar value can be represented by an ``Array`` node provided
+that node is not the root of the tree. If the fundamental unit of your data is
+a tuple (as is the case with, e.g. .wav audio data), use a Tuple node as the
+leaf.
 
-There are three generic node types, ``Array``, ``Series`` and ``TupleSeries``, and special node types for manipulating specific data types.
+The simplest and most commonly used non-leaf node type is the ``Series``. 
+The ``Series`` represents the leftmost dimension of any unit of data passed to
+it. For example, you might choose to represent a matrix of data as a series of
+rows. In that case you would then create an ``Array`` node to represent a row
+and provide it as the argument to a ``Series`` node:
 
-``Array`` node is used for handling any n-dimensional data and filters are directly applied to this data.
+.. code-block:: python
 
-``Series`` node is given a child node as a parameter and when error is being generated it removes the outermost dimension of the data and passes each element to the child node
-i.e. if a ``Series`` ``s`` has a child ``Array`` ``a`` and ``s`` is given an array ``[[1, 2], [3, 4]]`` as its input, then it passes arrays ``[1, 2]`` and ``[3, 4]`` to ``a``.
+    row_node = Array()
+    root_node = Series(row_node)
 
-``TupleSeries`` node works quite similarly to ``Series``: it is given an array of child nodes and it removes the outermost dimension of the data 
-and passes the first element to the first child, the second element to the second child and so on.
+A TupleSeries represents a tuple where the first (i.e. leftmost) dimensions of
+the tuple elements are in some sense "the same". For example, if we have one
+Numpy array, X, containing the input data and another, Y, containing each data
+point's correct label, we may choose to represent (X, Y) as a TupleSeries.
+
 
 Filters can be added to ``Array`` nodes and they are used for manipulating data which can be images, time series, sound or something completely different. The ``filters.py`` file contains dozens of filters (e.g. ``Snow``, ``Blur`` and ``SensorDrift``) 
 for these purposes and they can be added to an array node by using the ``addfilter`` function.

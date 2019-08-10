@@ -7,6 +7,7 @@ dpEmu consists of three components:
   * A system for running the AI models with different error parameters
   * Tools for visualizing the results
 
+
 Error Generation
 ^^^^^^^^^^^^^^^^
 
@@ -147,17 +148,25 @@ learning model on the data, the ML runner – to be discussed next – will
 call the method for you.
 
 
-AI runner system
+ML runner system
 ^^^^^^^^^^^^^^^^
 
-The AI runner system, or simply runner, is a system which is used for running multiple AI models simultaneously with distinct filter error parameters by using multithreading. After running all the models with all wanted parameter combinations 
-the system returns a ``pandas.DataFrame`` object which can later be used for visualizing the results.
+The ML runner system, or simply runner, is a system which is used for running
+multiple machine learning models simultaneously with distinct filter error
+parameters by using multithreading. After running all the models with all
+desired parameter combinations the system returns a ``pandas.DataFrame``
+object which can be used for visualizing the results.
 
-The runner needs to be given the following values when it is run: train data, test data, a preprocessor, an error generation tree, a list of error parameters, a list of AI models and their parameters and a boolean about whether to use interactive mode or not.
+The runner needs to be given the following values when it is run: train data,
+test data, a preprocessor, an error generation tree, a list of error
+parameters, a list of ML models and their parameters and a boolean indicating
+whether or not to use interactive mode.
 
 Train data and test data
 """"""""""""""""""""""""
-These are the original train data and test data which will be given to the AI models. A value ``None`` can also be passed to the runner if there is no train data.
+These are the original train data and test data which will be given to the ML
+models. A ``None`` value can also be passed to the runner if there is no
+training data.
 
 Preprocessor
 """"""""""""

@@ -47,9 +47,9 @@ You need to run the following commands, if you want to run the object detection 
 
     cd $WRKDIR/dpEmu
     source venv/bin/activate
-    git clone https://github.com/dpEmu/Detectron.git
+    git clone https://github.com/dpEmu/Detectron.git libs/Detectron
     ./scripts/install_detectron.sh
-    git clone https://github.com/dpEmu/darknet.git
+    git clone https://github.com/dpEmu/darknet.git libs/darknet
     ./scripts/install_darknet.sh
 
 

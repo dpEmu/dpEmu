@@ -24,7 +24,7 @@ Getting Started
 
 
 Manual
-^^^^^
+^^^^^^
 
 .. toctree::
     :maxdepth: 1
@@ -36,9 +36,8 @@ Manual
     help
 
 
-
 Indices and tables
-==================
+^^^^^^^^^^^^^^^^^^
 
 * :ref:`genindex`
 * :ref:`modindex`

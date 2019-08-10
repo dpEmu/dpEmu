@@ -30,7 +30,7 @@ Now you can install dpEmu by running the following commands in the remote termin
     pip install -U pip setuptools wheel --cache-dir $TMPDIR
     pip install -r requirements/base.txt --cache-dir $TMPDIR (pip install -r requirements/with_examples.txt --cache-dir $TMPDIR)
     pip install -e "git+https://github.com/cocodataset/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI" --cache-dir $TMPDIR
-    pip install -e .
+    pip install -e . --cache-dir $TMPDIR
 
 
 .. _object_detection_requirements:

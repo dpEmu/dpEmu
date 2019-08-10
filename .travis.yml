@@ -1,4 +1,7 @@
 language: python
+cache:
+  directories:
+    - $HOME/.cache/pip/wheels
 
 matrix:
   include:
@@ -6,6 +9,7 @@ matrix:
     - python: "3.7"
 
 before_install:
+  - sudo apt-get install graphviz
   - pip install -U pip setuptools wheel
 
 install:

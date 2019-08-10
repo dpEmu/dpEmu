@@ -1,7 +1,4 @@
 language: python
-cache:
-  directories:
-    - $HOME/.cache/pip/wheels
 
 matrix:
   include:

@@ -399,7 +399,7 @@ Best model parameters for different standard deviation values:
 .. image:: manual_best_model_params.png
 
 
-How to run examples
+How to Run Examples
 -------------------
 
 **Run the examples from project root.**

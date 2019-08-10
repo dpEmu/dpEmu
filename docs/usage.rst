@@ -3,14 +3,25 @@ Usage
 
 dpEmu consists of three components:
 
-* A system for building an error generator
-* A system for running the AI models with different error parameters
-* Tools for visualizing the results
+  * A system for building an error generator
+  * A system for running the AI models with different error parameters
+  * Tools for visualizing the results
 
 Error generation
 ^^^^^^^^^^^^^^^^
 
-First an error generation tree needs to be created. This is done by using the ``src.problemgenerator`` module which contains different kinds of tree nodes and filters for adding error to the data.
+For a quick hands-on introduction to error generation in dpEmu, see the
+`Error Generation Basics tutorial <tutorials/Error_Generation_Basics.ipynb>`_.
+
+Error generation in dpEmu consists of three simple steps:
+
+  * Defining the structure of the data by constructing an error generation tree.
+  * Attaching filters (error sources) to the tree.
+  * Calling the generate_error method on the root node of the tree. 
+
+Error generation trees consist of tree nodes. The most common type of leaf node
+is the ``Array``, which can represent a Numpy array (or Python list) of any
+dimension. 
 
 There are three generic node types, ``Array``, ``Series`` and ``TupleSeries``, and special node types for manipulating specific data types.
 

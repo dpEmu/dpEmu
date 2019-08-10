@@ -10,9 +10,9 @@ matrix:
 
 before_install:
   - "sudo apt-get install graphviz"
+  - pip install -U pip setuptools wheel
 
 install:
-  - pip install -U pip setuptools wheel
   - pip install -r requirements/base.txt
   - pip install -e .
 

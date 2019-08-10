@@ -13,7 +13,6 @@ nbsphinx==0.4.2
 numpy==1.16.4
 opencv-contrib-python==4.1.0.25
 pandas==0.24.2
-pycocotools==2.0.0
 pytest==4.6.3
 pytest-cov==2.7.1
 recommonmark==0.5.0

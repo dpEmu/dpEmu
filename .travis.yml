@@ -6,11 +6,11 @@ matrix:
     - python: "3.7"
 
 before_install:
-  - "sudo apt-get install graphviz"
   - pip install -U pip setuptools wheel
 
 install:
   - pip install -r requirements/base.txt
+  - pip install -e "git+https://github.com/cocodataset/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI"
   - pip install -e .
 
 script:

@@ -95,6 +95,7 @@ This is an example of what the error generation process might look like:
     :linenos:
 
     from dpemu.nodes import Array, TupleSeries
+    from dpemu.problemgenerator.filters import Missing, GaussianNoise
 
     # Assume our data is a tuple of the form (x, y) where x has
     # shape (100, 10) and y has shape (100,). We can think of each

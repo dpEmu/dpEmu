@@ -18,7 +18,7 @@ Error generation in dpEmu consists of three simple steps:
 
  * Defining the structure of the data by constructing an error generation tree.
  * Attaching filters (error sources) to the tree.
- * Calling the generate_error method on the root node of the tree.
+ * Calling the ``generate_error`` method on the root node of the tree.
 
 
 Creating an Error Generation Tree
@@ -72,11 +72,11 @@ the error parameters of that filter. To attach the filter to a leaf node,
 call the node's ``addfilter`` method with the filter object as the parameter.
 
 
-Calling the generate_error Method
+Calling the ``generate_error`` Method
 ---------------------------------
 
 Once you have defined your error generation tree and added the desired filters,
-you can call the generate_error method of the root node of the tree. The method
+you can call the ``generate_error`` method of the root node of the tree. The method
 takes two arguments:
 
  * the data into which the errors are to be introduced, and
@@ -87,7 +87,7 @@ used in the error generation. The keys corresponding to the values are the
 error parameter identifier strings which you provided to the Filter
 constructor(s).
 
-The generate_error method does not overwrite the original data but returns
+The ``generate_error`` method does not overwrite the original data but returns
 a copy instead.
 
 This is an example of what the error generation process might look like:
@@ -243,21 +243,26 @@ Here is an example AI model parameter list and a model:
         {"model": KMeansModel, "params_list": [{"labels": labels}]}
     ]
 
+
 Interactive mode
 """"""""""""""""
 
-The final parameter of the runner system is a boolean telling whether to use interactive mode or not.
-Some of the functions for visualizing the results require the interactive mode, for some of them it's optional
-and most of them have no interactive functionality.
+The final parameter of the runner system is a boolean indicating whether to use
+interactive mode or not. Some of the functions for visualizing the results
+require interactive mode; for others it is optional. Most visualization
+functions have no interactive functionality.
 
-Basically what the interactive mode does is that it adds a column containing the modified test data to the resulting ``DataFrame`` object.
-The interactive visualizer functions use this data to display points of data so that e.g. the programmer can try to figure out why
-something was classified incorrectly.
+Basically what the interactive mode does is that it adds a column containing
+the modified test data to the resulting ``DataFrame`` object. The interactive
+visualizer functions use this data to display points of data so that e.g.
+the user can try to figure out why something was classified incorrectly.
+
 
 Visualization functions
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The module ``src.plotting`` has a file ``utils.py`` which contains multiple functions for plotting and visualizing the data.
+The ``dpemu.plotting_utils`` module contains several functions for plotting and
+visualizing the data.
 
 A Complete Example
 ------------------

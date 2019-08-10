@@ -31,7 +31,7 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 * `pip install -e "git+https://github.com/cocodataset/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI"`
 * `pip install -e .`
 
-#### Additional steps for object detection example (CUDA and cuDNN required)
+#### Additional steps for the object detection example (CUDA and cuDNN required)
 
 * `git clone git@github.com:dpEmu/Detectron.git libs/Detectron`
 * `./scripts/install_detectron.sh`

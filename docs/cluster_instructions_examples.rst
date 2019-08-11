@@ -38,12 +38,12 @@ Then write the following content to it and save the file. **Remember to put your
     #!/bin/bash
     #SBATCH -J dpEmu
     #SBATCH --workdir=/wrk/users/<username>/dpEmu/
-    #SBATCH -o text_classification_result.txt
+    #SBATCH -o text_classification_results.txt
     #SBATCH -c 8
     #SBATCH --mem=128G
     #SBATCH -t 20:00
 
-    srun python3 examples/run_text_classification_example all 20
+    srun python3 examples/run_text_classification_example.py all 20
     srun sleep 60
 
 Submit the batch job to be run:
@@ -88,14 +88,14 @@ Then write the following content to it and save the file. **Remember to put your
     #!/bin/bash
     #SBATCH -J dpEmu
     #SBATCH --workdir=/wrk/users/<username>/dpEmu/
-    #SBATCH -o object_detection_example.txt
+    #SBATCH -o object_detection_results.txt
     #SBATCH -c 4
     #SBATCH --mem=32G
     #SBATCH -p gpu
     #SBATCH --gres=gpu:1
     #SBATCH -t 10:00:00
 
-    srun python3 examples/run_object_detection_example
+    srun python3 examples/run_object_detection_example.py
     srun sleep 60
 
 Submit the batch job to be run:

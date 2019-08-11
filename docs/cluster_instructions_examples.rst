@@ -56,7 +56,7 @@ You can view the execution of the code as if it was executed on your home termin
 
 .. code-block:: bash
 
-    tail -f text_classification_result.txt
+    tail -f text_classification_results.txt
 
 The example examples/run_text_classification_example will save images to the dpEmu/out directory.
 
@@ -108,4 +108,4 @@ You can view the execution of the code as if it was executed on your home termin
 
 .. code-block:: bash
 
-    tail -f object_detection_example.txt
+    tail -f object_detection_results.txt

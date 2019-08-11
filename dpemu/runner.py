@@ -21,7 +21,7 @@ def worker(inputs):
         [type]: [description]
     """
     path_to_train_data, path_to_test_data, preproc, preproc_params, err_root_node, err_params, model_params_dict_list, \
-        use_interactive_mode = inputs
+    use_interactive_mode = inputs
 
     with open(path_to_train_data, "rb") as file:
         train_data = load(file)
@@ -33,14 +33,14 @@ def worker(inputs):
     if train_data:
         err_train_data = err_root_node.generate_error(train_data, err_params)
     err_test_data = err_root_node.generate_error(test_data, err_params)
-    time_used_err = time.time() - time_start
+    time_err = time.time() - time_start
 
     time_start = time.time()
     preproc_train_data, preproc_err_test_using_train, result_base_using_train = preproc().run(
         train_data, err_test_data, preproc_params)
     preproc_err_train_data, preproc_err_test_using_err_train, result_base_using_err_train = preproc().run(
         err_train_data, err_test_data, preproc_params)
-    time_used_pre = time.time() - time_start
+    time_pre = time.time() - time_start
 
     results = []
     counter = Counter()
@@ -67,14 +67,14 @@ def worker(inputs):
             else:
                 result = model().run(preproc_err_train_data, preproc_err_test_using_err_train, model_params)
                 result.update(result_base_using_err_train)
-            time_used_mod = time.time() - time_start
+            time_mod = time.time() - time_start
 
             if use_interactive_mode:
                 result["interactive_err_data"] = err_test_data
             result["model_name"] = model_name
-            result["time_used_err"] = time_used_err
-            result["time_used_pre"] = time_used_pre
-            result["time_used_mod"] = time_used_mod
+            result["time_err"] = time_err
+            result["time_pre"] = time_pre
+            result["time_mod"] = time_mod
             result.update({k: v for k, v in err_params.items()})
             result.update({k: v for k, v in model_params.items()})
 

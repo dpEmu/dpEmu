@@ -173,7 +173,7 @@ def main(argv):
         use_interactive_mode=use_interactive_mode
     )
 
-    print_results_by_model(df, ["labels", "reduced_data"])
+    print_results_by_model(df, ["min_val", "max_val", "labels", "reduced_data"])
     visualize(df, label_names, dataset_name, data, use_interactive_mode)
 
 

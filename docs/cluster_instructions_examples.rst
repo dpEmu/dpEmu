@@ -89,14 +89,22 @@ Then write the following content to it and save the file. **Remember to put your
     srun python3 examples/run_object_detection_example.py
     srun sleep 60
 
+To speed up the job on Kale by using the latest GPUs, add the following line to the batch file:
+
+.. code-block:: bash
+
+    #SBATCH --constraint=v100
+
 Submit the batch job to be run:
 
 .. code-block:: bash
 
     sbatch object_detection.job
 
-You can view the execution of the code as if it was executed on your home terminal:
+You can view the execution of the code as if it was executed on your home terminal with:
 
 .. code-block:: bash
 
     tail -f object_detection_results.txt
+
+The resulting images will saved to the dpEmu/out directory.

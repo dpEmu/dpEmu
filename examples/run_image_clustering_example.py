@@ -97,6 +97,7 @@ def get_err_root_node():
     err_root_node = Array()
     err_root_node.addfilter(GaussianNoise("mean", "std"))
     err_root_node.addfilter(Clip("min_val", "max_val"))
+    # err_root_node.addfilter(Missing("probability"))
     return err_root_node
 
 
@@ -105,6 +106,8 @@ def get_err_params_list(data):
     max_val = np.amax(data)
     std_steps = np.linspace(0, max_val, num=8)
     err_params_list = [{"mean": 0, "std": std, "min_val": min_val, "max_val": max_val} for std in std_steps]
+    # p_steps = np.linspace(0, .3, num=4)
+    # err_params_list = [{"probability": p} for p in p_steps]
     return err_params_list
 
 
@@ -125,12 +128,36 @@ def get_model_params_dict_list(data, labels):
 
 
 def visualize(df, label_names, dataset_name, data, use_interactive_mode):
-    visualize_scores(df, ["AMI", "ARI"], [True, True], "std",
-                     f"{dataset_name} clustering scores with added gaussian noise")
-    visualize_best_model_params(df, "HDBSCAN #1", ["min_cluster_size", "min_samples"], ["AMI", "ARI"], [True, True],
-                                "std", f"Best parameters for {dataset_name} clustering")
-    visualize_classes(df, label_names, "std", "reduced_data", "labels", "tab10",
-                      f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise")
+    visualize_scores(
+        df,
+        score_names=["AMI", "ARI"],
+        is_higher_score_better=[True, True],
+        err_param_name="std",
+        # err_param_name="p",
+        title=f"{dataset_name} clustering scores with added gaussian noise",
+        # title=f"{dataset_name} clustering scores with missing pixels",
+    )
+    visualize_best_model_params(
+        df,
+        model_name="HDBSCAN #1",
+        model_params=["min_cluster_size", "min_samples"],
+        score_names=["AMI", "ARI"],
+        is_higher_score_better=[True, True],
+        err_param_name="std",
+        # err_param_name="p",
+        title=f"Best parameters for {dataset_name} clustering"
+    )
+    visualize_classes(
+        df,
+        label_names,
+        err_param_name="std",
+        # err_param_name="p",
+        reduced_data_column="reduced_data",
+        labels_column="labels",
+        cmap="tab10",
+        title=f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise"
+        # title=f"{dataset_name} (n={data.shape[0]}) classes with missing pixels"
+    )
 
     if use_interactive_mode:
         def on_click(original, modified):

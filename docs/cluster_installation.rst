@@ -15,12 +15,11 @@ Or:
 
     ssh kale.grid.helsinki.fi
 
-Now you can install dpEmu by running the following commands in the remote terminal:
+To install dpEmu without the ability of running examples, execute the following commands in remote terminal:
 
 .. code-block:: bash
 
     module load Python/3.7.0-intel-2018b
-    export SCIKIT_LEARN_DATA=$TMPDIR
 
     cd $WRKDIR
     git clone https://github.com/dpEmu/dpEmu.git
@@ -32,6 +31,24 @@ Now you can install dpEmu by running the following commands in the remote termin
     pip install -e "git+https://github.com/cocodataset/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI" --cache-dir $TMPDIR
     pip install -e . --cache-dir $TMPDIR
 
+:redtext:`OR`.
+
+**Or**, in order to run the examples, you need to execute the following commands:
+
+.. code-block:: bash
+
+    module load Python/3.7.0-intel-2018b
+
+    cd $WRKDIR
+    git clone https://github.com/dpEmu/dpEmu.git
+    cd dpEmu
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -U pip setuptools wheel --cache-dir $TMPDIR
+    pip install -r requirements/base.txt --cache-dir $TMPDIR
+    pip install -r requirements/with_examples.txt --cache-dir $TMPDIR
+    pip install -e "git+https://github.com/cocodataset/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI" --cache-dir $TMPDIR
+    pip install -e . --cache-dir $TMPDIR
 
 .. _object_detection_requirements:
 

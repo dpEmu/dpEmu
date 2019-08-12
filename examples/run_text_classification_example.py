@@ -19,7 +19,7 @@ from dpemu.ml_utils import reduce_dimensions_sparse
 from dpemu.plotting_utils import visualize_best_model_params, visualize_scores, visualize_classes, \
     print_results_by_model, visualize_confusion_matrices
 from dpemu.problemgenerator.array import Array
-from dpemu.problemgenerator.filters import MissingArea
+from dpemu.filters.text import MissingArea
 from dpemu.radius_generators import GaussianRadiusGenerator
 
 warnings.simplefilter("ignore", category=ConvergenceWarning)

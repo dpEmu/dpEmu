@@ -1,9 +1,8 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from dpemu import array
-from dpemu import filters
-from dpemu import series
+from dpemu.filters.common import Missing, GaussianNoiseTimeDependent
+from dpemu.nodes import Array, TupleSeries
 
 """
 Generate time dependent Gaussian noise and (non time dependent) missing values to MNIST data.
@@ -24,13 +23,14 @@ params["std"] = std
 params["mean_inc"] = 0
 params["std_inc"] = std_increase
 params["p"] = prob
+params["missing_val"] = np.nan
 
 
-x_node = array.Array()
-x_node.addfilter(filters.GaussianNoiseTimeDependent("mean", "std", "mean_inc", "std_inc"))
-x_node.addfilter(filters.Missing("p"))
-y_node = array.Array()
-root_node = series.TupleSeries([x_node, y_node], dim_name="time")
+x_node = Array()
+x_node.addfilter(GaussianNoiseTimeDependent("mean", "std", "mean_inc", "std_inc"))
+x_node.addfilter(Missing("p", "missing_val"))
+y_node = Array()
+root_node = TupleSeries([x_node, y_node], dim_name="time")
 out_x, out_y = root_node.generate_error((x, y), params)
 
 print((y != out_y).sum(), "elements of y have been modified in (should be 0).")

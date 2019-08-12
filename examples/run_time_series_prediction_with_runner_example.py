@@ -14,8 +14,8 @@ from math import sqrt
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
-from dpemu import array
-from dpemu import filters
+from dpemu.nodes import Array
+from dpemu.filters.time_series import SensorDrift
 from dpemu import runner
 from dpemu import pg_utils
 
@@ -112,11 +112,11 @@ def main():
         {"model": Model, "params_list": [{"seed": 42}]}
     ]
 
-    root_node = array.Array()
+    root_node = Array()
 
-    # root_node.addfilter(filters.GaussianNoise("mean", "std"))
-    root_node.addfilter(filters.SensorDrift("magnitude"))
-    # root_node.addfilter(filters.Gap("prob_break", "prob_recover", "value"))
+    # root_node.addfilter(GaussianNoise("mean", "std"))
+    root_node.addfilter(SensorDrift("magnitude"))
+    # root_node.addfilter(Gap("prob_break", "prob_recover", "value"))
 
     # err_params_list = [{"mean": a, "std": b} for (a, b) in [(0, 0), (0, 15), (0, 20)]]
     err_params_list = [{"magnitude": a} for a in [0, 2, 10]]

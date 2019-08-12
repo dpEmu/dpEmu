@@ -2,9 +2,8 @@ import sys
 import cv2
 import matplotlib.pyplot as plt
 
-
-from dpemu.problemgenerator import array
-from dpemu.problemgenerator import filters
+from dpemu.nodes import Array
+from dpemu.filters.image import Rotation
 
 
 def main():
@@ -12,8 +11,8 @@ def main():
     data = cv2.imread("demo/landscape.png")
     print(type(data))
     print(data.shape)
-    root_node = array.Array()
-    root_node.addfilter(filters.Rotation("angle"))
+    root_node = Array()
+    root_node.addfilter(Rotation("angle"))
     result = root_node.generate_error(data, {'angle': angle})
     # filtered_img = Image.fromarray(result)
     # filtered_img.show()

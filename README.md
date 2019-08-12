@@ -40,7 +40,7 @@ The aim of the project is to build a Python library and an UNIX tool for emulati
 
 ## User Manual
 
-* [User manual](https://dpemu.readthedocs.io/en/latest/usage.html)
+* [User manual](https://dpemu.readthedocs.io/en/latest/index.html#user-manual)
 
 ## Contributing
 

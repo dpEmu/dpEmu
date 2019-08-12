@@ -5,8 +5,8 @@ import numpy as np
 
 from dpemu import runner
 from dpemu.plotting_utils import visualize_scores, print_results_by_model, visualize_best_model_params
-from dpemu.problemgenerator.array import Array
-from dpemu.problemgenerator.filters import GaussianNoise
+from dpemu.nodes import Array
+from dpemu.filters.common import GaussianNoise
 
 
 class Preprocessor:

@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-from dpemu.problemgenerator import array
-from dpemu.problemgenerator import filters
+from dpemu.nodes import Array
+from dpemu.filters.image import Saturation
 
 
 def main():
@@ -14,8 +14,8 @@ def main():
     # Use the vectorized version
     img = Image.open(img_path)
     data = np.array(img)
-    x_node = array.Array()
-    s = filters.SaturationVectorized("tar", "rat", "range")
+    x_node = Array()
+    s = Saturation("tar", "rat", "range")
     x_node.addfilter(s)
     start = time.time()
     result = x_node.generate_error(data, d)

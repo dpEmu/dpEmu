@@ -1,7 +1,7 @@
 Installing dpEmu
 ================
 
-To install dpEmu on your computer without the ability of running examples, execute the following commands in your terminal:
+To install dpEmu on your computer, execute the following commands in your terminal. (This installation option will not allow you to run examples):
 
 .. code-block:: bash
 

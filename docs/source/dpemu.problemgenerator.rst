@@ -12,14 +12,6 @@ dpemu.problemgenerator.array module
    :undoc-members:
    :show-inheritance:
 
-dpemu.problemgenerator.filters module
--------------------------------------
-
-.. automodule:: dpemu.problemgenerator.filters
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dpemu.problemgenerator.node module
 ----------------------------------
 

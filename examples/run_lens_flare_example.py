@@ -2,8 +2,8 @@ import numpy as np
 
 from PIL import Image
 
-from dpemu.problemgenerator import array
-from dpemu.problemgenerator import filters
+from dpemu.nodes import Array
+from dpemu.filters.image import LensFlare
 
 
 def img_to_pixel_data(img):
@@ -18,8 +18,8 @@ def img_to_pixel_data(img):
 def main():
     img = Image.open("demo/yellow_circle.jpg")
     data = img_to_pixel_data(img)
-    root_node = array.Array()
-    root_node.addfilter(filters.LensFlare())
+    root_node = Array()
+    root_node.addfilter(LensFlare())
     result = root_node.generate_error(data, {})
     filtered_img = Image.fromarray(result.astype('uint8'), 'RGB')
     filtered_img.show()

@@ -7,7 +7,7 @@ import pandas as pd
 from graphviz import Digraph
 from matplotlib.colors import LinearSegmentedColormap
 
-from .problemgenerator.filters import Filter
+from .filters import Filter
 from .utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
 pd.set_option("display.expand_frame_repr", False)

@@ -11,9 +11,8 @@ from dpemu import runner
 from dpemu.dataset_utils import load_coco_val_2017
 from dpemu.ml_utils import run_ml_module_using_cli
 from dpemu.plotting_utils import print_results_by_model, visualize_scores
-from dpemu.problemgenerator.array import Array
-from dpemu.problemgenerator.filters import JPEG_Compression
-from dpemu.problemgenerator.series import Series
+from dpemu.nodes import Array, Series
+from dpemu.filters.image import JPEG_Compression
 
 
 class Preprocessor:

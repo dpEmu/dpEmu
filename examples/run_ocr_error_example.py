@@ -1,8 +1,8 @@
 from time import time
 
 import numpy as np
-from dpemu import array
-from dpemu import filters
+from dpemu.nodes import Array
+from dpemu.filters.text import OCRError
 from dpemu import pg_utils
 
 data = np.array(["shambler", "shub-niggurath", "ogre", "difficulty: nightmare",
@@ -10,11 +10,11 @@ data = np.array(["shambler", "shub-niggurath", "ogre", "difficulty: nightmare",
 
 t0 = time()
 for i in range(20000):
-    root_node = array.Array()
+    root_node = Array()
     params = pg_utils.load_ocr_error_params("config/example_text_error_params.json")
     normalized_params = pg_utils.normalize_ocr_error_params(params)
 
-    root_node.addfilter(filters.OCRError("params", "p"))
+    root_node.addfilter(OCRError("params", "p"))
     out = root_node.generate_error(data, {'params': normalized_params, 'p': .5})
 
 print("Time:", time() - t0)

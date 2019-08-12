@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from dpemu.problemgenerator import array
-from dpemu.problemgenerator import filters
+from dpemu.nodes import Array
+from dpemu.filters.image import Rain
 
 
 def main():
@@ -13,9 +13,9 @@ def main():
     data = np.array(img)
     # data = plt.imread(img_path)
 
-    root_node = array.Array()
-    # root_node.addfilter(filters.Snow("p", "flake_alpha", "storm_alpha"))
-    root_node.addfilter(filters.FastRain("p", "r"))
+    root_node = Array()
+    # root_node.addfilter(Snow("p", "flake_alpha", "storm_alpha"))
+    root_node.addfilter(Rain("p", "r"))
     before = time.time()
     result = root_node.generate_error(data, {'p': .01, 'r': 255})
     end = time.time()

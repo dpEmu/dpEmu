@@ -1,8 +1,8 @@
 import time
 import matplotlib.pyplot as plt
 
-from dpemu.problemgenerator import array
-from dpemu.problemgenerator import filters
+from dpemu.nodes import Array
+from dpemu.filters.image import Brightness
 
 
 def main():
@@ -11,8 +11,8 @@ def main():
 
     # Use the vectorized version
     data = plt.imread(img_path)
-    x_node = array.Array()
-    b = filters.BrightnessVectorized("tar", "rat", "range")
+    x_node = Array()
+    b = Brightness("tar", "rat", "range")
     x_node.addfilter(b)
     start = time.time()
     result = x_node.generate_error(data, d)

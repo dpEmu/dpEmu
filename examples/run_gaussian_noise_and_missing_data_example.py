@@ -2,9 +2,8 @@ import sys
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
-from dpemu.nodes import Array
-from dpemu.nodes import TupleSeries
-from dpemu.problemgenerator import filters
+from dpemu.nodes import Array, TupleSeries
+from dpemu.filters.common import GaussianNoise, Missing
 
 std = float(sys.argv[1])
 prob = float(sys.argv[2])
@@ -16,11 +15,11 @@ x = np.load(x_file)[:n].reshape((n, 28, 28))
 y = np.load(y_file)[:n]
 
 x_node = Array()
-x_node.addfilter(filters.GaussianNoise("mean", "std"))
-x_node.addfilter(filters.Missing("prob"))
+x_node.addfilter(GaussianNoise("mean", "std"))
+x_node.addfilter(Missing("prob", "missing_value"))
 y_node = Array()
 root_node = TupleSeries([x_node, y_node])
-error_params = {"mean": 0, "std": std, "prob": prob}
+error_params = {"mean": 0, "std": std, "prob": prob, "missing_value": np.nan}
 out_x, out_y = root_node.generate_error((x, y), error_params)
 
 print((y != out_y).sum(), "elements of y have been modified in (should be 0).")

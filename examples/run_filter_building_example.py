@@ -1,8 +1,8 @@
 import numpy as np
 from PIL import Image
 
-from dpemu import array
-from dpemu import filters
+from dpemu.nodes import Array
+from dpemu.filters import Constant, Identity, Subtraction
 
 # generate image with bitwise operations
 data = []
@@ -17,10 +17,10 @@ img_original = Image.fromarray(data, "RGB")
 img_original.show()
 
 # generate error
-root_node = array.Array()
+root_node = Array()
 # add filter which subtracts each pixel value from 255
-root_node.addfilter(filters.Subtraction("const", "identity"))
-out = root_node.generate_error(data, {'c': 255, 'const': filters.Constant("c"), 'identity': filters.Identity()})
+root_node.addfilter(Subtraction("const", "identity"))
+out = root_node.generate_error(data, {'c': 255, 'const': Constant("c"), 'identity': Identity()})
 
 # show modified image
 img_modified = Image.fromarray(out, "RGB")

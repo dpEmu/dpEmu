@@ -2,13 +2,15 @@ import cv2
 
 import numpy as np
 
-from dpemu import array
-from dpemu import filters
+from dpemu.nodes import Array
+from dpemu.filters import Addition, Constant, Division
+from dpemu.filters.image import Rotation
+from dpemu.filters.common import ModifyAsDataType
 
 
 def main():
     data = cv2.imread("demo/landscape.png")
-    x_node = array.Array()
+    x_node = Array()
 
     # Some filters, e.g. Rotation, expect the data to have a specific data type, e.g. uint8.
     #
@@ -18,14 +20,14 @@ def main():
     # cv2's rotation requires data to be uint8, but summing them needs datatype with larger
     # precision, and thus type conversions are required.
 
-    const = filters.Constant("c")
-    rot1 = filters.Rotation("deg1")
-    mod1 = filters.ModifyAsDataType("rotation_dtype", "rot1")
-    rot2 = filters.Rotation("deg2")
-    mod2 = filters.ModifyAsDataType("rotation_dtype", "rot2")
-    add = filters.Addition("mod1", "mod2")
-    avg = filters.Division("add", "const")
-    x_node.addfilter(filters.ModifyAsDataType("avg_dtype", "avg"))
+    const = Constant("c")
+    rot1 = Rotation("deg1")
+    mod1 = ModifyAsDataType("rotation_dtype", "rot1")
+    rot2 = Rotation("deg2")
+    mod2 = ModifyAsDataType("rotation_dtype", "rot2")
+    add = Addition("mod1", "mod2")
+    avg = Division("add", "const")
+    x_node.addfilter(ModifyAsDataType("avg_dtype", "avg"))
 
     params = {}
     params['c'] = 2

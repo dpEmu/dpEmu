@@ -13,7 +13,7 @@ Official instructions
 Example jobs on Kale and Ukko2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Running  text classification example on Kale or Ukko2
+Running text classification example on Kale or Ukko2
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: bash
@@ -29,7 +29,7 @@ Create the batch file for the job:
 
 .. code-block:: bash
 
-    nano batch-submit.job
+    nano text_classification.job
 
 Then write the following content to it and save the file. **Remember to put your username in place of <username>**:
 
@@ -43,43 +43,34 @@ Then write the following content to it and save the file. **Remember to put your
     #SBATCH --mem=128G
     #SBATCH -t 20:00
 
-    srun python3 examples/run_text_classification_example.py all 20
+    srun python3 examples/run_text_classification_example.py all 10
     srun sleep 60
 
 Submit the batch job to be run:
 
 .. code-block:: bash
 
-    sbatch batch-submit.job
+    sbatch text_classification.job
 
-You can view the execution of the code as if it was executed on your home terminal:
+You can view the execution of the code as if it was executed on your home terminal with:
 
 .. code-block:: bash
 
     tail -f text_classification_results.txt
 
-The example examples/run_text_classification_example will save images to the dpEmu/out directory.
+The resulting images will saved to the dpEmu/out directory.
 
 Running object detection example on Kale or Ukko2
 """""""""""""""""""""""""""""""""""""""""""""""""
 
-Remember to clone the relevant repositorios and run the required scripts, if you have not already: 
+First remember to load the required modules and install the object detection example requirements while in the virtual enviroment, if not done already:
 :ref:`object_detection_requirements`.
-
-.. code-block:: bash
-
-    module load CUDA/10.0.130
-    module load cuDNN/7.5.0.56-CUDA-10.0.130
-    module load Python/3.7.0-intel-2018b
-
-    cd $WRKDIR/dpEmu
-    source venv/bin/activate
 
 Create the batch file for the job:
 
 .. code-block:: bash
 
-    nano batch-submit.job
+    nano object_detection.job
 
 Then write the following content to it and save the file. **Remember to put your username in place of <username>**:
 
@@ -102,7 +93,7 @@ Submit the batch job to be run:
 
 .. code-block:: bash
 
-    sbatch batch-submit.job
+    sbatch object_detection.job
 
 You can view the execution of the code as if it was executed on your home terminal:
 

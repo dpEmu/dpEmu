@@ -179,7 +179,7 @@ def test_gaussian_blur_works_for_different_shapes():
     blur.set_params({"std": 5})
     blur.apply(dat1, rs, named_dims={})
     for j in range(3):
-        blur.apply(dat2[:,:,j], rs, named_dims={})
+        blur.apply(dat2[:, :, j], rs, named_dims={})
     assert np.array_equal(dat1, dat2)
 
 
@@ -195,7 +195,7 @@ def test_resolution():
         ry = (y // scale) * scale
         for x in range(width):
             rx = (x // scale) * scale
-            dat1[y,x,:] = dat1[ry,rx,:]
+            dat1[y, x, :] = dat1[ry, rx, :]
 
     res = filters.ResolutionVectorized("scale")
     res.set_params({"scale": scale})

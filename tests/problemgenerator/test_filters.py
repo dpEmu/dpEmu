@@ -170,6 +170,40 @@ def test_blur_iterates_correctly():
     assert np.array_equal(dat1, dat2)
 
 
+def test_gaussian_blur_works_for_different_shapes():
+    rs = np.random.RandomState(seed=42)
+    dat1 = rs.randint(low=0, high=255, size=(10, 10, 3))
+    dat2 = dat1.copy()
+
+    blur = filters.Blur_Gaussian("std")
+    blur.set_params({"std": 5})
+    blur.apply(dat1, rs, named_dims={})
+    for j in range(3):
+        blur.apply(dat2[:,:,j], rs, named_dims={})
+    assert np.array_equal(dat1, dat2)
+
+
+def test_resolution():
+    scale = 3
+    height = 50
+    width = 50
+    rs = np.random.RandomState(seed=42)
+    dat1 = rs.randint(low=0, high=255, size=(height, width, 3))
+    dat2 = dat1.copy()
+
+    for y in range(height):
+        ry = (y // scale) * scale
+        for x in range(width):
+            rx = (x // scale) * scale
+            dat1[y,x,:] = dat1[ry,rx,:]
+
+    res = filters.ResolutionVectorized("scale")
+    res.set_params({"scale": scale})
+    res.apply(dat2, rs, named_dims={})
+
+    assert np.array_equal(dat1, dat2)
+
+
 def test_jpeg_compression():
     rs = np.random.RandomState(seed=42)
     dat = rs.randint(low=0, high=255, size=(50, 50))

@@ -19,17 +19,17 @@ Getting Started
 .. toctree::
     :maxdepth: 1
 
-    installation
     tutorials/Error_Generation_Basics
     tutorials/Using_Runner_Basics
 
 
-Manual
-^^^^^^
+User Manual
+^^^^^^^^^^^
 
 .. toctree::
     :maxdepth: 1
 
+    installation
     usage
     cluster_installation
     cluster_instructions_examples

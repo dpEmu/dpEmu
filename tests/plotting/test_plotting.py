@@ -1,7 +1,9 @@
 import re
+import numpy as np
 from dpemu.nodes import Array
 from dpemu.nodes import Series, TupleSeries
-from dpemu.problemgenerator import filters
+from dpemu.filters import Addition, Constant
+from dpemu.filters.common import Missing
 from dpemu import plotting_utils
 
 
@@ -37,8 +39,9 @@ def test_visualizing_tuple_series_and_two_array_nodes():
 
 def test_visualizing_array_node_with_filter():
     x_node = Array()
-    x_node.addfilter(filters.Missing("p"))
-    path = plotting_utils.visualize_error_generator(x_node.get_parametrized_tree({'p': 0.5}), False)
+    x_node.addfilter(Missing("p", "missing_value"))
+    tree = x_node.get_parametrized_tree({'p': 0.5, 'missing_value': np.nan})
+    path = plotting_utils.visualize_error_generator(tree, False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'2.*Missing.*probability: 0').search(data)
@@ -47,8 +50,8 @@ def test_visualizing_array_node_with_filter():
 
 def test_visualizing_array_node_with_complex_filter():
     x_node = Array()
-    addition = filters.Addition("f1", "f2")
-    const = filters.Constant("c")
+    addition = Addition("f1", "f2")
+    const = Constant("c")
     x_node.addfilter(addition)
     path = plotting_utils.visualize_error_generator(
         x_node.get_parametrized_tree({'f1': const, 'f2': const, 'c': 5}), False)

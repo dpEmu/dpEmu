@@ -33,7 +33,6 @@ Manual
     cluster_installation
     cluster_instructions_examples
     license
-    help
 
 
 Indices and tables

@@ -16,6 +16,8 @@ Example jobs on Kale and Ukko2
 Running text classification example on Kale or Ukko2
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 
+The following commands need to be run every time you log in to one of the clusters:
+
 .. code-block:: bash
 
     module load Python/3.7.0-intel-2018b

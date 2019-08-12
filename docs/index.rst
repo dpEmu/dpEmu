@@ -21,6 +21,7 @@ Getting Started
 
     installation
     tutorials/Error_Generation_Basics
+    tutorials/Using_Runner_Basics
 
 
 Manual

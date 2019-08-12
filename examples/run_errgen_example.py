@@ -1,7 +1,6 @@
 import numpy as np
-from dpemu import array
-from dpemu import filters
-from dpemu import series
+from dpemu.nodes import Array, Series
+from dpemu.filters.common import Missing
 
 # To load data from a csv file, uncomment the rows below and
 # give the data file name as the first command line argument.
@@ -17,18 +16,18 @@ observations, sensors = 100, 10
 data = np.random.randn(observations, sensors)
 
 # Create an Array object to represent the battery of 10 sensors
-sensor_array = array.Array()
+sensor_array = Array()
 
 # Add a Missing filters to randomly transform elements to Nan
 # (NaN = "not a number", i.e. missing or invalid data)
-sensor_array.addfilter(filters.Missing("prob"))
+sensor_array.addfilter(Missing("prob", "val"))
 
 # Create a series to represent the 100 data points
-root_node = series.Series(sensor_array)
+root_node = Series(sensor_array)
 
 # The data model tree is now complete.
 # Process the data to introduce errors
-output = root_node.generate_error(data, {'prob': .3})
+output = root_node.generate_error(data, {'prob': .3, 'val': np.nan})
 
 # Sanity check: does the shape of the output equal that of the input?
 print("input data has shape", data.shape)

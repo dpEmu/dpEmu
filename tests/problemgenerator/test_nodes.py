@@ -1,15 +1,15 @@
 import numpy as np
 
-from dpemu.nodes import Array
-from dpemu.nodes import Series, TupleSeries
-from dpemu.problemgenerator import filters
+from dpemu.nodes import Array, Series, TupleSeries
+from dpemu.filters.common import Missing
+from dpemu.filters.time_series import SensorDrift
 
 
 def test_array_works_with_regular_arrays():
     a = [0.]
     x_node = Array()
-    x_node.addfilter(filters.Missing("prob"))
-    params = {"prob": 1.}
+    x_node.addfilter(Missing("prob", "m_val"))
+    params = {"prob": 1., "m_val": np.nan}
     out = x_node.generate_error(a, params)
     assert np.isnan(out[0])
 
@@ -17,9 +17,9 @@ def test_array_works_with_regular_arrays():
 def test_series_and_array_work_with_regular_arrays():
     a = [0.]
     x_node = Array()
-    x_node.addfilter(filters.Missing("prob"))
+    x_node.addfilter(Missing("prob", "m_val"))
     series_node = Series(x_node)
-    params = {"prob": 1.}
+    params = {"prob": 1., "m_val": np.nan}
     out = series_node.generate_error(a, params)
     assert np.isnan(out[0])
 
@@ -27,8 +27,8 @@ def test_series_and_array_work_with_regular_arrays():
 def test_array_works_with_numpy_arrays():
     a = np.array([0.])
     x_node = Array()
-    x_node.addfilter(filters.Missing("prob"))
-    params = {"prob": 1.}
+    x_node.addfilter(Missing("prob", "m_val"))
+    params = {"prob": 1., "m_val": np.nan}
     out = x_node.generate_error(a, params)
     assert np.isnan(out[0])
 
@@ -38,7 +38,7 @@ def test_tuple_series_works_with_numpy_arrays():
     b = np.array([[1, 1, 1]])
     data = (a, b)
     x_node = Array()
-    x_node.addfilter(filters.SensorDrift("a"))
+    x_node.addfilter(SensorDrift("a"))
     y_node = Array()
     root_node = TupleSeries([x_node, y_node])
     res = root_node.generate_error(data, {'a': 1})

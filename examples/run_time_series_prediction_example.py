@@ -15,8 +15,8 @@ from math import sqrt
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
-from dpemu import array
-from dpemu import filters
+from dpemu.nodes import Array
+from dpemu.filters.time_series import SensorDrift
 from dpemu import pg_utils
 
 
@@ -97,7 +97,7 @@ def main():
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
     # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
     y = data.values.astype(float)
-    root_node = array.Array()
+    root_node = Array()
 
     def strange(a, _):
         if a <= 500 and a >= 400:
@@ -114,10 +114,10 @@ def main():
     params["p_recover"] = .5
     params["missing_value"] = np.nan
 
-    # root_node.addfilter(filters.StrangeBehaviour("strange"))
-    root_node.addfilter(filters.SensorDrift("magnitude"))
-    # root_node.addfilter(filters.Gap("p_break", "p_recover", "missing_value"))
-    # root_node.addfilter(filters.GaussianNoise("mean", "std"))
+    # root_node.addfilter(StrangeBehaviour("strange"))
+    root_node.addfilter(SensorDrift("magnitude"))
+    # root_node.addfilter(Gap("p_break", "p_recover", "missing_value"))
+    # root_node.addfilter(GaussianNoise("mean", "std"))
 
     output = root_node.generate_error(y, params)
     # print("Changed\n", output)

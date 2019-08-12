@@ -2,8 +2,8 @@ import time
 
 # from PIL import Image
 import matplotlib.pyplot as plt
-from dpemu.problemgenerator import array
-from dpemu.problemgenerator import filters
+from dpemu.nodes import Array
+from dpemu.filters.image import Resolution
 
 
 def main():
@@ -14,8 +14,8 @@ def main():
     # img2 = Image.open("demo/landscape.png")
     # data2 = np.array(img2)
     data = plt.imread("demo/landscape.png")
-    x_node = array.Array()
-    r = filters.ResolutionVectorized("resolution")
+    x_node = Array()
+    r = Resolution("resolution")
     x_node.addfilter(r)
     start = time.time()
     result = x_node.generate_error(data, d)

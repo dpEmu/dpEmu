@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-from dpemu.problemgenerator import array
-from dpemu.problemgenerator import filters
+from dpemu.nodes import Array
+from dpemu.filters.image import Brightness
 
 
 def main():
@@ -14,8 +14,8 @@ def main():
     # Use the vectorized version
     img2 = Image.open(img_path)
     data = np.array(img2)
-    x_node = array.Array()
-    b2 = filters.BrightnessVectorized("tar", "rat", "range")
+    x_node = Array()
+    b2 = Brightness("tar", "rat", "range")
     x_node.addfilter(b2)
     start = time.time()
     result = x_node.generate_error(data, d)

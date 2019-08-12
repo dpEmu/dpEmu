@@ -16,7 +16,7 @@ from dpemu.ml_utils import reduce_dimensions
 from dpemu.nodes import Array
 from dpemu.plotting_utils import visualize_best_model_params, visualize_scores, visualize_classes, \
     print_results_by_model, visualize_interactive_plot
-from dpemu.problemgenerator.filters import GaussianNoise, Clip
+from dpemu.filters.common import GaussianNoise, Clip
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)

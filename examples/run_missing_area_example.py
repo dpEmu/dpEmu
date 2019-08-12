@@ -1,7 +1,7 @@
 import numpy as np
 
-from dpemu import array
-from dpemu import filters
+from dpemu.nodes import Array
+from dpemu.filters.text import MissingArea
 from dpemu import radius_generators
 
 data = np.array(["Lorem ipsum dolor sit amet,\n" +
@@ -22,8 +22,8 @@ data = np.array(["Lorem ipsum dolor sit amet,\n" +
                  "Hello\n" +
                  "Hello"])
 
-root_node = array.Array()
-root_node.addfilter(filters.MissingArea("p", "radius_gen", "value"))
+root_node = Array()
+root_node.addfilter(MissingArea("p", "radius_gen", "value"))
 
 params = {}
 params['value'] = " "

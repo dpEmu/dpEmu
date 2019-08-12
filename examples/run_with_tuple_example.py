@@ -1,7 +1,6 @@
 import numpy as np
-from dpemu import array
-from dpemu import filters
-from dpemu import series
+from dpemu.filters.common import Missing
+from dpemu.nodes import Array, TupleSeries
 
 # Assume our data is a tuple of the form (x, y) where x has
 # shape (100, 10) and y has shape (100,). We can think of each
@@ -13,17 +12,17 @@ y = np.random.rand(100, 1)
 data = (x, y)
 
 # Build a data model tree.
-x_node = array.Array()
-y_node = array.Array()
-root_node = series.TupleSeries([x_node, y_node])
+x_node = Array()
+y_node = Array()
+root_node = TupleSeries([x_node, y_node])
 
 # Suppose we want to introduce NaN values (i.e. missing data)
 # to y only (thus keeping x intact).
 probability = .3
-y_node.addfilter(filters.Missing("p"))
+y_node.addfilter(Missing("p", "missing_val"))
 
 # Feed the data to the root node.
-output = root_node.generate_error(data, {"p": probability})
+output = root_node.generate_error(data, {'p': probability, 'missing_val': np.nan})
 
 print("Output type (should be tuple):", type(output))
 print("Output length (should be 2):", len(output))

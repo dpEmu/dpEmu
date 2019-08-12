@@ -10,10 +10,10 @@ from numpy.random import RandomState
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
-from dpemu.nodes import Array
 from dpemu import runner
 from dpemu.dataset_utils import load_digits_, load_mnist, load_fashion
 from dpemu.ml_utils import reduce_dimensions
+from dpemu.nodes import Array
 from dpemu.plotting_utils import visualize_best_model_params, visualize_scores, visualize_classes, \
     print_results_by_model, visualize_interactive_plot
 from dpemu.problemgenerator.filters import GaussianNoise, Clip
@@ -26,7 +26,7 @@ class Preprocessor:
     def __init__(self):
         self.random_state = RandomState(42)
 
-    def run(self, _1, data, _2):
+    def run(self, _, data, params):
         reduced_data = reduce_dimensions(data, self.random_state)
         return None, reduced_data, {"reduced_data": reduced_data}
 
@@ -37,15 +37,12 @@ class AbstractModel(ABC):
         self.random_state = RandomState(42)
 
     @abstractmethod
-    def get_fitted_model(self, data, model_params, n_classes):
+    def get_fitted_model(self, data, params):
         pass
 
-    def run(self, _, data, model_params):
-        labels = model_params["labels"]
-
-        n_classes = len(np.unique(labels))
-        fitted_model = self.get_fitted_model(data, model_params, n_classes)
-
+    def run(self, _, data, params):
+        labels = params["labels"]
+        fitted_model = self.get_fitted_model(data, params)
         return {
             "AMI": round(adjusted_mutual_info_score(labels, fitted_model.labels_, average_method="arithmetic"), 3),
             "ARI": round(adjusted_rand_score(labels, fitted_model.labels_), 3),
@@ -57,7 +54,9 @@ class KMeansModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, data, model_params, n_classes):
+    def get_fitted_model(self, data, params):
+        labels = params["labels"]
+        n_classes = len(np.unique(labels))
         return KMeans(n_clusters=n_classes, random_state=self.random_state).fit(data)
 
 
@@ -66,7 +65,9 @@ class AgglomerativeModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, data, model_params, n_classes):
+    def get_fitted_model(self, data, params):
+        labels = params["labels"]
+        n_classes = len(np.unique(labels))
         return AgglomerativeClustering(n_clusters=n_classes).fit(data)
 
 
@@ -75,10 +76,10 @@ class HDBSCANModel(AbstractModel):
     def __init__(self):
         super().__init__()
 
-    def get_fitted_model(self, data, model_params, n_classes):
+    def get_fitted_model(self, data, params):
         return HDBSCAN(
-            min_samples=model_params["min_samples"],
-            min_cluster_size=model_params["min_cluster_size"]
+            min_samples=params["min_samples"],
+            min_cluster_size=params["min_cluster_size"]
         ).fit(data)
 
 
@@ -172,7 +173,7 @@ def main(argv):
         use_interactive_mode=use_interactive_mode
     )
 
-    print_results_by_model(df, ["labels", "reduced_data"])
+    print_results_by_model(df, ["min_val", "max_val", "labels", "reduced_data"])
     visualize(df, label_names, dataset_name, data, use_interactive_mode)
 
 

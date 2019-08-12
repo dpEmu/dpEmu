@@ -6,7 +6,7 @@ from dpemu.filters import Constant, Addition, Subtraction, Multiplication, Divis
 from dpemu.filters import Min, Max, Difference, Modulo, And, Or, Xor
 from dpemu.filters.common import Missing, GaussianNoise, StrangeBehaviour, GaussianNoiseTimeDependent, Clip
 from dpemu.filters.common import ModifyAsDataType, ApplyWithProbability
-from dpemu.filters.image import Rain, Snow, StainArea, Blur, JPEG_Compression
+from dpemu.filters.image import Rain, Snow, StainArea, Blur, JPEG_Compression, BlurGaussian, Resolution
 from dpemu.filters.text import Uppercase, OCRError, MissingArea
 from dpemu.filters.time_series import Gap, SensorDrift
 from dpemu import radius_generators
@@ -181,7 +181,7 @@ def test_gaussian_blur_works_for_different_shapes():
     dat1 = rs.randint(low=0, high=255, size=(10, 10, 3))
     dat2 = dat1.copy()
 
-    blur = filters.Blur_Gaussian("std")
+    blur = BlurGaussian("std")
     blur.set_params({"std": 5})
     blur.apply(dat1, rs, named_dims={})
     for j in range(3):
@@ -203,7 +203,7 @@ def test_resolution():
             rx = (x // scale) * scale
             dat1[y, x, :] = dat1[ry, rx, :]
 
-    res = filters.ResolutionVectorized("scale")
+    res = Resolution("scale")
     res.set_params({"scale": scale})
     res.apply(dat2, rs, named_dims={})
 

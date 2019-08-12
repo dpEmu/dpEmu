@@ -89,7 +89,7 @@ Then write the following content to it and save the file. **Remember to put your
     srun python3 examples/run_object_detection_example.py
     srun sleep 60
 
-To speed up the job on Kale by using the latest GPUs, add the following line to the batch file:
+Running this example can take a lot of time. You could try to disable some of the slowest models i.e. FasterRCNN and RetinaNet. To further speed up the job on Kale, by using the latest GPUs, add the following line to the batch file:
 
 .. code-block:: bash
 

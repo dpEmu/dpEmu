@@ -42,8 +42,8 @@ Then write the following content to it and save the file. **Remember to put your
     #SBATCH --workdir=/wrk/users/<username>/dpEmu/
     #SBATCH -o text_classification_results.txt
     #SBATCH -c 8
-    #SBATCH --mem=128G
-    #SBATCH -t 20:00
+    #SBATCH --mem=64G
+    #SBATCH -t 10:00
 
     srun python3 examples/run_text_classification_example.py all 10
     srun sleep 60

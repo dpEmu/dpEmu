@@ -106,7 +106,7 @@ def get_err_params_list(data):
     # max_val = np.amax(data)
     # std_steps = np.linspace(0, max_val, num=8)
     # err_params_list = [{"mean": 0, "std": std, "min_val": min_val, "max_val": max_val} for std in std_steps]
-    p_steps = np.linspace(0, .7, num=8)
+    p_steps = np.linspace(0, .5, num=6)
     err_params_list = [{"probability": p, "missing_value_id": 0} for p in p_steps]
     return err_params_list
 

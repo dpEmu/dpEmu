@@ -21,6 +21,7 @@ Getting Started
 
     tutorials/Error_Generation_Basics
     tutorials/Using_Runner_Advanced_I
+    tutorials/Using_Runner_Advanced_II
 
 
 User Manual

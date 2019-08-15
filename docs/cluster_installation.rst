@@ -15,29 +15,12 @@ Or:
 
     ssh kale.grid.helsinki.fi
 
-To install dpEmu without the ability of running examples, execute the following commands in remote terminal:
+To install dpEmu without the ability of running all of the examples, execute the following commands in remote terminal:
 
 .. code-block:: bash
 
     module load Python/3.7.0-intel-2018b
-
-    cd $WRKDIR
-    git clone https://github.com/dpEmu/dpEmu.git
-    cd dpEmu
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -U pip setuptools wheel --cache-dir $TMPDIR
-    pip install -r requirements/base.txt --cache-dir $TMPDIR (pip install -r requirements/with_examples.txt --cache-dir $TMPDIR)
-    pip install -e "git+https://github.com/cocodataset/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI" --cache-dir $TMPDIR
-    pip install -e . --cache-dir $TMPDIR
-
-:redtext:`OR`.
-
-**Or**, in order to run the examples, you need to execute the following commands:
-
-.. code-block:: bash
-
-    module load Python/3.7.0-intel-2018b
+    export SCIKIT_LEARN_DATA=$TMPDIR
 
     cd $WRKDIR
     git clone https://github.com/dpEmu/dpEmu.git
@@ -46,24 +29,27 @@ To install dpEmu without the ability of running examples, execute the following 
     source venv/bin/activate
     pip install -U pip setuptools wheel --cache-dir $TMPDIR
     pip install -r requirements/base.txt --cache-dir $TMPDIR
-    pip install -r requirements/with_examples.txt --cache-dir $TMPDIR
     pip install -e "git+https://github.com/cocodataset/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI" --cache-dir $TMPDIR
     pip install -e . --cache-dir $TMPDIR
+
+In order to run all of the examples, you'll also need to execute the following command:
+
+.. code-block:: bash
+
+    pip install -r requirements/examples.txt --cache-dir $TMPDIR
 
 .. _object_detection_requirements:
 
 Object detection example requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You need to run the following commands, if you want to run the object detection example:
+Further installation steps and a NVIDIA GPU are needed to run the object detection example. Execute the following commands after all of the above:
 
 .. code-block:: bash
 
     module load CUDA/10.0.130
     module load cuDNN/7.5.0.56-CUDA-10.0.130
 
-    cd $WRKDIR/dpEmu
-    source venv/bin/activate
     git clone https://github.com/dpEmu/Detectron.git libs/Detectron
     ./scripts/install_detectron.sh
     git clone https://github.com/dpEmu/darknet.git libs/darknet

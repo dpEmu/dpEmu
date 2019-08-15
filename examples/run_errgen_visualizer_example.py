@@ -1,18 +1,24 @@
-from dpemu.nodes import Array, TupleSeries
-from dpemu.problemgenerator.filters import GaussianNoise, Addition, Missing
-
-# from src.plotting.utils import visualize_error_generator
 from dpemu import plotting_utils
+from dpemu.filters import Addition
+from dpemu.filters.common import GaussianNoise, Missing
+from dpemu.nodes import Array, TupleSeries
+
 
 x_node = Array()
 y_node = Array()
 root_node = TupleSeries([x_node, y_node])
 
-params = {"c": 0.5, "b": 5, "a": 1}
-params['gauss_a'] = GaussianNoise("a", "b")
-params['gauss_b'] = GaussianNoise("b", "a")
+params = {}
+params['probability'] = 0.5
+params['missing_value'] = 0
+params['mean_a'] = 1
+params['mean_b'] = 2
+params['std_a'] = 4
+params['std_b'] = 3
+params['gaussian_a'] = GaussianNoise("mean_a", "std_a")
+params['gaussian_b'] = GaussianNoise("mean_b", "std_b")
 
-x_node.addfilter(Addition('gauss_a', 'gauss_b'))
-y_node.addfilter(Missing(probability_id="c"))
+x_node.addfilter(Addition('gaussian_a', 'gaussian_b'))
+y_node.addfilter(Missing("probability", "missing_value"))
 
 plotting_utils.visualize_error_generator(root_node.get_parametrized_tree(params))

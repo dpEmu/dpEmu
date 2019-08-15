@@ -47,8 +47,8 @@ def split_data(data, labels, n_data):
 
 
 def load_digits_(n_data=1797):
-    mnist = load_digits()
-    data, labels = split_data(mnist["data"], mnist["target"], n_data)
+    digits = load_digits()
+    data, labels = split_data(digits["data"], digits["target"], n_data)
     return data, labels, None, "Digits"
 
 

@@ -46,7 +46,7 @@ The error parameter here is the standard deviation (std) for the Gaussian distri
 
 #### The results of Gaussian Blur filter
 
-![Gaussian Blur](../../demo/Object_detection_case_study/Blur_Gaussian/20190728-011623-029059.png)
+![Gaussian Blur](../../results/object_detection/gaussian_blur_filter/20190807-230431-155708.png)
 
 ### Rain filter
 
@@ -72,7 +72,7 @@ The error parameter here is the probability of rain.
 
 #### The results of Rain filter 
 
-![Rain](../../demo/Object_detection_case_study/Rain/20190727-103514-755422.png)
+![Rain](../../results/object_detection/rain_filter/20190806-173029-848262.png)
 
 ### Snow filter
 
@@ -99,7 +99,7 @@ The error parameter here is the probability of snow. The other parameters had st
 
 #### The results of Snow filter
 
-![Snow](../../demo/Object_detection_case_study/Snow/20190727-162540-567252.png)
+![Snow](../../results/object_detection/snow_filter/20190807-035949-375428.png)
 
 ### JPEG Compression
 
@@ -125,7 +125,7 @@ The error parameter here is the quality of JPEG-compression. The higher the valu
 
 #### The results of JPEG Compression filter
 
-![JPEG Compression](../../demo/Object_detection_case_study/JPEG_Compression/20190727-062156-111953.png)
+![JPEG Compression](../../results/object_detection/jpeg_compression/20190806-035613-845958.png)
 
 ### Resolution
 
@@ -151,4 +151,4 @@ The error parameter makes the resolution k times smaller.
 
 #### The results of Resolution filter
 
-![Resolution](../../demo/Object_detection_case_study/Resolution/20190729-180019-917356.png)
+![Resolution](../../results/object_detection/reduced_resolution/20190808-032055-393558.png)

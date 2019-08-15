@@ -79,20 +79,26 @@ class Rotation(Filter):
     Inherits Filter class.
     """
 
-    def __init__(self, angle_id):
+    def __init__(self, min_angle_id, max_angle_id=None):
         super().__init__()
-        self.angle_id = angle_id
+        self.min_angle_id = min_angle_id
+        if max_angle_id is not None:
+            self.max_angle_id = max_angle_id
+        else:
+            self.max_angle_id = min_angle_id
 
     def set_params(self, params_dict):
-        self.angle = params_dict[self.angle_id]
+        self.min_angle = params_dict[self.min_angle_id]
+        self.max_angle = params_dict[self.max_angle_id]
 
     def apply(self, node_data, random_state, named_dims):
         node_data[...] = imutils.rotate(node_data, self.angle)
 
         # Calculate optimal scale ratio
+        angle = random_state.uniform(self.min_angle, self.max_angle)
         width = node_data.shape[1]
         height = node_data.shape[0]
-        ra = abs(self.angle % 180) * pi/180
+        ra = abs(angle % 180) * pi/180
         ra = min(ra, pi - ra)
         factor = sin(ra) * max(width, height) / min(width, height) + cos(ra)
 

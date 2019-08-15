@@ -92,9 +92,7 @@ class Rotation(Filter):
         self.max_angle = params_dict[self.max_angle_id]
 
     def apply(self, node_data, random_state, named_dims):
-        node_data[...] = imutils.rotate(node_data, self.angle)
-
-        # Calculate optimal scale ratio
+        # Randomize angle, calculate optimal scale ratio
         angle = random_state.uniform(self.min_angle, self.max_angle)
         width = node_data.shape[1]
         height = node_data.shape[0]
@@ -102,6 +100,7 @@ class Rotation(Filter):
         ra = min(ra, pi - ra)
         factor = sin(ra) * max(width, height) / min(width, height) + cos(ra)
 
+        node_data[...] = imutils.rotate(node_data, angle)
         resized = cv2.resize(node_data, None, fx=factor, fy=factor)
         resized_width = resized.shape[1]
         resized_height = resized.shape[0]

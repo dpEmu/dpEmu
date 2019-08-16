@@ -150,15 +150,15 @@ def visualize(df, dataset_name, label_names, test_data, use_interactive_mode):
     visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], [True, True], "p",
                      f"{dataset_name} classification scores with added error")
     visualize_best_model_params(df, "MultinomialNB #1", ["alpha"], ["test_mean_accuracy"], [True], "p",
-                                f"Best parameters for {dataset_name} clustering", x_log=False, y_log=True)
+                                f"Best parameters for {dataset_name} classification", x_log=False, y_log=True)
     visualize_best_model_params(df, "MultinomialNBClean #1", ["alpha"], ["test_mean_accuracy"], [True], "p",
-                                f"Best parameters for {dataset_name} clustering", x_log=False, y_log=True)
+                                f"Best parameters for {dataset_name} classification", x_log=False, y_log=True)
     visualize_best_model_params(df, "LinearSVC #1", ["C"], ["test_mean_accuracy"], [True], "p",
-                                f"Best parameters for {dataset_name} clustering", x_log=False, y_log=True)
+                                f"Best parameters for {dataset_name} classification", x_log=False, y_log=True)
     visualize_best_model_params(df, "LinearSVCClean #1", ["C"], ["test_mean_accuracy"], [True], "p",
-                                f"Best parameters for {dataset_name} clustering", x_log=False, y_log=True)
+                                f"Best parameters for {dataset_name} classification", x_log=False, y_log=True)
     visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels", "tab20",
-                      f"{dataset_name} (n={len(test_data)}) classes with added error")
+                      f"{dataset_name} test set (n={len(test_data)}) classes with added error")
 
     if use_interactive_mode:
         def on_click(element, label, predicted_label):

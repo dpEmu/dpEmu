@@ -158,7 +158,7 @@ def visualize(df, dataset_name, label_names, test_data, use_interactive_mode):
     visualize_best_model_params(df, "LinearSVCClean #1", ["C"], ["test_mean_accuracy"], [True], "p",
                                 f"Best parameters for {dataset_name} classification", x_log=False, y_log=True)
     visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels", "tab20",
-                      f"{dataset_name} test set (n={len(test_data)}) classes with added error")
+                      f"{dataset_name} test set (n={len(test_data)}) true classes with added error")
 
     if use_interactive_mode:
         def on_click(element, label, predicted_label):

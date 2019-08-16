@@ -29,7 +29,7 @@ warnings.simplefilter("ignore", category=NumbaWarning)
 
 class Preprocessor:
     def __init__(self):
-        self.random_state = RandomState(42)
+        self.random_state = RandomState(3)
 
     def run(self, train_data, test_data, _):
         vectorizer = TfidfVectorizer(max_df=0.5, min_df=2, stop_words="english")

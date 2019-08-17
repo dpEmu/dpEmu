@@ -15,11 +15,11 @@ from sklearn.svm import LinearSVC
 
 from dpemu import runner
 from dpemu.dataset_utils import load_newsgroups
+from dpemu.filters.text import MissingArea
 from dpemu.ml_utils import reduce_dimensions_sparse
 from dpemu.plotting_utils import visualize_best_model_params, visualize_scores, visualize_classes, \
     print_results_by_model, visualize_confusion_matrices
 from dpemu.problemgenerator.array import Array
-from dpemu.filters.text import MissingArea
 from dpemu.radius_generators import GaussianRadiusGenerator
 
 warnings.simplefilter("ignore", category=ConvergenceWarning)
@@ -29,7 +29,7 @@ warnings.simplefilter("ignore", category=NumbaWarning)
 
 class Preprocessor:
     def __init__(self):
-        self.random_state = RandomState(3)
+        self.random_state = RandomState(0)
 
     def run(self, train_data, test_data, _):
         vectorizer = TfidfVectorizer(max_df=0.5, min_df=2, stop_words="english")
@@ -107,7 +107,7 @@ def get_err_params_list():
         "missing_value": " "
     } for p in p_steps]
 
-    # p_steps = np.linspace(0, 1, num=11)
+    # p_steps = np.linspace(0, .98, num=8)
     # params = load_ocr_error_params("config/example_text_error_params.json")
     # normalized_params = normalize_ocr_error_params(params)
     # err_params_list = [{
@@ -119,8 +119,8 @@ def get_err_params_list():
 
 
 def get_model_params_dict_list(train_labels, test_labels):
-    alpha_steps = [10 ** i for i in range(-2, 1)]
-    C_steps = [10 ** k for k in range(-2, 1)]
+    alpha_steps = [10 ** i for i in range(-4, 1)]
+    C_steps = [10 ** k for k in range(-3, 2)]
     model_params_base = {"train_labels": train_labels, "test_labels": test_labels}
     return [
         {

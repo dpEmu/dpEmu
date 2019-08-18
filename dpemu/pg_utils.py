@@ -16,11 +16,14 @@ def load_ocr_error_params(path_to_error_params):
 
 
 def normalize_ocr_error_params(params):
-    """Normalises a numerical weights associated with a character's OCR-error likelihoods.
+    """Normalises numerical weights associated with a character's OCR-error likelihoods.
 
     For every character found in the dict, the value associated with it
     is a list containing numerical weights. These weights are normalised
-    so that they sum to 1, and can thus be used as probabilities.
+    so that they sum to 1, and can thus be used as probabilities. Every
+    probability is then attached to the event of a character changing to
+    another character specified in the .json file which was loaded using
+    the load_ocr_error_params function.
 
     Args:
         params (dict): A dict containing character-list pairs.
@@ -28,10 +31,10 @@ def normalize_ocr_error_params(params):
     Returns:
         dict: A dict containing normalised probabilities for every character.
     """
-    return {k: (v[0], normalize_probs(v[1])) for k, v in params.items()}
+    return {k: (v[0], normalize_weights(v[1])) for k, v in params.items()}
 
 
-def normalize_probs(weights):
+def normalize_weights(weights):
     """Normalises a list of numerical values (weights) into probabilities.
 
     Every weight in the list is assigned a probability proportional to its

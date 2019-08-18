@@ -11,7 +11,6 @@ def main():
     img_path = "demo/landscape.png"
     d = {"tar": 1, "rat": 0.55, "range": 255}
 
-    # Use the vectorized version
     img2 = Image.open(img_path)
     data = np.array(img2)
     x_node = Array()

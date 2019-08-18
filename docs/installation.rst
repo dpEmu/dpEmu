@@ -20,7 +20,7 @@ In order to run all of the examples, you'll also need to execute the following c
 
     pip install -r requirements/examples.txt
 
-Additionally, run the following command to be able to locally build the documentation with Sphinx:
+Additionally, run the following command in order to locally build the documentation with Sphinx:
 
 .. code-block:: bash
 

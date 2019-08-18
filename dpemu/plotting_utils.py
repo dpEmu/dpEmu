@@ -71,7 +71,7 @@ def visualize_best_model_params(
         is_higher_score_better (list): A list of booleans for each score type: True means that a higher score
             is better and False means a lower score is better.
         err_param_name (str): The error whose distinct values are going to be used on the x-axis.
-         title (str): The title of the plot.
+        title (str): The title of the plot.
         x_log (bool, optional): A bool telling whether a logarithmic scale should be used on x-axis or not.
             Defaults to False.
         y_log (bool, optional): A bool telling whether a logarithmic scale should be used on y-axis or not.

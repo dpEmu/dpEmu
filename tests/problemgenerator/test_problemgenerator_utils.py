@@ -39,7 +39,7 @@ def test_normalize_ocr_error_params():
 
 
 def test_normalize_probs():
-    s = sum(pg_utils.normalize_probs([10, 15, 67, 87, 90]))
+    s = sum(pg_utils.normalize_weights([10, 15, 67, 87, 90]))
     assert s == approx(1)
 
 

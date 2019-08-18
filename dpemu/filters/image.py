@@ -48,7 +48,11 @@ class Blur(Filter):
 class Resolution(Filter):
     """Makes resolution k times smaller.
 
-    K must be an integer.
+    Resolution is changed with the formula:
+
+    new_image[y][x] = image[k * (y // k)][k * (x // k)] for all y and x,
+
+    where // is Python's integer division. K must be an integer.
 
     Inherits Filter class.
     """
@@ -72,9 +76,14 @@ class Resolution(Filter):
 
 
 class Rotation(Filter):
-    """[summary]
+    """Rotates the filter.
 
-    [extended_summary]
+    If only min_angle is provided, the the image is rotated according to the angle.
+    If both min_angle and max_angle are provided, then the rotation angle is chosen
+    randomly from the uniform distribution Uniform(min_angle, max_angle).
+
+    If the angle is positive, then the image is rotated counterclockwise.
+    Otherwise the image is rotated clockwise.
 
     Inherits Filter class.
     """
@@ -115,8 +124,10 @@ class Brightness(Filter):
 
     tar: 0 if you want to decrease brightness, 1 if you want to increase it.
     rat: scales the brightness change.
-    range: Should have value 1 or 255. RGB values are presented either
-        in the range [0,1] or in the set {0,...,255}.
+    range: Should have value 1 or 255. The value is chosen according to how RGB values are presented in
+    the corresponding NumPy array. Normally the values are either in the range [0,1] or in the set
+    {0,...,255}. If this value is chosen incorrectly, then the filter will produce undesired
+    effects on the image.
 
     Inherits Filter class.
     """
@@ -508,8 +519,10 @@ class Saturation(Filter):
 
     tar: 0 if you want to decrease saturation, 1 if you want to increase it.
     rat: scales the saturation change.
-    range: Should have value 1 or 255. RGB values are presented either
-     in the range [0,1] or in the set {0,...,255}.
+    range: Should have value 1 or 255. The value is chosen according to how RGB values are presented in
+    the corresponding NumPy array. Normally the values are either in the range [0,1] or in the set
+    {0,...,255}. If this value is chosen incorrectly, then the filter will produce undesired
+    effects on the image.
 
     Inherits Filter class.
     """

@@ -83,7 +83,7 @@ class Rotation(Filter):
     randomly from the uniform distribution Uniform(min_angle, max_angle).
 
     If the angle is positive, then the image is rotated counterclockwise.
-    Otherwise the image is rotated clockwise.
+    Otherwise, the image is rotated clockwise.
 
     Inherits Filter class.
     """
@@ -123,7 +123,9 @@ class Brightness(Filter):
     """Increases or decreases brightness in the image.
 
     tar: 0 if you want to decrease brightness, 1 if you want to increase it.
+
     rat: scales the brightness change.
+
     range: Should have value 1 or 255. The value is chosen according to how RGB values are presented in
     the corresponding NumPy array. Normally the values are either in the range [0,1] or in the set
     {0,...,255}. If this value is chosen incorrectly, then the filter will produce undesired
@@ -518,7 +520,9 @@ class Saturation(Filter):
     """Increases or decreases saturation in the image.
 
     tar: 0 if you want to decrease saturation, 1 if you want to increase it.
+
     rat: scales the saturation change.
+
     range: Should have value 1 or 255. The value is chosen according to how RGB values are presented in
     the corresponding NumPy array. Normally the values are either in the range [0,1] or in the set
     {0,...,255}. If this value is chosen incorrectly, then the filter will produce undesired

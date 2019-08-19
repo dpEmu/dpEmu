@@ -12,14 +12,47 @@ from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 from dpemu import runner
 from dpemu.dataset_utils import load_digits_, load_mnist, load_fashion
-from dpemu.filters.common import Missing
+from dpemu.filters.image import Rotation
 from dpemu.ml_utils import reduce_dimensions
 from dpemu.nodes import Array
 from dpemu.plotting_utils import visualize_best_model_params, visualize_scores, visualize_classes, \
     print_results_by_model, visualize_interactive_plot
+from dpemu.problemgenerator.series import Series
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
+
+
+def get_data(argv):
+    if argv[1] == "digits":
+        data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
+    elif argv[1] == "mnist":
+        data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
+    else:
+        data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
+    return data, labels, label_names, dataset_name
+
+
+def get_err_root_node():
+    err_img_node = Array(reshape=(28, 28))
+    err_root_node = Series(err_img_node)
+    # err_img_node.addfilter(GaussianNoise("mean", "std"))
+    # err_img_node.addfilter(Clip("min_val", "max_val"))
+    # err_img_node.addfilter(Missing("probability", "missing_value_id"))
+    err_img_node.addfilter(Rotation("min_angle_id", "max_angle_id"))
+    return err_root_node
+
+
+def get_err_params_list(data):
+    # min_val = np.amin(data)
+    # max_val = np.amax(data)
+    # std_steps = np.linspace(0, max_val, num=8)
+    # err_params_list = [{"mean": 0, "std": std, "min_val": min_val, "max_val": max_val} for std in std_steps]
+    # p_steps = np.linspace(0, .5, num=6)
+    # err_params_list = [{"probability": p, "missing_value_id": 0} for p in p_steps]
+    angle_steps = np.linspace(0, 70, num=8)
+    err_params_list = [{"min_angle_id": -a, "max_angle_id": a} for a in angle_steps]
+    return err_params_list
 
 
 class Preprocessor:
@@ -83,34 +116,6 @@ class HDBSCANModel(AbstractModel):
         ).fit(data)
 
 
-def get_data(argv):
-    if argv[1] == "digits":
-        data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
-    elif argv[1] == "mnist":
-        data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
-    else:
-        data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
-    return data, labels, label_names, dataset_name
-
-
-def get_err_root_node():
-    err_root_node = Array()
-    # err_root_node.addfilter(GaussianNoise("mean", "std"))
-    # err_root_node.addfilter(Clip("min_val", "max_val"))
-    err_root_node.addfilter(Missing("probability", "missing_value_id"))
-    return err_root_node
-
-
-def get_err_params_list(data):
-    # min_val = np.amin(data)
-    # max_val = np.amax(data)
-    # std_steps = np.linspace(0, max_val, num=8)
-    # err_params_list = [{"mean": 0, "std": std, "min_val": min_val, "max_val": max_val} for std in std_steps]
-    p_steps = np.linspace(0, .5, num=6)
-    err_params_list = [{"probability": p, "missing_value_id": 0} for p in p_steps]
-    return err_params_list
-
-
 def get_model_params_dict_list(data, labels):
     n_data = data.shape[0]
     divs = [12, 25, 50]
@@ -133,9 +138,11 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
         score_names=["AMI", "ARI"],
         is_higher_score_better=[True, True],
         # err_param_name="std",
-        err_param_name="probability",
+        # err_param_name="probability",
+        err_param_name="max_angle_id",
         # title=f"{dataset_name} clustering scores with added gaussian noise",
-        title=f"{dataset_name} clustering scores with missing pixels",
+        # title=f"{dataset_name} clustering scores with missing pixels",
+        title=f"{dataset_name} clustering scores with rotation",
     )
     visualize_best_model_params(
         df,
@@ -144,19 +151,22 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
         score_names=["AMI", "ARI"],
         is_higher_score_better=[True, True],
         # err_param_name="std",
-        err_param_name="probability",
+        # err_param_name="probability",
+        err_param_name="max_angle_id",
         title=f"Best parameters for {dataset_name} clustering"
     )
     visualize_classes(
         df,
         label_names,
         # err_param_name="std",
-        err_param_name="probability",
+        # err_param_name="probability",
+        err_param_name="max_angle_id",
         reduced_data_column="reduced_data",
         labels_column="labels",
         cmap="tab10",
         # title=f"{dataset_name} (n={data.shape[0]}) classes with added gaussian noise"
-        title=f"{dataset_name} (n={data.shape[0]}) classes with missing pixels"
+        # title=f"{dataset_name} (n={data.shape[0]}) classes with missing pixels"
+        title=f"{dataset_name} (n={data.shape[0]}) classes with rotation"
     )
 
     if use_interactive_mode:
@@ -174,7 +184,7 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
             fg.show()
 
         # Remember to enable runner's interactive mode
-        visualize_interactive_plot(df, "probability", data, "tab10", "reduced_data", on_click)
+        visualize_interactive_plot(df, "max_angle_id", data, "tab10", "reduced_data", on_click)
 
     plt.show()
 

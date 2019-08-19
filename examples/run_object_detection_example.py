@@ -9,10 +9,38 @@ from numpy.random import RandomState
 
 from dpemu import runner
 from dpemu.dataset_utils import load_coco_val_2017
-from dpemu.ml_utils import run_ml_module_using_cli
-from dpemu.plotting_utils import print_results_by_model, visualize_scores
-from dpemu.nodes import Array, Series
 from dpemu.filters.image import JPEG_Compression
+from dpemu.ml_utils import run_ml_module_using_cli
+from dpemu.nodes import Array, Series
+from dpemu.plotting_utils import print_results_by_model, visualize_scores
+
+
+def get_err_root_node():
+    err_node = Array()
+    err_root_node = Series(err_node)
+    # err_node.addfilter(GaussianNoise("mean", "std"))
+    # err_node.addfilter(Blur_Gaussian("std"))
+    # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
+    # err_node.addfilter(FastRain("probability", "range_id"))
+    # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
+    err_node.addfilter(JPEG_Compression("quality"))
+    # err_node.addfilter(ResolutionVectorized("k"))
+    # err_node.addfilter(Identity())
+    return err_root_node
+
+
+def get_err_params_list():
+    # return [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
+    # return [{"std": std} for std in [i for i in range(0, 4)]]
+    # return [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
+    #                    for p in [10 ** i for i in range(-4, 0)]]
+    # return [{"probability": p, "range_id": 255} for p in [10 ** i for i in range(-4, 0)]]
+    # return [
+    #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
+    #     for p in [10 ** i for i in range(-6, -2)]]
+    return [{"quality": q} for q in [10, 20, 30, 100]]
+    # return [{"k": k} for k in [1, 2, 3, 4]]
+    # return [{}]
 
 
 class Preprocessor:
@@ -117,34 +145,6 @@ class RetinaNetModel(AbstractDetectronModel):
             "retinanet_X-101-64x4d-FPN_1x.yaml.08_34_37.FSXgMpzP/output/train/"
             "coco_2014_train%3Acoco_2014_valminusminival/retinanet/model_final.pkl"
         )
-
-
-def get_err_root_node():
-    err_node = Array()
-    err_root_node = Series(err_node)
-    # err_node.addfilter(GaussianNoise("mean", "std"))
-    # err_node.addfilter(Blur_Gaussian("std"))
-    # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
-    # err_node.addfilter(FastRain("probability", "range_id"))
-    # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
-    err_node.addfilter(JPEG_Compression("quality"))
-    # err_node.addfilter(ResolutionVectorized("k"))
-    # err_node.addfilter(Identity())
-    return err_root_node
-
-
-def get_err_params_list():
-    # return [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
-    # return [{"std": std} for std in [i for i in range(0, 4)]]
-    # return [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
-    #                    for p in [10 ** i for i in range(-4, 0)]]
-    # return [{"probability": p, "range_id": 255} for p in [10 ** i for i in range(-4, 0)]]
-    # return [
-    #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
-    #     for p in [10 ** i for i in range(-6, -2)]]
-    return [{"quality": q} for q in [10, 20, 30, 100]]
-    # return [{"k": k} for k in [1, 2, 3, 4]]
-    # return [{}]
 
 
 def get_model_params_dict_list():

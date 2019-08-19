@@ -27,6 +27,39 @@ warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
 
 
+def get_data(argv):
+    data, labels, label_names, dataset_name = load_newsgroups(argv[1], int(argv[2]))
+    train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=.2,
+                                                                        random_state=RandomState(42))
+    return train_data, test_data, train_labels, test_labels, label_names, dataset_name
+
+
+def get_err_root_node():
+    err_root_node = Array()
+    err_root_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
+    # err_root_node.addfilter(OCRError("normalized_params", "p"))
+    return err_root_node
+
+
+def get_err_params_list():
+    p_steps = np.linspace(0, .28, num=8)
+    err_params_list = [{
+        "p": p,
+        "radius_generator": GaussianRadiusGenerator(0, 1),
+        "missing_value": " "
+    } for p in p_steps]
+
+    # p_steps = np.linspace(0, .98, num=8)
+    # params = load_ocr_error_params("config/example_text_error_params.json")
+    # normalized_params = normalize_ocr_error_params(params)
+    # err_params_list = [{
+    #     "p": p,
+    #     "normalized_params": normalized_params
+    # } for p in p_steps]
+
+    return err_params_list
+
+
 class Preprocessor:
     def __init__(self):
         self.random_state = RandomState(0)
@@ -83,39 +116,6 @@ class LinearSVCModel(AbstractModel):
 
     def get_fitted_model(self, train_data, train_labels, params):
         return LinearSVC(C=params["C"], random_state=self.random_state).fit(train_data, train_labels)
-
-
-def get_data(argv):
-    data, labels, label_names, dataset_name = load_newsgroups(argv[1], int(argv[2]))
-    train_data, test_data, train_labels, test_labels = train_test_split(data, labels, test_size=.2,
-                                                                        random_state=RandomState(42))
-    return train_data, test_data, train_labels, test_labels, label_names, dataset_name
-
-
-def get_err_root_node():
-    err_root_node = Array()
-    err_root_node.addfilter(MissingArea("p", "radius_generator", "missing_value"))
-    # err_root_node.addfilter(OCRError("normalized_params", "p"))
-    return err_root_node
-
-
-def get_err_params_list():
-    p_steps = np.linspace(0, .28, num=8)
-    err_params_list = [{
-        "p": p,
-        "radius_generator": GaussianRadiusGenerator(0, 1),
-        "missing_value": " "
-    } for p in p_steps]
-
-    # p_steps = np.linspace(0, .98, num=8)
-    # params = load_ocr_error_params("config/example_text_error_params.json")
-    # normalized_params = normalize_ocr_error_params(params)
-    # err_params_list = [{
-    #     "p": p,
-    #     "normalized_params": normalized_params
-    # } for p in p_steps]
-
-    return err_params_list
 
 
 def get_model_params_dict_list(train_labels, test_labels):

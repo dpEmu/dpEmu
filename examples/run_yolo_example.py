@@ -14,14 +14,46 @@ from tqdm import trange
 
 from dpemu import runner
 from dpemu.dataset_utils import load_coco_val_2017
-from dpemu.plotting_utils import print_results_by_model, visualize_scores
-from dpemu.nodes import Array
 from dpemu.filters.image import JPEG_Compression
+from dpemu.nodes import Array
+from dpemu.plotting_utils import print_results_by_model, visualize_scores
 from dpemu.problemgenerator.series import Series
 from dpemu.utils import generate_unique_path
 
 cv2.ocl.setUseOpenCL(False)
 torch.multiprocessing.set_start_method("spawn", force="True")
+
+
+def get_err_root_node():
+    err_node = Array()
+    err_root_node = Series(err_node)
+    # err_node.addfilter(GaussianNoise("mean", "std"))
+    # err_node.addfilter(Blur_Gaussian("std"))
+    # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
+    # err_node.addfilter(FastRain("probability", "range_id"))
+    # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
+    err_node.addfilter(JPEG_Compression("quality"))
+    # err_node.addfilter(ResolutionVectorized("k"))
+    # err_node.addfilter(BrightnessVectorized("tar", "rate", "range"))
+    # err_node.addfilter(SaturationVectorized("tar", "rate", "range"))
+    # err_node.addfilter(Identity())
+    return err_root_node
+
+
+def get_err_params_list():
+    # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
+    # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
+    # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
+    #                    for p in [10 ** i for i in range(-4, 0)]]
+    # err_params_list = [{"probability": p, "range_id": 255} for p in [10 ** i for i in range(-4, 0)]]
+    # err_params_list = [
+    #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
+    #     for p in [10 ** i for i in range(-6, -2)]]
+    err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
+    # err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
+    # err_params_list = [{"tar": 1, "rate": rat, "range": 255} for rat in [0.0, 0.5, 1.0, 10.0, 20.0]]
+    # err_params_list = [{}]
+    return err_params_list
 
 
 class Preprocessor:
@@ -134,38 +166,6 @@ class YOLOv3CPUModel:
         coco_eval.accumulate()
         coco_eval.summarize()
         return {"mAP-50": round(coco_eval.stats[1], 3)}
-
-
-def get_err_root_node():
-    err_node = Array()
-    err_root_node = Series(err_node)
-    # err_node.addfilter(GaussianNoise("mean", "std"))
-    # err_node.addfilter(Blur_Gaussian("std"))
-    # err_node.addfilter(Snow("snowflake_probability", "snowflake_alpha", "snowstorm_alpha"))
-    # err_node.addfilter(FastRain("probability", "range_id"))
-    # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
-    err_node.addfilter(JPEG_Compression("quality"))
-    # err_node.addfilter(ResolutionVectorized("k"))
-    # err_node.addfilter(BrightnessVectorized("tar", "rate", "range"))
-    # err_node.addfilter(SaturationVectorized("tar", "rate", "range"))
-    # err_node.addfilter(Identity())
-    return err_root_node
-
-
-def get_err_params_list():
-    # err_params_list = [{"mean": 0, "std": std} for std in [10 * i for i in range(0, 4)]]
-    # err_params_list = [{"std": std} for std in [i for i in range(0, 4)]]
-    # err_params_list = [{"snowflake_probability": p, "snowflake_alpha": .4, "snowstorm_alpha": 0}
-    #                    for p in [10 ** i for i in range(-4, 0)]]
-    # err_params_list = [{"probability": p, "range_id": 255} for p in [10 ** i for i in range(-4, 0)]]
-    # err_params_list = [
-    #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
-    #     for p in [10 ** i for i in range(-6, -2)]]
-    err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
-    # err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
-    # err_params_list = [{"tar": 1, "rate": rat, "range": 255} for rat in [0.0, 0.5, 1.0, 10.0, 20.0]]
-    # err_params_list = [{}]
-    return err_params_list
 
 
 def get_model_params_dict_list(img_ids, class_names):

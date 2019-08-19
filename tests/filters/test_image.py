@@ -1,7 +1,7 @@
 import numpy as np
 from dpemu.nodes import Array
 from dpemu import radius_generators
-from dpemu.filters.image import Rain, Snow, StainArea, Blur, JPEG_Compression, BlurGaussian, Resolution
+from dpemu.filters.image import Rain, Snow, StainArea, Blur, JPEG_Compression, BlurGaussian, Resolution, Rotation
 
 
 def test_seed_determines_result_for_fastrain_filter():
@@ -112,3 +112,14 @@ def test_jpeg_compression():
     dat = np.uint8(dat)
 
     assert not (abs(dat - orig_dat) < 5).all()
+
+
+def test_rotation_creates_no_black_pixels():
+    shape = (100, 100, 3)
+    prod = shape[0] * shape[1] * shape[2] * 255
+    data = np.zeros(shape) + 255
+
+    rot = Rotation("angle", "angle")
+    rot.set_params({"angle": -36})
+    rot.apply(data, np.random.RandomState(42), named_dims={})
+    assert np.sum(data) - prod < 1

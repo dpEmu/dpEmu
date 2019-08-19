@@ -3,10 +3,10 @@ from dpemu.filters.sound import ClipWAV
 
 
 def test_clip_wav():
+    rng = np.random.RandomState(1729)
     dyn_ranges = [0.0, 0.22, 0.5, 0.73, 1.0]
-    for dyn_range in dyn_ranges:
-        rng = np.random.RandomState(1729)
 
+    for dyn_range in dyn_ranges:
         data = rng.rand(100) * 100
         min_, max_ = np.amin(data), np.amax(data)
         new_half_range = 0.5 * (max_ - min_) * dyn_range

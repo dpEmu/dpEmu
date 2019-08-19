@@ -15,7 +15,7 @@ def main():
     x, _, _, _ = load_mnist()
     xs = x[:20]                 # small subset of x
     angle = float(sys.argv[1])
-    print(xs.shape)
+    print(f"x subset shape: {xs.shape}")
     img_node = Array(reshape=(28, 28))
     root_node = Series(img_node)
     img_node.addfilter(Rotation("angle"))

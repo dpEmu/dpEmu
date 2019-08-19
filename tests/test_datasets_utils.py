@@ -4,7 +4,7 @@ from sklearn.datasets.base import Bunch
 from dpemu import dataset_utils as utils
 
 
-def mock_fetch_20newsgroups(subset="", categories=[], remove=(), random_state=1):
+def mock_fetch_20newsgroups(subset="", categories=["subject"], remove=(), random_state=1):
     lst = ['subject', 'object']
     target = np.array([0, 0, 1, 1, 0, 0, 0, 0, 1, 0])
     data = ["a", "b", "A", "B", "xy", "zs", "df", "io", "GD", "ga"]

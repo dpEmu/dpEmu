@@ -80,6 +80,19 @@ def test_load_mnist(mock_fetch_openml):
     assert descr == "MNIST"
 
 
+@patch("dpemu.dataset_utils.fetch_openml", side_effect=mock_fetch_openml)
+def test_load_fashion(mock_fetch_openml):
+    ret_data, ret_labels, ret_label_names, descr = utils.load_fashion()
+    test_rng = np.random.RandomState(1729)
+    label_names = ["T-shirt", "Trouser", "Pullover", "Dress",
+                   "Coat", "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"]
+
+    assert np.array_equal(ret_data, test_rng.rand(100, 784))
+    assert np.array_equal(ret_labels, test_rng.randint(0, 10, size=100))
+    assert np.array_equal(ret_label_names, label_names)
+    assert descr == "Fashion MNIST"
+
+
 @patch("dpemu.dataset_utils.load_digits", side_effect=mock_load_digits)
 def test_load_digits(mock_load_digits):
     ret_data, ret_labels, _, descr = utils.load_digits_(10)

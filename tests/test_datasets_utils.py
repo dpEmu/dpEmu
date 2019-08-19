@@ -51,7 +51,7 @@ def test_split_data_does_not_accept_wrong_train_size_parameters():
     assert np.array_equal(ret_labels, labels)
 
 
-def test_split_data_return_correct_size():
+def test_split_data_returns_correct_size():
     data = np.arange(1, 101)
     labels = np.arange(1, 101).astype(str)
     ret_data, ret_labels = utils.split_data(data, labels, n_data=65)
@@ -63,6 +63,16 @@ def test_split_data_return_correct_size():
 @patch("dpemu.dataset_utils.fetch_20newsgroups", side_effect=mock_fetch_20newsgroups)
 def test_load_newsgroups(mock_fetch_20newsgroups):
     ret_data, targets, target_names, descr = utils.load_newsgroups()
+
+    assert np.array_equal(ret_data, ["a", "b", "A", "B", "xy", "zs", "df", "io", "GD", "ga"])
+    assert np.array_equal(targets, np.array([0, 0, 1, 1, 0, 0, 0, 0, 1, 0]))
+    assert np.array_equal(target_names, ['subject', 'object'])
+    assert descr == "20newsgroups"
+
+
+@patch("dpemu.dataset_utils.fetch_20newsgroups", side_effect=mock_fetch_20newsgroups)
+def test_load_newsgroups_with_wrong_n_categories(mock_fetch_20newsgroups):
+    ret_data, targets, target_names, descr = utils.load_newsgroups(n_categories=21)
 
     assert np.array_equal(ret_data, ["a", "b", "A", "B", "xy", "zs", "df", "io", "GD", "ga"])
     assert np.array_equal(targets, np.array([0, 0, 1, 1, 0, 0, 0, 0, 1, 0]))

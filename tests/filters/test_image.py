@@ -115,8 +115,19 @@ def test_jpeg_compression():
     assert not (abs(dat - orig_dat) < 5).all()
 
 
-def test_rotation_creates_no_black_pixels():
+def test_rotation_creates_no_black_pixels_on_wide_images():
     shape = (71, 217, 3)
+    data = np.zeros(shape) + 255
+
+    for angle in range(360):
+        rot = Rotation("angle", "angle")
+        rot.set_params({"angle": angle})
+        rot.apply(data, np.random.RandomState(42), named_dims={})
+    assert np.min(data) >= 254.9
+
+
+def test_rotation_creates_no_black_pixels_on_high_images():
+    shape = (217, 71, 3)
     data = np.zeros(shape) + 255
 
     for angle in range(360):

@@ -26,18 +26,18 @@ from pathlib import Path
 
 ignored_dirs = ["libs", "venv", "examples/speech_commands"]
 license_file = open(sys.argv[1], 'r')
-license = license_file.read()
+license_text = license_file.read()
 license_file.close()
 
 # remove newlines from the end
-while license[-1] == '\n':
-    license = license[:-1]
+while license_text[-1] == '\n':
+    license_text = license_text[:-1]
 
 # make each line a block comment
-license = "# " + "\n# ".join(license.split("\n")) + "\n\n"
+license_text = "# " + "\n# ".join(license_text.split("\n")) + "\n\n"
 
 # replace empty license lines i.e. "# " with just "#"
-license = license.replace("# \n", "#\n")
+license_text = license_text.replace("# \n", "#\n")
 
 # iterate over all descendant python files
 pathlist = Path(str(os.getcwd())).glob('**/*.py')
@@ -56,9 +56,9 @@ for path in pathlist:
         # add license to the source code
         source_file = open(path_in_str, 'r')
         source = source_file.read()
-        if source.startswith(license):
+        if source.startswith(license_text):
             continue
-        source = license + source
+        source = license_text + source
         source_file.close()
         print("Added the license to", path_in_str)
         new_file = open(path_in_str, 'w')

@@ -12,8 +12,9 @@ class Array(LeafNode):
         Node (object):
     """
 
-    def __init__(self):
+    def __init__(self, reshape=None):
         super().__init__()
+        self.reshape = reshape
 
     def apply_filters(self, node_data, random_state, named_dims):
         """Apply filters to data contained in this array.
@@ -24,7 +25,13 @@ class Array(LeafNode):
             named_dims (dict): Named dimensions.
         """
         for f in self.filters:
-            f.apply(node_data, random_state, named_dims)
+            if self.reshape:
+                original_shape = node_data.shape
+                temp_data = node_data.reshape(self.reshape)
+                f.apply(temp_data, random_state, named_dims)
+                node_data[...] = temp_data.reshape(original_shape)
+            else:
+                f.apply(node_data, random_state, named_dims)
 
     def process(self, data, random_state, index_tuple=(), named_dims={}):
         """Apply all filters in this node.

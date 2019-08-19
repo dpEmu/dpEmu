@@ -4,7 +4,7 @@ Usage
 dpEmu consists of three components:
 
   * A system for building error generators
-  * A system for running the ML models with different error parameters
+  * A system for running ML models with different error parameters
   * Tools for visualizing the results
 
 

@@ -19,17 +19,6 @@ class Series(Node):
         """
         super().__init__([child])
         self.dim_name = dim_name
-        self.filters = []
-
-    def addfilter(self, custom_filter):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            custom_filter ([type]): [description]
-        """
-        self.filters.append(custom_filter)
 
     def process(self, data, random_state, index_tuple=(), named_dims={}):
         """[summary]

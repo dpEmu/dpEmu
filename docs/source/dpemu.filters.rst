@@ -12,6 +12,14 @@ dpemu.filters.common module
    :undoc-members:
    :show-inheritance:
 
+dpemu.filters.filter module
+---------------------------
+
+.. automodule:: dpemu.filters.filter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dpemu.filters.image module
 --------------------------
 

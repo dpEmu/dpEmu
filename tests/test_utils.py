@@ -1,11 +1,5 @@
 import numpy as np
-from mock import patch
 from dpemu import utils
-
-
-@patch("dpemu.utils.get_project_root", return_value="root")
-def test_get_project_root(root_mock):
-    assert utils.get_project_root() == "root"
 
 
 def test_expand_parameter_to_linspace():

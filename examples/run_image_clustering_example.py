@@ -174,7 +174,7 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
             fg.show()
 
         # Remember to enable runner's interactive mode
-        visualize_interactive_plot(df, "std", data, "tab10", "reduced_data", on_click)
+        visualize_interactive_plot(df, "probability", data, "tab10", "reduced_data", on_click)
 
     plt.show()
 

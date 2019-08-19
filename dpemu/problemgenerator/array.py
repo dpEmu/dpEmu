@@ -8,6 +8,11 @@ class Array(LeafNode):
     One or more filters (error sources) can be added to the node.
     The filters are applied in the order in which they are added.
 
+    You can optionally provide the constructor with a reshape parameter.
+    In that case the filters attached to the node operate on data
+    reshaped to the desired shape. The final shape of the data is
+    unaffected.
+
     Constructor Args:
         reshape (tuple, optional): The data shape required by the
             node's filters if different from the actual shape of

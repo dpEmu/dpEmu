@@ -8,12 +8,20 @@ class Array(LeafNode):
     One or more filters (error sources) can be added to the node.
     The filters are applied in the order in which they are added.
 
-    Args:
-        Node (object):
+    You can optionally provide the constructor with a reshape parameter.
+    In that case the filters attached to the node operate on data
+    reshaped to the desired shape. The final shape of the data is
+    unaffected.
+
+    Constructor Args:
+        reshape (tuple, optional): The data shape required by the
+            node's filters if different from the actual shape of
+            the data
     """
 
-    def __init__(self):
+    def __init__(self, reshape=None):
         super().__init__()
+        self.reshape = reshape
 
     def apply_filters(self, node_data, random_state, named_dims):
         """Apply filters to data contained in this array.
@@ -24,7 +32,13 @@ class Array(LeafNode):
             named_dims (dict): Named dimensions.
         """
         for f in self.filters:
-            f.apply(node_data, random_state, named_dims)
+            if self.reshape:
+                original_shape = node_data.shape
+                temp_data = node_data.reshape(self.reshape)
+                f.apply(temp_data, random_state, named_dims)
+                node_data[...] = temp_data.reshape(original_shape)
+            else:
+                f.apply(node_data, random_state, named_dims)
 
     def process(self, data, random_state, index_tuple=(), named_dims={}):
         """Apply all filters in this node.

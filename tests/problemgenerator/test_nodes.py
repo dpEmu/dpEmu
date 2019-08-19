@@ -1,6 +1,6 @@
 import numpy as np
 
-from dpemu.nodes import Array, Series, TupleSeries
+from dpemu.nodes import Array, Series, TupleSeries, Tuple
 from dpemu.filters.common import Missing
 from dpemu.filters.time_series import SensorDrift
 
@@ -43,3 +43,12 @@ def test_tuple_series_works_with_numpy_arrays():
     root_node = TupleSeries([x_node, y_node])
     res = root_node.generate_error(data, {'a': 1})
     assert np.array_equal(res[0], np.array([[2, 4, 6]])) and np.array_equal(res[1], np.array([[1, 1, 1]]))
+
+
+def test_tuple_node_works():
+    data = np.array([(0., 1.), (2., 3.)])
+    x_node = Tuple()
+    x_node.addfilter(Missing("prob", "m_val"))
+    series_node = Series(x_node)
+    data = series_node.generate_error(data, {'prob': 1, 'm_val': np.nan})
+    assert np.isnan(data[0][0]) and np.isnan(data[0][1]) and np.isnan(data[1][0]) and np.isnan(data[1][1])

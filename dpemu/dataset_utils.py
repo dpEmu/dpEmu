@@ -71,7 +71,7 @@ def load_fashion(n_data=70000):
         "Shirt",
         "Sneaker",
         "Bag",
-        "Ankle boot",
+        "Ankle boot"
     ]
     return data, labels, label_names, "Fashion MNIST"
 

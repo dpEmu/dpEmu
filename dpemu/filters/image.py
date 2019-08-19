@@ -76,7 +76,7 @@ class Resolution(Filter):
 
 
 class Rotation(Filter):
-    """Rotates the filter.
+    """Rotates the image.
 
     If only min_angle is provided, the the image is rotated according to the angle.
     If both min_angle and max_angle are provided, then the rotation angle is chosen
@@ -108,6 +108,7 @@ class Rotation(Filter):
         ra = abs(angle % 180) * pi/180
         ra = min(ra, pi - ra)
         factor = sin(ra) * max(width, height) / min(width, height) + cos(ra)
+        factor *= max((height + 2) / height, (width + 2) / width)
 
         node_data[...] = imutils.rotate(node_data, angle)
         resized = cv2.resize(node_data, None, fx=factor, fy=factor)
@@ -163,7 +164,7 @@ class Brightness(Filter):
 
         if self.range == 255:
             nd[...] = nd * self.range
-            nd = nd.astype(np.int8)
+            nd = nd.astype(np.uint8)
         else:
             nd = np.clip(nd, 0.0, 1.0)
 
@@ -560,7 +561,7 @@ class Saturation(Filter):
 
         if self.range == 255:
             nd[...] = nd * self.range
-            nd = nd.astype(np.int8)
+            nd = nd.astype(np.uint8)
         else:
             nd = np.clip(nd, 0.0, 1.0)
 

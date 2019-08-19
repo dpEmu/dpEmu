@@ -8,8 +8,10 @@ class Array(LeafNode):
     One or more filters (error sources) can be added to the node.
     The filters are applied in the order in which they are added.
 
-    Args:
-        Node (object):
+    Constructor Args:
+        reshape (tuple, optional): The data shape required by the
+            node's filters if different from the actual shape of
+            the data
     """
 
     def __init__(self, reshape=None):

@@ -76,7 +76,7 @@ class Resolution(Filter):
 
 
 class Rotation(Filter):
-    """Rotates the filter.
+    """Rotates the image.
 
     If only min_angle is provided, the the image is rotated according to the angle.
     If both min_angle and max_angle are provided, then the rotation angle is chosen

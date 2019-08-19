@@ -108,6 +108,7 @@ class Rotation(Filter):
         ra = abs(angle % 180) * pi/180
         ra = min(ra, pi - ra)
         factor = sin(ra) * max(width, height) / min(width, height) + cos(ra)
+        factor *= max((height + 2) / height, (width + 2) / width)
 
         node_data[...] = imutils.rotate(node_data, angle)
         resized = cv2.resize(node_data, None, fx=factor, fy=factor)

@@ -117,13 +117,13 @@ def test_jpeg_compression():
 
 def test_rotation_creates_no_black_pixels():
     shape = (71, 217, 3)
-    prod = shape[0] * shape[1] * shape[2] * 255
     data = np.zeros(shape) + 255
 
-    rot = Rotation("angle", "angle")
-    rot.set_params({"angle": -36})
-    rot.apply(data, np.random.RandomState(42), named_dims={})
-    assert np.sum(data) - prod < 1
+    for angle in range(360):
+        rot = Rotation("angle", "angle")
+        rot.set_params({"angle": angle})
+        rot.apply(data, np.random.RandomState(42), named_dims={})
+    assert np.min(data) >= 254.9
 
 
 def test_brightness_brightens_image():

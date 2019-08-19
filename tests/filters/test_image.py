@@ -116,7 +116,7 @@ def test_jpeg_compression():
 
 
 def test_rotation_creates_no_black_pixels():
-    shape = (100, 100, 3)
+    shape = (71, 217, 3)
     prod = shape[0] * shape[1] * shape[2] * 255
     data = np.zeros(shape) + 255
 

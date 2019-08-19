@@ -73,11 +73,11 @@ call the node's ``addfilter`` method with the filter object as the parameter.
 
 
 Calling the ``generate_error`` Method
----------------------------------
+-------------------------------------
 
 Once you have defined your error generation tree and added the desired filters,
-you can call the ``generate_error`` method of the root node of the tree. The method
-takes two arguments:
+you can call the ``generate_error`` method of the root node of the tree. The
+method takes two arguments:
 
  * the data into which the errors are to be introduced, and
  * a dictionary of error parameters.
@@ -139,8 +139,13 @@ training data.
 Preprocessor
 """"""""""""
 
-The preprocessor needs to implement a function ``run(train_data, test_data)`` and it returns the preprocessed train and test data. The preprocessor can return additional data as well, and it will be listed as separate columns in the ``DataFrame`` which the runner returns.
-Here is a simple example of a preprocessor, which does nothing to the original data, but returns also an array called *"negative_data"* which contains the additive inverse of each test_data's element.
+The preprocessor needs to implement a function ``run(train_data, test_data)``
+and it returns the preprocessed train and test data. The preprocessor can
+return additional data as well, and it will be listed as separate columns in
+the ``DataFrame`` which the runner returns.
+Here is a simple example of a preprocessor, which does nothing to the original
+data, but returns also an array called *"negative_data"* which contains the
+additive inverse of each test_data's element.
 
 .. code-block:: python
     :linenos:
@@ -156,24 +161,34 @@ Here is a simple example of a preprocessor, which does nothing to the original d
 Error generation tree
 """""""""""""""""""""
 
-The root node of the error generation tree should be given to the runner. The structure of the error generation tree is described above.
+The root node of the error generation tree should be given to the runner. The
+structure of the error generation tree is described above.
 
 Error parameter list
 """"""""""""""""""""
 
-The list of error parameters is simply a list of dictionaries which contain the keys and error values for the error generation tree.
+The list of error parameters is simply a list of dictionaries which contain
+the keys and error values for the error generation tree.
 
 AI model parameter list
 """""""""""""""""""""""
 
-The list of AI model parameters is a list of dictionaries containing three keys: *"model"*, *"params_list"* and *"use_clean_train_data"*. 
+The list of AI model parameters is a list of dictionaries containing three
+keys: *"model"*, *"params_list"* and *"use_clean_train_data"*.
 
-The value of *"model"* is **a class instead of an object**. 
-The given class should implement the function ``run(train_data, test_data, parameters)`` which runs the model on the train data and test data with given parameters and returns a dictionary containing the scores and possibly additional data.
+The value of *"model"* is **a class instead of an object**.
+The given class should implement the function ``run(train_data, test_data,
+parameters)`` which runs the model on the train data and test data with given
+parameters and returns a dictionary containing the scores and possibly
+additional data.
 
-The value of *"params_list"* is a list of dictionaries where each dictionary contains one set of parameters for model. The model will be given these parameters when the ``run(train_data, test_data, parameters)`` function is called.
+The value of *"params_list"* is a list of dictionaries where each dictionary
+contains one set of parameters for model. The model will be given these
+parameters when the ``run(train_data, test_data, parameters)`` function is
+called.
 
-If the *"use_clean_train_data"* boolean is true, then no error will be added to the train data.
+If the *"use_clean_train_data"* boolean is true, then no error will be added
+to the train data.
 
 Here is an example AI model parameter list and a model:
 
@@ -235,8 +250,10 @@ visualizing the data.
 A Complete Example
 ------------------
 
-Here is an unrealistic but simple example which demonstrates all three components of dpEmu. In this example we are trying to predict 
-the next value of data when we know all earlier values in the data. Our model tries to do estimate this by keeping a weighted average.
+Here is an unrealistic but simple example which demonstrates all three
+components of dpEmu. In this example we are trying to predict
+the next value of data when we know all earlier values in the data.
+Our model tries to do estimate this by keeping a weighted average.
 In the end of the example a plot of scores is visualized.
 
 
@@ -265,13 +282,16 @@ How to Run Examples
 
 **Run the examples from project root.**
 
-If the examples do not require command line arguments, then they can be run as follows:
+If the examples do not require command line arguments, then
+they can be run as follows:
 
 .. code-block:: bash
 
     python3 examples/run_saturation_example_rgb_0_to_1.py
 
-If the examples require command line arguments, add them after the name of the file, each one separated by space (the argument 22 tells the angle of the counterclockwise rotation of the picture):
+If the examples require command line arguments, add them after
+the name of the file, each one separated by space (the argument
+22 tells the angle of the counterclockwise rotation of the picture):
 
 .. code-block:: bash
 

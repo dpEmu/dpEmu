@@ -163,7 +163,7 @@ class Brightness(Filter):
 
         if self.range == 255:
             nd[...] = nd * self.range
-            nd = nd.astype(np.int8)
+            nd = nd.astype(np.uint8)
         else:
             nd = np.clip(nd, 0.0, 1.0)
 
@@ -560,7 +560,7 @@ class Saturation(Filter):
 
         if self.range == 255:
             nd[...] = nd * self.range
-            nd = nd.astype(np.int8)
+            nd = nd.astype(np.uint8)
         else:
             nd = np.clip(nd, 0.0, 1.0)
 

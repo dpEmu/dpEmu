@@ -2,6 +2,7 @@ import numpy as np
 from dpemu.nodes import Array
 from dpemu import radius_generators
 from dpemu.filters.image import Rain, Snow, StainArea, Blur, JPEG_Compression, BlurGaussian, Resolution, Rotation
+from dpemu.filters.image import Brightness, Saturation
 
 
 def test_seed_determines_result_for_fastrain_filter():
@@ -123,3 +124,32 @@ def test_rotation_creates_no_black_pixels():
     rot.set_params({"angle": -36})
     rot.apply(data, np.random.RandomState(42), named_dims={})
     assert np.sum(data) - prod < 1
+
+
+def test_brightness_brightens_image():
+    rs = np.random.RandomState(seed=42)
+    shape = (100, 100, 3)
+    data = rs.randint(low=0, high=255, size=shape)
+    original = data.copy()
+    ftr = Brightness("tar", "rat", "range")
+    ftr.set_params({"tar": 1, "rat": 0.5, "range": 255})
+    ftr.apply(data, rs, named_dims={})
+    assert np.sum(data.astype(int) - original.astype(int)) > 0 and np.min(data - original) >= 0
+
+
+def test_saturation_saturates_image():
+    rs = np.random.RandomState(seed=42)
+    shape = (100, 100, 3)
+    data = rs.randint(low=0, high=255, size=shape)
+    original = data.copy()
+    ftr = Saturation("tar", "rat", "range")
+    ftr.set_params({"tar": 1, "rat": 0.5, "range": 255})
+    ftr.apply(data, rs, named_dims={})
+
+    original_diff = np.maximum(np.maximum(original[:, :, 0], original[:, :, 1]), original[:, :, 2])
+    original_diff -= np.minimum(np.minimum(original[:, :, 0], original[:, :, 1]), original[:, :, 2])
+
+    diff = np.maximum(np.maximum(data[:, :, 0], data[:, :, 1]), data[:, :, 2])
+    diff -= np.minimum(np.minimum(data[:, :, 0], data[:, :, 1]), data[:, :, 2])
+
+    assert np.sum(diff.astype(int) - original_diff.astype(int)) > 0 and np.min(diff - original_diff) >= 0

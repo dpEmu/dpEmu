@@ -12,7 +12,7 @@ def main():
     where <angle> is the angle of rotation
     (e.g. 90 to rotate by pi / 2)
     """
-    x, y, _, _ = load_mnist()
+    x, _, _, _ = load_mnist()
     xs = x[:20]                 # small subset of x
     angle = float(sys.argv[1])
     print(xs.shape)

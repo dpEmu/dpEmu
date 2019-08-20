@@ -147,18 +147,41 @@ def get_model_params_dict_list(train_labels, test_labels):
 
 
 def visualize(df, dataset_name, label_names, test_data, use_interactive_mode):
-    visualize_scores(df, ["test_mean_accuracy", "train_mean_accuracy"], [True, True], "p",
-                     f"{dataset_name} classification scores with added error")
-    visualize_best_model_params(df, "MultinomialNB #1", ["alpha"], ["test_mean_accuracy"], [True], "p",
-                                f"Best parameters for {dataset_name} classification", x_log=False, y_log=True)
-    visualize_best_model_params(df, "MultinomialNBClean #1", ["alpha"], ["test_mean_accuracy"], [True], "p",
-                                f"Best parameters for {dataset_name} classification", x_log=False, y_log=True)
-    visualize_best_model_params(df, "LinearSVC #1", ["C"], ["test_mean_accuracy"], [True], "p",
-                                f"Best parameters for {dataset_name} classification", x_log=False, y_log=True)
-    visualize_best_model_params(df, "LinearSVCClean #1", ["C"], ["test_mean_accuracy"], [True], "p",
-                                f"Best parameters for {dataset_name} classification", x_log=False, y_log=True)
-    visualize_classes(df, label_names, "p", "reduced_test_data", "test_labels", "tab20",
-                      f"{dataset_name} test set (n={len(test_data)}) true classes with added error")
+    visualize_scores(
+        df,
+        score_names=["test_mean_accuracy", "train_mean_accuracy"],
+        is_higher_score_better=[True, True],
+        err_param_name="p",
+        title=f"{dataset_name} classification scores with added error"
+    )
+
+    model_param_pair_list = [
+        ("MultinomialNB #1", "alpha"),
+        ("MultinomialNBClean #1", "alpha"),
+        ("LinearSVC #1", "C"),
+        ("LinearSVCClean #1", "C"),
+    ]
+    for model_name, model_param in model_param_pair_list:
+        visualize_best_model_params(
+            df,
+            model_name,
+            model_params=[model_param],
+            score_names=["test_mean_accuracy"],
+            is_higher_score_better=[True],
+            err_param_name="p",
+            title=f"Best parameters for {dataset_name} classification",
+            y_log=True
+        )
+
+    visualize_classes(
+        df,
+        label_names,
+        err_param_name="p",
+        reduced_data_column="reduced_test_data",
+        labels_column="test_labels",
+        cmap="tab20",
+        title=f"{dataset_name} test set (n={len(test_data)}) true classes with added error"
+    )
 
     if use_interactive_mode:
         def on_click(element, label, predicted_label):
@@ -166,9 +189,17 @@ def visualize(df, dataset_name, label_names, test_data, use_interactive_mode):
             print(element, end="\n\n")
     else:
         on_click = None
+    visualize_confusion_matrices(
+        df,
+        label_names,
+        score_name="test_mean_accuracy",
+        is_higher_score_better=True,
+        err_param_name="p",
+        labels_col="test_labels",
+        predictions_col="predicted_test_labels",
+        on_click=on_click
+    )
 
-    visualize_confusion_matrices(df, label_names, "test_mean_accuracy", True, "p", "test_labels",
-                                 "predicted_test_labels", on_click)
     plt.show()
 
 
@@ -193,8 +224,10 @@ def main(argv):
         use_interactive_mode=use_interactive_mode
     )
 
-    print_results_by_model(df, ["train_labels", "test_labels", "reduced_test_data", "confusion_matrix",
-                                "predicted_test_labels", "radius_generator", "missing_value", "normalized_params"])
+    print_results_by_model(df, dropped_columns=[
+        "train_labels", "test_labels", "reduced_test_data", "confusion_matrix", "predicted_test_labels",
+        "radius_generator", "missing_value", "normalized_params"
+    ])
     visualize(df, dataset_name, label_names, test_data, use_interactive_mode)
 
 

@@ -36,6 +36,14 @@ User Manual
     cluster_instructions_examples
     license
 
+Case studies
+^^^^^^^^^^^
+
+.. toctree::
+    :maxdepth: 2
+
+    case_studies/Text_Classification_Missing_Areas
+    case_studies/Text_Classification_OCR_Error
 
 Indices and tables
 ^^^^^^^^^^^^^^^^^^

@@ -50,7 +50,7 @@ def get_err_params_list(data):
     # err_params_list = [{"mean": 0, "std": std, "min_val": min_val, "max_val": max_val} for std in std_steps]
     # p_steps = np.linspace(0, .5, num=6)
     # err_params_list = [{"probability": p, "missing_value_id": 0} for p in p_steps]
-    angle_steps = np.linspace(0, 70, num=8)
+    angle_steps = np.linspace(0, 84, num=8)
     err_params_list = [{"min_angle_id": -a, "max_angle_id": a} for a in angle_steps]
     return err_params_list
 

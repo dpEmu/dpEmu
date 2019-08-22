@@ -24,7 +24,7 @@ import os
 import sys
 from pathlib import Path
 
-ignored_dirs = ["libs", "venv", "examples/speech_commands"]
+ignored_dirs = ["libs", "venv", "examples/speech_commands", "docs"]
 license_file = open(sys.argv[1], 'r')
 license_text = license_file.read()
 license_file.close()

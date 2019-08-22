@@ -46,6 +46,7 @@ Case studies
     case_studies/Text_Classification_Missing_Areas
     case_studies/Text_Classification_OCR_Error
     case_studies/Object_Detection_Added_Brightness
+    case_studies/Object_Detection_JPEG_Compression
     case_studies/Object_Detection_Reduced_Resolution
     case_studies/WAVClipping
     case_studies/Object_detection_case_study/Object_Detection_case_study

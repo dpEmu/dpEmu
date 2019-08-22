@@ -119,7 +119,7 @@ In the batch file replace:
 
     srun python3 examples/run_object_detection_example.py
 
-with for example
+with for example:
 
 .. code-block:: bash
 

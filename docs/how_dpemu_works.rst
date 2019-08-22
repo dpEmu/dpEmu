@@ -1,5 +1,5 @@
 How dpEmu works
-=====
+===============
 
 dpEmu consists of three components:
 

@@ -10,11 +10,8 @@ Official instructions
 
 `Ukko2 <https://wiki.helsinki.fi/display/it4sci/Ukko2+User+Guide>`_
 
-Example jobs on Kale and Ukko2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Running text classification example on Kale or Ukko2
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
+Example jobs
+^^^^^^^^^^^^
 
 The following commands need to be run every time you log in to one of the clusters:
 
@@ -26,6 +23,8 @@ The following commands need to be run every time you log in to one of the cluste
     cd $WRKDIR/dpEmu
     source venv/bin/activate
 
+Running text classification example
+"""""""""""""""""""""""""""""""""""
 
 Create the batch file for the job:
 
@@ -62,8 +61,8 @@ You can view the execution of the code as if it was executed on your home termin
 
 The resulting images will saved to the dpEmu/out directory.
 
-Running object detection example on Kale or Ukko2
-"""""""""""""""""""""""""""""""""""""""""""""""""
+Running object detection example
+""""""""""""""""""""""""""""""""
 
 First remember to load the required modules and install the object detection example requirements while in the virtual enviroment, if not done already:
 :ref:`object_detection_requirements`.
@@ -110,3 +109,18 @@ You can view the execution of the code as if it was executed on your home termin
     tail -f object_detection_results.txt
 
 The resulting images will saved to the dpEmu/out directory.
+
+Running object detection notebook
+"""""""""""""""""""""""""""""""""
+
+In the batch file replace:
+
+.. code-block:: bash
+
+    srun python3 examples/run_object_detection_example.py
+
+with for example
+
+.. code-block:: bash
+
+    srun jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=None --inplace --execute docs/case_studies/Object_Detection_JPEG_Compression.ipynb

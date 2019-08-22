@@ -14,7 +14,7 @@ and remotely executed in console with:
 
 .. code-block:: bash
 
-    jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=None --inplace --execute Text_Classification_OCR_Error.ipynb
+    jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=None --inplace --execute docs/case_studies/Text_Classification_OCR_Error.ipynb
 
 
 Running examples

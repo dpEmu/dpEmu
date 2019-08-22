@@ -41,16 +41,16 @@ Case studies
 ^^^^^^^^^^^
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     case_studies/Text_Classification_Missing_Areas
     case_studies/Text_Classification_OCR_Error
     case_studies/Object_Detection_Added_Brightness
     case_studies/Object_Detection_Reduced_Resolution
+    case_studies/WAVClipping
+    case_studies/Object_detection_case_study/Object_Detection_case_study
 
-Indices and tables
-^^^^^^^^^^^^^^^^^^
+Module documentation
+^^^^^^^^^^^^^^^^^^^^
 
-* :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`

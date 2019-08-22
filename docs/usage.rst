@@ -92,7 +92,7 @@ a copy instead.
 
 This is an example of what the error generation process might look like:
 
-.. literalinclude:: ../examples/run_with_tuple_example.py
+.. literalinclude:: ../examples/filter_examples/run_with_tuple_example.py
    :language: python
    :linenos:
 

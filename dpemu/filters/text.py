@@ -112,7 +112,7 @@ class OCRError(Filter):
 
     User should provide a probability distribution in the form of a dict,
     specifying how probable a change of character is. Example weights for
-    the distribution can be found in the config directory. These files are:
+    the distribution can be found in the data directory. These files are:
 
     example_text_error_params_realistic_ocr.json and
     example_text_error_params.json

@@ -11,9 +11,9 @@ def test_apply_with_probability():
 
     ocr = OCRError("ps", "p")
     x_node = Array()
-    x_node.addfilter(ApplyWithProbability("ocr_node", "ocr_prob"))
+    x_node.addfilter(ApplyWithProbability(ocr, "ocr_prob"))
     series_node = Series(x_node)
-    params = {"ps": {"a": [["e"], [1.0]]}, "p": 1.0, "ocr_node": ocr, "ocr_prob": 0.5}
+    params = {"ps": {"a": [["e"], [1.0]]}, "p": 1.0, "ocr_prob": 0.5}
     out = series_node.generate_error(data, params, np.random.RandomState(seed=42))
 
     contains_distinct_elements = False
@@ -104,8 +104,7 @@ def test_modify_as_datatype():
     a = np.array([256 + 42])
     params = {}
     params['dtype'] = np.int8
-    params['filter'] = Identity()
     x_node = Array()
-    x_node.addfilter(ModifyAsDataType('dtype', 'filter'))
+    x_node.addfilter(ModifyAsDataType('dtype', Identity()))
     out = x_node.generate_error(a, params)
     assert np.array_equal(out, np.array([42]))

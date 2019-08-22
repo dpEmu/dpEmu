@@ -162,10 +162,10 @@ class ModifyAsDataType(Filter):
     Inherits Filter class.
     """
 
-    def __init__(self, dtype_id, ftr_id):
+    def __init__(self, dtype_id, ftr):
         super().__init__()
         self.dtype_id = dtype_id
-        self.ftr_id = ftr_id
+        self.ftr = ftr
 
     def apply(self, node_data, random_state, named_dims):
         copy = node_data.copy().astype(self.dtype)

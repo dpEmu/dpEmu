@@ -19,8 +19,8 @@ img_original.show()
 # generate error
 root_node = Array()
 # add filter which subtracts each pixel value from 255
-root_node.addfilter(Subtraction("const", "identity"))
-out = root_node.generate_error(data, {'c': 255, 'const': Constant("c"), 'identity': Identity()})
+root_node.addfilter(Subtraction(Constant("c"), Identity()))
+out = root_node.generate_error(data, {'c': 255})
 
 # show modified image
 img_modified = Image.fromarray(out, "RGB")

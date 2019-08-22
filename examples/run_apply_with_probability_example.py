@@ -9,10 +9,10 @@ params = {"a": [["e"], [1.0]]}
 ocr = OCRError("ocr_params", "ocr_p")
 
 x_node = Array()
-x_node.addfilter(ApplyWithProbability('ocr', 'p'))
+x_node.addfilter(ApplyWithProbability(ocr, 'p'))
 root_node = Series(x_node)
 
-out = root_node.generate_error(data, {'ocr_params': params, 'ocr_p': 1.0, 'ocr': ocr, 'p': 0.5})
+out = root_node.generate_error(data, {'ocr_params': params, 'ocr_p': 1.0, 'p': 0.5})
 
 print(out)
 print("output shape:", out.shape, ", output dtype:", out.dtype)

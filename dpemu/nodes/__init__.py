@@ -23,3 +23,11 @@
 from .node import Node, LeafNode
 from .array import Array
 from .series import Series, TupleSeries
+from .tuple import Tuple
+
+__all__ = ['Node',
+           'LeafNode',
+           'Array',
+           'Series',
+           'TupleSeries',
+           'Tuple']

@@ -20,6 +20,7 @@ Getting Started
     :maxdepth: 1
 
     tutorials/Error_Generation_Basics
+    tutorials/Custom_Filters
     tutorials/Using_Runner_Advanced_I
     tutorials/Using_Runner_Advanced_II
 
@@ -44,6 +45,8 @@ Case studies
 
     case_studies/Text_Classification_Missing_Areas
     case_studies/Text_Classification_OCR_Error
+    case_studies/Object_Detection_Added_Brightness
+    case_studies/Object_Detection_Reduced_Resolution
 
 Indices and tables
 ^^^^^^^^^^^^^^^^^^

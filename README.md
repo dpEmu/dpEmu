@@ -16,6 +16,7 @@ dpEmu is being built on the specifications and requirements provided by Professo
 
 * [Installation](#installation)
 * [User manual](#user-manual)
+* [Research](#research)
 * [Contributing](#contributing)
 * [Credits](#credits)
 * [Documentation](#documentation)
@@ -42,6 +43,10 @@ dpEmu is being built on the specifications and requirements provided by Professo
 ## User Manual
 
 * [User manual](https://dpemu.readthedocs.io/en/latest/index.html#user-manual)
+
+## Research
+
+An unpublished workshop paper [Software Framework for Data Error Injection to Test Machine Learning Systems](Software_Framework_for_Data_Error_Injection_to_Test_Machine_Learning_Systems.pdf)
 
 ## Contributing
 

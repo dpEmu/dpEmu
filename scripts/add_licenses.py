@@ -24,7 +24,7 @@ import os
 import sys
 from pathlib import Path
 
-ignored_dirs = ["libs", "venv", "examples/speech_commands"]
+ignored_dirs = ["libs", "venv", "examples/speech_commands", "docs"]
 license_file = open(sys.argv[1], 'r')
 license_text = license_file.read()
 license_file.close()
@@ -56,11 +56,15 @@ for path in pathlist:
         # add license to the source code
         source_file = open(path_in_str, 'r')
         source = source_file.read()
-        if source.startswith(license_text):
+        if source.startswith(license_text[:-2]):  # ignore two last newlines
             continue
-        source = license_text + source
         source_file.close()
-        print("Added the license to", path_in_str)
+
+        source = license_text + source
+        while source[-2:] == '\n\n':
+            source = source[:-1]
+
         new_file = open(path_in_str, 'w')
         new_file.write(source)
         new_file.close()
+        print("Added the license to", path_in_str)

@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
 
    dpemu.filters
-   dpemu.problemgenerator
+   dpemu.nodes
 
 Submodules
 ----------

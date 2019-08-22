@@ -4,7 +4,6 @@ cd data
 
 wget -c http://images.cocodataset.org/annotations/annotations_trainval2017.zip
 wget -c http://images.cocodataset.org/zips/val2017.zip
-wget -c https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names
 
 unzip annotations_trainval2017.zip
 unzip val2017.zip

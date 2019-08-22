@@ -1,12 +1,14 @@
 import os
 import random as rn
-import subprocess
+from subprocess import Popen
 
 import cv2
 from numpy.random import RandomState
 from pycocotools.coco import COCO
 from sklearn.datasets import fetch_20newsgroups, fetch_openml, load_digits
 from sklearn.model_selection import train_test_split
+
+from dpemu.utils import get_project_root
 
 random_state = RandomState(42)
 
@@ -79,11 +81,11 @@ def load_fashion(n_data=70000):
 def load_coco_val_2017(n=5000, is_shuffled=False):
     if n not in range(1, 5000):
         n = 5000
-    img_folder = "data/val2017"
+    img_folder = f"{get_project_root()}/data/val2017"
     if not os.path.isdir(img_folder):
-        subprocess.call(["./scripts/get_coco_dataset.sh"])
+        Popen(["./scripts/get_coco_dataset.sh"], cwd=get_project_root()).wait()
 
-    coco = COCO("data/annotations/instances_val2017.json")
+    coco = COCO(f"{get_project_root()}/data/annotations/instances_val2017.json")
     img_ids = coco.getImgIds()
     if is_shuffled:
         rn.shuffle(img_ids)
@@ -92,7 +94,7 @@ def load_coco_val_2017(n=5000, is_shuffled=False):
     img_filenames = [img_dict["file_name"] for img_dict in img_dicts]
     imgs = [cv2.imread(os.path.join(img_folder, img_filename)) for img_filename in img_filenames]
     imgs = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in imgs]
-    with open("data/coco.names", "r") as fp:
+    with open(f"{get_project_root()}/data/coco.names", "r") as fp:
         class_names = [line.strip() for line in fp.readlines()]
 
     return imgs, img_ids, class_names, img_filenames

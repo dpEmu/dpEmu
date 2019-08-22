@@ -1,5 +1,6 @@
 *
 !.gitignore
+!coco.*
+!example_ocr_error_config.json
 !temperature.csv
 !passengers.csv
-!coco*

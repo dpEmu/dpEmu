@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from time import time
 import numpy as np
 from dpemu.nodes import Array
 from dpemu.filters.text import OCRError

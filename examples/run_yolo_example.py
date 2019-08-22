@@ -37,8 +37,8 @@ from dpemu.dataset_utils import load_coco_val_2017
 from dpemu.filters.image import Resolution
 from dpemu.ml_utils import load_yolov3
 from dpemu.nodes import Array
+from dpemu.nodes.series import Series
 from dpemu.plotting_utils import print_results_by_model, visualize_scores
-from dpemu.problemgenerator.series import Series
 from dpemu.utils import generate_unique_path
 from dpemu.utils import get_project_root
 

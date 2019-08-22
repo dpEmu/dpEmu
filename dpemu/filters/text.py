@@ -114,8 +114,7 @@ class OCRError(Filter):
     specifying how probable a change of character is. Example weights for
     the distribution can be found in the data directory. These files are:
 
-    example_text_error_params_realistic_ocr.json and
-    example_text_error_params.json
+    example_ocr_error_config.json
 
     These weights can be loaded and the weights normalised into a probability
     distribution using functions from dpemu/pg_utils.py.

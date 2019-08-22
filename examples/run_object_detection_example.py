@@ -25,7 +25,6 @@ from abc import ABC, abstractmethod
 
 import matplotlib.pyplot as plt
 from PIL import Image
-from numpy.random import RandomState
 
 from dpemu import runner
 from dpemu.dataset_utils import load_coco_val_2017
@@ -67,6 +66,7 @@ def get_err_params_list():
 
 
 class Preprocessor:
+
     def run(self, _, imgs, params):
         img_filenames = params["img_filenames"]
 
@@ -80,9 +80,6 @@ class Preprocessor:
 
 class YOLOv3Model:
 
-    def __init__(self):
-        self.random_state = RandomState(42)
-
     def run(self, _, imgs, params):
         path_to_yolov3_weights, path_to_yolov3_cfg = load_yolov3()
 
@@ -95,9 +92,6 @@ class YOLOv3Model:
 
 
 class AbstractDetectronModel(ABC):
-
-    def __init__(self):
-        self.random_state = RandomState(42)
 
     def run(self, _, imgs, params):
         path_to_cfg = self.get_path_to_cfg()
@@ -126,8 +120,6 @@ class AbstractDetectronModel(ABC):
 
 
 class FasterRCNNModel(AbstractDetectronModel):
-    def __init__(self):
-        super().__init__()
 
     def get_path_to_cfg(self):
         return f"{get_project_root()}/libs/Detectron/configs/12_2017_baselines/e2e_faster_rcnn_X-101-64x4d-FPN_1x.yaml"
@@ -141,8 +133,6 @@ class FasterRCNNModel(AbstractDetectronModel):
 
 
 class MaskRCNNModel(AbstractDetectronModel):
-    def __init__(self):
-        super().__init__()
 
     def get_path_to_cfg(self):
         return f"{get_project_root()}/libs/Detectron/configs/12_2017_baselines/e2e_mask_rcnn_X-101-64x4d-FPN_1x.yaml"
@@ -156,8 +146,6 @@ class MaskRCNNModel(AbstractDetectronModel):
 
 
 class RetinaNetModel(AbstractDetectronModel):
-    def __init__(self):
-        super().__init__()
 
     def get_path_to_cfg(self):
         return f"{get_project_root()}/libs/Detectron/configs/12_2017_baselines/retinanet_X-101-64x4d-FPN_1x.yaml"

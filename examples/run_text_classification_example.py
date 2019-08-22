@@ -39,9 +39,9 @@ from dpemu import runner
 from dpemu.dataset_utils import load_newsgroups
 from dpemu.filters.text import MissingArea
 from dpemu.ml_utils import reduce_dimensions_sparse
+from dpemu.nodes.array import Array
 from dpemu.plotting_utils import visualize_best_model_params, visualize_scores, visualize_classes, \
     print_results_by_model, visualize_confusion_matrices
-from dpemu.problemgenerator.array import Array
 from dpemu.radius_generators import GaussianRadiusGenerator
 
 warnings.simplefilter("ignore", category=ConvergenceWarning)
@@ -72,7 +72,7 @@ def get_err_params_list():
     } for p in p_steps]
 
     # p_steps = np.linspace(0, .98, num=8)
-    # params = load_ocr_error_params("config/example_text_error_params.json")
+    # params = load_ocr_error_params(f"{get_project_root()}/data/example_ocr_error_config.json")
     # normalized_params = normalize_ocr_error_params(params)
     # err_params_list = [{
     #     "p": p,

@@ -1,4 +1,4 @@
-Usage
+How dpEmu works
 =====
 
 dpEmu consists of three components:
@@ -275,30 +275,3 @@ Here's what the resulting image should look like:
 Best model parameters for different standard deviation values:
 
 .. image:: manual_best_model_params.png
-
-
-How to Run Examples
--------------------
-
-**Run the examples from project root.**
-
-If the examples do not require command line arguments, then
-they can be run as follows:
-
-.. code-block:: bash
-
-    python3 examples/run_saturation_example_rgb_0_to_1.py
-
-If the examples require command line arguments, add them after
-the name of the file, each one separated by space (the argument
-22 tells the angle of the counterclockwise rotation of the picture):
-
-.. code-block:: bash
-
-    python3 examples/run_rotate_example.py 22
-
-The interactive mode is activated by writing ``-i``:
-
-.. code-block:: bash
-
-    python3 examples/run_text_classification_example test 4 -i

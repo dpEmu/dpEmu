@@ -32,7 +32,8 @@ User Manual
     :maxdepth: 1
 
     installation
-    usage
+    basic_usage
+    how_dpemu_works
     cluster_installation
     cluster_instructions_examples
     license

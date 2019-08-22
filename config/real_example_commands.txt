@@ -1,2 +1,0 @@
-python3 model.py [IN_1] [IN_2] [MID_1.png] [MID_2.npy]
-python3 analyze.py [IN_2] [MID_1.png] [MID_2.npy] [OUT_1.png] [OUT_2.png] [OUT_3.json]

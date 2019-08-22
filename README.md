@@ -7,9 +7,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://readthedocs.org/projects/dpemu/badge/?version=latest)](https://dpemu.readthedocs.io/en/latest/?badge=latest)
 
+dpEmu is a Python library for emulating data problems in the use and training of machine learning systems. It provides tools for injecting errors into data, running machine learning models with different error parameters and visualizing the results.
+
 dpEmu is being built on the specifications and requirements provided by Professors Jukka Nurminen and Tommi Mikkonen for the course Software Engineering Lab at the University of Helsinki, department of Computer Science.
 
-The aim of the project is to build a Python library and an UNIX tool for emulating data problems in use, and training of machine learning systems.
 
 ## Table of Contents
 

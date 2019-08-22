@@ -25,12 +25,6 @@ class Gap(Filter):
         self.missing_value_id = missing_value_id
         self.working = True
 
-    def set_params(self, params_dict):
-        self.prob_break = params_dict[self.prob_break_id]
-        self.prob_recover = params_dict[self.prob_recover_id]
-        self.missing_value = params_dict[self.missing_value_id]
-        self.working = True
-
     def apply(self, node_data, random_state, named_dims):
         def update_working_state():
             if self.working:
@@ -62,9 +56,6 @@ class SensorDrift(Filter):
         """
         super().__init__()
         self.magnitude_id = magnitude_id
-
-    def set_params(self, params_dict):
-        self.magnitude = params_dict[self.magnitude_id]
 
     def apply(self, node_data, random_state, named_dims):
         increases = np.arange(1, node_data.shape[0] + 1) * self.magnitude

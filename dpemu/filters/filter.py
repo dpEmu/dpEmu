@@ -1,7 +1,6 @@
 import random
 import numpy as np
 from abc import ABC, abstractmethod
-from ..pg_utils import generate_random_dict_key
 
 
 class Filter(ABC):
@@ -23,14 +22,22 @@ class Filter(ABC):
         np.random.seed(42)
         random.seed(42)
 
-    @abstractmethod
     def set_params(self, params_dict):
         """Set parameters for error generation.
 
         Args:
             params_dict (dict): A dictionary which contains error parameter name and value pairs.
         """
-        pass
+        original = self.__dict__.copy()
+        for key in original:
+            if key[-3:] == "_id":
+                value = self.__dict__[key]
+                if value is not None:
+                    self.__dict__[key[:-3]] = params_dict[value]
+        for key in self.__dict__:
+            value = self.__dict__[key]
+            if isinstance(value, Filter):
+                value.set_params(params_dict)
 
     @abstractmethod
     def apply(self, node_data, random_state, named_dims):
@@ -56,9 +63,6 @@ class Constant(Filter):
         super().__init__()
         self.value_id = value_id
 
-    def set_params(self, params_dict):
-        self.value = params_dict[self.value_id]
-
     def apply(self, node_data, random_state, named_dims):
         node_data.fill(self.value)
 
@@ -72,9 +76,6 @@ class Identity(Filter):
     def __init__(self):
         super().__init__()
 
-    def set_params(self, params_dict):
-        pass
-
     def apply(self, node_data, random_state, named_dims):
         pass
 
@@ -85,15 +86,15 @@ class BinaryFilter(Filter):
     Inherits Filter class.
     """
 
-    def __init__(self, filter_a_id, filter_b_id):
+    def __init__(self, filter_a, filter_b):
         """
         Args:
-            filter_a_id (str): A key which maps to the first filter
-            filter_b_id (str): A key which maps to the second filter
+            filter_a (str): The first filter
+            filter_b (str): The second filter
         """
         super().__init__()
-        self.filter_a_id = filter_a_id
-        self.filter_b_id = filter_b_id
+        self.filter_a = filter_a
+        self.filter_b = filter_b
 
     def apply(self, node_data, random_state, named_dims):
         data_a = node_data.copy()
@@ -102,12 +103,6 @@ class BinaryFilter(Filter):
         self.filter_b.apply(data_b, random_state, named_dims)
         for index, _ in np.ndenumerate(node_data):
             node_data[index] = self.operation(data_a[index], data_b[index])
-
-    def set_params(self, params_dict):
-        self.filter_a = params_dict[self.filter_a_id]
-        self.filter_b = params_dict[self.filter_b_id]
-        self.filter_a.set_params(params_dict)
-        self.filter_b.set_params(params_dict)
 
     @abstractmethod
     def operation(self, element_a, element_b):
@@ -217,15 +212,9 @@ class Difference(Filter):
     Inherits BinaryFilter class.
     """
 
-    def __init__(self, ftr_id):
+    def __init__(self, ftr):
         super().__init__()
-        self.ftr_id = ftr_id
-
-    def set_params(self, params_dict):
-        identity_key = generate_random_dict_key(params_dict, "identity")
-        params_dict[identity_key] = Identity()
-        self.ftr = Subtraction(self.ftr_id, identity_key)
-        self.ftr.set_params(params_dict)
+        self.ftr = Subtraction(ftr, Identity())
 
     def apply(self, node_data, random_state, named_dims):
         self.ftr.apply(node_data, random_state, named_dims)

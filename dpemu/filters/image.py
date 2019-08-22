@@ -13,13 +13,7 @@ class Blur(Filter):
         super().__init__()
         self.repeats_id = repeats_id
         self.radius_id = radius_id
-
-    def set_params(self, params_dict):
-        self.repeats = params_dict[self.repeats_id]
-        if self.radius_id is not None:
-            self.radius = params_dict[self.radius_id]
-        else:
-            self.radius = 1
+        self.radius = 1
 
     def apply(self, node_data, random_state, named_dims):
         def avg(radius, data):
@@ -65,9 +59,6 @@ class Resolution(Filter):
         super().__init__()
         self.k_id = k_id
 
-    def set_params(self, params_dict):
-        self.k = params_dict[self.k_id]
-
     def apply(self, node_data, random_state, named_dims):
         w = node_data.shape[1]
         h = node_data.shape[0]
@@ -95,10 +86,6 @@ class Rotation(Filter):
             self.max_angle_id = max_angle_id
         else:
             self.max_angle_id = min_angle_id
-
-    def set_params(self, params_dict):
-        self.min_angle = params_dict[self.min_angle_id]
-        self.max_angle = params_dict[self.max_angle_id]
 
     def apply(self, node_data, random_state, named_dims):
         # Randomize angle, calculate optimal scale ratio
@@ -147,11 +134,6 @@ class Brightness(Filter):
         self.rat_id = rat_id
         self.range_id = range_id
 
-    def set_params(self, params_dict):
-        self.tar = params_dict[self.tar_id]
-        self.rat = params_dict[self.rat_id]
-        self.range = params_dict[self.range_id]
-
     def apply(self, node_data, random_state, named_dims):
         nd = node_data.astype("float32")
         if self.range == 255:
@@ -188,9 +170,6 @@ class BlurGaussian(Filter):
         super().__init__()
         self.std_id = standard_dev_id
 
-    def set_params(self, params_dict):
-        self.std = params_dict[self.std_id]
-
     def apply(self, node_data, random_state, named_dims):
         if len(node_data.shape) == 2:
             node_data[...] = gaussian_filter(node_data, self.std)
@@ -211,9 +190,6 @@ class JPEG_Compression(Filter):
     def __init__(self, quality_id):
         super().__init__()
         self.quality_id = quality_id
-
-    def set_params(self, params_dict):
-        self.quality = params_dict[self.quality_id]
 
     def apply(self, node_data, random_state, named_dims):
         iml = Image.fromarray(np.uint8(np.around(node_data)))
@@ -245,11 +221,6 @@ class Rain(Filter):
         super().__init__()
         self.probability_id = probability_id
         self.range_id = range_id
-
-    def set_params(self, params_dict):
-        self.probability = params_dict[self.probability_id]
-        # self.range should have value 1 or 255
-        self.range = params_dict[self.range_id]
 
     def apply(self, node_data, random_state, named_dims):
         height = node_data.shape[0]
@@ -340,11 +311,6 @@ class Snow(Filter):
         self.snowflake_probability_id = snowflake_probability_id
         self.snowflake_alpha_id = snowflake_alpha_id
         self.snowstorm_alpha_id = snowstorm_alpha_id
-
-    def set_params(self, params_dict):
-        self.snowflake_probability = params_dict[self.snowflake_probability_id]
-        self.snowflake_alpha = params_dict[self.snowflake_alpha_id]
-        self.snowstorm_alpha = params_dict[self.snowstorm_alpha_id]
 
     def apply(self, node_data, random_state, named_dims):
         def generate_perlin_noise(height, width, random_state):
@@ -480,11 +446,6 @@ class StainArea(Filter):
         self.transparency_percentage_id = transparency_percentage_id
         super().__init__()
 
-    def set_params(self, params_dict):
-        self.probability = params_dict[self.probability_id]
-        self.radius_generator = params_dict[self.radius_generator_id]
-        self.transparency_percentage = params_dict[self.transparency_percentage_id]
-
     def apply(self, node_data, random_state, named_dims):
         height = node_data.shape[0]
         width = node_data.shape[1]
@@ -544,11 +505,6 @@ class Saturation(Filter):
         self.rat_id = rat_id
         self.range_id = range_id
 
-    def set_params(self, params_dict):
-        self.tar = params_dict[self.tar_id]
-        self.rat = params_dict[self.rat_id]
-        self.range = params_dict[self.range_id]
-
     def apply(self, node_data, random_state, named_dims):
         nd = node_data.astype("float32")
         if self.range == 255:
@@ -576,9 +532,6 @@ class LensFlare(Filter):
 
     def __init__(self):
         super().__init__()
-
-    def set_params(self, params_dict):
-        pass
 
     def apply(self, node_data, random_state, named_dims):
         def flare(x0, y0, radius):

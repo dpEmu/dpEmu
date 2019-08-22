@@ -7,9 +7,6 @@ class ClipWAV(Filter):
         super().__init__()
         self.dyn_range_id = dyn_range_id
 
-    def set_params(self, params_dict):
-        self.dyn_range = params_dict[self.dyn_range_id]
-
     def apply(self, node_data, random_state, named_dims):
 
         def clip_audio(data, dyn_range):

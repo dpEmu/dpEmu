@@ -23,11 +23,6 @@ class MissingArea(Filter):
         self.missing_value_id = missing_value_id
         super().__init__()
 
-    def set_params(self, params_dict):
-        self.probability = params_dict[self.probability_id]
-        self.radius_generator = params_dict[self.radius_generator_id]
-        self.missing_value = params_dict[self.missing_value_id]
-
     def apply(self, node_data, random_state, named_dims):
         if self.probability == 0:
             return
@@ -111,10 +106,6 @@ class OCRError(Filter):
         self.p_id = p_id
         super().__init__()
 
-    def set_params(self, params_dict):
-        self.normalized_params = params_dict[self.normalized_params_id]
-        self.p = params_dict[self.p_id]
-
     def apply(self, node_data, random_state, named_dims):
         for index, string_ in np.ndenumerate(node_data):
             node_data[index] = (self.generate_ocr_errors(string_, random_state))
@@ -146,9 +137,6 @@ class Uppercase(Filter):
         """
         self.prob_id = probability_id
         super().__init__()
-
-    def set_params(self, params_dict):
-        self.prob = params_dict[self.prob_id]
 
     def apply(self, node_data, random_state, named_dims):
 

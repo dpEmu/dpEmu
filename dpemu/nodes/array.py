@@ -83,17 +83,3 @@ class Array(LeafNode):
             assign(data, index_tuple, tuple(node_data))
         else:
             self.apply_filters(node_data, random_state, named_dims)
-
-
-class TupleArray(Array):
-    """A tuple consisting of Arrays.
-
-    Args:
-        Array (object): An Array node represents a data array of any dimension (>= 0).
-    """
-
-    def __init__(self):
-        super().__init__([])
-
-    def process(self, data, random_state, index_tuple=(), named_dims={}):
-        pass

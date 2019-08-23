@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('../notebooks/'))
 # -- Project information -----------------------------------------------------
 
 project = 'dpEmu'
-copyright = '2019, dpEmu Team'
+copyright = '2019, Tuomas Halvari, Juha Harviainen, Juha Mylläri, Antti Röyskö, Juuso Silvennoinen'
 author = 'dpEmu Team'
 
 # The full version, including alpha/beta/rc tags

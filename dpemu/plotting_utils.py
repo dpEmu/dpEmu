@@ -41,7 +41,8 @@ def get_n_rows_cols(n_plots, max_n_cols):
     return n_rows, n_cols
 
 
-def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, x_log=False, y_log=False):
+def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, x_log=False, y_log=False,
+                     max_n_cols=2):
     """Plots the wanted scores for all distinct models that were used.
 
     Args:
@@ -55,10 +56,11 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
             Defaults to False.
         y_log (bool, optional): A bool telling whether a logarithmic scale should be used on y-axis or not.
             Defaults to False.
+        max_n_cols:
     """
     dfs = split_df_by_model(df)
 
-    n_rows, n_cols = get_n_rows_cols(len(score_names), 2)
+    n_rows, n_cols = get_n_rows_cols(len(score_names), max_n_cols)
     fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 5, n_rows * 4), squeeze=False, constrained_layout=True)
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
@@ -81,10 +83,8 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
     fig.savefig(path_to_plot)
 
 
-def visualize_best_model_params(
-        df, model_name, model_params, score_names, is_higher_score_better,
-        err_param_name, title, x_log=False, y_log=False
-):
+def visualize_best_model_params(df, model_name, model_params, score_names, is_higher_score_better, err_param_name,
+                                title, x_log=False, y_log=False, max_n_cols=2):
     """Plots the best model parameters for distinct error values.
 
     Args:
@@ -100,11 +100,12 @@ def visualize_best_model_params(
             Defaults to False.
         y_log (bool, optional): A bool telling whether a logarithmic scale should be used on y-axis or not.
             Defaults to False.
+        max_n_cols:
     """
     dfs = [df_ for df_ in split_df_by_model(df) if re.match(model_name + r"(?:|Clean) #\d+", df_.name)]
 
     for df_ in dfs:
-        n_rows, n_cols = get_n_rows_cols(len(score_names), 2)
+        n_rows, n_cols = get_n_rows_cols(len(score_names), max_n_cols)
         fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 5, n_rows * 4), squeeze=False,
                                 constrained_layout=True)
         for i, ax in enumerate(axs.ravel()):
@@ -139,7 +140,7 @@ def get_lims(data):
     return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
 
 
-def visualize_classes(df, label_names, err_param_name, reduced_data_column, labels_column, cmap, title):
+def visualize_classes(df, label_names, err_param_name, reduced_data_column, labels_column, cmap, title, max_n_cols=4):
     """This function visualizes the classes as 2-dimensional plots for different error parameter values.
 
     Args:
@@ -150,11 +151,12 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_column, labe
         labels_column (str): The name of the column that contains the labels for each element.
         cmap (str): The name of the color map used for coloring the plot.
         title (str): The title of the plot.
+        max_n_cols:
     """
     df = df.groupby(err_param_name).first().reset_index()
     labels = df[labels_column][0]
 
-    n_rows, n_cols = get_n_rows_cols(df.shape[0], 4)
+    n_rows, n_cols = get_n_rows_cols(df.shape[0], max_n_cols)
     fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 3, n_rows * 3), squeeze=False, constrained_layout=True)
     for i, ax in enumerate(axs.ravel()):
         if i >= df.shape[0]:

@@ -58,7 +58,7 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
     """
     dfs = split_df_by_model(df)
 
-    n_rows, n_cols = get_n_rows_cols(len(score_names), 3)
+    n_rows, n_cols = get_n_rows_cols(len(score_names), 2)
     fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 5, n_rows * 4), squeeze=False, constrained_layout=True)
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
@@ -104,7 +104,7 @@ def visualize_best_model_params(
     dfs = [df_ for df_ in split_df_by_model(df) if re.match(model_name + r"(?:|Clean) #\d+", df_.name)]
 
     for df_ in dfs:
-        n_rows, n_cols = get_n_rows_cols(len(score_names), 3)
+        n_rows, n_cols = get_n_rows_cols(len(score_names), 2)
         fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 5, n_rows * 4), squeeze=False,
                                 constrained_layout=True)
         for i, ax in enumerate(axs.ravel()):

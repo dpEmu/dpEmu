@@ -160,7 +160,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_column, labe
         if i >= df.shape[0]:
             ax.set_xticks([])
             ax.set_yticks([])
-            plt.box(False)
+            ax.axis("off")
             continue
         reduced_data = df[reduced_data_column][i]
         sc = ax.scatter(*reduced_data.T, c=labels, cmap=cmap, marker=".", s=40)

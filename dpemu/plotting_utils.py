@@ -20,8 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import math
 import random
+import re
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,7 +35,14 @@ from .utils import generate_unique_path, split_df_by_model, filter_optimized_res
 pd.set_option("display.expand_frame_repr", False)
 
 
-def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, x_log=False, y_log=False):
+def get_n_rows_cols(n_plots, max_n_cols):
+    n_rows = int((n_plots - 1) / max_n_cols) + 1
+    n_cols = n_plots if n_rows == 1 else max_n_cols
+    return n_rows, n_cols
+
+
+def visualize_scores(df, score_names, is_higher_score_better, err_param_name, title, x_log=False, y_log=False,
+                     max_n_cols=2):
     """Plots the wanted scores for all distinct models that were used.
 
     Args:
@@ -49,12 +56,12 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
             Defaults to False.
         y_log (bool, optional): A bool telling whether a logarithmic scale should be used on y-axis or not.
             Defaults to False.
+        max_n_cols:
     """
-
     dfs = split_df_by_model(df)
 
-    n_scores = len(score_names)
-    fig, axs = plt.subplots(1, n_scores, figsize=(n_scores * 5, 4), squeeze=False)
+    n_rows, n_cols = get_n_rows_cols(len(score_names), max_n_cols)
+    fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 5, n_rows * 4), squeeze=False, constrained_layout=True)
     for i, ax in enumerate(axs.ravel()):
         for df_ in dfs:
             df_ = filter_optimized_results(df_, err_param_name, score_names[i], is_higher_score_better[i])
@@ -71,18 +78,13 @@ def visualize_scores(df, score_names, is_higher_score_better, err_param_name, ti
             ax.set_ylabel(score_names[i])
             ax.legend(fontsize="small")
 
-    fig.subplots_adjust(wspace=.25)
-    fig.suptitle(title)
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
-
+    fig.suptitle(title, fontsize=10)
     path_to_plot = generate_unique_path("out", "png")
     fig.savefig(path_to_plot)
 
 
-def visualize_best_model_params(
-            df, model_name, model_params, score_names, is_higher_score_better,
-            err_param_name, title, x_log=False, y_log=False
-        ):
+def visualize_best_model_params(df, model_name, model_params, score_names, is_higher_score_better, err_param_name,
+                                title, x_log=False, y_log=False, max_n_cols=2):
     """Plots the best model parameters for distinct error values.
 
     Args:
@@ -98,39 +100,47 @@ def visualize_best_model_params(
             Defaults to False.
         y_log (bool, optional): A bool telling whether a logarithmic scale should be used on y-axis or not.
             Defaults to False.
+        max_n_cols:
     """
-    dfs = split_df_by_model(df)
+    dfs = [df_ for df_ in split_df_by_model(df) if re.match(model_name + r"(?:|Clean) #\d+", df_.name)]
 
-    for model_param in model_params:
-        plt.figure()
-        ax = plt.subplot(111)
-        for i, _ in enumerate(score_names):
-            for df_ in dfs:
-                if df_.name != model_name:
-                    continue
-                df_ = filter_optimized_results(df_, err_param_name, score_names[i], is_higher_score_better[i])
+    for df_ in dfs:
+        n_rows, n_cols = get_n_rows_cols(len(score_names), max_n_cols)
+        fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 5, n_rows * 4), squeeze=False,
+                                constrained_layout=True)
+        for i, ax in enumerate(axs.ravel()):
+            for j, score_name in enumerate(score_names):
+                df_opt = filter_optimized_results(df_, err_param_name, score_name, is_higher_score_better[j])
                 if x_log and y_log:
-                    plt.loglog(df_[err_param_name], df_[model_param], label=score_names[i])
+                    ax.loglog(df_opt[err_param_name], df_opt[model_params[i]], label=score_name)
                 elif x_log:
-                    plt.semilogx(df_[err_param_name], df_[model_param], label=score_names[i])
+                    ax.semilogx(df_opt[err_param_name], df_opt[model_params[i]], label=score_name)
                 elif y_log:
-                    plt.semilogy(df_[err_param_name], df_[model_param], label=score_names[i])
+                    ax.semilogy(df_opt[err_param_name], df_opt[model_params[i]], label=score_name)
                 else:
-                    plt.plot(df_[err_param_name], df_[model_param], label=score_names[i])
-                    ax.set_xlim([df_[err_param_name].min(), df_[err_param_name].max()])
-                ax.set_xlabel(err_param_name)
-                ax.set_ylabel(model_param)
-                plt.legend(fontsize="small")
+                    ax.plot(df_opt[err_param_name], df_opt[model_params[i]], label=score_name)
+            ax.set_xlabel(err_param_name)
+            ax.set_ylabel(model_params[i])
+            ax.legend(fontsize="small")
 
-        plt.subplots_adjust(wspace=.25)
-        plt.suptitle(title + " (" + model_name + ")")
-        plt.tight_layout(rect=[0, 0, 1, 0.95])
-
+        fig.suptitle(title + " (" + df_.name + ")", fontsize=10)
         path_to_plot = generate_unique_path("out", "png")
-        plt.savefig(path_to_plot)
+        fig.savefig(path_to_plot)
 
 
-def visualize_classes(df, label_names, err_param_name, reduced_data_column, labels_column, cmap, title):
+def get_lims(data):
+    """Returns the limits of the plot.
+
+    Args:
+        data (list): A list of 2-dimensional data points.
+
+    Returns:
+        float, float, float, float: minimum x, maximum x, minimum y, maximum y.
+    """
+    return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
+
+
+def visualize_classes(df, label_names, err_param_name, reduced_data_column, labels_column, cmap, title, max_n_cols=4):
     """This function visualizes the classes as 2-dimensional plots for different error parameter values.
 
     Args:
@@ -141,33 +151,22 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_column, labe
         labels_column (str): The name of the column that contains the labels for each element.
         cmap (str): The name of the color map used for coloring the plot.
         title (str): The title of the plot.
+        max_n_cols:
     """
-
-    def get_lims(data):
-        """Returns the limits of the plot.
-
-        Args:
-            data (list): A list of 2-dimensional data points.
-
-        Returns:
-            float, float, float, float: minimum x, maximum x, minimum y, maximum y.
-        """
-        return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
-
     df = df.groupby(err_param_name).first().reset_index()
     labels = df[labels_column][0]
 
-    n_col = math.ceil(df.shape[0] / 2)
-    fig, axs = plt.subplots(2, n_col, figsize=(2.5 * n_col + 1, 5), constrained_layout=True)
+    n_rows, n_cols = get_n_rows_cols(df.shape[0], max_n_cols)
+    fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 3, n_rows * 3), squeeze=False, constrained_layout=True)
     for i, ax in enumerate(axs.ravel()):
         if i >= df.shape[0]:
             ax.set_xticks([])
             ax.set_yticks([])
-            plt.box(False)
+            ax.axis("off")
             continue
         reduced_data = df[reduced_data_column][i]
-        x_min, x_max, y_min, y_max = get_lims(reduced_data)
         sc = ax.scatter(*reduced_data.T, c=labels, cmap=cmap, marker=".", s=40)
+        x_min, x_max, y_min, y_max = get_lims(reduced_data)
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
         err_param_val = round(df[err_param_name][i], 3)
@@ -199,28 +198,16 @@ def visualize_interactive_plot(df, err_param_name, data, scatter_cmap, reduced_d
         on_click (function): A function used for interactive plotting.
             When a data point is clicked, the function is given the original and modified elements as its parameters.
     """
-
-    def get_lims(data):
-        """Returns the limits of the plot.
-
-        Args:
-            data (list): A list of 2-dimensional data points.
-
-        Returns:
-            float, float, float, float: minimum x, maximum x, minimum y, maximum y.
-        """
-        return data[:, 0].min() - 1, data[:, 0].max() + 1, data[:, 1].min() - 1, data[:, 1].max() + 1
-
     df = df.groupby(err_param_name).first().reset_index()
     labels = df["labels"][0]
 
     # plot the data of each error parameter combination
     for i, _ in enumerate(df[reduced_data_column]):
         reduced_data = df[reduced_data_column][i]
-        x_min, x_max, y_min, y_max = get_lims(reduced_data)
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.scatter(reduced_data.T[0], reduced_data.T[1], c=labels, cmap=scatter_cmap, marker=".", s=40, picker=True)
+        x_min, x_max, y_min, y_max = get_lims(reduced_data)
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
         err_param_val = round(df[err_param_name][i], 3)

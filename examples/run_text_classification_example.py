@@ -176,25 +176,26 @@ def visualize(df, dataset_name, label_names, test_data, use_interactive_mode):
         err_param_name="p",
         title=f"{dataset_name} classification scores with added error"
     )
-
-    model_param_pair_list = [
-        ("MultinomialNB #1", "alpha"),
-        ("MultinomialNBClean #1", "alpha"),
-        ("LinearSVC #1", "C"),
-        ("LinearSVCClean #1", "C"),
-    ]
-    for model_name, model_param in model_param_pair_list:
-        visualize_best_model_params(
-            df,
-            model_name,
-            model_params=[model_param],
-            score_names=["test_mean_accuracy"],
-            is_higher_score_better=[True],
-            err_param_name="p",
-            title=f"Best parameters for {dataset_name} classification",
-            y_log=True
-        )
-
+    visualize_best_model_params(
+        df,
+        "MultinomialNB",
+        model_params=["alpha"],
+        score_names=["test_mean_accuracy"],
+        is_higher_score_better=[True],
+        err_param_name="p",
+        title=f"Best parameters for {dataset_name} classification",
+        y_log=True
+    )
+    visualize_best_model_params(
+        df,
+        "LinearSVC",
+        model_params=["C"],
+        score_names=["test_mean_accuracy"],
+        is_higher_score_better=[True],
+        err_param_name="p",
+        title=f"Best parameters for {dataset_name} classification",
+        y_log=True
+    )
     visualize_classes(
         df,
         label_names,

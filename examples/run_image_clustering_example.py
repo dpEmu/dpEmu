@@ -168,7 +168,7 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
     )
     visualize_best_model_params(
         df,
-        model_name="HDBSCAN #1",
+        model_name="HDBSCAN",
         model_params=["min_cluster_size", "min_samples"],
         score_names=["AMI", "ARI"],
         is_higher_score_better=[True, True],

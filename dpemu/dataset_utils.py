@@ -33,8 +33,6 @@ from sklearn.model_selection import train_test_split
 
 from dpemu.utils import get_project_root
 
-warnings.simplefilter(action='ignore', category=FutureWarning)
-from keras.datasets.mnist import load_data as load_mnist_data
 
 random_state = RandomState(42)
 
@@ -87,11 +85,15 @@ def load_mnist(n_data=70000):
 
 
 def _load_mnist(reshape_to_28x28=False):
+    warnings.simplefilter(action='ignore', category=FutureWarning)
+    from keras.datasets.mnist import load_data as load_mnist_data
+
     (x_train, y_train), (x_test, y_test) = load_mnist_data()
     if not reshape_to_28x28:
         x_train = x_train.reshape((-1, 28*28))
         x_test = x_test.reshape((-1, 28*28))
     return x_train, y_train, x_test, y_test
+
 
 def load_fashion(n_data=70000):
     mnist = fetch_openml("Fashion-MNIST")

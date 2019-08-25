@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 import sys
-from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from dpemu.nodes import Array, TupleSeries

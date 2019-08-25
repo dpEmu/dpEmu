@@ -480,12 +480,13 @@ class Snow(Filter):
 class StainArea(Filter):
     """Adds stains to images.
 
-    This filter adds stains to the images.
-        probability: probability of adding a stain at each pixel.
-        radius_generator: object implementing a generate(random_state) function
-            which returns the radius of the stain.
-        transparency_percentage: 1 means that the stain is invisible and 0 means
-            that the part of the image where the stain is is completely black.
+    probability: probability of adding a stain at each pixel.
+
+    radius_generator: object implementing a generate(random_state) function
+    which returns the radius of the stain.
+
+    transparency_percentage: 1 means that the stain is invisible and 0 means
+    that the part of the image where the stain is is completely black.
 
     Inherits Filter class.
     """

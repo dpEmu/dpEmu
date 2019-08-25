@@ -68,6 +68,6 @@ See [Wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing).
 ## Coursework Documentation
 
 * [Product Backlog](https://docs.google.com/spreadsheets/d/1WarfjE1UKnpkwlG3px8kG7dWvZmzVhzRg8-vwbMKG6c)
-* [Definition of Done](docs/definition_of_done.md)
-* [Meeting Etiquette](docs/meeting_etiquette.md)
-* [Team Practices](docs/team_practices.md)
+* [Definition of Done](coursework_docs/definition_of_done.md)
+* [Meeting Etiquette](coursework_docs/meeting_etiquette.md)
+* [Team Practices](coursework_docs/team_practices.md)

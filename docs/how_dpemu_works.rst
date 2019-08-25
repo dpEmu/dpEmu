@@ -9,7 +9,7 @@ dpEmu consists of three components:
 
 
 Error Generation
-^^^^^^^^^^^^^^^^
+----------------
 
 For a quick hands-on introduction to error generation in dpEmu, see the
 `Error Generation Basics tutorial <tutorials/Error_Generation_Basics.ipynb>`_.
@@ -22,7 +22,7 @@ Error generation in dpEmu consists of three simple steps:
 
 
 Creating an Error Generation Tree
----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Error generation trees consist of tree nodes. The most common type of leaf node
 is the ``Array``, which can represent a Numpy array (or Python list) of any
@@ -59,7 +59,7 @@ as a tree. For example, a 2d Numpy array can be represented as:
 
 
 Adding Filters (Error Sources)
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Filters can be added to leaf nodes such as ``Array`` or ``Tuple`` nodes.
 Dozens of filters (e.g. ``Snow``, ``Blur`` and ``SensorDrift``) are provided
@@ -73,7 +73,7 @@ call the node's ``addfilter`` method with the filter object as the parameter.
 
 
 Calling the ``generate_error`` Method
--------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once you have defined your error generation tree and added the desired filters,
 you can call the ``generate_error`` method of the root node of the tree. The
@@ -95,6 +95,7 @@ This is an example of what the error generation process might look like:
 .. literalinclude:: ../examples/filter_examples/run_with_tuple_example.py
    :language: python
    :linenos:
+   :lines: 23-
 
 In the example the error generation tree has a ``TupleSeries`` as its
 root node, which in turn has two ``Array`` nodes as its children. Then on
@@ -117,7 +118,7 @@ call the method for you.
 
 
 ML runner system
-^^^^^^^^^^^^^^^^
+''''''''''''''''
 
 The ML runner system, or simply runner, is a system which is used for running
 multiple machine learning models simultaneously with distinct filter error
@@ -242,7 +243,7 @@ the user can try to figure out why something was classified incorrectly.
 
 
 Visualization functions
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
 The ``dpemu.plotting_utils`` module contains several functions for plotting and
 visualizing the data.
@@ -260,6 +261,7 @@ In the end of the example a plot of scores is visualized.
 .. literalinclude:: ../examples/run_manual_predictor_example.py
    :language: python
    :linenos:
+   :lines: 23-
 
 
 Run the program with the command:

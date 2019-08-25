@@ -56,6 +56,18 @@ def get_project_root():
     return Path(__file__).resolve().parents[1]
 
 
+def get_data_dir():
+    """[Get the path to ]
+
+    [extended_summary]
+
+    Returns:
+        [type]: [description]
+    """
+    root_dir = get_project_root()
+    return root_dir / "data"
+
+
 def split_df_by_model(df):
     """[summary]
 

@@ -2,7 +2,7 @@ Basic usage
 ===========
 
 Running notebooks
-^^^^^^^^^^^^^^^^^
+-----------------
 
 All jupyter notebooks provided can be opened in a browser with:
 
@@ -18,7 +18,7 @@ and remotely executed in console with:
 
 
 Running examples
-^^^^^^^^^^^^^^^^
+----------------
 
 **Run the examples from project root.**
 

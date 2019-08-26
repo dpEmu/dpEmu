@@ -185,7 +185,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_column, labe
 
 
 def visualize_time_series_prediction(df, model_name, score_name, is_higher_score_better, err_param_name,
-                                     err_data_column, predictions_column, title, max_n_cols=3):
+                                     err_data_column, predictions_column, title, max_n_cols=4):
     dfs = [df_ for df_ in split_df_by_model(df) if re.match(model_name + r" #\d+", df_.name)]
     for df_ in dfs:
         df_ = filter_optimized_results(df_, err_param_name, score_name, is_higher_score_better)

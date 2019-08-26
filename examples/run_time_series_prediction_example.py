@@ -21,71 +21,95 @@
 # SOFTWARE.
 
 import random as rn
-from collections import OrderedDict
-from io import BytesIO
+import sys
+from math import sqrt
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from PIL import Image
 from keras import backend
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.models import Sequential
-from math import sqrt
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
-from dpemu.nodes import Array
-from dpemu.filters.time_series import SensorDrift
 from dpemu import pg_utils
+from dpemu import runner
+from dpemu.filters.common import GaussianNoise
+from dpemu.nodes import Array
+from dpemu.plotting_utils import print_results_by_model, visualize_scores, visualize_time_series_prediction
 
 
-class Model:
-    def __init__(self, data):
-        seed = 42
-        rn.seed(seed)
-        np.random.seed(seed)
-        tf.set_random_seed(seed)
-        conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
-        session = tf.Session(graph=tf.get_default_graph(), config=conf)
-        backend.set_session(session)
+def get_data(argv):
+    dataset_name = argv[1]
+    n_data = int(argv[2])
+    if dataset_name == "passengers":
+        data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"])[:n_data].values.astype(float)
+    else:
+        data = pd.read_csv("data/temperature.csv", header=0, usecols=[dataset_name])[:n_data].values.astype(float)
+    n_data = len(data)
+    return data, n_data, dataset_name
 
-        self.scaler = MinMaxScaler(feature_range=(0, 1))
-        self.data = data[~np.isnan(data)]
-        self.data = np.reshape(self.data, (len(self.data), 1))
 
-        # plt.plot(self.data)
-        # plt.tight_layout()
-        # plt.show()
+def get_err_root_node():
+    err_root_node = Array()
+    err_root_node.addfilter(GaussianNoise("mean", "std"))
+    # err_root_node.addfilter(SensorDrift("magnitude"))
+    # err_root_node.addfilter(Gap("prob_break", "prob_recover", "missing_value"))
+    return err_root_node
+
+
+def get_err_params_list():
+    err_params_list = [{"mean": 0, "std": std} for std in [0, 8, 16, 24]]
+    # err_params_list = [{"magnitude": a} for a in [0, 2, 4, 8]]
+    # err_params_list = [{"prob_break": p, "prob_recover": .5, "missing_value": np.nan} for p in [0, .03, .06, .09]]
+    return err_params_list
+
+
+class Preprocessor:
+    def run(self, train_data, test_data, params):
+        return train_data, test_data, {}
+
+
+class LSTMModel:
+
+    def __init__(self):
+        self.seed = 42
 
     @staticmethod
     def __get_periodic_diffs(data, n_period):
         return np.array([data[i] - data[i - n_period] for i in range(n_period, len(data))])
 
-    def __get_plot(self, train_with_test_pred):
-        plt.plot(self.data, label="data")
-        plt.plot(train_with_test_pred, label="pred", zorder=1)
-        plt.legend()
-        plt.tight_layout()
-        buf = BytesIO()
-        plt.savefig(buf, format="png")
-        buf.seek(0)
-        byte_img = buf.read()
-        byte_img = BytesIO(byte_img)
-        return Image.open(byte_img)
+    @staticmethod
+    def __get_rmse(test_pred, test):
+        return sqrt(mean_squared_error(test_pred, test))
 
-    def run(self):
+    def run(self, _, data, params):
+        print(data)
+        rn.seed(self.seed)
+        np.random.seed(self.seed)
+        tf.set_random_seed(self.seed)
+        conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+        session = tf.Session(graph=tf.get_default_graph(), config=conf)
+        backend.set_session(session)
+
+        data = data[~np.isnan(data)]
+        data = np.reshape(data, (len(data), 1))
+
+        scaler = MinMaxScaler(feature_range=(0, 1))
+
         n_features = 1
-        n_test = int(len(self.data) * .33)
+        n_test = int(len(data) * .33)
         n_period = 24
+        # n_period = 12
         n_steps = 3 * n_period
         n_nodes = 100
         n_epochs = 200
 
-        train, test = self.data[:-n_test], self.data[-n_test:]
-        train = self.scaler.fit_transform(train)
+        train, test = data[:-n_test], data[-n_test:]
+        train = scaler.fit_transform(train)
         train_periodic_diffs = self.__get_periodic_diffs(train, n_period)
         train_periodic_diffs = pg_utils.to_time_series_x_y(train_periodic_diffs, n_steps)
 
@@ -102,52 +126,64 @@ class Model:
             x_cur = np.reshape(x_cur, (1, n_steps, n_features))
             y_cur = model.predict(x_cur) + train_with_test_pred[-n_period]
             train_with_test_pred = np.concatenate([train_with_test_pred, y_cur], axis=0)
-        train_with_test_pred = self.scaler.inverse_transform(train_with_test_pred)
+        train_with_test_pred = scaler.inverse_transform(train_with_test_pred)
 
-        out = OrderedDict()
-        out["prediction_img"] = self.__get_plot(train_with_test_pred)
-        out["rmse"] = sqrt(mean_squared_error(test, train_with_test_pred[-n_test:]))
-        return out
+        rmse = self.__get_rmse(train_with_test_pred[-n_test:], test)
+        return {
+            "rmse": rmse,
+            "err_data": data,
+            "train_with_test_pred": train_with_test_pred
+        }
 
 
-def main():
-    data = pd.read_csv("data/passengers.csv", header=0, usecols=["passengers"])
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:200]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Eilat"])[:400]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:400]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Miami"])[:600]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Tel Aviv District"])[:600]
-    # data = pd.read_csv("data/temperature.csv", header=0, usecols=["Jerusalem"])[:700]
-    y = data.values.astype(float)
-    root_node = Array()
+def get_model_params_dict_list():
+    return [{"model": LSTMModel, "params_list": [{}]}]
 
-    def strange(a, _):
-        if a <= 500 and a >= 400:
-            return 1729
 
-        return a
+def visualize(df, n_data, dataset_name):
+    visualize_scores(
+        df,
+        score_names=["rmse"],
+        is_higher_score_better=[False],
+        err_param_name="std",
+        # err_param_name="magnitude",
+        # err_param_name="prob_break",
+        title=f"Prediction scores for {dataset_name} dataset (n={n_data})"
+    )
+    visualize_time_series_prediction(
+        df,
+        "LSTM",
+        score_name="rmse",
+        is_higher_score_better=False,
+        err_param_name="std",
+        # err_param_name="magnitude",
+        # err_param_name="prob_break",
+        err_data_column="err_data",
+        predictions_column="train_with_test_pred",
+        title=f"Predictions for {dataset_name} dataset (n={n_data})"
+    )
+    plt.show()
 
-    params = {}
-    params["magnitude"] = 2
-    params["strange"] = strange
-    params["mean"] = 5
-    params["std"] = 15
-    params["p_break"] = .1
-    params["p_recover"] = .5
-    params["missing_value"] = np.nan
 
-    # root_node.addfilter(StrangeBehaviour("strange"))
-    root_node.addfilter(SensorDrift("magnitude"))
-    # root_node.addfilter(Gap("p_break", "p_recover", "missing_value"))
-    # root_node.addfilter(GaussianNoise("mean", "std"))
+def main(argv):
+    if len(argv) != 3 or argv[1] not in ["passengers", "Jerusalem", "Eilat", "Miami", "Tel Aviv District"]:
+        exit(0)
 
-    output = root_node.generate_error(y, params)
-    # print("Changed\n", output)
-    model = Model(output)
-    out = model.run()
-    out["prediction_img"].show()
-    # print("RMSE: {}".format(out["rmse"]))
+    data, n_data, dataset_name = get_data(argv)
+
+    df = runner.run(
+        train_data=None,
+        test_data=data,
+        preproc=Preprocessor,
+        preproc_params=None,
+        err_root_node=get_err_root_node(),
+        err_params_list=get_err_params_list(),
+        model_params_dict_list=get_model_params_dict_list(),
+    )
+
+    print_results_by_model(df, dropped_columns=["err_data", "train_with_test_pred"])
+    visualize(df, n_data, dataset_name)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

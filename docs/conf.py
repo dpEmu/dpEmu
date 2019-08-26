@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('_ext'))
 
 
 # -- Project information -----------------------------------------------------
@@ -30,9 +31,12 @@ release = '0.0.1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'recommonmark', 'sphinx.ext.viewcode', 'nbsphinx']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'recommonmark', 'sphinx.ext.viewcode', 'nbsphinx', 'edit_on_github']
 
 napoleon_include_init_with_doc = True
+
+edit_on_github_project = 'dpEmu/dpEmu'
+edit_on_github_branch = 'master'
 
 autodoc_mock_imports = ['torch', 'keras', 'sklearn', 'cv2', 'tensorflow', 'PIL', 'future', 'hdbscan', 'imutils', 'matplotlib', 'mock', 'numpy', 'pandas', 'pytest', 'scipy', 'tqdm', 'umap', 'graphviz', 'numba']
 
@@ -42,7 +46,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'tutorials/.ipynb_checkpoints', 'case_studies/.ipynb_checkpoints']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
 
 pygments_style = 'sphinx'
 

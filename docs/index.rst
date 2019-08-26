@@ -1,6 +1,7 @@
 Welcome to dpEmu 0.0.1 Documentation!
 =====================================
 
+`View on GitHub <https://github.com/dpEmu/dpEmu>`_
 
 Introduction
 ^^^^^^^^^^^^

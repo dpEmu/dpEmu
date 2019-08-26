@@ -112,7 +112,7 @@ class KMeansModel(AbstractModel):
     def get_fitted_model(self, data, params):
         labels = params["labels"]
         n_classes = len(np.unique(labels))
-        return KMeans(n_clusters=n_classes, random_state=self.random_state).fit(data)
+        return KMeans(n_clusters=n_classes, n_jobs=1, random_state=self.random_state).fit(data)
 
 
 class AgglomerativeModel(AbstractModel):

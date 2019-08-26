@@ -26,6 +26,7 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from IPython.core.display import display
 from graphviz import Digraph
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -511,4 +512,4 @@ def print_results_by_model(df, dropped_columns=[]):
     dfs = split_df_by_model(df)
     for df_ in dfs:
         print(df_.name)
-        print(df_.drop(columns=[col for col in dropped_columns if col in df_]))
+        display(df_.drop(columns=[col for col in dropped_columns if col in df_]))

@@ -76,7 +76,7 @@ def _get_result_with_model_params(model, model_params, train_data, test_data, re
     result = model().run(train_data, test_data, model_params)
     result.update(result_base)
     time_mod = time.time() - time_start
-    result["time_mod"] = time_mod
+    result["time_mod"] = round(time_mod, 3)
     result.update({k: v for k, v in model_params.items()})
     return result
 
@@ -95,8 +95,8 @@ def _add_more_stuff_to_results(result, err_params, model_name, i_data, time_pre,
     result["model_name"] = model_name
     if use_i_mode:
         result["interactive_err_data"] = i_data
-    result["time_err"] = time_err
-    result["time_pre"] = time_pre
+    result["time_err"] = round(time_err, 3)
+    result["time_pre"] = round(time_pre, 3)
 
 
 def worker(inputs):

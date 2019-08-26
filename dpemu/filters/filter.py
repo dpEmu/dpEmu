@@ -55,7 +55,14 @@ class Filter(ABC):
             if key[-3:] == "_id":
                 value = self.__dict__[key]
                 if value is not None:
-                    self.__dict__[key[:-3]] = params_dict[value]
+                    try:
+                        self.__dict__[key[:-3]] = params_dict[value]
+                    except KeyError as e:
+                        message = "The error parameter dictionary does not contain a parameter "\
+                                  f"with the identifier '{value}', which is expected by "\
+                                  f"the Filter {self}."
+                        raise Exception(message) from e
+
         for key in self.__dict__:
             value = self.__dict__[key]
             if isinstance(value, Filter):

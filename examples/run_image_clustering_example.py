@@ -33,7 +33,7 @@ from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 from dpemu import runner
-from dpemu.dataset_utils import load_digits_, load_mnist, load_fashion
+from dpemu.dataset_utils import load_digits_, load_mnist_unsplit, load_fashion
 from dpemu.filters.image import Rotation
 from dpemu.ml_utils import reduce_dimensions
 from dpemu.nodes import Array
@@ -49,7 +49,7 @@ def get_data(argv):
     if argv[1] == "digits":
         data, labels, label_names, dataset_name = load_digits_(int(argv[2]))
     elif argv[1] == "mnist":
-        data, labels, label_names, dataset_name = load_mnist(int(argv[2]))
+        data, labels, label_names, dataset_name = load_mnist_unsplit(int(argv[2]))
     else:
         data, labels, label_names, dataset_name = load_fashion(int(argv[2]))
     return data, labels, label_names, dataset_name

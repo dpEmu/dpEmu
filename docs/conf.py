@@ -15,6 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('_ext'))
 
+import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
@@ -31,14 +32,10 @@ release = '0.0.1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-import sphinx_rtd_theme
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'recommonmark', 'sphinx.ext.viewcode', 'nbsphinx', 'sphinx_rtd_theme']
 
 napoleon_include_init_with_doc = True
-
-edit_on_github_project = 'dpEmu/dpEmu'
-edit_on_github_branch = 'master'
 
 autodoc_mock_imports = ['torch', 'keras', 'sklearn', 'cv2', 'tensorflow', 'PIL', 'future', 'hdbscan', 'imutils', 'matplotlib', 'mock', 'numpy', 'pandas', 'pytest', 'scipy', 'tqdm', 'umap', 'graphviz', 'numba']
 

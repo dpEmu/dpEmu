@@ -78,20 +78,27 @@ def load_digits_(n_data=1797):
     return data, labels, None, "Digits"
 
 
-def load_mnist(n_data=70000):
+def load_mnist_unsplit(n_data=70000):
     mnist = fetch_openml("mnist_784")
     data, labels = split_data(mnist["data"], mnist["target"].astype(int), n_data)
     return data, labels, None, "MNIST"
 
 
-def _load_mnist(reshape_to_28x28=False):
+def load_mnist(reshape_to_28x28=False, integer_values=False):
+    from contextlib import redirect_stderr
     warnings.simplefilter(action='ignore', category=FutureWarning)
-    from keras.datasets.mnist import load_data as load_mnist_data
+    with redirect_stderr(open(os.devnull, 'w')):
+        from keras.datasets.mnist import load_data as load_mnist_data
 
     (x_train, y_train), (x_test, y_test) = load_mnist_data()
     if not reshape_to_28x28:
         x_train = x_train.reshape((-1, 28*28))
         x_test = x_test.reshape((-1, 28*28))
+    if not integer_values:
+        x_train = x_train.astype('float')
+        y_train = y_train.astype('float')
+        x_test = x_test.astype('float')
+        y_train = y_train.astype('float')
     return x_train, y_train, x_test, y_test
 
 

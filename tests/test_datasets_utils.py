@@ -126,7 +126,7 @@ def test_load_fashion(mock_fetch_openml):
 
 
 @patch("dpemu.dataset_utils.load_digits", side_effect=mock_load_digits)
-def test_load_digits(mock_load_digits):
+def test_load_digits_(mock_load_digits):
     ret_data, ret_labels, _, descr = utils.load_digits_(10)
     test_rng = np.random.RandomState(1729)
 

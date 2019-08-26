@@ -41,7 +41,7 @@ def _unpickle_data(path_to_train_data, path_to_test_data):
 
 def _errorify_data(train_data, test_data, err_root_node, err_params):
     time_start = time.time()
-    if train_data:
+    if train_data is not None:
         err_train_data = err_root_node.generate_error(train_data, err_params)
     else:
         err_train_data = None
@@ -82,6 +82,8 @@ def _get_result_with_model_params(model, model_params, train_data, test_data, re
 
 
 def _get_results_from_model(model, model_params_list, train_data, test_data, result_base):
+    if not model_params_list:
+        model_params_list.append({})
     return [
         _get_result_with_model_params(model, model_params, train_data, test_data, result_base) for model_params in
         model_params_list

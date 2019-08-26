@@ -66,7 +66,7 @@ class Array(LeafNode):
         """Apply all filters in this node.
 
         Args:
-            data ([type]): [description]
+            data (numpy.ndarray): Data to be modified as a Numpy array.
             random_state (mtrand.RandomState): An instance of numpy.random.RandomState
             index_tuple (tuple, optional): The index of the node. Defaults to ().
             named_dims (dict, optional): Named dimensions. Defaults to {}.

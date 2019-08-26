@@ -20,18 +20,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .node import LeafNode, get_node_data, assign
+"""This example raises an exception (on purpose).
+The parameter identifier "mean" is misspelled in the
+params dictionary. This should result in an exception
+with a helpful error message.
+"""
 
+import numpy as np
+from dpemu.filters.common import GaussianNoise
+from dpemu.nodes import Array
 
-class Tuple(LeafNode):
-    """The Tuple is a leaf node which represents data whose type is a tuple.
-
-    The filters on this node are applied to all elements of the tuple.
-    """
-    def __init__(self):
-        super().__init__()
-
-    def process(self, data, random_state, index_tuple=(), named_dims={}):
-        node_data, _, _, _ = get_node_data(data, index_tuple)
-        self.apply_filters(node_data, random_state, named_dims)
-        assign(data, index_tuple, tuple(node_data))
+xs = np.random.rand(100, 200)
+array_node = Array()
+array_node.addfilter(GaussianNoise("mean", "std"))
+params = {"meany": 0.0, "std": 20.0}
+errorified = array_node.generate_error(xs, params)

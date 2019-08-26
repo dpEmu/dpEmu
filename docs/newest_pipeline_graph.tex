@@ -1,4 +1,4 @@
-\documentclass[tikz]{standalone}
+\documentclass[tikz, margin=0.1cm]{standalone}
 \usetikzlibrary{fit}
 \usetikzlibrary{arrows}
 
@@ -9,7 +9,7 @@
 	\node[file, right of=code, xshift=2cm] (errgen) {Error generation}; %
 	\node[state, below of=errgen, yshift=-4cm] (paral) {Parallelization}; %
 	\node[file, right of=errgen, xshift=2cm] (preproc) {Preprocessing}; %
-	\node[file, right of=preproc, xshift=2cm] (model) {model}; %
+	\node[file, right of=preproc, xshift=2cm] (model) {models}; %
 	\node[state, below of=model, yshift=-4cm] (combine) {Combine results}; %
 	\node[file, right of=combine, xshift=2cm] (data) {Dataframe}; %
 	\node[state, right of=model, xshift=2cm] (visual) {Visualization}; %

@@ -43,26 +43,19 @@ def main():
 
     const = Constant("c")
     rot1 = Rotation("deg1")
-    mod1 = ModifyAsDataType("rotation_dtype", "rot1")
+    mod1 = ModifyAsDataType("rotation_dtype", rot1)
     rot2 = Rotation("deg2")
-    mod2 = ModifyAsDataType("rotation_dtype", "rot2")
-    add = Addition("mod1", "mod2")
-    avg = Division("add", "const")
-    x_node.addfilter(ModifyAsDataType("avg_dtype", "avg"))
+    mod2 = ModifyAsDataType("rotation_dtype", rot2)
+    add = Addition(mod1, mod2)
+    avg = Division(add, const)
+    x_node.addfilter(ModifyAsDataType("avg_dtype", avg))
 
     params = {}
     params['c'] = 2
-    params['const'] = const
-    params['add'] = add
-    params['avg'] = avg
     params['rotation_dtype'] = np.uint8
     params['avg_dtype'] = np.uint16
     params['deg1'] = 0
     params['deg2'] = 180
-    params['rot1'] = rot1
-    params['rot2'] = rot2
-    params['mod1'] = mod1
-    params['mod2'] = mod2
 
     result = x_node.generate_error(data, params)
     cv2.imshow("Rotated", result)

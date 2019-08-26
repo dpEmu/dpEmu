@@ -72,11 +72,11 @@ def test_visualizing_array_node_with_filter():
 
 def test_visualizing_array_node_with_complex_filter():
     x_node = Array()
-    addition = Addition("f1", "f2")
     const = Constant("c")
+    addition = Addition(const, const)
     x_node.addfilter(addition)
     path = plotting_utils.visualize_error_generator(
-        x_node.get_parametrized_tree({'f1': const, 'f2': const, 'c': 5}), False)
+        x_node.get_parametrized_tree({'c': 5}), False)
     file = open(path, 'r')
     data = file.read()
     assert re.compile(r'2.*Addition').search(data)

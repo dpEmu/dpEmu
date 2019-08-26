@@ -37,10 +37,10 @@ params['mean_a'] = 1
 params['mean_b'] = 2
 params['std_a'] = 4
 params['std_b'] = 3
-params['gaussian_a'] = GaussianNoise("mean_a", "std_a")
-params['gaussian_b'] = GaussianNoise("mean_b", "std_b")
+gaussian_a = GaussianNoise("mean_a", "std_a")
+gaussian_b = GaussianNoise("mean_b", "std_b")
 
-x_node.addfilter(Addition('gaussian_a', 'gaussian_b'))
+x_node.addfilter(Addition(gaussian_a, gaussian_b))
 y_node.addfilter(Missing("probability", "missing_value"))
 
 plotting_utils.visualize_error_generator(root_node.get_parametrized_tree(params))

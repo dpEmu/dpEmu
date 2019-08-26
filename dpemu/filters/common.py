@@ -42,10 +42,6 @@ class Missing(Filter):
         self.missing_value_id = missing_value_id
         super().__init__()
 
-    def set_params(self, params_dict):
-        self.probability = params_dict[self.probability_id]
-        self.missing_value = params_dict[self.missing_value_id]
-
     def apply(self, node_data, random_state, named_dims):
         mask = random_state.rand(*(node_data.shape)) <= self.probability
         node_data[mask] = self.missing_value
@@ -66,10 +62,6 @@ class Clip(Filter):
         self.min_id = min_id
         self.max_id = max_id
         super().__init__()
-
-    def set_params(self, params_dict):
-        self.min = params_dict[self.min_id]
-        self.max = params_dict[self.max_id]
 
     def apply(self, node_data, random_state, named_dims):
         np.clip(node_data, self.min, self.max, out=node_data)
@@ -93,10 +85,6 @@ class GaussianNoise(Filter):
         self.mean_id = mean_id
         self.std_id = std_id
         super().__init__()
-
-    def set_params(self, params_dict):
-        self.mean = params_dict[self.mean_id]
-        self.std = params_dict[self.std_id]
 
     def apply(self, node_data, random_state, named_dims):
         node_data += random_state.normal(loc=self.mean, scale=self.std, size=node_data.shape).astype(node_data.dtype)
@@ -127,12 +115,6 @@ class GaussianNoiseTimeDependent(Filter):
         self.std_increase_id = std_increase_id
         super().__init__()
 
-    def set_params(self, params_dict):
-        self.mean = params_dict[self.mean_id]
-        self.mean_increase = params_dict[self.mean_increase_id]
-        self.std = params_dict[self.std_id]
-        self.std_increase = params_dict[self.std_increase_id]
-
     def apply(self, node_data, random_state, named_dims):
         time = named_dims["time"]
         node_data += random_state.normal(loc=self.mean + self.mean_increase * time,
@@ -157,9 +139,6 @@ class StrangeBehaviour(Filter):
         super().__init__()
         self.do_strange_behaviour_id = do_strange_behaviour_id
 
-    def set_params(self, params_dict):
-        self.do_strange_behaviour = params_dict[self.do_strange_behaviour_id]
-
     def apply(self, node_data, random_state, named_dims):
         for index, _ in np.ndenumerate(node_data):
             node_data[index] = self.do_strange_behaviour(node_data[index], random_state)
@@ -170,9 +149,6 @@ class ApplyToTuple(Filter):
         super().__init__()
         self.ftr = ftr
         self.tuple_index = tuple_index
-
-    def set_params(self, params_dict):
-        self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):
         self.ftr.apply(node_data[self.tuple_index], random_state, named_dims)
@@ -185,20 +161,15 @@ class ApplyWithProbability(Filter):
     Inherits Filter class.
     """
 
-    def __init__(self, ftr_id, probability_id):
+    def __init__(self, ftr, probability_id):
         """
         Args:
             ftr_id (str): A key which maps to a filter.
             probability_id (str): A key which maps to the probability of the filter being applied.
         """
         super().__init__()
-        self.ftr_id = ftr_id
+        self.ftr = ftr
         self.probability_id = probability_id
-
-    def set_params(self, params_dict):
-        self.ftr = params_dict[self.ftr_id]
-        self.probability = params_dict[self.probability_id]
-        self.ftr.set_params(params_dict)
 
     def apply(self, node_data, random_state, named_dims):
         if random_state.rand() < self.probability:
@@ -213,15 +184,10 @@ class ModifyAsDataType(Filter):
     Inherits Filter class.
     """
 
-    def __init__(self, dtype_id, ftr_id):
+    def __init__(self, dtype_id, ftr):
         super().__init__()
         self.dtype_id = dtype_id
-        self.ftr_id = ftr_id
-
-    def set_params(self, params_dict):
-        self.dtype = params_dict[self.dtype_id]
-        self.ftr = params_dict[self.ftr_id]
-        self.ftr.set_params(params_dict)
+        self.ftr = ftr
 
     def apply(self, node_data, random_state, named_dims):
         copy = node_data.copy().astype(self.dtype)

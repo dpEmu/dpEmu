@@ -22,18 +22,17 @@
 
 import numpy as np
 import copy
+from abc import ABC, abstractmethod
 
 
-class Node:
-    """[summary]
-
-    [extended_summary]
+class Node(ABC):
+    """Node is the superclass for all node classes of the error generation tree.
     """
 
     def __init__(self, children):
         """
         Args:
-            children ([type]): [description]
+            children (list): A list of all child nodes of the node.
         """
         self.filters = []
         self.children = children
@@ -57,7 +56,16 @@ class Node:
         for child in self.children:
             child.set_error_params(params_dict)
 
+    @abstractmethod
     def process(self, data, random_state, index_tuple=(), named_dims={}):
+        """Processes the given data by passing it recursively in the error generation tree and applying filters to it.
+
+        Args:
+            data (numpy.ndarray): Data to be modified as a Numpy array.
+            random_state (mtrand.RandomState): An instance of mtrand.RandomState to ensure repeatability.
+            index_tuple (tuple, optional): The index of the node. Defaults to ().
+            named_dims (dict, optional): Named dimensions. Defaults to {}.
+        """
         pass
 
     def generate_error(self, data, error_params, random_state=np.random.RandomState(42)):
@@ -68,13 +76,13 @@ class Node:
         filters) and whose values are the desired parameter values.
 
         Args:
-            data ([type]): [description]
-            error_params ([type]): [description]
+            data (numpy.ndarray): Data to be modified as a Numpy array.
+            error_params (dict): A dictionary containing the parameters for error generation.
             random_state (mtrand.RandomState, optional): An instance of numpy.random.RandomState.
                 Defaults to np.random.RandomState(42).
 
         Returns:
-            [type]: [description]
+            numpy.ndarray: Errorified data.
         """
         copy_data = copy.deepcopy(data)
         copy_tree = copy.deepcopy(self)
@@ -83,15 +91,13 @@ class Node:
         return copy_data
 
     def get_parametrized_tree(self, error_params):
-        """[summary]
-
-        [extended_summary]
+        """Returns an error generation tree with desired parameter values of the filters.
 
         Args:
-            error_params ([type]): [description]
+            error_params (dict): A dictionary containing the parameters for error generation.
 
         Returns:
-            [type]: [description]
+            Node: A root node of the error generation tree.
         """
         copy_tree = copy.deepcopy(self)
         copy_tree.set_error_params(error_params)
@@ -111,17 +117,16 @@ class LeafNode(Node):
 
 
 def get_node_data(data, index_tuple, make_array=True):
-    """[summary]
-
-    [extended_summary]
+    """Returns some desired subset of the data to the node as well as additional information about its structure.
 
     Args:
-        data ([type]): [description]
-        index_tuple ([type]): [description]
-        make_array (bool, optional): [description]. Defaults to True.
+        data (obj): The original data the node received.
+        index_tuple (tuple, optional): The index of the node. Defaults to ().
+        make_array (bool, optional): If True, the data array is typecasted to numpy.ndarray. Defaults to True.
 
     Returns:
-        [type]: [description]
+        numpy.ndarray, bool, bool, bool: Data as a numpy array and bools telling if the data is
+            a list, a scalar or a tuple.
     """
     index_list = list(index_tuple)
     while index_list:

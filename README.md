@@ -40,9 +40,9 @@ dpEmu is being built on the specifications and requirements provided by Professo
 * `git clone git@github.com:dpEmu/darknet.git libs/darknet`
 * `./scripts/install_darknet.sh`
 
-## User Manual
+## Documentation
 
-* [User manual](https://dpemu.readthedocs.io/en/latest/index.html#user-manual)
+* [dpEmu Documentation](https://dpemu.readthedocs.io/en/latest/index.html)
 
 ## Research
 
@@ -60,10 +60,6 @@ See [Wiki](https://github.com/dpEmu/dpEmu/wiki/Contributing).
 * [Juha Harviainen](https://github.com/Kalakuh)
 * [Elizabeth Berg](https://github.com/reykjaviks)
 * [Tuomas Halvari](https://github.com/thalvari)
-  
-## Documentation
-
-* [dpEmu Documentation](https://dpemu.readthedocs.io/en/latest/index.html)
   
 ## Coursework Documentation
 

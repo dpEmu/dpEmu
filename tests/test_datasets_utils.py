@@ -103,8 +103,8 @@ def test_load_newsgroups_with_wrong_n_categories(mock_fetch_20newsgroups):
 
 
 @patch("dpemu.dataset_utils.fetch_openml", side_effect=mock_fetch_openml)
-def test_load_mnist(mock_fetch_openml):
-    ret_data, ret_labels, _, descr = utils.load_mnist()
+def test_load_mnist_unsplit(mock_fetch_openml):
+    ret_data, ret_labels, _, descr = utils.load_mnist_unsplit()
     test_rng = np.random.RandomState(1729)
 
     assert np.array_equal(ret_data, test_rng.rand(100, 784))

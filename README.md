@@ -15,11 +15,10 @@ dpEmu is being built on the specifications and requirements provided by Professo
 ## Table of Contents
 
 * [Installation](#installation)
-* [User manual](#user-manual)
+* [Documentation](#documentation)
 * [Research](#research)
 * [Contributing](#contributing)
 * [Credits](#credits)
-* [Documentation](#documentation)
 * [Coursework Documentation](#coursework-documentation)
 
 ## Installation
@@ -46,7 +45,7 @@ dpEmu is being built on the specifications and requirements provided by Professo
 
 ## Research
 
-An unpublished workshop paper [Software Framework for Data Error Injection to Test Machine Learning Systems](Software_Framework_for_Data_Error_Injection_to_Test_Machine_Learning_Systems.pdf)
+Jukka K. Nurminen, Tuomas Halvari, Juha Harviainen, Juha Mylläri, Antti Röyskö, Juuso Silvennoinen, and Tommi Mikkonen. ["Software Framework for Data Error Injection to Test Machine Learning Systems"](Software_Framework_for_Data_Error_Injection_to_Test_Machine_Learning_Systems.pdf). Unpublished Workshop Paper, 2019.
 
 ## Contributing
 

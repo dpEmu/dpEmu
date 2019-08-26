@@ -153,7 +153,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_column, labe
         title (str): The title of the plot.
         max_n_cols:
     """
-    df = df.groupby(err_param_name).first().reset_index()
+    df = df[sorted(df.columns)].groupby(err_param_name).first().reset_index()
     labels = df[labels_column][0]
 
     n_rows, n_cols = get_n_rows_cols(df.shape[0], max_n_cols)

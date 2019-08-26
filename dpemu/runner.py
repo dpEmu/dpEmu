@@ -95,8 +95,8 @@ def _add_more_stuff_to_results(result, err_params, model_name, i_data, time_pre,
     result["model_name"] = model_name
     if use_i_mode:
         result["interactive_err_data"] = i_data
-    result["time_pre"] = time_pre
     result["time_err"] = time_err
+    result["time_pre"] = time_pre
 
 
 def worker(inputs):
@@ -168,6 +168,23 @@ def _get_total_results_from_workers(pool_inputs, n_err_params, n_processes):
     return total_results
 
 
+def get_df_columns_base(err_params_list, model_params_dict_list):
+    err_param_columns = set()
+    model_param_columns = set()
+    [err_param_columns.add(k) for err_params in err_params_list for k, _ in err_params.items()]
+    err_param_columns = sorted(err_param_columns)
+    [model_param_columns.add(k) for model_params_dict in model_params_dict_list for params_list in
+     model_params_dict["params_list"] for k, _ in params_list.items()]
+    model_param_columns = sorted(model_param_columns)
+    return err_param_columns + model_param_columns + ["time_err", "time_pre", "time_mod"]
+
+
+def order_df_columns(df, err_params_list, model_params_dict_list):
+    df_columns_base = get_df_columns_base(err_params_list, model_params_dict_list)
+    new_columns = [column for column in df.columns if column not in df_columns_base]
+    return df.reindex(columns=new_columns + df_columns_base)
+
+
 def run(train_data, test_data, preproc, preproc_params, err_root_node, err_params_list, model_params_dict_list,
         n_processes=None, use_interactive_mode=False):
     """[summary]
@@ -185,7 +202,6 @@ def run(train_data, test_data, preproc, preproc_params, err_root_node, err_param
         use_interactive_mode (bool, optional): [description]. Defaults to False.
     """
     path_to_train_data, path_to_test_data = _pickle_data(train_data, test_data)
-
     pool_inputs = [(
         path_to_train_data,
         path_to_test_data,
@@ -198,4 +214,5 @@ def run(train_data, test_data, preproc, preproc_params, err_root_node, err_param
     ) for err_params in err_params_list]
 
     total_results = _get_total_results_from_workers(pool_inputs, len(err_params_list), n_processes)
-    return pd.DataFrame(total_results)
+    df = pd.DataFrame(total_results)
+    return order_df_columns(df, err_params_list, model_params_dict_list)

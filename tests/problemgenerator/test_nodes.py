@@ -75,6 +75,7 @@ def test_tuple_node_works():
     data = series_node.generate_error(data, {'prob': 1, 'm_val': np.nan})
     assert np.isnan(data[0][0]) and np.isnan(data[0][1]) and np.isnan(data[1][0]) and np.isnan(data[1][1])
 
+
 def test_exception_raised_when_param_missing():
     data = np.random.rand(5)
     x_node = Array()

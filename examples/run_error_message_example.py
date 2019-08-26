@@ -1,12 +1,12 @@
-import numpy as np
-from dpemu.filters.common import GaussianNoise
-from dpemu.nodes import Array
-
 """This example raises an exception (on purpose).
 The parameter identifier "mean" is misspelled in the
 params dictionary. This should result in an exception
 with a helpful error message.
 """
+
+import numpy as np
+from dpemu.filters.common import GaussianNoise
+from dpemu.nodes import Array
 
 xs = np.random.rand(100, 200)
 array_node = Array()

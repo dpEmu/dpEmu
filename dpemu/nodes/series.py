@@ -25,34 +25,22 @@ from ..pg_utils import first_dimension_length
 
 
 class Series(Node):
-    """[summary]
+    """The Series node represents the leftmost dimension of any unit of data passed to it.
 
-    [extended_summary]
-
-    Args:
-        Node ([type]): [description]
+    The Series node is given a child node and the data is passed to it after "removing" the leftmost dimension.
     """
 
     def __init__(self, child, dim_name=None):
         """
         Args:
-            child ([type]): [description]
-            dim_name ([type], optional): [description]. Defaults to None.
+            child (Node): The only child node of the Series node.
+            dim_name (str, optional): A named dimension with a given name may be given to the node, which it will
+                then pass to its child node. Defaults to None.
         """
         super().__init__([child])
         self.dim_name = dim_name
 
     def process(self, data, random_state, index_tuple=(), named_dims={}):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            data ([type]): [description]
-            random_state ([type]): [description]
-            index_tuple (tuple, optional): [description]. Defaults to ().
-            named_dims (dict, optional): [description]. Defaults to {}.
-        """
         node_data, _, _, _ = get_node_data(data, index_tuple, make_array=False)
         data_length = first_dimension_length(node_data)
         for i in range(data_length):
@@ -62,34 +50,24 @@ class Series(Node):
 
 
 class TupleSeries(Node):
-    """[summary]
+    """The TupleSeries node represents a tuple where the leftmost dimensions of the tuple elements are
+    in some sense “the same”.
 
-    [extended_summary]
-
-    Args:
-        Node ([type]): [description]
+    The TupleSeries node is given a list of child nodes and the i-th element of data is passed to i-th child and
+    its leftmost dimension is "removed".
     """
 
     def __init__(self, children, dim_name=None):
         """
         Args:
-            children ([type]): [description]
-            dim_name ([type], optional): [description]. Defaults to None.
+            children (list): List of child nodes of the TupleSeries node.
+            dim_name (str, optional): A named dimension with a given name may be given to the node, which it will
+                then pass to its child node. Defaults to None.
         """
         super().__init__(children)
         self.dim_name = dim_name
 
     def process(self, data, random_state, index_tuple=(), named_dims={}):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            data ([type]): [description]
-            random_state ([type]): [description]
-            index_tuple (tuple, optional): [description]. Defaults to ().
-            named_dims (dict, optional): [description]. Defaults to {}.
-        """
         node_data = get_node_data(data, index_tuple, make_array=False)[0]
         data_length = first_dimension_length(node_data[0])
         for i, child in enumerate(self.children):

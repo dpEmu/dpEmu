@@ -33,6 +33,8 @@ from .filters import Filter
 from .utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
 pd.set_option("display.expand_frame_repr", False)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
 
 def get_n_rows_cols(n_plots, max_n_cols):

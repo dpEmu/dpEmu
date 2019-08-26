@@ -15,11 +15,10 @@ dpEmu is being built on the specifications and requirements provided by Professo
 ## Table of Contents
 
 * [Installation](#installation)
-* [User manual](#user-manual)
+* [Documentation](#documentation)
 * [Research](#research)
 * [Contributing](#contributing)
 * [Credits](#credits)
-* [Documentation](#documentation)
 * [Coursework Documentation](#coursework-documentation)
 
 ## Installation

@@ -187,8 +187,8 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_column, labe
     fig.savefig(path_to_plot)
 
 
-def visualize_time_series_prediction(df, test_data, score_name, is_higher_score_better, err_param_name, model_name,
-                                     test_pred_column, title, max_n_cols=4):
+def visualize_time_series_prediction(df, data, score_name, is_higher_score_better, err_param_name, model_name,
+                                     test_pred_column, err_train_column, title, max_n_cols=4):
     dfs = [df_ for df_ in split_df_by_model(df) if re.match(model_name + r" #\d+", df_.name)]
     for df_ in dfs:
         df_ = filter_optimized_results(df_, err_param_name, score_name, is_higher_score_better)
@@ -201,8 +201,10 @@ def visualize_time_series_prediction(df, test_data, score_name, is_higher_score_
                 ax.set_yticks([])
                 ax.axis("off")
                 continue
-            ax.plot(test_data, label="test_data")
-            ax.plot(df_[test_pred_column][i], label="test_pred", zorder=1)
+            ax.plot(data, label="data")
+            ax.plot(df_[err_train_column][i], label="err_train", zorder=2)
+            test_pred = df_[test_pred_column][i]
+            ax.plot(range(data.shape[0])[-test_pred.shape[0]:], test_pred, "r", label="test_pred", zorder=1)
             ax.legend()
             err_param_val = round(df_[err_param_name][i], 3)
             ax.set_title(err_param_name + "=" + str(err_param_val))

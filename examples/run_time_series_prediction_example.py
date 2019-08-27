@@ -69,7 +69,7 @@ def get_err_root_node():
 def get_err_params_list():
     # err_params_list = [{"mean": 0, "std": std} for std in np.linspace(0, 35, 8)]
     # err_params_list = [{"magnitude": m} for m in range(8)]
-    err_params_list = [{"prob_break": p, "prob_recover": .5, "missing_value": np.nan} for p in np.linspace(0, .21, 8)]
+    err_params_list = [{"prob_break": p, "prob_recover": .5, "missing_value": np.nan} for p in np.linspace(0, .14, 8)]
     return err_params_list
 
 
@@ -133,6 +133,7 @@ class LSTMModel:
         rmse = self.__get_rmse(test_pred, clean_test)
         return {
             "rmse": rmse,
+            "err_train": train_with_test_pred[:-n_test],
             "test_pred": test_pred
         }
 
@@ -141,7 +142,7 @@ def get_model_params_dict_list(test_data, n_period):
     return [{"model": LSTMModel, "params_list": [{"clean_test": test_data, "n_period": n_period}]}]
 
 
-def visualize(df, test_data, n_data, dataset_name):
+def visualize(df, data, n_data, dataset_name):
     visualize_scores(
         df,
         score_names=["rmse"],
@@ -153,13 +154,14 @@ def visualize(df, test_data, n_data, dataset_name):
     )
     visualize_time_series_prediction(
         df,
-        test_data,
+        data,
         score_name="rmse",
         is_higher_score_better=False,
         # err_param_name="std",
         # err_param_name="magnitude",
         err_param_name="prob_break",
         model_name="LSTM",
+        err_train_column="err_train",
         test_pred_column="test_pred",
         title=f"Predictions for {dataset_name} dataset (n={n_data}) with added error"
     )
@@ -182,8 +184,8 @@ def main(argv):
         model_params_dict_list=get_model_params_dict_list(test_data, n_period),
     )
 
-    print_results_by_model(df, dropped_columns=["test_pred", "clean_test", "n_period"])
-    visualize(df, test_data, n_data, dataset_name)
+    print_results_by_model(df, dropped_columns=["err_train", "test_pred", "clean_test", "n_period"])
+    visualize(df, np.concatenate([train_data, test_data], axis=0), n_data, dataset_name)
 
 
 if __name__ == "__main__":

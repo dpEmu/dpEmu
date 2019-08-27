@@ -37,7 +37,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 from dpemu import pg_utils
 from dpemu import runner
-from dpemu.filters.common import GaussianNoise
+from dpemu.filters.time_series import Gap
 from dpemu.nodes import Array
 from dpemu.plotting_utils import print_results_by_model, visualize_scores, visualize_time_series_prediction
 
@@ -60,14 +60,16 @@ def get_data(argv):
 
 def get_err_root_node():
     err_root_node = Array()
-    err_root_node.addfilter(GaussianNoise("mean", "std"))
-    # err_root_node.addfilter(Gap("prob_break", "prob_recover", "missing_value"))
+    # err_root_node.addfilter(GaussianNoise("mean", "std"))
+    # err_root_node.addfilter(SensorDrift("magnitude"))
+    err_root_node.addfilter(Gap("prob_break", "prob_recover", "missing_value"))
     return err_root_node
 
 
 def get_err_params_list():
-    err_params_list = [{"mean": 0, "std": std} for std in np.linspace(0, 35, 8)]
-    # err_params_list = [{"prob_break": p, "prob_recover": .5, "missing_value": np.nan} for p in [0, .03, .06, .09]]
+    # err_params_list = [{"mean": 0, "std": std} for std in np.linspace(0, 35, 8)]
+    # err_params_list = [{"magnitude": m} for m in range(8)]
+    err_params_list = [{"prob_break": p, "prob_recover": .5, "missing_value": np.nan} for p in np.linspace(0, .21, 8)]
     return err_params_list
 
 
@@ -95,12 +97,12 @@ class LSTMModel:
     def __get_rmse(test_pred, test):
         return sqrt(mean_squared_error(test_pred, test))
 
-    def run(self, train_data, test_data, params):
+    def run(self, train_data, _, params):
         n_period = params["n_period"]
+        clean_test = params["clean_test"]
+        n_test = clean_test.shape[0]
         train_data = train_data[~np.isnan(train_data)]
-        train_data = np.reshape(train_data[~np.isnan(train_data)], (len(train_data), 1))
-        test_data = test_data[~np.isnan(test_data)]
-        test_data = np.reshape(test_data[~np.isnan(test_data)], (len(test_data), 1))
+        train_data = np.reshape(train_data, (len(train_data), 1))
 
         n_features = 1
         n_steps = 3 * n_period
@@ -120,43 +122,45 @@ class LSTMModel:
         model.fit(train_periodic_diffs[0], train_periodic_diffs[1], epochs=n_epochs)
 
         train_with_test_pred = scaled_train
-        for _ in range(len(test_data)):
+        for _ in range(n_test):
             x_cur = self.__get_periodic_diffs(train_with_test_pred, n_period)[-n_steps:]
             x_cur = np.reshape(x_cur, (1, n_steps, n_features))
             y_cur = model.predict(x_cur) + train_with_test_pred[-n_period]
             train_with_test_pred = np.concatenate([train_with_test_pred, y_cur], axis=0)
         train_with_test_pred = scaler.inverse_transform(train_with_test_pred)
 
-        rmse = self.__get_rmse(train_with_test_pred[-len(test_data):], test_data)
+        test_pred = train_with_test_pred[-n_test:]
+        rmse = self.__get_rmse(test_pred, clean_test)
         return {
             "rmse": rmse,
-            "err_data": np.concatenate([train_data, test_data], axis=0),
-            "train_with_test_pred": train_with_test_pred
+            "test_pred": test_pred
         }
 
 
-def get_model_params_dict_list(n_period):
-    return [{"model": LSTMModel, "params_list": [{"n_period": n_period}]}]
+def get_model_params_dict_list(test_data, n_period):
+    return [{"model": LSTMModel, "params_list": [{"clean_test": test_data, "n_period": n_period}]}]
 
 
-def visualize(df, n_data, dataset_name):
+def visualize(df, test_data, n_data, dataset_name):
     visualize_scores(
         df,
         score_names=["rmse"],
         is_higher_score_better=[False],
-        err_param_name="std",
-        # err_param_name="prob_break",
+        # err_param_name="std",
+        # err_param_name="magnitude",
+        err_param_name="prob_break",
         title=f"Prediction scores for {dataset_name} dataset (n={n_data}) with added error"
     )
     visualize_time_series_prediction(
         df,
-        "LSTM",
+        test_data,
         score_name="rmse",
         is_higher_score_better=False,
-        err_param_name="std",
-        # err_param_name="prob_break",
-        err_data_column="err_data",
-        predictions_column="train_with_test_pred",
+        # err_param_name="std",
+        # err_param_name="magnitude",
+        err_param_name="prob_break",
+        model_name="LSTM",
+        test_pred_column="test_pred",
         title=f"Predictions for {dataset_name} dataset (n={n_data}) with added error"
     )
     plt.show()
@@ -175,11 +179,11 @@ def main(argv):
         preproc_params={},
         err_root_node=get_err_root_node(),
         err_params_list=get_err_params_list(),
-        model_params_dict_list=get_model_params_dict_list(n_period),
+        model_params_dict_list=get_model_params_dict_list(test_data, n_period),
     )
 
-    print_results_by_model(df, dropped_columns=["err_data", "train_with_test_pred"])
-    visualize(df, n_data, dataset_name)
+    print_results_by_model(df, dropped_columns=["test_pred", "clean_test", "n_period"])
+    visualize(df, test_data, n_data, dataset_name)
 
 
 if __name__ == "__main__":

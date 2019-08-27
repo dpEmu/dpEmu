@@ -66,7 +66,7 @@ def get_err_root_node():
 
 
 def get_err_params_list():
-    err_params_list = [{"mean": 0, "std": std} for std in range(8)]
+    err_params_list = [{"mean": 0, "std": std} for std in np.linspace(0, 35, 8)]
     # err_params_list = [{"prob_break": p, "prob_recover": .5, "missing_value": np.nan} for p in [0, .03, .06, .09]]
     return err_params_list
 

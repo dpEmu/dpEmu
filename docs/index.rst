@@ -44,14 +44,15 @@ Case studies
 .. toctree::
     :maxdepth: 1
 
+    case_studies/Image_Clustering_With_Rotation
     case_studies/Text_Classification_Missing_Areas
     case_studies/Text_Classification_OCR_Error
     case_studies/Object_Detection_Added_Brightness
     case_studies/Object_Detection_Added_Snow
     case_studies/Object_Detection_JPEG_Compression
     case_studies/Object_Detection_Reduced_Resolution
-    case_studies/WAVClipping
     case_studies/Object_detection_case_study/Object_Detection_case_study
+    case_studies/WAVClipping
 
 Module documentation
 ^^^^^^^^^^^^^^^^^^^^

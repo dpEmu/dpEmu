@@ -60,8 +60,8 @@ def get_err_root_node():
     err_root_node = Series(err_img_node)
     # err_img_node.addfilter(GaussianNoise("mean", "std"))
     # err_img_node.addfilter(Clip("min_val", "max_val"))
-    # err_img_node.addfilter(Missing("probability", "missing_value_id"))
-    err_img_node.addfilter(Rotation("min_angle_id", "max_angle_id"))
+    # err_img_node.addfilter(Missing("probability", "missing_value"))
+    err_img_node.addfilter(Rotation("min_angle", "max_angle"))
     return err_root_node
 
 
@@ -71,9 +71,9 @@ def get_err_params_list(data):
     # std_steps = np.linspace(0, max_val, num=8)
     # err_params_list = [{"mean": 0, "std": std, "min_val": min_val, "max_val": max_val} for std in std_steps]
     # p_steps = np.linspace(0, .5, num=6)
-    # err_params_list = [{"probability": p, "missing_value_id": 0} for p in p_steps]
+    # err_params_list = [{"probability": p, "missing_value": 0} for p in p_steps]
     angle_steps = np.linspace(0, 84, num=8)
-    err_params_list = [{"min_angle_id": -a, "max_angle_id": a} for a in angle_steps]
+    err_params_list = [{"min_angle": -a, "max_angle": a} for a in angle_steps]
     return err_params_list
 
 
@@ -134,7 +134,8 @@ class HDBSCANModel(AbstractModel):
     def get_fitted_model(self, data, params):
         return HDBSCAN(
             min_samples=params["min_samples"],
-            min_cluster_size=params["min_cluster_size"]
+            min_cluster_size=params["min_cluster_size"],
+            core_dist_n_jobs=1
         ).fit(data)
 
 
@@ -161,7 +162,7 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
         is_higher_score_better=[True, True],
         # err_param_name="std",
         # err_param_name="probability",
-        err_param_name="max_angle_id",
+        err_param_name="max_angle",
         # title=f"{dataset_name} clustering scores with added gaussian noise",
         # title=f"{dataset_name} clustering scores with missing pixels",
         title=f"{dataset_name} clustering scores with rotation",
@@ -174,7 +175,7 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
         is_higher_score_better=[True, True],
         # err_param_name="std",
         # err_param_name="probability",
-        err_param_name="max_angle_id",
+        err_param_name="max_angle",
         title=f"Best parameters for {dataset_name} clustering"
     )
     visualize_classes(
@@ -182,7 +183,7 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
         label_names,
         # err_param_name="std",
         # err_param_name="probability",
-        err_param_name="max_angle_id",
+        err_param_name="max_angle",
         reduced_data_column="reduced_data",
         labels_column="labels",
         cmap="tab10",
@@ -206,7 +207,7 @@ def visualize(df, label_names, dataset_name, data, use_interactive_mode):
             fg.show()
 
         # Remember to enable runner's interactive mode
-        visualize_interactive_plot(df, "max_angle_id", data, "tab10", "reduced_data", on_click)
+        visualize_interactive_plot(df, "max_angle", data, "tab10", "reduced_data", on_click)
 
     plt.show()
 
@@ -232,7 +233,7 @@ def main(argv):
         use_interactive_mode=use_interactive_mode
     )
 
-    print_results_by_model(df, ["missing_value_id", "min_val", "max_val", "labels", "reduced_data"])
+    print_results_by_model(df, ["missing_value", "min_val", "max_val", "labels", "reduced_data"])
     visualize(df, label_names, dataset_name, data, use_interactive_mode)
 
 

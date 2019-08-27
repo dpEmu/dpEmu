@@ -26,6 +26,7 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from IPython.core.display import display
 from graphviz import Digraph
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -33,6 +34,8 @@ from .filters import Filter
 from .utils import generate_unique_path, split_df_by_model, filter_optimized_results
 
 pd.set_option("display.expand_frame_repr", False)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
 
 def get_n_rows_cols(n_plots, max_n_cols):
@@ -153,7 +156,7 @@ def visualize_classes(df, label_names, err_param_name, reduced_data_column, labe
         title (str): The title of the plot.
         max_n_cols:
     """
-    df = df.groupby(err_param_name).first().reset_index()
+    df = df[sorted(df.columns)].groupby(err_param_name).first().reset_index()
     labels = df[labels_column][0]
 
     n_rows, n_cols = get_n_rows_cols(df.shape[0], max_n_cols)
@@ -509,4 +512,4 @@ def print_results_by_model(df, dropped_columns=[]):
     dfs = split_df_by_model(df)
     for df_ in dfs:
         print(df_.name)
-        print(df_.drop(columns=[col for col in dropped_columns if col in df_]))
+        display(df_.drop(columns=[col for col in dropped_columns if col in df_]))

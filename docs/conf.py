@@ -36,7 +36,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'recommonmark', 'sphi
 
 napoleon_include_init_with_doc = True
 
-autodoc_mock_imports = ['torch', 'keras', 'sklearn', 'cv2', 'tensorflow', 'PIL', 'future', 'hdbscan', 'imutils', 'matplotlib', 'mock', 'numpy', 'pandas', 'pytest', 'scipy', 'tqdm', 'umap', 'graphviz', 'numba']
+autodoc_mock_imports = ['torch', 'keras', 'sklearn', 'cv2', 'tensorflow', 'PIL', 'future', 'hdbscan', 'imutils', 'matplotlib', 'mock', 'numpy', 'pandas', 'pytest', 'scipy', 'tqdm', 'umap', 'graphviz', 'numba', 'pycocotools']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

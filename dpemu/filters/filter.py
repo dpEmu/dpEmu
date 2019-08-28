@@ -192,7 +192,8 @@ class Division(BinaryFilter):
 
 
 class IntegerDivision(BinaryFilter):
-    """Combines results of the two child filters by perfoming integer division on the results of the first by the results of the second.
+    """Combines results of the two child filters by perfoming
+    integer division on the results of the first by the results of the second.
 
     The division is done with python's // operator.
 

@@ -31,7 +31,8 @@ from dpemu.filters import Filter
 
 
 class Blur(Filter):
-    """Replaces the values of each pixel with the average values within the specified radius of it, iterated a given number of times.
+    """Replaces the values of each pixel with the average values
+    within the specified radius of it, iterated a given number of times.
 
     Inherits Filter class.
     """

@@ -109,7 +109,8 @@ class GaussianNoiseTimeDependent(Filter):
             mean_id (str): The key mapping to the initial mean of the random noise.
             std_id (str): The key mapping to the initial standard deviation of the random noise.
             mean_increase_id (str): The key mapping to the increase of the mean of the random noise per unit of time.
-            std_increase_id (str): The key mapping to the increase of the standard deviation of the random noise per unit of time.
+            std_increase_id (str): The key mapping to the increase of the standard
+        deviation of the random noise per unit of time.
         """
         self.mean_id = mean_id
         self.std_id = std_id

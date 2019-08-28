@@ -31,7 +31,17 @@ from dpemu.filters import Filter
 
 
 class Blur(Filter):
+    """Replaces the values of each pixel with the average values within the specified radius of it, iterated a given number of times.
+
+    Inherits Filter class.
+    """
     def __init__(self, repeats_id, radius_id=None):
+        """
+        Args:
+            repeats_id (str): The key mapping to the number of iterations done.
+            radius_id (str): The key mapping to the radius to average over.
+        """
+
         super().__init__()
         self.repeats_id = repeats_id
         self.radius_id = radius_id
@@ -76,7 +86,7 @@ class Resolution(Filter):
     def __init__(self, k_id):
         """
         Args:
-            k_id (str): A key which maps to the k value.
+            k_id (str): The key mapping to the value of k.
         """
         super().__init__()
         self.k_id = k_id
@@ -102,6 +112,12 @@ class Rotation(Filter):
     """
 
     def __init__(self, min_angle_id, max_angle_id=None):
+        """
+        Args:
+            min_angle_id (str): The key mapping to the minimum angle to rotate by.
+            max_angle_id (str): The key mapping to the maximum angle to rotate by.
+        None by default. If None, the angle of rotation will always be min_angle.
+        """
         super().__init__()
         self.min_angle_id = min_angle_id
         if max_angle_id is not None:
@@ -147,9 +163,9 @@ class Brightness(Filter):
     def __init__(self, tar_id, rat_id, range_id):
         """
         Args:
-            tar_id (str): A key which maps to the tar value.
-            rat_id (str): A key which maps to the rat value.
-            range_id (str): A key which maps to the range value.
+            tar_id (str): The key mapping to the target value.
+            rat_id (str): The key mapping to the rat value.
+            range_id (str): The key mapping to the range value.
         """
         super().__init__()
         self.tar_id = tar_id

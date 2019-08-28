@@ -159,7 +159,7 @@ class ApplyToTuple(Filter):
     def __init__(self, ftr, tuple_index):
         """
         Args:
-            ftr (Filter): Filter to apply.
+            ftr (dpemu.filters.Filter): Filter to apply.
             tuple_index (int): Index of the tuple to apply the filter to.
         """
         super().__init__()
@@ -206,7 +206,7 @@ class ModifyAsDataType(Filter):
         """
         Args:
             dtype_id (str): The key mapping to the data type to cast the input to.
-            ftr (Filter): The filter to apply to the casted data.
+            ftr (dpemu.filters.Filter): The filter to apply to the casted data.
         """
 
         super().__init__()

@@ -28,16 +28,17 @@ from abc import ABC, abstractmethod
 class Filter(ABC):
     """A Filter is an error source which can be attached to an Array node.
 
-    The apply method applies the filter. A filter may always assume that
-    it is acting upon a NumPy array. (When the underlying data object is not
+    The apply method applies the filter to the data. A filter may always assume that
+    it is acting upon a NumPy array. (if the underlying data object is not
     a NumPy array, the required conversions are performed by the Array node
     to which the Filter is attached.)
 
     Args:
-        ABC (object): Helper class that provides a standard way to create an ABC using
-    inheritance.
+        ABC (object): Helper class that provides a standard way to create
+    an abstract class using inheritance.
     """
 
+    # TODO: should this really be done here??
     def __init__(self):
         """Set the seeds for the RNG's of NumPy and Python.
         """
@@ -48,7 +49,7 @@ class Filter(ABC):
         """Set parameters for error generation.
 
         Args:
-            params_dict (dict): A dictionary which contains error parameter name and value pairs.
+            params_dict (dict): A dictionary containing key-value pairs of error parameters.
         """
         original = self.__dict__.copy()
         for key in original:
@@ -70,7 +71,7 @@ class Filter(ABC):
 
     @abstractmethod
     def apply(self, node_data, random_state, named_dims):
-        """Modifies the data according to the functionality of the filter.
+        """Applies the filter to the data.
 
         Args:
             node_data (numpy.ndarray): Data to be modified as a NumPy array.
@@ -80,15 +81,18 @@ class Filter(ABC):
         pass
 
 
+# TODO: "Inherits Filter class" -> "Inherits the Filter-class" ?
 class Constant(Filter):
-    """[summary]
-
-    [extended_summary]
+    """Overwrites all values in the data with the given value.
 
     Inherits Filter class.
     """
 
     def __init__(self, value_id):
+        """
+        Args:
+            value_id: The key mapping to the value to overwrite values in the data with.
+        """
         super().__init__()
         self.value_id = value_id
 
@@ -96,8 +100,9 @@ class Constant(Filter):
         node_data.fill(self.value)
 
 
+# TODO: Isn't this just the base Filter class?
 class Identity(Filter):
-    """This filter acts as the identity operator and does not modify data.
+    """Acts as the identity operator, thus doesn't modify the data.
 
     Inherits Filter class.
     """
@@ -110,7 +115,9 @@ class Identity(Filter):
 
 
 class BinaryFilter(Filter):
-    """This abstract filter takes two filters and applies some pairwise binary operation on their results.
+    """Abstract Filter applying two given filters to the data, combining the results with a pairwise binary operation.
+
+    The pairwise binary operation is specified by the inheriting class by overriding the operation-function.
 
     Inherits Filter class.
     """
@@ -118,8 +125,8 @@ class BinaryFilter(Filter):
     def __init__(self, filter_a, filter_b):
         """
         Args:
-            filter_a (str): The first filter
-            filter_b (str): The second filter
+            filter_a (str): The first filter.
+            filter_b (str): The second filter.
         """
         super().__init__()
         self.filter_a = filter_a
@@ -135,17 +142,17 @@ class BinaryFilter(Filter):
 
     @abstractmethod
     def operation(self, element_a, element_b):
-        """The operation which is applied pairwise on the n-dimensional arrays of child filters.
+        """The pairwise binary operation used to combine results from the two child filters.
 
         Args:
-            element_a (object): The first element
-            element_b (object): The second element
+            element_a (object): The element from the data filter_a operated on.
+            element_b (object): The element from the data filter_b operated on.
         """
         pass
 
 
 class Addition(BinaryFilter):
-    """This filter does pairwise addition on the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters by adding them together.
 
     Inherits BinaryFilter class.
     """
@@ -155,7 +162,7 @@ class Addition(BinaryFilter):
 
 
 class Subtraction(BinaryFilter):
-    """This filter does pairwise subtraction on the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters by subtracting the results of the second from the firsts.
 
     Inherits BinaryFilter class.
     """
@@ -165,7 +172,7 @@ class Subtraction(BinaryFilter):
 
 
 class Multiplication(BinaryFilter):
-    """This filter does pairwise multiplication on the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters by multiplying them together.
 
     Inherits BinaryFilter class.
     """
@@ -175,7 +182,7 @@ class Multiplication(BinaryFilter):
 
 
 class Division(BinaryFilter):
-    """This filter does pairwise division on the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters by dividing the results of the first by the seconds.
 
     Inherits BinaryFilter class.
     """
@@ -185,7 +192,9 @@ class Division(BinaryFilter):
 
 
 class IntegerDivision(BinaryFilter):
-    """This filter does pairwise integer division on the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters by perfoming integer division on the results of the first by the results of the second.
+
+    The division is done with python's // operator.
 
     Inherits BinaryFilter class.
     """
@@ -195,7 +204,7 @@ class IntegerDivision(BinaryFilter):
 
 
 class Modulo(BinaryFilter):
-    """This filter does pairwise modulo operation on the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters by taking the results of the first modulo results of the second.
 
     Inherits BinaryFilter class.
     """
@@ -205,7 +214,7 @@ class Modulo(BinaryFilter):
 
 
 class And(BinaryFilter):
-    """This filter does pairwise bitwise AND on the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters with bitwise AND.
 
     Inherits BinaryFilter class.
     """
@@ -215,7 +224,7 @@ class And(BinaryFilter):
 
 
 class Or(BinaryFilter):
-    """"This filter does pairwise bitwise OR on the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters with bitwise OR.
 
     Inherits BinaryFilter class.
     """
@@ -225,7 +234,7 @@ class Or(BinaryFilter):
 
 
 class Xor(BinaryFilter):
-    """This filter does pairwise bitwise XOR on the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters with bitwise XOR.
 
     Inherits BinaryFilter class.
     """
@@ -235,8 +244,10 @@ class Xor(BinaryFilter):
 
 
 class Difference(Filter):
-    """This filter returns the difference between the original and the filtered data,
-    i.e. it is shorthand for Subtraction(filter, Identity()).
+    """Returns change to data from filter
+
+    Given a filter, applies the filter to the data, then subtracting the original.
+    Functions identically to Subtraction(filter, Identity()).
 
     Inherits BinaryFilter class.
     """
@@ -250,8 +261,7 @@ class Difference(Filter):
 
 
 class Max(BinaryFilter):
-    """This filter returns a multidimensional array of pairwise maximums
-    of the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters by taking the pairwise maximum of the results of the first and second.
 
     Inherits BinaryFilter class.
     """
@@ -261,8 +271,7 @@ class Max(BinaryFilter):
 
 
 class Min(BinaryFilter):
-    """This filter returns a multidimensional array of pairwise minimums
-    of the multidimensional arrays returned by the child filters.
+    """Combines results of the two child filters by taking the pairwise minimum of the results of the first and second.
 
     Inherits BinaryFilter class.
     """

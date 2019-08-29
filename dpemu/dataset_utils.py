@@ -20,9 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import warnings
 import os
-import random as rn
+import warnings
 from subprocess import Popen
 
 import cv2
@@ -32,7 +31,6 @@ from sklearn.datasets import fetch_20newsgroups, fetch_openml, load_digits
 from sklearn.model_selection import train_test_split
 
 from dpemu.utils import get_project_root
-
 
 random_state = RandomState(42)
 
@@ -136,8 +134,8 @@ def load_mnist(reshape_to_28x28=False, integer_values=False):
 
     (x_train, y_train), (x_test, y_test) = load_mnist_data()
     if not reshape_to_28x28:
-        x_train = x_train.reshape((-1, 28*28))
-        x_test = x_test.reshape((-1, 28*28))
+        x_train = x_train.reshape((-1, 28 * 28))
+        x_test = x_test.reshape((-1, 28 * 28))
     if not integer_values:
         x_train = x_train.astype('float')
         y_train = y_train.astype('float')
@@ -191,7 +189,7 @@ def load_coco_val_2017(n=5000, is_shuffled=False):
     coco = COCO(f"{get_project_root()}/data/annotations/instances_val2017.json")
     img_ids = coco.getImgIds()
     if is_shuffled:
-        rn.shuffle(img_ids)
+        random_state.shuffle(img_ids)
     img_ids = img_ids[:n]
     img_dicts = coco.loadImgs(img_ids)
     img_filenames = [img_dict["file_name"] for img_dict in img_dicts]

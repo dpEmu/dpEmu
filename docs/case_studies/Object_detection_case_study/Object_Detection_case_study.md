@@ -6,7 +6,7 @@ We compared the performance of models from FaceBook's Detectron project and YOLO
 
 ## Data
 
-We used 118 287 jpg images (COCO train2017) to train the models. 5000 images (COCO val2017) were used to calculate the mAP-50 scores.
+We used 118 287 jpg images (COCO train2017) as the train set and 5000 images (COCO val2017) as the test set to calculate the mAP-50 scores.
 
 Detectron's model zoo had pretrained weights for FasterRCNN, MaskRCNN and RetinaNet. YOLOv3's weights were trained by us, using the Kale cluster of University of Helsinki. The training took approximately five days when two NVIDIA Tesla V100 GPUs were used. 
 

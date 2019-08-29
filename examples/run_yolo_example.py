@@ -34,7 +34,7 @@ from tqdm import trange
 
 from dpemu import runner
 from dpemu.dataset_utils import load_coco_val_2017
-from dpemu.filters.image import Resolution
+from dpemu.filters.image import Brightness
 from dpemu.ml_utils import load_yolov3
 from dpemu.nodes import Array
 from dpemu.nodes.series import Series
@@ -46,6 +46,10 @@ cv2.ocl.setUseOpenCL(False)
 torch.multiprocessing.set_start_method("spawn", force="True")
 
 
+def get_data(argv):
+    return load_coco_val_2017(int(argv[1]), is_shuffled=True)
+
+
 def get_err_root_node():
     err_node = Array()
     err_root_node = Series(err_node)
@@ -55,8 +59,8 @@ def get_err_root_node():
     # err_node.addfilter(FastRain("probability", "range"))
     # err_node.addfilter(StainArea("probability", "radius_generator", "transparency_percentage"))
     # err_node.addfilter(JPEG_Compression("quality"))
-    err_node.addfilter(Resolution("k"))
-    # err_node.addfilter(Brightness("tar", "rat", "range"))
+    # err_node.addfilter(Resolution("k"))
+    err_node.addfilter(Brightness("tar", "rat", "range"))
     # err_node.addfilter(SaturationVectorized("tar", "rate", "range"))
     # err_node.addfilter(Identity())
     return err_root_node
@@ -72,14 +76,14 @@ def get_err_params_list():
     #     {"probability": p, "radius_generator": GaussianRadiusGenerator(0, 50), "transparency_percentage": 0.2}
     #     for p in [10 ** i for i in range(-6, -2)]]
     # err_params_list = [{"quality": q} for q in [10, 20, 30, 100]]
-    err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
-    # err_params_list = [{"tar": 1, "rat": rat, "range": 255} for rat in [0, .4, .8, 1.2]]
+    # err_params_list = [{"k": k} for k in [1, 2, 3, 4]]
+    err_params_list = [{"tar": 1, "rat": rat, "range": 255} for rat in [0, .4, .8, 1.2]]
     # err_params_list = [{}]
     return err_params_list
 
 
 class Preprocessor:
-    def run(self, _1, imgs, _2):
+    def run(self, _, imgs, params):
         return None, imgs, {}
 
 
@@ -207,8 +211,8 @@ def visualize(df):
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with rain filter", x_log=True)
     # visualize_scores(df, ["mAP-50"], [True], "probability", "Object detection with added stains", x_log=True)
     # visualize_scores(df, ["mAP-50"], [True], "quality", "Object detection with JPEG compression", x_log=False)
-    visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", x_log=False)
-    # visualize_scores(df, ["mAP-50"], [True], "rat", "Object detection with added brightness", x_log=False)
+    # visualize_scores(df, ["mAP-50"], [True], "k", "Object detection with reduced resolution", x_log=False)
+    visualize_scores(df, ["mAP-50"], [True], "rat", "Object detection with added brightness", x_log=False)
     # visualize_scores(df, ["mAP-50"], [True], "rate", "Object detection with added saturation", x_log=False)
     plt.show()
 
@@ -217,7 +221,7 @@ def main(argv):
     if len(argv) != 2:
         exit(0)
 
-    imgs, img_ids, class_names, _ = load_coco_val_2017(int(argv[1]), is_shuffled=True)
+    imgs, img_ids, class_names, _ = get_data(argv)
     path_to_yolov3_weights, path_to_yolov3_cfg = load_yolov3()
 
     df = runner.run(

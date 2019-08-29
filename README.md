@@ -45,7 +45,7 @@ dpEmu is being built on the specifications and requirements provided by Professo
 
 ## Research
 
-Jukka K. Nurminen, Tuomas Halvari, Juha Harviainen, Juha Mylläri, Antti Röyskö, Juuso Silvennoinen, and Tommi Mikkonen. ["Software Framework for Data Error Injection to Test Machine Learning Systems"](Software_Framework_for_Data_Error_Injection_to_Test_Machine_Learning_Systems.pdf). Technical Report, 2019.
+Jukka K. Nurminen, Tuomas Halvari, Juha Harviainen, Juha Mylläri, Antti Röyskö, Juuso Silvennoinen, and Tommi Mikkonen. ["Software Framework for Data Error Injection to Test Machine Learning Systems"](Software_Framework_for_Data_Error_Injection_to_Test_Machine_Learning_Systems.pdf). 4th IEEE International Workshop on Reliability and Security Data Analysis (RSDA 2019) at 30th Annual IEEE International Symposium on Software Reliability Engineering (ISSRE 2019), Berlin, Germany, 2019 (to appear).
 
 ## Contributing
 

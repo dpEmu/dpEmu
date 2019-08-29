@@ -187,19 +187,19 @@ def order_df_columns(df, err_params_list, model_params_dict_list):
 
 def run(train_data, test_data, preproc, preproc_params, err_root_node, err_params_list, model_params_dict_list,
         n_processes=None, use_interactive_mode=False):
-    """[summary]
+    """[Run model and return results in a DataFrame]
 
     [extended_summary]
 
     Args:
-        train_data ([type]): [description]
-        test_data ([type]): [description]
-        preproc ([type]): [description]
-        err_root_node ([type]): [description]
-        err_params_list ([type]): [description]
-        model_params_dict_list ([type]): [description]
-        n_processes ([type], optional): [description]. Defaults to None.
-        use_interactive_mode (bool, optional): [description]. Defaults to False.
+        train_data ([type]): [Training data]
+        test_data ([type]): [Testing data]
+        preproc ([type]): [Data preprocessor]
+        err_root_node ([type]): [Root node of the error generation tree]
+        err_params_list ([type]): [Error parameter names]
+        model_params_dict_list ([type]): [List of model parameter dictionaries]
+        n_processes ([type], optional): [Number of processes to use]. Defaults to None.
+        use_interactive_mode (bool, optional): [Use interactive mode]. Defaults to False.
     """
     path_to_train_data, path_to_test_data = _pickle_data(train_data, test_data)
     pool_inputs = [(

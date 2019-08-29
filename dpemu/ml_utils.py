@@ -33,13 +33,14 @@ from dpemu.utils import get_project_root
 
 
 def run_ml_module_using_cli(cline, show_stdout=True):
-    """[summary]
-
-    [extended_summary]
+    """Runs an external ML model using its CLI.
 
     Args:
-        show_stdout:
-        cline ([type]): [description]
+        cline: Command line used to call the external ML model.
+        show_stdout: True to print the stdout of the external ML model.
+
+    Returns:
+        A string containing the stdout of the external ML model.
     """
     if show_stdout:
         proc = Popen(split(cline), bufsize=0, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
@@ -61,17 +62,18 @@ def run_ml_module_using_cli(cline, show_stdout=True):
 
 
 def reduce_dimensions(data, random_state, target_dim=2):
-    """[summary]
-
-    [extended_summary]
+    """
+    Reduces the dimensionality of the data using UMAP for lower dimensions, PCA for higher dimensions and possibly
+    even random projections if the number of dimension is over the limit given by the Johnson–Lindenstrauss lemma. Works
+    for NumPy arrays.
 
     Args:
-        data ([type]): [description]
-        random_state ([type]): [description]
-        target_dim (int, optional): [description]. Defaults to 2.
+        data: The input data.
+        random_state: Random state to generate reproducible results.
+        target_dim: The targeted dimension.
 
     Returns:
-        [type]: [description]
+        Lower dimension representation of the data.
     """
     jl_limit = johnson_lindenstrauss_min_dim(n_samples=data.shape[0], eps=.3)
     pca_limit = 30
@@ -86,17 +88,17 @@ def reduce_dimensions(data, random_state, target_dim=2):
 
 
 def reduce_dimensions_sparse(data, random_state, target_dim=2):
-    """[summary]
-
-    [extended_summary]
+    """
+    Reduces the dimensionality of the data using UMAP for lower dimensions and TruncatedSVD for higher dimensions. Works
+    for SciPy sparse matrices.
 
     Args:
-        data ([type]): [description]
-        random_state ([type]): [description]
-        target_dim (int, optional): [description]. Defaults to 2.
+        data: The input data.
+        random_state: Random state to generate reproducible results.
+        target_dim: The targeted dimension.
 
     Returns:
-        [type]: [description]
+        Lower dimension representation of the data.
     """
     svd_limit = 30
 
@@ -107,6 +109,11 @@ def reduce_dimensions_sparse(data, random_state, target_dim=2):
 
 
 def load_yolov3():
+    """Loads the custom weights and cfg for the YOLOv3 model.
+
+    Returns:
+        Paths to YOLOv3 weights and cfg file.
+    """
     path_to_yolov3_weights = f"{get_project_root()}/tmp/yolov3-spp_best.weights"
     if not isfile(path_to_yolov3_weights):
         Popen(["./scripts/get_yolov3.sh"], cwd=get_project_root()).wait()

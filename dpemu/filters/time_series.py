@@ -27,9 +27,13 @@ from dpemu.filters import Filter
 class Gap(Filter):
     """Introduce gaps to time series data by simulating sensor failure.
 
-    Model the state of a sensor as a Markov chain. The sensor always
-    starts in a working state. The sensor has a specific probability
-    to stop working and a specific probability to start working.
+    Models the state of the sensor with a Markov chain. The sensor always
+    starts in a working state. During every unit of time, if the sensor is working,
+    it breaks with the first specified probability, and if it is currently broken,
+    it starts working with the second specified probability.
+
+    While the sensor is broken, values produced by it will be replaced with the
+    provided missing value. Otherwise the original data remains unchanged.
 
     Inherits Filter class.
     """
@@ -37,9 +41,9 @@ class Gap(Filter):
     def __init__(self, prob_break_id, prob_recover_id, missing_value_id):
         """
         Args:
-            prob_break_id (str): A key which maps to the probability of the sensor breaking.
-            prob_recover_id (str): A key which maps to the probability of the sensor recovering.
-            missing_value_id (str): A key which maps to a missing value to be used.
+            prob_break_id (str): The key mapping to the probability the working sensor breaks in one unit of time.
+            prob_recover_id (str): The key mapping to the probability of the sensor recovering in one unit of time.
+            missing_value_id (str): The key mapping to the value that the broken sensor produces.
         """
         super().__init__()
         self.prob_break_id = prob_break_id
@@ -64,7 +68,7 @@ class Gap(Filter):
 
 
 class SensorDrift(Filter):
-    """Emulate sensor values drifting due to a malfunction in the sensor.
+    """Emulates sensor values drifting due to a malfunction in the sensor.
 
     Magnitude is the linear increase in drift during time period t_i -> t_i+1.
 
@@ -74,7 +78,7 @@ class SensorDrift(Filter):
     def __init__(self, magnitude_id):
         """
         Args:
-            magnitude_id (str): A key which maps to the magnitude value.
+            magnitude_id (str): The key mapping to the magnitude value.
         """
         super().__init__()
         self.magnitude_id = magnitude_id

@@ -25,20 +25,21 @@ from dpemu.filters import Filter
 
 
 class MissingArea(Filter):
-    """Emulate optical character recognition effect of stains in text.
+    """Emulates stains in text causing characters to not be readable.
 
-    Introduce missing areas to text.
+    At every position in the input text, with the given probability,
+    generates a random radius with the radius_generator parameter function,
+    and replaces all characters within that radius with the given missing value.
 
     Inherits Filter class.
     """
-    # TODO: radius_generator is a struct, not a function. It should be a function for repeatability
 
     def __init__(self, probability_id, radius_generator_id, missing_value_id):
         """
         Args:
-            probability_id (str): A key which maps to a probability of stain.
-            radius_generator_id (str): A key which maps to a radius_generator.
-            missing_value_id (str): A key which maps to a missing value to be used.
+            probability_id (str): The key mapping to the probability of creating a stain at every position.
+            radius_generator_id (str): The key mapping to the radius_generator function.
+            missing_value_id (str): The key mapping to the missing value to replace characters with.
         """
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
@@ -102,17 +103,18 @@ class MissingArea(Filter):
             node_data[index] = res_str
 
 
+# TODO: why p_id? Why not just the distribution?
 class OCRError(Filter):
-    """Emulate optical character recognition (OCR) errors.
+    """Emulates optical character recognition (OCR) errors.
 
-    User should provide a probability distribution in the form of a dict,
-    specifying how probable a change of character is. Example weights for
-    the distribution can be found in the data directory. These files are:
+    Provided a probability distribution specifying how probable it is to mistakenly
+    read a given character as another, randomly replaces characters according to that distribution.
+    Example weights for the distribution can be found in the data directory. These files are:
 
     example_ocr_error_config.json
 
-    These weights can be loaded and the weights normalised into a probability
-    distribution using functions from dpemu/pg_utils.py.
+    These weights can be loaded and normalized into a probability distribution
+    using functions from dpemu/pg_utils.py.
 
     Inherits Filter class.
     """
@@ -120,8 +122,8 @@ class OCRError(Filter):
     def __init__(self, normalized_params_id, p_id):
         """
         Args:
-            normalized_params_id (str): A key which maps to the probability distribution.
-            p_id (str): A key which maps to a probability of the distribution being applied.
+            normalized_params_id (str): The key mapping to the character replacement probability distribution.
+            p_id (str): The key mapping to the probability distribution of a character replacement being applied.
         """
         self.normalized_params_id = normalized_params_id
         self.p_id = p_id
@@ -145,8 +147,7 @@ class OCRError(Filter):
 class Uppercase(Filter):
     """Randomly convert characters to uppercase.
 
-    For each character in the string, convert the character
-    to uppercase with the provided probability.
+    For each character in the input text, with the given probability converts it to uppercase.
 
     Inherits Filter class.
     """
@@ -154,7 +155,7 @@ class Uppercase(Filter):
     def __init__(self, probability_id):
         """
         Args:
-            probability_id (str): A key which maps to the probability of uppercase change.
+            probability_id (str): The key mapping to the probability of characters being converted to uppercase.
         """
         self.prob_id = probability_id
         super().__init__()

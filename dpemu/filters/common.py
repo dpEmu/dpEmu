@@ -25,10 +25,10 @@ from dpemu.filters import Filter
 
 
 class Missing(Filter):
-    """Introduce missing values to data.
+    """Introduces missing values to data.
 
-    For each element in the array, change the value of the element to nan
-    with the provided probability.
+    For each element in the array, makes that element go missing with the provided probability.
+    Values that go missing are replaced with the provided value, which should usually be NaN.
 
     Inherits Filter class.
     """
@@ -36,7 +36,8 @@ class Missing(Filter):
     def __init__(self, probability_id, missing_value_id):
         """
         Args:
-            probability_id (str): A key which maps to a probability.
+            probability_id (str): The key mapping to the probability any specific value goes missing.
+            missing_value_id (str): The key mapping to the value that represents missing values.
         """
         self.probability_id = probability_id
         self.missing_value_id = missing_value_id
@@ -48,7 +49,9 @@ class Missing(Filter):
 
 
 class Clip(Filter):
-    """Clip values to minimum and maximum value provided by the user.
+    """Clips values between minimum and maximum values provided by the user.
+
+    Sets values less than the minimum value to min, and values greater than the maximum value to max.
 
     Inherits Filter class.
     """
@@ -56,8 +59,8 @@ class Clip(Filter):
     def __init__(self, min_id, max_id):
         """
         Args:
-            min_id (str): A key which maps to a minimum value.
-            max_id (str): A key which maps to a maximum value.
+            min_id (str): The key mapping to the minimum value.
+            max_id (str): The key mapping to the maximum value.
         """
         self.min_id = min_id
         self.max_id = max_id
@@ -68,10 +71,10 @@ class Clip(Filter):
 
 
 class GaussianNoise(Filter):
-    """Add normally distributed noise to data.
+    """Adds normally distributed noise to data.
 
-    For each element in the array add noise drawn from a Gaussian distribution
-    with the provided parameters mean and std (standard deviation).
+    Adds random noise drawn from a Gaussian distribution with the provided mean and standard deviation
+    to each element in the array.
 
     Inherits Filter class.
     """
@@ -79,8 +82,8 @@ class GaussianNoise(Filter):
     def __init__(self, mean_id, std_id):
         """
         Args:
-            mean_id (str): A key which maps to a mean value.
-            std_id (str): A key which maps to a standard deviation value.
+            mean_id (str): The key mapping to the mean of the random noise.
+            std_id (str): The key mapping to the standard deviation of the random noise.
         """
         self.mean_id = mean_id
         self.std_id = std_id
@@ -91,12 +94,11 @@ class GaussianNoise(Filter):
 
 
 class GaussianNoiseTimeDependent(Filter):
-    """Add time dependent normally distributed noise.
+    """Adds normally distributed noise increasing in intensity with time to the data.
 
-    For each element in the array add noise drawn from a Gaussian distribution
-    with the provided parameters mean and std (standard deviation). The mean and
-    standard deviation increase with every unit of time by the amount specified
-    in the last two parameters.
+    Adds random noise drawn from a Gaussian distribution with mean and standard deviation
+    calculated from the initial mean and standard deviation, the elapsed time, and the
+    increase to mean and standard deviation per unit of time.
 
     Inherits Filter class.
     """
@@ -104,10 +106,11 @@ class GaussianNoiseTimeDependent(Filter):
     def __init__(self, mean_id, std_id, mean_increase_id, std_increase_id):
         """
         Args:
-            mean_id (str): A key which maps to a mean value.
-            std_id (str): A key which maps to a standard deviation value.
-            mean_increase_id (str): A key which maps to an increase in mean.
-            std_increase_id (str): A key which maps to an increase in standard deviation.
+            mean_id (str): The key mapping to the initial mean of the random noise.
+            std_id (str): The key mapping to the initial standard deviation of the random noise.
+            mean_increase_id (str): The key mapping to the increase of the mean of the random noise per unit of time.
+            std_increase_id (str): The key mapping to the increase of the standard
+        deviation of the random noise per unit of time.
         """
         self.mean_id = mean_id
         self.std_id = std_id
@@ -123,10 +126,10 @@ class GaussianNoiseTimeDependent(Filter):
 
 
 class StrangeBehaviour(Filter):
-    """Emulate strange sensor values due to anomalous conditions around the sensor.
+    """Emulates strange sensor values due to anomalous conditions around the sensor.
 
-    The function do_strange_behaviour is user defined and outputs strange sensor
-    values into the data.
+    The function do_strange_behaviour given as a parameter is used to output
+    strange sensor values into the data.
 
     Inherits Filter class.
     """
@@ -134,7 +137,7 @@ class StrangeBehaviour(Filter):
     def __init__(self, do_strange_behaviour_id):
         """
         Args:
-            do_strange_behaviour_id (str): A key which maps to the strange_behaviour function.
+            do_strange_behaviour_id (str): The key mapping to the strange behaviour -function.
         """
         super().__init__()
         self.do_strange_behaviour_id = do_strange_behaviour_id
@@ -144,8 +147,22 @@ class StrangeBehaviour(Filter):
             node_data[index] = self.do_strange_behaviour(node_data[index], random_state)
 
 
+# TODO: does this work with the new set_params? Where are parameters of the input tuple set?
 class ApplyToTuple(Filter):
+    """Applies the given filter to only some index in the data tuple.
+
+    Given a filter and an index as parameters, applies the given filter
+    to the given index in the data tuple.
+
+    Inherits Filter class.
+    """
+
     def __init__(self, ftr, tuple_index):
+        """
+        Args:
+            ftr (dpemu.filters.Filter): Filter to apply.
+            tuple_index (int): Index of the tuple to apply the filter to.
+        """
         super().__init__()
         self.ftr = ftr
         self.tuple_index = tuple_index
@@ -154,18 +171,18 @@ class ApplyToTuple(Filter):
         self.ftr.apply(node_data[self.tuple_index], random_state, named_dims)
 
 
+# TODO: does this work with the new set_params? Where are parameters of the input tuple set?
 class ApplyWithProbability(Filter):
-    """Apply a filter with the specified probability.
+    """Applies the input filter to the data with the specified probability.
 
-    A filter is applied with the specified probability.
     Inherits Filter class.
     """
 
     def __init__(self, ftr, probability_id):
         """
         Args:
-            ftr_id (str): A key which maps to a filter.
-            probability_id (str): A key which maps to the probability of the filter being applied.
+            ftr_id (str): The key mapping to the filter.
+            probability_id (str): The key mapping to the probability of the filter being applied.
         """
         super().__init__()
         self.ftr = ftr
@@ -176,15 +193,23 @@ class ApplyWithProbability(Filter):
             self.ftr.apply(node_data, random_state, named_dims)
 
 
+# TODO: does this work with the new set_params? Where are parameters of the input tuple set?
 class ModifyAsDataType(Filter):
-    """[summary]
+    """Applies the input filter to the data casted to the specified type.
 
-    [extended_summary]
+    First casts the data into the specified type, then applies the filter,
+    then returns the data to its original type.
 
     Inherits Filter class.
     """
 
     def __init__(self, dtype_id, ftr):
+        """
+        Args:
+            dtype_id (str): The key mapping to the data type to cast the input to.
+            ftr (dpemu.filters.Filter): The filter to apply to the casted data.
+        """
+
         super().__init__()
         self.dtype_id = dtype_id
         self.ftr = ftr

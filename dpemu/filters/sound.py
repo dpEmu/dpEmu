@@ -25,7 +25,20 @@ from dpemu.filters import Filter
 
 
 class ClipWAV(Filter):
+    """Clips the WAV data to a scaled range
+
+    Scales the range of the data by the given parameter, then sets values smaller
+    than the new lower bound to the lower bound and values larger than the new upper
+    bound to the new upper bound.
+
+    Inherits Filter class.
+    """
+
     def __init__(self, dyn_range_id):
+        """
+        Args:
+            dyn_range_id (str): The key mapping to the value to scale the range of values by.
+        """
         super().__init__()
         self.dyn_range_id = dyn_range_id
 

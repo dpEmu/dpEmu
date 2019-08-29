@@ -25,13 +25,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dpemu.nodes import Array, TupleSeries
 from dpemu.filters.common import GaussianNoise, Missing
-from dpemu.dataset_utils import _load_mnist
+from dpemu.dataset_utils import load_mnist
 
 std = float(sys.argv[1])
 prob = float(sys.argv[2])
 
 n = 1000
-x, y, _, _ = _load_mnist(reshape_to_28x28=True)
+x, y, _, _ = load_mnist(reshape_to_28x28=True)
 x = x[:n].astype('float')
 y = y[:n]
 print(x.min(), x.max())

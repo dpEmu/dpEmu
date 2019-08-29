@@ -273,7 +273,3 @@ Run the program with the command:
 Here's what the resulting image should look like:
 
 .. image:: manual_demo.png
-
-Best model parameters for different standard deviation values:
-
-.. image:: manual_best_model_params.png

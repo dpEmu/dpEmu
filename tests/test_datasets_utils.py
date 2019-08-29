@@ -56,19 +56,19 @@ def test_split_data_does_not_accept_wrong_train_size_parameters():
     data = np.arange(1, 101)
     labels = np.arange(1, 101).astype(str)
 
-    ret_data, ret_labels = utils.split_data(data, labels, n_data=100)
+    ret_data, ret_labels = utils.__split_data(data, labels, n_data=100)
     assert np.array_equal(ret_data, data)
     assert np.array_equal(ret_labels, labels)
 
-    ret_data, ret_labels = utils.split_data(data, labels, n_data=0)
+    ret_data, ret_labels = utils.__split_data(data, labels, n_data=0)
     assert np.array_equal(ret_data, data)
     assert np.array_equal(ret_labels, labels)
 
-    ret_data, ret_labels = utils.split_data(data, labels, n_data=150)
+    ret_data, ret_labels = utils.__split_data(data, labels, n_data=150)
     assert np.array_equal(ret_data, data)
     assert np.array_equal(ret_labels, labels)
 
-    ret_data, ret_labels = utils.split_data(data, labels, n_data=-10)
+    ret_data, ret_labels = utils.__split_data(data, labels, n_data=-10)
     assert np.array_equal(ret_data, data)
     assert np.array_equal(ret_labels, labels)
 
@@ -76,7 +76,7 @@ def test_split_data_does_not_accept_wrong_train_size_parameters():
 def test_split_data_returns_correct_size():
     data = np.arange(1, 101)
     labels = np.arange(1, 101).astype(str)
-    ret_data, ret_labels = utils.split_data(data, labels, n_data=65)
+    ret_data, ret_labels = utils.__split_data(data, labels, n_data=65)
 
     assert ret_data.shape[0] == 65
     assert ret_labels.shape[0] == 65

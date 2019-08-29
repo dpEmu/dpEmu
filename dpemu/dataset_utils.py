@@ -38,6 +38,15 @@ random_state = RandomState(42)
 
 
 def load_newsgroups(subset="all", n_categories=20):
+    """Fetches the 20 newsgroups dataset and returns its desired subset.
+
+    Args:
+        subset (str, optional): If "test" then a smaller dataset is used instead of the full one. Defaults to "all".
+        n_categories (int, optional): The number of categories to be included. Defaults to 20.
+
+    Returns:
+        tuple: The dataset, categories as integers, category names and the name of the dataset.
+    """
     categories = [
         "alt.atheism",
         "comp.graphics",
@@ -73,6 +82,14 @@ def split_data(data, labels, n_data):
 
 
 def load_digits_(n_data=1797):
+    """Fetches the digits dataset and returns its desired subset.
+
+    Args:
+        n_data (int, optional): The size of the wanted subset. Defaults to 1797.
+
+    Returns:
+        tuple: The dataset, the labels of data points, the names of categories and the name of the dataset.
+    """
     digits = load_digits()
     data, labels = split_data(digits["data"], digits["target"], n_data)
     return data, labels, None, "Digits"

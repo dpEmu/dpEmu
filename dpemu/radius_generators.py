@@ -24,9 +24,7 @@ from abc import ABC, abstractmethod
 
 
 class RadiusGenerator(ABC):
-    """[summary]
-
-    [extended_summary]
+    """Radius generators are used by some filters for generating radii for their effects.
     """
 
     def __init__(self):
@@ -34,78 +32,48 @@ class RadiusGenerator(ABC):
 
     @abstractmethod
     def generate(self, random_state):
-        """[summary]
-
-        [extended_summary]
+        """Generates a single integer to be used as a radius in some of the filters.
 
         Args:
-            random_state ([type]): [description]
+            random_state (mtrand.RandomState): A random state object to be used in all things related to randomness
+                to ensure the repeatability.
 
         Returns:
-            [type]: [description]
+            int: An integer describing the generated radius.
         """
         pass
 
 
 class GaussianRadiusGenerator(RadiusGenerator):
-    """[summary]
-
-    [extended_summary]
-
-    Args:
-        RadiusGenerator ([type]): [description]
+    """GaussianRadiusGenerator generates radii from a normal distribution with given parameters.
     """
 
     def __init__(self, mean, std):
         """
         Args:
-            mean ([type]): [description]
-            std ([type]): [description]
+            mean (float): The mean of the normal distribution.
+            std (float): The standard deviation of the normal distribution.
         """
         self.mean = mean
         self.std = std
 
     def generate(self, random_state):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            random_state ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         return max(0, self.mean + round(random_state.normal(scale=self.std)))
 
 
 class ProbabilityArrayRadiusGenerator(RadiusGenerator):
-    """[summary]
-
-    [extended_summary]
-
-    Args:
-        RadiusGenerator ([type]): [description]
+    """ProbabilityArrayRadiusGenerator generates radii based on the probabilities in the array given as a parameter.
     """
 
     def __init__(self, probability_array):
         """
         Args:
-            probability_array ([type]): [description]
+            probability_array (list): A list where the value of an element describes the probability of using its
+                index as a radius.
         """
         self.probability_array = probability_array
 
     def generate(self, random_state):
-        """[summary]
-
-        [extended_summary]
-
-        Args:
-            random_state ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         sum_of_probabilities = 1
         for radius, _ in enumerate(self.probability_array):
             if random_state.random_sample() <= self.probability_array[radius] / sum_of_probabilities:

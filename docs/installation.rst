@@ -1,6 +1,8 @@
 Installing dpEmu
 ================
 
+**Works only with Python versions 3.6 and 3.7**
+
 To install dpEmu on your computer, execute the following commands in your terminal:
 
 .. code-block:: bash

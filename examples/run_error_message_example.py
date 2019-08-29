@@ -34,4 +34,10 @@ xs = np.random.rand(100, 200)
 array_node = Array()
 array_node.addfilter(GaussianNoise("mean", "std"))
 params = {"meany": 0.0, "std": 20.0}
+print("""
+---
+This example should terminate with a helpful error message.
+---
+"""
+)
 errorified = array_node.generate_error(xs, params)

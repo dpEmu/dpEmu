@@ -32,7 +32,7 @@ User Manual
     :maxdepth: 1
 
     installation
-    basic_usage
+    running_dpemu
     how_dpemu_works
     cluster_installation
     cluster_instructions_examples

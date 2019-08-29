@@ -1,5 +1,5 @@
-Basic usage
-===========
+Running dpEmu
+=============
 
 Running notebooks
 -----------------
@@ -17,8 +17,10 @@ and remotely executed in console with:
     jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=None --inplace --execute docs/case_studies/Text_Classification_OCR_Error.ipynb
 
 
-Running examples
-----------------
+Running scripts
+---------------
+
+User defined scripts are run similarly as the predefined examples.
 
 **Run the examples from project root.**
 
@@ -37,7 +39,7 @@ the name of the file, each one separated by space (the argument
 
     python3 examples/run_rotate_example.py 22
 
-The interactive mode is activated by writing ``-i``:
+The interactive mode is used in some examples and is activated by writing ``-i``:
 
 .. code-block:: bash
 

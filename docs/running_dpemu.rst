@@ -29,7 +29,7 @@ they can be run as follows:
 
 .. code-block:: bash
 
-    python3 examples/run_saturation_example_rgb_0_to_1.py
+    python3 examples/filter_examples/run_saturation_example_rgb_0_to_1.py
 
 If the examples require command line arguments, add them after
 the name of the file, each one separated by space (the argument
@@ -37,10 +37,10 @@ the name of the file, each one separated by space (the argument
 
 .. code-block:: bash
 
-    python3 examples/run_rotate_example.py 22
+    python3 examples/filter_examples/run_rotate_example.py 22
 
 The interactive mode is used in some examples and is activated by writing ``-i``:
 
 .. code-block:: bash
 
-    python3 examples/run_text_classification_example test 4 -i
+    python3 examples/run_text_classification_example.py test 4 -i

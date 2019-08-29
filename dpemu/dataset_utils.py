@@ -38,6 +38,15 @@ random_state = RandomState(42)
 
 
 def load_newsgroups(subset="all", n_categories=20):
+    """Fetches the 20 newsgroups dataset and returns its desired subset.
+
+    Args:
+        subset (str, optional): If "test" then a smaller dataset is used instead of the full one. Defaults to "all".
+        n_categories (int, optional): The number of categories to be included. Defaults to 20.
+
+    Returns:
+        tuple: The dataset, categories as integers, category names and the name of the dataset.
+    """
     categories = [
         "alt.atheism",
         "comp.graphics",
@@ -66,25 +75,60 @@ def load_newsgroups(subset="all", n_categories=20):
     return newsgroups["data"], newsgroups["target"].astype(int), newsgroups["target_names"], "20newsgroups"
 
 
-def split_data(data, labels, n_data):
+def __split_data(data, labels, n_data):
+    """Returns a subset of a given size of the original data and labels.
+
+    Args:
+        data (list): Original data.
+        labels (list): Original labels.
+        n_data (int): Size of the subset.
+
+    Returns:
+        tuple: a subset of data and a subset of labels.
+    """
     if 0 < n_data < data.shape[0]:
         data, _, labels, _ = train_test_split(data, labels, train_size=n_data, random_state=random_state)
     return data, labels
 
 
 def load_digits_(n_data=1797):
+    """Fetches the digits dataset and returns its desired subset.
+
+    Args:
+        n_data (int, optional): The size of the wanted subset. Defaults to 1797.
+
+    Returns:
+        tuple: The dataset, the labels of data points, the names of categories and the name of the dataset.
+    """
     digits = load_digits()
-    data, labels = split_data(digits["data"], digits["target"], n_data)
+    data, labels = __split_data(digits["data"], digits["target"], n_data)
     return data, labels, None, "Digits"
 
 
 def load_mnist_unsplit(n_data=70000):
+    """Fetches the MNIST dataset and returns its subset.
+
+    Args:
+        n_data (int, optional): The size of the wanted subset. Defaults to 70000.
+
+    Returns:
+        tuple: The dataset, the labels of data points, the names of categories and the name of the dataset.
+    """
     mnist = fetch_openml("mnist_784")
-    data, labels = split_data(mnist["data"], mnist["target"].astype(int), n_data)
+    data, labels = __split_data(mnist["data"], mnist["target"].astype(int), n_data)
     return data, labels, None, "MNIST"
 
 
 def load_mnist(reshape_to_28x28=False, integer_values=False):
+    """Fetches the MNIST dataset and returns its desired subset.
+
+    Args:
+        reshape_to_28x28 (bool, optional): The data is reshaped to 28x28 images if true. Defaults to False.
+        integer_values (bool, optional): The data is typecast to integers if true. Defaults to False.
+
+    Returns:
+        tuple: Training pixel data, training labels, test pixel data, test labels.
+    """
     from contextlib import redirect_stderr
     warnings.simplefilter(action='ignore', category=FutureWarning)
     with redirect_stderr(open(os.devnull, 'w')):
@@ -103,8 +147,16 @@ def load_mnist(reshape_to_28x28=False, integer_values=False):
 
 
 def load_fashion(n_data=70000):
+    """Fetches the fashion MNIST dataset and returns its desired subset.
+
+    Args:
+        n_data (int, optional): The size of the wanted subset. Defaults to 70000.
+
+    Returns:
+        tuple: The dataset, the labels of elements, the names of categories and the name of the dataset.
+    """
     mnist = fetch_openml("Fashion-MNIST")
-    data, labels = split_data(mnist["data"], mnist["target"].astype(int), n_data)
+    data, labels = __split_data(mnist["data"], mnist["target"].astype(int), n_data)
     label_names = [
         "T-shirt",
         "Trouser",
@@ -121,6 +173,15 @@ def load_fashion(n_data=70000):
 
 
 def load_coco_val_2017(n=5000, is_shuffled=False):
+    """Fetches the COCO dataset and returns its desired subset.
+
+    Args:
+        n (int, optional): The size of the wanted subset. Defaults to 5000.
+        is_shuffled (bool, optional): If true, then the chosen subset of the data will be shuffled. Defaults to False.
+
+    Returns:
+        tuple: The dataset, the labels of elements, the names of categories and the name of the dataset.
+    """
     if n not in range(1, 5000):
         n = 5000
     img_folder = f"{get_project_root()}/data/val2017"

@@ -38,6 +38,5 @@ print("""
 ---
 This example should terminate with a helpful error message.
 ---
-"""
-)
+""")
 errorified = array_node.generate_error(xs, params)

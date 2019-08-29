@@ -43,4 +43,4 @@ The interactive mode is used in some examples and is activated by writing ``-i``
 
 .. code-block:: bash
 
-    python3 examples/run_text_classification_example test 4 -i
+    python3 examples/run_text_classification_example.py test 4 -i

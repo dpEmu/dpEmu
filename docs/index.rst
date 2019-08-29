@@ -44,6 +44,7 @@ Case studies
 .. toctree::
     :maxdepth: 1
 
+    case_studies/Image_Clustering_Added_Noise
     case_studies/Image_Clustering_With_Rotation
     case_studies/Text_Classification_Missing_Areas
     case_studies/Text_Classification_OCR_Error

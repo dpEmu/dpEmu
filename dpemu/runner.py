@@ -31,7 +31,7 @@ from tqdm import tqdm
 from dpemu.utils import generate_unique_path
 
 
-def _unpickle_data(path_to_train_data, path_to_test_data):
+def unpickle_data(path_to_train_data, path_to_test_data):
     """Loads the data to memory in a subprocess.
 
     Args:
@@ -48,7 +48,7 @@ def _unpickle_data(path_to_train_data, path_to_test_data):
     return train_data, test_data
 
 
-def _errorify_data(train_data, test_data, err_root_node, err_params):
+def errorify_data(train_data, test_data, err_root_node, err_params):
     """Applies the error to the data using the error source defined.
 
     Args:
@@ -70,7 +70,7 @@ def _errorify_data(train_data, test_data, err_root_node, err_params):
     return err_train_data, err_test_data, time_err
 
 
-def _preproc_data(train_data, err_train_data, err_test_data, preproc, preproc_params):
+def preproc_data(train_data, err_train_data, err_test_data, preproc, preproc_params):
     """
     Preprocesses clean train data, errorified train data and errorified test data using the given preprocessor and
     parameters.
@@ -99,7 +99,7 @@ def _preproc_data(train_data, err_train_data, err_test_data, preproc, preproc_pa
     )
 
 
-def _get_model_name(model, use_clean_train_data, same_model_counter):
+def get_model_name(model, use_clean_train_data, same_model_counter):
     """
     Returns the name of the model class. If the name ends with the word Model, it's replaced with an empty string. If
     clean train data is used, word Clean is added to the name. A number is added to the end to separate multiple same
@@ -120,7 +120,7 @@ def _get_model_name(model, use_clean_train_data, same_model_counter):
     return model_name + f" #{same_model_counter[model_name]}"
 
 
-def _get_result_with_model_params(model, model_params, train_data, test_data, result_base):
+def get_result_with_model_params(model, model_params, train_data, test_data, result_base):
     """Gets the results from a model using specified model parameters.
 
     Args:
@@ -142,7 +142,7 @@ def _get_result_with_model_params(model, model_params, train_data, test_data, re
     return result
 
 
-def _get_results_from_model(model, model_params_list, train_data, test_data, result_base):
+def get_results_from_model(model, model_params_list, train_data, test_data, result_base):
     """Gets all results from a model using different hyperparameter combinations.
 
     Args:
@@ -158,12 +158,12 @@ def _get_results_from_model(model, model_params_list, train_data, test_data, res
     if not model_params_list:
         model_params_list.append({})
     return [
-        _get_result_with_model_params(model, model_params, train_data, test_data, result_base) for model_params in
+        get_result_with_model_params(model, model_params, train_data, test_data, result_base) for model_params in
         model_params_list
     ]
 
 
-def _add_more_stuff_to_results(result, err_params, model_name, i_data, time_pre, time_err, use_i_mode):
+def add_more_stuff_to_results(result, err_params, model_name, i_data, time_pre, time_err, use_i_mode):
     """Adds stuff like error parameters, model parameters and run times to a result dict.
 
     Args:
@@ -183,7 +183,7 @@ def _add_more_stuff_to_results(result, err_params, model_name, i_data, time_pre,
     result["time_pre"] = round(time_pre, 3)
 
 
-def _worker(inputs):
+def worker(inputs):
     """
     One of the workers in the multiprocessing pool. A subprocess is created for every error parameter combination. In
     every worker, data is first errorified, preprocessed and then run through the models.
@@ -198,14 +198,14 @@ def _worker(inputs):
         path_to_train_data, path_to_test_data, preproc, preproc_params, err_root_node, err_params,
         model_params_dict_list, use_interactive_mode
     ) = inputs
-    train_data, test_data = _unpickle_data(path_to_train_data, path_to_test_data)
+    train_data, test_data = unpickle_data(path_to_train_data, path_to_test_data)
 
-    err_train_data, err_test_data, time_err = _errorify_data(train_data, test_data, err_root_node, err_params)
+    err_train_data, err_test_data, time_err = errorify_data(train_data, test_data, err_root_node, err_params)
 
     (
         preproc_train_data, preproc_err_test_using_train, result_base_using_train, preproc_err_train_data,
         preproc_err_test_using_err_train, result_base_using_err_train, time_pre
-    ) = _preproc_data(train_data, err_train_data, err_test_data, preproc, preproc_params)
+    ) = preproc_data(train_data, err_train_data, err_test_data, preproc, preproc_params)
 
     worker_results = []
     same_model_counter = Counter()
@@ -216,25 +216,25 @@ def _worker(inputs):
             use_clean_train_data = False
         model = model_params_dict["model"]
         model_params_list = model_params_dict["params_list"]
-        model_name = _get_model_name(model, use_clean_train_data, same_model_counter)
+        model_name = get_model_name(model, use_clean_train_data, same_model_counter)
 
         if use_clean_train_data:
-            results = _get_results_from_model(
+            results = get_results_from_model(
                 model, model_params_list, preproc_train_data, preproc_err_test_using_train, result_base_using_train
             )
         else:
-            results = _get_results_from_model(
+            results = get_results_from_model(
                 model, model_params_list, preproc_err_train_data, preproc_err_test_using_err_train,
                 result_base_using_err_train
             )
         for result in results:
-            _add_more_stuff_to_results(result, err_params, model_name, err_test_data, time_pre, time_err,
-                                       use_interactive_mode)
+            add_more_stuff_to_results(result, err_params, model_name, err_test_data, time_pre, time_err,
+                                      use_interactive_mode)
         worker_results.extend(results)
     return worker_results
 
 
-def _pickle_data(train_data, test_data):
+def pickle_data(train_data, test_data):
     """Saves the data to disk to be read by the workers.
 
     Args:
@@ -253,7 +253,7 @@ def _pickle_data(train_data, test_data):
     return path_to_train_data, path_to_test_data
 
 
-def _get_total_results_from_workers(pool_inputs, n_err_params, n_processes):
+def get_total_results_from_workers(pool_inputs, n_err_params, n_processes):
     """Gathers the results from different workers to a list.
 
     Args:
@@ -266,12 +266,12 @@ def _get_total_results_from_workers(pool_inputs, n_err_params, n_processes):
     """
     total_results = []
     with Pool(n_processes) as pool:
-        for results in tqdm(pool.imap(_worker, pool_inputs), total=n_err_params):
+        for results in tqdm(pool.imap(worker, pool_inputs), total=n_err_params):
             total_results.extend(results)
     return total_results
 
 
-def _get_df_columns_base(err_params_list, model_params_dict_list):
+def get_df_columns_base(err_params_list, model_params_dict_list):
     """Generates the base for a list of Dataframe column names.
 
     Args:
@@ -292,7 +292,7 @@ def _get_df_columns_base(err_params_list, model_params_dict_list):
     return err_param_columns + model_param_columns + ["time_err", "time_pre", "time_mod"]
 
 
-def _order_df_columns(df, err_params_list, model_params_dict_list):
+def order_df_columns(df, err_params_list, model_params_dict_list):
     """Defines the final order for Dataframe column names.
 
     Args:
@@ -304,7 +304,7 @@ def _order_df_columns(df, err_params_list, model_params_dict_list):
     Returns:
         The reindexed Dataframe.
     """
-    df_columns_base = _get_df_columns_base(err_params_list, model_params_dict_list)
+    df_columns_base = get_df_columns_base(err_params_list, model_params_dict_list)
     new_columns = [column for column in df.columns if column not in df_columns_base]
     return df.reindex(columns=new_columns + df_columns_base)
 
@@ -330,7 +330,7 @@ def run(train_data, test_data, preproc, preproc_params, err_root_node, err_param
     Returns:
         A Dataframe containing the results.
     """
-    path_to_train_data, path_to_test_data = _pickle_data(train_data, test_data)
+    path_to_train_data, path_to_test_data = pickle_data(train_data, test_data)
     pool_inputs = [(
         path_to_train_data,
         path_to_test_data,
@@ -342,6 +342,6 @@ def run(train_data, test_data, preproc, preproc_params, err_root_node, err_param
         use_interactive_mode
     ) for err_params in err_params_list]
 
-    total_results = _get_total_results_from_workers(pool_inputs, len(err_params_list), n_processes)
+    total_results = get_total_results_from_workers(pool_inputs, len(err_params_list), n_processes)
     df = pd.DataFrame(total_results)
-    return _order_df_columns(df, err_params_list, model_params_dict_list)
+    return order_df_columns(df, err_params_list, model_params_dict_list)

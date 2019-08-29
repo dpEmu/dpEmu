@@ -1,5 +1,5 @@
-Welcome to dpEmu 0.0.1 Documentation!
-=====================================
+dpEmu |release| documentation
+=============================
 
 Introduction
 ^^^^^^^^^^^^
@@ -39,7 +39,7 @@ User Manual
     license
 
 Case studies
-^^^^^^^^^^^
+^^^^^^^^^^^^
 
 .. toctree::
     :maxdepth: 1

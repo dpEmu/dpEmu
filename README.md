@@ -9,7 +9,7 @@
 
 dpEmu is a Python library for emulating data problems in the use and training of machine learning systems. It provides tools for injecting errors into data, running machine learning models with different error parameters and visualizing the results.
 
-dpEmu is being built on the specifications and requirements provided by Professors Jukka Nurminen and Tommi Mikkonen for the course Software Engineering Lab at the University of Helsinki, department of Computer Science.
+dpEmu is being built on the specifications and requirements provided by Professors Jukka K. Nurminen and Tommi Mikkonen for the course Software Engineering Lab at the University of Helsinki, department of Computer Science.
 
 
 ## Table of Contents
@@ -45,7 +45,8 @@ dpEmu is being built on the specifications and requirements provided by Professo
 
 ## Research
 
-Jukka K. Nurminen, Tuomas Halvari, Juha Harviainen, Juha Mylläri, Antti Röyskö, Juuso Silvennoinen, and Tommi Mikkonen. ["Software Framework for Data Error Injection to Test Machine Learning Systems"](Software_Framework_for_Data_Error_Injection_to_Test_Machine_Learning_Systems.pdf). 4th IEEE International Workshop on Reliability and Security Data Analysis (RSDA 2019) at 30th Annual IEEE International Symposium on Software Reliability Engineering (ISSRE 2019), Berlin, Germany, 2019 (to appear).
+Further information of our work is available in workshop paper. Please cite it if you are using our research.
+*Jukka K. Nurminen, Tuomas Halvari, Juha Harviainen, Juha Mylläri, Antti Röyskö, Juuso Silvennoinen, and Tommi Mikkonen. ["Software Framework for Data Error Injection to Test Machine Learning Systems"](Software_Framework_for_Data_Error_Injection_to_Test_Machine_Learning_Systems.pdf). 4th IEEE International Workshop on Reliability and Security Data Analysis (RSDA 2019) at 30th Annual IEEE International Symposium on Software Reliability Engineering (ISSRE 2019), Berlin, Germany, 2019 (to appear)*.
 
 ## Contributing
 

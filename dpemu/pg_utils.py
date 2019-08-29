@@ -22,6 +22,7 @@
 
 import json
 from random import randint
+
 import numpy as np
 
 
@@ -78,11 +79,11 @@ def to_time_series_x_y(data, x_length):
     consecutive observations and y is the observation immediately following x.
 
     Args:
-        data ([type]):
+        data ([type]): The data used.
         x_length (int): Length of the x vector.
 
     Returns:
-        [type]: [description]
+        The x, y pair.
     """
     x = np.array([data[i - x_length:i] for i in range(x_length, data.shape[0])])
     y = np.array([data[i] for i in range(x_length, data.shape[0])])

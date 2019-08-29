@@ -149,14 +149,17 @@ class Rotation(Filter):
 class Brightness(Filter):
     """Increases or decreases brightness in the image.
 
-    tar: 0 if you want to decrease brightness, 1 if you want to increase it.
+    scales the brightness of every pixel with the formula
+    new = tar + (old - tar) e^(-2 rat old)
+    where old is the old brightness value, new is the new brightness value,
+    and rat and tar are parameters.
 
-    rat: scales the brightness change.
+    tar is the target brightness value. The brightness of every pixel will move towards this value.
+    rat is the ratio that is replaced with the new brightness value.
+    The higher the ratio, the closer the new brightness values will be to the target brightness value.
 
-    range: Should have value 1 or 255. The value is chosen according to how RGB values are presented in
-    the corresponding NumPy array. Normally the values are either in the range [0,1] or in the set
-    {0,...,255}. If this value is chosen incorrectly, then the filter will produce undesired
-    effects on the image.
+    RGB values should be either reals in the range [0, 1] or integers in [0, 255].
+    The range-parameter should be set to 1 in the first case and 255 in the second.
 
     Inherits Filter class.
     """
@@ -164,9 +167,9 @@ class Brightness(Filter):
     def __init__(self, tar_id, rat_id, range_id):
         """
         Args:
-            tar_id (str): The key mapping to the target value.
-            rat_id (str): The key mapping to the rat value.
-            range_id (str): The key mapping to the range value.
+            tar_id (str): The key mapping to the target brightness value.
+            rat_id (str): The key mapping to the ratio used to replace old brightness.
+            range_id (str): The key mapping to the range of the RGB values.
         """
         super().__init__()
         self.tar_id = tar_id
@@ -193,7 +196,7 @@ class Brightness(Filter):
 
 
 class BlurGaussian(Filter):
-    """Blur image according to a zero-centred normal distribution.
+    """Blur image according to a zero-centered normal distribution.
 
     Create blur in images by applying a Gaussian filter.
     The standard deviation of the Gaussian is taken as a parameter.
@@ -204,7 +207,7 @@ class BlurGaussian(Filter):
     def __init__(self, standard_dev_id):
         """
         Args:
-            standard_dev_id (str): A key which maps to standard deviation.
+            standard_dev_id (str): The key mapping to the standard deviation of the distribution.
         """
         super().__init__()
         self.std_id = standard_dev_id
@@ -218,15 +221,19 @@ class BlurGaussian(Filter):
 
 
 class JPEG_Compression(Filter):
-    """Compresses a JPEG-image.
+    """Applies JPEG compression to the image.
 
-    Compress the image as JPEG and uncompress. Quality should be in range [1, 100],
-    the bigger the less loss.
+    Compresses the image into a JPEG, then uncompresses it.
+    Quality should be in range [1, 100], the bigger the less loss.
 
     Inherits Filter class.
     """
 
     def __init__(self, quality_id):
+        """
+        Args:
+            quality_id (str): The key mapping to the quality of the compression.
+        """
         super().__init__()
         self.quality_id = quality_id
 
@@ -245,8 +252,10 @@ class JPEG_Compression(Filter):
 class Rain(Filter):
     """Add rain to images.
 
-    RGB values are presented either in the range [0,1] or in the set {0,...,255},
-        thus range should either have value 1 or value 255.
+    For every position in the image, creates a raindrop there with the given probability.
+
+    RGB values should be either reals in the range [0, 1] or integers in [0, 255].
+    The range-parameter should be set to 1 in the first case and 255 in the second.
 
     Inherits Filter class.
     """
@@ -254,8 +263,8 @@ class Rain(Filter):
     def __init__(self, probability_id, range_id):
         """
         Args:
-            probability_id (str): A key which maps to a probability of rain.
-            range_id (str): A key which maps to value of either 1 or 255.
+            probability_id (str): The key mapping to the probability a raindrop is created.
+            range_id (str): The key mapping to the range of the RGB values.
         """
         super().__init__()
         self.probability_id = probability_id
@@ -342,9 +351,9 @@ class Snow(Filter):
     def __init__(self, snowflake_probability_id, snowflake_alpha_id, snowstorm_alpha_id):
         """
         Args:
-            snowflake_probability_id (str): A key which maps to a snowflake probability.
-            snowflake_alpha_id (str):
-            snowstorm_alpha_id (str):
+            snowflake_probability_id (str): The key mapping to the probability a snowflake is created at every position.
+            snowflake_alpha_id (str): The key mapping to the alpha-value of snowflakes.
+            snowstorm_alpha_id (str): The key mapping to the alpha-value of the background snow.
         """
         super().__init__()
         self.snowflake_probability_id = snowflake_probability_id
@@ -460,16 +469,12 @@ class Snow(Filter):
                 node_data.dtype)
 
 
+# TODO: transparency_percentage does not get values in range [0, 100] ??
 class StainArea(Filter):
     """Adds stains to images.
 
-    probability: probability of adding a stain at each pixel.
-
-    radius_generator: object implementing a generate(random_state) function
-    which returns the radius of the stain.
-
-    transparency_percentage: 1 means that the stain is invisible and 0 means
-    that the part of the image where the stain is is completely black.
+    With the given probability at every pixel creates a black stain with the given transparency
+    and radius generated by the radius_generator function given as a parameter.
 
     Inherits Filter class.
     """
@@ -477,9 +482,9 @@ class StainArea(Filter):
     def __init__(self, probability_id, radius_generator_id, transparency_percentage_id):
         """
         Args:
-            probability_id (str): A key which maps to the probability of stain.
-            radius_generator_id (str): A key which maps to the radius_generator.
-            transparency_percentage_id (str): A key which maps to the transparency percentage.
+            probability_id (str): The key mapping to the probability of creating a stain.
+            radius_generator_id (str): The key mapping to the radius generator.
+            transparency_percentage_id (str): The key mapping to the transparency of stains.
         """
         self.probability_id = probability_id
         self.radius_generator_id = radius_generator_id
@@ -521,14 +526,17 @@ class StainArea(Filter):
 class Saturation(Filter):
     """Increases or decreases saturation in the image.
 
-    tar: 0 if you want to decrease saturation, 1 if you want to increase it.
+    scales the saturation of every pixel with the formula
+    new = tar + (old - tar) e^(-2 rat old)
+    where old is the old saturation value, new is the new saturation value,
+    and rat and tar are parameters.
 
-    rat: scales the saturation change.
+    tar is the target saturation value. The saturation of every pixel will move towards this value.
+    rat is the ratio that is replaced with the new saturation value.
+    The higher the ratio, the closer the new saturation values will be to the target saturation value.
 
-    range: Should have value 1 or 255. The value is chosen according to how RGB values are presented in
-    the corresponding NumPy array. Normally the values are either in the range [0,1] or in the set
-    {0,...,255}. If this value is chosen incorrectly, then the filter will produce undesired
-    effects on the image.
+    RGB values should be either reals in the range [0, 1] or integers in [0, 255].
+    The range-parameter should be set to 1 in the first case and 255 in the second.
 
     Inherits Filter class.
     """
@@ -536,9 +544,9 @@ class Saturation(Filter):
     def __init__(self, tar_id, rat_id, range_id):
         """
         Args:
-            tar_id (str): A key which maps to the tar value.
-            rat_id (str): A key which maps to the rat value.
-            range_id (str): A key which maps to the range value.
+            tar_id (str): The key mapping to the target saturation value.
+            rat_id (str): The key mapping to the ratio used to replace old saturation.
+            range_id (str): The key mapping to the range of the RGB values.
         """
         super().__init__()
         self.tar_id = tar_id
@@ -565,7 +573,7 @@ class Saturation(Filter):
 
 
 class LensFlare(Filter):
-    """Add lens flare to an image.
+    """Adds a lens flare to the image.
 
     Inherits Filter class.
     """

@@ -40,9 +40,9 @@ dpEmu is being built on the specifications and requirements provided by Professo
 
 #### Additional steps for the object detection example and notebooks (CUDA and cuDNN required)
 
-* `git clone https://github.com/dpEmu/Detectron.git`
+* `git clone https://github.com/dpEmu/Detectron.git libs/Detectron`
 * `./scripts/install_detectron.sh`
-* `git clone https://github.com/dpEmu/darknet.git`
+* `git clone https://github.com/dpEmu/darknet.git libs/darknet`
 * `./scripts/install_darknet.sh`
 
 ## Documentation

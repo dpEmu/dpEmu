@@ -52,7 +52,6 @@ Case studies
     case_studies/Object_Detection_Added_Snow
     case_studies/Object_Detection_JPEG_Compression
     case_studies/Object_Detection_Reduced_Resolution
-    case_studies/Object_detection_case_study/Object_Detection_case_study
     case_studies/WAVClipping
 
 Module documentation

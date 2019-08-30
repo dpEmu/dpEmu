@@ -25,7 +25,7 @@ dpEmu is being built on the specifications and requirements provided by Professo
 
 **Works only with Python versions 3.6 and 3.7**
 
-* `git clone git@github.com:dpEmu/dpEmu.git`
+* `git clone https://github.com/dpEmu/dpEmu.git`
 * `cd dpEmu`
 * `python3 -m venv venv`
 * `source venv/bin/activate`

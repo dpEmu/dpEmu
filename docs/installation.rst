@@ -27,3 +27,17 @@ Additionally, run the following command in order to locally build the documentat
 .. code-block:: bash
 
     pip install -r requirements/docs.txt
+
+Object detection example and notebooks requirements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**CUDA and cuDNN installations required**
+
+Execute the following commands after all of the above:
+
+.. code-block:: bash
+
+    git clone https://github.com/dpEmu/Detectron.git libs/Detectron
+    ./scripts/install_detectron.sh
+    git clone https://github.com/dpEmu/darknet.git libs/darknet
+    ./scripts/install_darknet.sh

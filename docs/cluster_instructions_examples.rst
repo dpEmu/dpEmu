@@ -65,7 +65,7 @@ Running object detection example
 """"""""""""""""""""""""""""""""
 
 First remember to load the required modules and install the object detection example requirements while in the virtual enviroment, if not done already:
-:ref:`object_detection_requirements`.
+:ref:`object_detection_cluster_requirements`.
 
 Create the batch file for the job:
 

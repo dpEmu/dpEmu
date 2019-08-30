@@ -38,12 +38,12 @@ In order to run all of the examples, you'll also need to execute the following c
 
     pip install -r requirements/examples.txt --cache-dir $TMPDIR
 
-.. _object_detection_requirements:
+.. _object_detection_cluster_requirements:
 
-Object detection example requirements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Object detection example and notebooks requirements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Further installation steps and a NVIDIA GPU are needed to run the object detection example. Execute the following commands after all of the above:
+Further installation steps are needed to run the object detection example or notebooks. Execute the following commands after all of the above:
 
 .. code-block:: bash
 

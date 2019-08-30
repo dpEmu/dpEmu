@@ -23,7 +23,7 @@ dpEmu is being built on the specifications and requirements provided by Professo
 
 ## Installation
 
-**Works only with Python versions 3.6 and 3.7**
+**Note:** Works only with Python versions 3.6 and 3.7.
 
 * `git clone https://github.com/dpEmu/dpEmu.git`
 * `cd dpEmu`

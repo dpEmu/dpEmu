@@ -2,7 +2,7 @@ Pygments==2.4.2
 Sphinx==2.1.2
 autodoc==0.5.0
 docutils==0.14
-ipython==7.7.0
+ipython==7.16.3
 nbsphinx==0.4.2
 recommonmark==0.5.0
 sphinx-autobuild==0.7.1
